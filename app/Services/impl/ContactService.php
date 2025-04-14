@@ -1,0 +1,50 @@
+<?php
+
+namespace App\Services\impl;
+
+use App\DTO\ContactFilter;
+use App\Models\Contact;
+
+use App\Models\Lead;
+use App\Repositories\ContactRepositoryInterface;
+use App\Services\ContactServiceInterface;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
+
+class ContactService implements ContactServiceInterface
+{
+    public function __construct(private readonly ContactRepositoryInterface $contactRepository)
+    {
+    }
+
+    public function getAll(ContactFilter $filter): LengthAwarePaginator
+    {
+        return $this->contactRepository->getAll($filter);
+    }
+
+    public function create(array $data): Contact
+    {
+        return $this->contactRepository->create($data);
+    }
+
+    public function getOne(int $id): Contact
+    {
+        return $this->contactRepository->getById($id);
+    }
+
+    public function update(Contact $contact, array $data): bool
+    {
+        return $this->contactRepository->update($contact, $data);
+    }
+
+    public function delete(Contact $contact): bool
+    {
+        return $this->contactRepository->delete($contact);
+    }
+
+    public function pluck(string $value, string $key = null): Collection
+    {
+        return $this->contactRepository->pluck($value, $key);
+    }
+
+}
