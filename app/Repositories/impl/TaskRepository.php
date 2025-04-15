@@ -14,10 +14,10 @@ class TaskRepository implements TaskRepositoryInterface
     public function getAll(TaskFilter $filter = null): LengthAwarePaginator
     {
         return Task::query()
-            ->when($filter->withRelatedTo, function($query) use ($filter) {
+            ->when($filter?->withRelatedTo, function ($query) use ($filter) {
                 return $query->withRelatedTo();
             })
-            ->when($filter->withAssignedUser, function($query) use ($filter) {
+            ->when($filter?->withAssignedUser, function ($query) use ($filter) {
                 return $query->withAssignedUser();
             })
             ->latest()
@@ -44,10 +44,18 @@ class TaskRepository implements TaskRepositoryInterface
         return $task->delete();
     }
 
-    public function pluck(string $value, string $key = null): Collection
+    public function pluck(string $value, string $key = null, TaskFilter $filter = null): Collection
     {
+        $query = Task::query()
+            ->when($filter?->withRelatedTo, function ($query) use ($filter) {
+                return $query->withRelatedTo();
+            })
+            ->when($filter?->withAssignedUser, function ($query) use ($filter) {
+                return $query->withAssignedUser();
+            });
+
         return $key
-            ? Task::pluck($value, $key)
-            : Task::pluck($value);
+            ? $query->pluck($value, $key)
+            : $query->pluck($value);
     }
 }

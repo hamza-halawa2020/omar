@@ -41,8 +41,8 @@ readonly class DealService implements DealServiceInterface
         return $this->dealRepository->delete($deal);
     }
 
-    public function pluck(string $value, string $key = null): Collection
+    public function pluck(string $value, string $key = null, DealFilter $filter = null): Collection
     {
-        return $this->dealRepository->pluck($value, $key);
+        return $this->dealRepository->pluck($value, $key, $filter);
     }
 }

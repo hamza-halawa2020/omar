@@ -19,5 +19,5 @@ interface DealRepositoryInterface
 
     public function delete(Deal $deal): bool;
 
-    public function pluck(string $value, string $key = null): Collection;
+    public function pluck(string $value, string $key = null, DealFilter $filter = null): Collection;
 }

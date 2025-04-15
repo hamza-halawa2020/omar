@@ -41,9 +41,9 @@ readonly class AccountService implements AccountServiceInterface
         return $this->accountRepository->delete($account);
     }
 
-    public function pluck(string $value, string $key = null): Collection
+    public function pluck(string $value, string $key = null, AccountFilter $filter = null): Collection
     {
-        return $this->accountRepository->pluck($value, $key);
+        return $this->accountRepository->pluck($value, $key, $filter);
     }
 
 }

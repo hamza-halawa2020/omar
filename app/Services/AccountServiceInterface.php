@@ -20,5 +20,5 @@ interface AccountServiceInterface
 
     public function delete(Account $account): bool;
 
-    public function pluck(string $value, string $key = null): Collection;
+    public function pluck(string $value, string $key = null, AccountFilter $filter = null): Collection;
 }

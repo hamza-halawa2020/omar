@@ -42,8 +42,8 @@ readonly class ContactService implements ContactServiceInterface
         return $this->contactRepository->delete($contact);
     }
 
-    public function pluck(string $value, string $key = null): Collection
+    public function pluck(string $value, string $key = null, ContactFilter $filter = null): Collection
     {
-        return $this->contactRepository->pluck($value, $key);
+        return $this->contactRepository->pluck($value, $key, $filter);
     }
 }

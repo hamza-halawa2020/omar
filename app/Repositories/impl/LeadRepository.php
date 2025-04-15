@@ -13,13 +13,13 @@ class LeadRepository implements LeadRepositoryInterface
     public function getAll(LeadFilter $filter = null): LengthAwarePaginator
     {
         return Lead::query()
-            ->when($filter->available, function ($query) use ($filter) {
+            ->when($filter?->available, function ($query) use ($filter) {
                 return $query->whereAvailable();
             })
-            ->when($filter->withAssignedUsers, function ($query) use ($filter) {
+            ->when($filter?->withAssignedUsers, function ($query) use ($filter) {
                 return $query->withAssignedUsers();
             })
-            ->when($filter->converted, function ($query) use ($filter) {
+            ->when($filter?->converted, function ($query) use ($filter) {
                 return $query->whereConverted();
             })->paginate();
     }
@@ -44,10 +44,21 @@ class LeadRepository implements LeadRepositoryInterface
         return $lead->delete();
     }
 
-    public function pluck(string $value, string $key = null): Collection
+    public function pluck(string $value, string $key = null, LeadFilter $filter = null): Collection
     {
+        $query = Lead::query()
+            ->when($filter?->available, function ($query) use ($filter) {
+                return $query->whereAvailable();
+            })
+            ->when($filter?->withAssignedUsers, function ($query) use ($filter) {
+                return $query->withAssignedUsers();
+            })
+            ->when($filter?->converted, function ($query) use ($filter) {
+                return $query->whereConverted();
+            });
+
         return $key
-            ? Lead::pluck($value, $key)
-            : Lead::pluck($value);
+            ? $query->pluck($value, $key)
+            : $query->pluck($value);
     }
 }

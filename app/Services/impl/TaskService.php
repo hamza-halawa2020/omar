@@ -41,8 +41,8 @@ readonly class TaskService implements TaskServiceInterface
         return $this->taskRepository->delete($task);
     }
 
-    public function pluck(string $value, string $key = null): Collection
+    public function pluck(string $value, string $key = null, TaskFilter $filter = null): Collection
     {
-        return $this->taskRepository->pluck($value, $key);
+        return $this->taskRepository->pluck($value, $key, $filter);
     }
 }

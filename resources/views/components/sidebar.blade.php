@@ -51,6 +51,13 @@
                 </a>
             </li>
 
+            <li>
+                <a href="{{ route('deals.index') }}"
+                   class="d-flex align-items-center gap-2 {{ request()->is('dashboard/deals/*') ? 'active-page' : '' }}">
+                    <iconify-icon icon="mdi:handshake-outline" class="menu-icon"></iconify-icon>
+                    <span>Deals</span>
+                </a>
+            </li>
         </ul>
     </div>
 </aside>

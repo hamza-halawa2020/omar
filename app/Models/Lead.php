@@ -12,7 +12,7 @@ class Lead extends CrmModel
         return $this->belongsTo(User::class, 'assigned_to');
     }
 
-    public function Task()
+    public function tasks()
     {
         return $this->morphMany(Task::class, 'related_to');
     }
