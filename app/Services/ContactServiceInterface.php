@@ -10,7 +10,7 @@ use Illuminate\Support\Collection;
 
 interface ContactServiceInterface
 {
-    public function getAll(ContactFilter $filter): LengthAwarePaginator;
+    public function getAll(ContactFilter $filter = null): LengthAwarePaginator;
 
     public function create(array $data): Contact;
 
@@ -20,5 +20,5 @@ interface ContactServiceInterface
 
     public function delete(Contact $contact): bool;
 
-    public function pluck(string $value, string $key = null): \Illuminate\Support\Collection;
+    public function pluck(string $value, string $key = null): Collection;
 }

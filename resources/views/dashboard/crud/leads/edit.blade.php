@@ -1,3 +1,9 @@
+@php
+    use App\Enums\Leads\FlagType;
+    use App\Enums\Leads\SourceType;
+    use App\Enums\Leads\StatusType;
+@endphp
+
 @extends('dashboard.layouts.app')
 
 @section('content')
@@ -5,18 +11,12 @@
         <div class="row justify-content-center">
             <div class="col-12 col-md-12">
                 <div class="card border-0">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h6 class="text-lg font-weight-semibold mb-0">Edit Lead</h6>
-                        <form method="POST" action="{{ route('leads.convert', ['lead' => $lead->id]) }}">
-                            @csrf
-                            <x-forms.buttons.success-sm class="font-bold">
-                                Convert
-                            </x-forms.buttons.success-sm>
-                        </form>
+                    <div class="card-header">
+                        <h6 class="text-lg font-weight-semibold mb-0">Edit lead</h6>
                     </div>
-                    <form class="card-body" method="POST" action="{{ route('leads.update', $lead->id) }}">
+                    <form class="card-body" method="POST" action="{{ route('leads.update', $lead) }}">
                         @csrf
-                        @method('PATCH')
+                        @method('PUT')
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <x-forms.input-label.basic name="name" required value="{{ old('name', $lead->name) }}">
@@ -55,32 +55,50 @@
                             </div>
 
                             <div class="col-md-6">
-                                <x-forms.labels.basic>Source</x-forms.labels.basic>
+                                <x-forms.labels.basic>
+                                    Source
+                                </x-forms.labels.basic>
                                 <x-forms.select.basic name="source" required>
                                     <option value="">Select source</option>
-                                    <option value="website" {{ old('source', $lead->source) == 'website' ? 'selected' : '' }}>Website</option>
-                                    <option value="referral" {{ old('source', $lead->source) == 'referral' ? 'selected' : '' }}>Referral</option>
-                                    <option value="ads" {{ old('source', $lead->source) == 'ads' ? 'selected' : '' }}>Ads</option>
+                                    @foreach(SourceType::cases() as $source)
+                                        <option
+                                            value="{{ $source->value }}"
+                                            @selected(old('source', $lead->source) === $source->value)
+                                        >
+                                            {{ str($source->value)->replace('_', ' ')->lower()->ucfirst() }}
+                                        </option>
+                                    @endforeach
                                 </x-forms.select.basic>
                             </div>
 
                             <div class="col-md-6">
-                                <x-forms.labels.basic>Status</x-forms.labels.basic>
+                                <x-forms.labels.basic>
+                                    Status
+                                </x-forms.labels.basic>
                                 <x-forms.select.basic name="status" required>
                                     <option value="">Select status</option>
-                                    <option value="win" {{ old('status', $lead->status) == 'win' ? 'selected' : '' }}>Win</option>
-                                    <option value="lose" {{ old('status', $lead->status) == 'lose' ? 'selected' : '' }}>Lose</option>
-                                    <option value="new_task" {{ old('status', $lead->status) == 'new_task' ? 'selected' : '' }}>New task</option>
-                                    <option value="no_answer" {{ old('status', $lead->status) == 'no_answer' ? 'selected' : '' }}>No Answer</option>
+                                    @foreach(StatusType::cases() as $status)
+                                        <option
+                                            value="{{ $status->value }}"
+                                            @selected(old('status', $lead->status) === $status->value)
+                                        >
+                                            {{ str($status->value)->replace('_', ' ')->lower()->ucfirst() }}
+                                        </option>
+                                    @endforeach
                                 </x-forms.select.basic>
                             </div>
 
                             <div class="col-md-6">
-                                <x-forms.labels.basic>Assigned to</x-forms.labels.basic>
+                                <x-forms.labels.basic>
+                                    Assigned to
+                                </x-forms.labels.basic>
                                 <x-forms.select.basic name="assigned_to">
                                     <option value="">Select user</option>
                                     @foreach($usersSelect as $id => $fullName)
-                                        <option value="{{ $id }}" {{ $id == old('assigned_to', $lead->assigned_to) ? 'selected' : '' }}>
+                                        <option
+                                            value="{{ $id }}"
+                                            @selected(old('assigned_to', $lead->assigned_to) == $id)
+                                        >
                                             {{ $fullName }}
                                         </option>
                                     @endforeach
@@ -88,35 +106,41 @@
                             </div>
 
                             <div class="col-md-6">
-                                <x-forms.labels.basic>Flag</x-forms.labels.basic>
+                                <x-forms.labels.basic>
+                                    Flag
+                                </x-forms.labels.basic>
                                 <x-forms.select.basic name="flag">
                                     <option value="">Select flag</option>
-                                    <option value="hot" {{ old('flag', $lead->flag) == 'hot' ? 'selected' : '' }}>Hot</option>
-                                    <option value="normal" {{ old('flag', $lead->flag) == 'normal' ? 'selected' : '' }}>Normal</option>
+                                    @foreach(FlagType::cases() as $flag)
+                                        <option
+                                            value="{{ $flag->value }}"
+                                            @selected(old('flag', $lead->flag) === $flag->value)
+                                        >
+                                            {{ str($flag->value)->replace('_', ' ')->lower()->ucfirst() }}
+                                        </option>
+                                    @endforeach
                                 </x-forms.select.basic>
                             </div>
 
                             <div class="col-md-6">
-                                <x-forms.input-label.basic
-                                    name="last_follow_up"
-                                    type="datetime-local"
-                                    value="{{ old('last_follow_up', $lead->last_follow_up ? \Carbon\Carbon::parse($lead->last_follow_up)->format('Y-m-d\TH:i') : '') }}">
+                                <x-forms.input-label.basic name="last_follow_up" type="datetime-local"
+                                    value="{{ old('last_follow_up', $lead->last_follow_up) }}">
                                     Last follow up
                                 </x-forms.input-label.basic>
                             </div>
 
                             <div class="col-md-6">
-                                <x-forms.input-label.basic
-                                    name="next_follow_up"
-                                    type="datetime-local"
-                                    value="{{ old('next_follow_up', $lead->next_follow_up ? \Carbon\Carbon::parse($lead->next_follow_up)->format('Y-m-d\TH:i') : '') }}">
+                                <x-forms.input-label.basic name="next_follow_up" type="datetime-local"
+                                    value="{{ old('next_follow_up', $lead->next_follow_up) }}">
                                     Next follow up
                                 </x-forms.input-label.basic>
                             </div>
 
                             <div class="col-12">
-                                <x-forms.labels.basic>Notes</x-forms.labels.basic>
-                                <x-forms.textarea.basic name="notes">{{ old('notes', $lead->notes) }}</x-forms.textarea.basic>
+                                <x-forms.labels.basic>
+                                    Notes
+                                </x-forms.labels.basic>
+                                <x-forms.textarea.basic name="notes" value="{{ old('notes', $lead->notes) }}"/>
                             </div>
 
                             <div class="col-12 pt-4 text-end">

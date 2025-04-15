@@ -12,7 +12,7 @@ use Illuminate\Support\Collection;
 class AccountRepository implements AccountRepositoryInterface
 {
 
-    public function getAll(AccountFilter $filter): LengthAwarePaginator
+    public function getAll(AccountFilter $filter = null): LengthAwarePaginator
     {
         return Account::query()
             ->when($filter->withAssignedUser, function ($query) use ($filter) {

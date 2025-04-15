@@ -1,3 +1,4 @@
+@php use App\Enums\Leads\FlagType;use App\Enums\Leads\SourceType;use App\Enums\Leads\StatusType; @endphp
 @extends('dashboard.layouts.app')
 
 @section('content')
@@ -53,9 +54,13 @@
                                 </x-forms.labels.basic>
                                 <x-forms.select.basic name="source" required>
                                     <option value="">Select source</option>
-                                    <option value="website">Website</option>
-                                    <option value="referral">Referral</option>
-                                    <option value="ads">Ads</option>
+                                    @foreach(SourceType::cases() as $source)
+                                        <option
+                                            value="{{ $source->value }}"
+                                            @selected(old('source') === $source->value)
+                                        >
+                                            {{ str($source->value)->replace('_', ' ')->lower()->ucfirst() }}</option>
+                                    @endforeach
                                 </x-forms.select.basic>
                             </div>
 
@@ -65,10 +70,14 @@
                                 </x-forms.labels.basic>
                                 <x-forms.select.basic name="status" required>
                                     <option value="">Select status</option>
-                                    <option value="win">Win</option>
-                                    <option value="lose">Lose</option>
-                                    <option value="new_task">New task</option>
-                                    <option value="no_answer">No Answer</option>
+                                    @foreach(StatusType::cases() as $status)
+                                        <option
+                                            value="{{ $status->value }}"
+                                            @selected(old('status') === $status->value)
+                                        >
+                                            {{ str($status->value)->replace('_', ' ')->lower()->ucfirst() }}
+                                        </option>
+                                    @endforeach
                                 </x-forms.select.basic>
                             </div>
 
@@ -79,7 +88,12 @@
                                 <x-forms.select.basic name="assigned_to">
                                     <option value="">Select user</option>
                                     @foreach($usersSelect as $id => $fullName)
-                                        <option value="{{ $id }}">{{ $fullName }}</option>
+                                        <option
+                                            value="{{ $id }}"
+                                            @selected(old('assigned_to') == $id)
+                                        >
+                                            {{ $fullName }}
+                                        </option>
                                     @endforeach
                                 </x-forms.select.basic>
                             </div>
@@ -90,8 +104,13 @@
                                 </x-forms.labels.basic>
                                 <x-forms.select.basic name="flag">
                                     <option value="">Select flag</option>
-                                    <option value="hot">Hot</option>
-                                    <option value="normal">Normal</option>
+                                    @foreach(FlagType::cases() as $flag)
+                                        <option
+                                            value="{{ $flag->value }}"
+                                            @selected(old('flag') === $flag->value)
+                                        >
+                                            {{ str($flag->value)->replace('_', ' ')->lower()->ucfirst() }}</option>
+                                    @endforeach
                                 </x-forms.select.basic>
                             </div>
 

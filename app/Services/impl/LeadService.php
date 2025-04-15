@@ -11,20 +11,21 @@ use App\Services\AccountServiceInterface;
 use App\Services\ContactServiceInterface;
 use App\Services\LeadServiceInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
-class LeadService implements LeadServiceInterface
+readonly class LeadService implements LeadServiceInterface
 {
 
     public function __construct(
-        private readonly LeadRepositoryInterface $leadRepository,
-        private readonly AccountServiceInterface $accountService,
-        private readonly ContactServiceInterface $contactService,
+        private LeadRepositoryInterface $leadRepository,
+        private AccountServiceInterface $accountService,
+        private ContactServiceInterface $contactService,
     )
     {
     }
 
-    public function getAll(LeadFilter $filter): LengthAwarePaginator
+    public function getAll(LeadFilter $filter = null): LengthAwarePaginator
     {
         return $this->leadRepository->getAll($filter);
     }
@@ -83,4 +84,8 @@ class LeadService implements LeadServiceInterface
     }
 
 
+    public function pluck(string $value, string $key = null): Collection
+    {
+        return $this->leadRepository->pluck($value, $key);
+    }
 }

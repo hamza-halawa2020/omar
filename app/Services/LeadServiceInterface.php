@@ -5,10 +5,11 @@ namespace App\Services;
 use App\DTO\LeadFilter;
 use App\Models\Lead;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 interface LeadServiceInterface
 {
-    public function getAll(LeadFilter $filter): LengthAwarePaginator;
+    public function getAll(LeadFilter $filter = null): LengthAwarePaginator;
 
     public function create(array $data): Lead;
 
@@ -17,6 +18,8 @@ interface LeadServiceInterface
     public function update(Lead $lead, array $data): bool;
 
     public function delete(Lead $lead): bool;
+
+    public function pluck(string $value, string $key = null): Collection;
 
     public function convertIntoAccountAndContact(Lead $lead): bool;
 }

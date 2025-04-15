@@ -4,6 +4,7 @@ use App\Http\Controllers\Dashboard\AccountController;
 use App\Http\Controllers\Dashboard\ContactController;
 use App\Http\Controllers\Dashboard\ConvertLeadController;
 use App\Http\Controllers\Dashboard\LeadController;
+use App\Http\Controllers\Dashboard\TaskController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AiapplicationController;
@@ -220,5 +221,8 @@ Route::group(['prefix' => 'dashboard'], function () {
     Route::resource('/accounts', AccountController::class);
 
     //  Contact
-    Route::resource('/contacts', ContactController::class); 
+    Route::resource('/contacts', ContactController::class);
+
+    //  Tasks
+    Route::resource('/tasks', TaskController::class);
 });

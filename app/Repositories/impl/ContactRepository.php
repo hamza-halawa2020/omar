@@ -10,7 +10,7 @@ use Illuminate\Support\Collection;
 
 class ContactRepository implements ContactRepositoryInterface
 {
-    public function getAll(ContactFilter $filter): LengthAwarePaginator
+    public function getAll(ContactFilter $filter = null): LengthAwarePaginator
     {
         return Contact::query()
             ->when($filter->withAccount, function ($query) use ($filter) {

@@ -4,10 +4,14 @@ namespace App\Providers;
 
 use App\Services\AccountServiceInterface;
 use App\Services\ContactServiceInterface;
+use App\Services\DealServiceInterface;
 use App\Services\impl\AccountService;
 use App\Services\impl\ContactService;
+use App\Services\impl\DealService;
 use App\Services\impl\LeadService;
+use App\Services\impl\TaskService;
 use App\Services\LeadServiceInterface;
+use App\Services\TaskServiceInterface;
 use Illuminate\Support\ServiceProvider;
 
 class ServiceServiceProvider extends ServiceProvider
@@ -20,6 +24,8 @@ class ServiceServiceProvider extends ServiceProvider
         $this->app->singleton(LeadServiceInterface::class, LeadService::class);
         $this->app->singleton(ContactServiceInterface::class, ContactService::class);
         $this->app->singleton(AccountServiceInterface::class, AccountService::class);
+        $this->app->singleton(TaskServiceInterface::class, TaskService::class);
+        $this->app->singleton(DealServiceInterface::class, DealService::class);
     }
 
     /**

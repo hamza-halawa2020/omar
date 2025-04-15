@@ -10,7 +10,7 @@ use Illuminate\Support\Collection;
 
 interface AccountServiceInterface
 {
-    public function getAll(AccountFilter $filter): LengthAwarePaginator;
+    public function getAll(AccountFilter $filter = null): LengthAwarePaginator;
 
     public function create(array $data): Account;
 
