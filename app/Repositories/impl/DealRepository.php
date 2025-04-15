@@ -24,7 +24,7 @@ class DealRepository implements DealRepositoryInterface
                 return $query->withTasks();
             })
             ->latest()
-            ->paginate();
+            ->paginate($filter->perPage, ['*'], 'deals_page');
     }
 
     public function create(array $data): Deal
@@ -58,6 +58,12 @@ class DealRepository implements DealRepositoryInterface
             })
             ->when($filter?->withTasks, function ($query) use ($filter) {
                 return $query->withTasks();
+            })
+            ->when($filter?->accountId, function ($query) use ($filter) {
+                return $query->where('account_id', $filter->accountId);
+            })
+            ->when($filter?->contactId, function ($query) use ($filter) {
+                return $query->where('contact_id', $filter->contactId);
             });
 
         return $key

@@ -3,17 +3,26 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\DTO\AccountFilter;
+use App\DTO\ContactFilter;
+use App\DTO\DealFilter;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Dashboard\Crud\Accounts\StoreRequest;
 use App\Models\Account;
 use App\Models\User;
+use App\Services\AccountServiceInterface;
+use App\Services\ContactServiceInterface;
+use App\Services\DealServiceInterface;
 use App\Services\impl\AccountService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class AccountController extends Controller
 {
-    public function __construct(private readonly AccountService $accountService)
+    public function __construct(
+        private readonly AccountServiceInterface $accountService,
+        private readonly ContactServiceInterface $contactService,
+        private readonly DealServiceInterface $dealService,
+    )
     {
     }
 
@@ -50,9 +59,15 @@ class AccountController extends Controller
     {
         $usersSelect = User::select(['id', 'full_name'])->get()->pluck('full_name', 'id');
 
+        $contacts = $this->contactService->getAll(new ContactFilter(accountId: $account->id, perPage: 5));
+
+        $deals = $this->dealService->getAll(new DealFilter(accountId: $account->id, perPage: 5));
+
         return view('dashboard.crud.accounts.edit', [
             'usersSelect' => $usersSelect,
             'account' => $account,
+            'contacts' => $contacts,
+            'deals' => $deals,
             'title' => 'Accounts',
             'subTitle' => 'Edit account'
         ]);

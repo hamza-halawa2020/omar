@@ -72,5 +72,9 @@
                 </div>
             </div>
         </div>
+
+        <x-dashboard.contacts.table :contacts="$contacts"/>
+
+        <x-dashboard.deals.table :deals="$deals"/>
     </div>
 @endsection

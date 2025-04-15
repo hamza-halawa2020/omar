@@ -19,7 +19,7 @@ class AccountRepository implements AccountRepositoryInterface
                 return $query->withAssignedUser();
             })
             ->latest()
-            ->paginate();
+            ->paginate($filter->perPage, ['*'], 'accounts_page');
     }
 
     public function create(array $data): Account
