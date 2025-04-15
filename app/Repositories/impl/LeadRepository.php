@@ -6,10 +6,11 @@ use App\DTO\LeadFilter;
 use App\Models\Lead;
 use App\Repositories\LeadRepositoryInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class LeadRepository implements LeadRepositoryInterface
 {
-    public function getAll(LeadFilter $filter): LengthAwarePaginator
+    public function getAll(LeadFilter $filter = null): LengthAwarePaginator
     {
         return Lead::query()
             ->when($filter->available, function ($query) use ($filter) {
@@ -41,5 +42,12 @@ class LeadRepository implements LeadRepositoryInterface
     public function delete(Lead $lead): bool
     {
         return $lead->delete();
+    }
+
+    public function pluck(string $value, string $key = null): Collection
+    {
+        return $key
+            ? Lead::pluck($value, $key)
+            : Lead::pluck($value);
     }
 }

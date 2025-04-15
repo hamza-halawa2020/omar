@@ -12,6 +12,11 @@ class Lead extends CrmModel
         return $this->belongsTo(User::class, 'assigned_to');
     }
 
+    public function Task()
+    {
+        return $this->morphMany(Task::class, 'related_to');
+    }
+
     public function scopeWithAssignedUsers($query)
     {
         return $query->with('assignedUser');

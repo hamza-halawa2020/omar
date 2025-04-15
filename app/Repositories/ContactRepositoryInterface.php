@@ -9,7 +9,7 @@ use Illuminate\Support\Collection;
 
 interface ContactRepositoryInterface
 {
-    public function getAll(ContactFilter $filter): LengthAwarePaginator;
+    public function getAll(ContactFilter $filter = null): LengthAwarePaginator;
 
     public function create(array $data): Contact;
 

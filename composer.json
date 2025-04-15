@@ -8,6 +8,7 @@
         "php": "^8.2",
         "backpack/basset": "*",
         "laravel/framework": "^11.0",
+        "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
         "symfony/asset": "^7.1",
         "symfony/asset-mapper": "^7.1"

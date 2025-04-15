@@ -11,13 +11,13 @@ use App\Services\ContactServiceInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
-class ContactService implements ContactServiceInterface
+readonly class ContactService implements ContactServiceInterface
 {
-    public function __construct(private readonly ContactRepositoryInterface $contactRepository)
+    public function __construct(private ContactRepositoryInterface $contactRepository)
     {
     }
 
-    public function getAll(ContactFilter $filter): LengthAwarePaginator
+    public function getAll(ContactFilter $filter = null): LengthAwarePaginator
     {
         return $this->contactRepository->getAll($filter);
     }
@@ -46,5 +46,4 @@ class ContactService implements ContactServiceInterface
     {
         return $this->contactRepository->pluck($value, $key);
     }
-
 }

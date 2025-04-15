@@ -10,13 +10,13 @@ use App\Services\AccountServiceInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
-class AccountService implements AccountServiceInterface
+readonly class AccountService implements AccountServiceInterface
 {
-    public function __construct(private readonly AccountRepositoryInterface $accountRepository)
+    public function __construct(private AccountRepositoryInterface $accountRepository)
     {
     }
 
-    public function getAll(AccountFilter $filter): LengthAwarePaginator
+    public function getAll(AccountFilter $filter = null): LengthAwarePaginator
     {
         return $this->accountRepository->getAll($filter);
     }

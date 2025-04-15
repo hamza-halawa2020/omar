@@ -43,6 +43,14 @@
                 </a>
             </li>
 
+            <li>
+                <a href="{{ route('tasks.index') }}"
+                   class="d-flex align-items-center gap-2 {{ request()->is('dashboard/tasks/*') ? 'active-page' : '' }}">
+                    <iconify-icon icon="mdi:check-outline" class="menu-icon"></iconify-icon>
+                    <span>Tasks</span>
+                </a>
+            </li>
+
         </ul>
     </div>
 </aside>
