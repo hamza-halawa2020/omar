@@ -19,7 +19,8 @@ class ContactRepository implements ContactRepositoryInterface
             ->when($filter?->accountId, function ($query) use ($filter) {
                 return $query->where('account_id', $filter?->accountId);
             })
-            ->latest()->paginate();
+            ->latest()
+            ->paginate($filter->perPage, ['*'], 'contacts_page');
     }
 
     public function create(array $data): Contact

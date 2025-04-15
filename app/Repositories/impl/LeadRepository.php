@@ -21,7 +21,7 @@ class LeadRepository implements LeadRepositoryInterface
             })
             ->when($filter?->converted, function ($query) use ($filter) {
                 return $query->whereConverted();
-            })->paginate();
+            })->paginate($filter->perPage, ['*'], 'leads_page');
     }
 
     public function create(array $data): Lead
