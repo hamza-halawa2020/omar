@@ -13,8 +13,11 @@ class ContactRepository implements ContactRepositoryInterface
     public function getAll(ContactFilter $filter = null): LengthAwarePaginator
     {
         return Contact::query()
-            ->when($filter->withAccount, function ($query) use ($filter) {
+            ->when($filter?->withAccount, function ($query) use ($filter) {
                 return $query->withAccount();
+            })
+            ->when($filter?->accountId, function ($query) use ($filter) {
+                return $query->where('account_id', $filter?->accountId);
             })
             ->latest()->paginate();
     }
@@ -39,11 +42,19 @@ class ContactRepository implements ContactRepositoryInterface
         return $contact->delete();
     }
 
-    public function pluck(string $value, string $key = null): Collection
+    public function pluck(string $value, string $key = null, ContactFilter $filter = null): Collection
     {
+        $query = Contact::query()
+            ->when($filter?->withAccount, function ($query) use ($filter) {
+                return $query->withAccount();
+            })
+            ->when($filter?->accountId, function ($query) use ($filter) {
+                return $query->where('account_id', $filter?->accountId);
+            });
+
         return $key
-            ? Contact::pluck($value, $key)
-            : Contact::pluck($value);
+            ? $query->pluck($value, $key)
+            : $query->pluck($value);
     }
 
 }

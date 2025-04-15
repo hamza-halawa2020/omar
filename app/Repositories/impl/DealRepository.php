@@ -14,6 +14,15 @@ class DealRepository implements DealRepositoryInterface
     public function getAll(DealFilter $filter = null): LengthAwarePaginator
     {
         return Deal::query()
+            ->when($filter?->withAccount, function ($query) use ($filter) {
+                return $query->withAccount();
+            })
+            ->when($filter?->withContact, function ($query) use ($filter) {
+                return $query->withContact();
+            })
+            ->when($filter?->withTasks, function ($query) use ($filter) {
+                return $query->withTasks();
+            })
             ->latest()
             ->paginate();
     }
@@ -38,10 +47,21 @@ class DealRepository implements DealRepositoryInterface
         return $deal->delete();
     }
 
-    public function pluck(string $value, string $key = null): Collection
+    public function pluck(string $value, string $key = null, DealFilter $filter = null): Collection
     {
+        $query = Deal::query()
+            ->when($filter?->withAccount, function ($query) use ($filter) {
+                return $query->withAccount();
+            })
+            ->when($filter?->withContact, function ($query) use ($filter) {
+                return $query->withContact();
+            })
+            ->when($filter?->withTasks, function ($query) use ($filter) {
+                return $query->withTasks();
+            });
+
         return $key
-            ? Deal::pluck($value, $key)
-            : Deal::pluck($value);
+            ? $query->pluck($value, $key)
+            : $query->pluck($value);
     }
 }

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Dashboard\AccountController;
 use App\Http\Controllers\Dashboard\ContactController;
 use App\Http\Controllers\Dashboard\ConvertLeadController;
+use App\Http\Controllers\Dashboard\DealController;
 use App\Http\Controllers\Dashboard\LeadController;
 use App\Http\Controllers\Dashboard\TaskController;
 use Illuminate\Support\Facades\Route;
@@ -214,15 +215,18 @@ Route::group(['prefix' => 'dashboard'], function () {
     });
 
     //  Leads
-    Route::resource('/leads', LeadController::class);
+    Route::resource('/leads', LeadController::class)->except('show');
     Route::post('/leads/{lead}/convert', ConvertLeadController::class)->name('leads.convert');
 
     //  Accounts
-    Route::resource('/accounts', AccountController::class);
+    Route::resource('/accounts', AccountController::class)->except('show');
 
     //  Contact
-    Route::resource('/contacts', ContactController::class);
+    Route::resource('/contacts', ContactController::class)->except('show');
 
     //  Tasks
-    Route::resource('/tasks', TaskController::class);
+    Route::resource('/tasks', TaskController::class)->except('show');
+
+    //  Deal
+    Route::resource('/deals', DealController::class)->except('show');
 });

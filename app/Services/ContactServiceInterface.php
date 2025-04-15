@@ -20,5 +20,5 @@ interface ContactServiceInterface
 
     public function delete(Contact $contact): bool;
 
-    public function pluck(string $value, string $key = null): Collection;
+    public function pluck(string $value, string $key = null, ContactFilter $filter = null): Collection;
 }

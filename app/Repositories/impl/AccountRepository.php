@@ -15,7 +15,7 @@ class AccountRepository implements AccountRepositoryInterface
     public function getAll(AccountFilter $filter = null): LengthAwarePaginator
     {
         return Account::query()
-            ->when($filter->withAssignedUser, function ($query) use ($filter) {
+            ->when($filter?->withAssignedUser, function ($query) use ($filter) {
                 return $query->withAssignedUser();
             })
             ->latest()
@@ -42,11 +42,15 @@ class AccountRepository implements AccountRepositoryInterface
         return $account->delete();
     }
 
-    public function pluck(string $value, string $key = null): Collection
+    public function pluck(string $value, string $key = null, AccountFilter $filter = null): Collection
 {
+    $query = Account::query()
+    ->when($filter?->withAssignedUser, function ($query) use ($filter) {
+        return $query->withAssignedUser();
+    });
     return $key
-        ? Account::pluck($value, $key)
-        : Account::pluck($value);
+        ? $query->pluck($value, $key)
+        : $query->pluck($value);
 }
 
 }

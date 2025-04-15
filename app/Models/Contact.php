@@ -14,7 +14,7 @@ class Contact extends CrmModel
         return $this->belongsTo(Account::class);
     }
 
-    public function Task(): MorphMany
+    public function tasks(): MorphMany
     {
         return $this->morphMany(Task::class, 'related_to');
     }

@@ -6,7 +6,7 @@ readonly class LeadFilter
 {
     public function __construct(
         public ?bool   $withAssignedUsers = false,
-        public ?bool $available = null,
-        public ?bool $converted = null,
+        public ?bool $available = false,
+        public ?bool $converted = false,
     ) {}
 }

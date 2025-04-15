@@ -84,8 +84,8 @@ readonly class LeadService implements LeadServiceInterface
     }
 
 
-    public function pluck(string $value, string $key = null): Collection
+    public function pluck(string $value, string $key = null, LeadFilter $filter = null): Collection
     {
-        return $this->leadRepository->pluck($value, $key);
+        return $this->leadRepository->pluck($value, $key, $filter);
     }
 }
