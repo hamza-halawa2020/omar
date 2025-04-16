@@ -4,6 +4,10 @@
             <div class="card shadow-sm border-0 rounded-3 p-3">
                 <div class="card-header bg-white py-4 px-4 d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0 fw-semibold text-dark">Contacts</h5>
+                    <a href="{{ route('contacts.create', $queryParams) }}"
+                       class="btn btn-primary btn-sm d-flex align-items-center gap-2">
+                        <i class="bi bi-plus-circle"></i> Add New Contact
+                    </a>
                 </div>
                 <div class="card-body p-4">
                     <div class="table-responsive">

@@ -14,7 +14,7 @@ use Illuminate\Session\Store;
 class DealController extends Controller
 {
     public function __construct(
-        private readonly DealServiceInterface $dealService,
+        private readonly DealServiceInterface    $dealService,
         private readonly AccountServiceInterface $accountService,
     )
     {
@@ -30,7 +30,7 @@ class DealController extends Controller
         ]);
     }
 
-    public function create(Deal $deal)
+    public function create(Request $request, Deal $deal)
     {
         $accountsSelect = $this->accountService->pluck('name', 'id');
 
@@ -39,6 +39,7 @@ class DealController extends Controller
             'accountsSelect' => $accountsSelect,
             'title' => 'Deals',
             'subTitle' => 'Create Deal',
+            'queryParams' => $request->query(),
         ]);
     }
 

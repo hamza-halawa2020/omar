@@ -55,7 +55,7 @@
                                     <option value="">Select user</option>
                                     @foreach($usersSelect as $id => $fullName)
                                         <option
-                                            value="{{ $id }}" {{ $id == old('assigned_to', $account->assigned_to) ? 'selected' : '' }}>
+                                                value="{{ $id }}" {{ $id == old('assigned_to', $account->assigned_to) ? 'selected' : '' }}>
                                             {{ $fullName }}
                                         </option>
                                     @endforeach
@@ -73,8 +73,8 @@
             </div>
         </div>
 
-        <x-dashboard.contacts.table :contacts="$contacts"/>
+        <x-dashboard.contacts.table :contacts="$contacts" :queryParams="['account_id' => $account->id]"/>
 
-        <x-dashboard.deals.table :deals="$deals"/>
+        <x-dashboard.deals.table :deals="$deals" :queryParams="['account_id' => $account->id]" />
     </div>
 @endsection

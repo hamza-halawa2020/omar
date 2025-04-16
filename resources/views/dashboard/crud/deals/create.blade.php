@@ -40,7 +40,7 @@
                                     @foreach($accountsSelect as $id => $name)
                                         <option
                                             value="{{ $id }}"
-                                            @selected(old('account_id') == $id)
+                                            @selected(old('account_id', $queryParams['account_id'] ?? null) == $id)
                                         >
                                             {{ $name }}
                                         </option>
