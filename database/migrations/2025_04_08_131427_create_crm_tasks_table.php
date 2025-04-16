@@ -22,7 +22,7 @@ return new class extends Migration {
 
             $table->morphs('related_to');
 
-            $table->unsignedInteger('assigned_to');
+            $table->unsignedBigInteger('assigned_to');
             $table->foreign('assigned_to')
                 ->references('id')
                 ->on('users');

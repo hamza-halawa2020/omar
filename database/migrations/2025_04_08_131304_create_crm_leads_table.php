@@ -21,7 +21,7 @@ return new class extends Migration {
             $table->enum('source', ['website', 'referral', 'ads']);
             $table->enum('status', ['win', 'lose', 'new_task', 'no_answer']);
 
-            $table->unsignedInteger('assigned_to');
+            $table->unsignedBigInteger('assigned_to');
             $table->foreign('assigned_to')
                 ->references('id')
                 ->on('users');
@@ -32,8 +32,8 @@ return new class extends Migration {
 
             $table->enum('flag', ['hot', 'normal']);
 
-            $table->timestamp('last_follow_up');    //  last time I had contact with the lead
-            $table->timestamp('next_follow_up');    //  next lead call time
+            $table->timestamp('last_follow_up')->nullable();    //  last time I had contact with the lead
+            $table->timestamp('next_follow_up')->nullable();    //  next lead call time
             $table->boolean('is_follow_up')->default(false);    // when the next follow-up time arrives, did you call the user
             $table->timestamps();
         });
