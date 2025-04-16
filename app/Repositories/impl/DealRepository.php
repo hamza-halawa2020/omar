@@ -24,7 +24,7 @@ class DealRepository implements DealRepositoryInterface
                 return $query->withTasks();
             })
             ->latest()
-            ->paginate($filter->perPage, ['*'], 'deals_page')
+            ->paginate($filter?->perPage ?? 10, ['*'], 'deals_page')
             ->appends(preserveOtherPagination('deals_page'));
     }
 

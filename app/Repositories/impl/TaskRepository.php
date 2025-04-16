@@ -21,7 +21,7 @@ class TaskRepository implements TaskRepositoryInterface
                 return $query->withAssignedUser();
             })
             ->latest()
-            ->paginate($filter->perPage, ['*'], 'tasks_page')
+            ->paginate($filter?->perPage ?? 10, ['*'], 'tasks_page')
             ->appends(preserveOtherPagination('tasks_page'));
     }
 
