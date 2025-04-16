@@ -4,6 +4,10 @@
             <div class="card shadow-sm border-0 rounded-3 p-3">
                 <div class="card-header bg-white py-4 px-4 d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0 fw-semibold text-dark">Deals</h5>
+                    <a href="{{ route('deals.create', $queryParams) }}"
+                       class="btn btn-primary btn-sm d-flex align-items-center gap-2">
+                        <i class="bi bi-plus-circle"></i> Add New Deal
+                    </a>
                 </div>
                 <div class="card-body p-4">
                     <div class="table-responsive">
@@ -44,8 +48,11 @@
                                                 <a href="{{ route('deals.edit', $deal->id) }}"
                                                    class="btn btn-outline-primary btn-sm radius-8"
                                                    title="Edit Deal">
-                                                    <iconify-icon icon="lucide:edit"
-                                                                  class="text-lg"></iconify-icon>
+                                                    <iconify-icon
+                                                        icon="lucide:edit"
+                                                        class="text-lg"
+                                                    >
+                                                    </iconify-icon>
                                                 </a>
                                                 <form
                                                     action="{{ route('deals.destroy', ['deal' => $deal->id]) }}"

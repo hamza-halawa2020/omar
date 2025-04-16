@@ -20,7 +20,7 @@
                                     Name
                                 </x-forms.input-label.basic>
                                 @error('name')
-                                    <small class="text-danger">{{ $message }}</small>
+                                <small class="text-danger">{{ $message }}</small>
                                 @enderror
                             </div>
 
@@ -33,7 +33,7 @@
                                     Email
                                 </x-forms.input-label.basic>
                                 @error('email')
-                                    <small class="text-danger">{{ $message }}</small>
+                                <small class="text-danger">{{ $message }}</small>
                                 @enderror
                             </div>
 
@@ -46,7 +46,7 @@
                                     Phone
                                 </x-forms.input-label.basic>
                                 @error('phone')
-                                    <small class="text-danger">{{ $message }}</small>
+                                <small class="text-danger">{{ $message }}</small>
                                 @enderror
                             </div>
 
@@ -59,7 +59,7 @@
                                     Position
                                 </x-forms.input-label.basic>
                                 @error('position')
-                                    <small class="text-danger">{{ $message }}</small>
+                                <small class="text-danger">{{ $message }}</small>
                                 @enderror
                             </div>
 
@@ -70,13 +70,16 @@
                                 <x-forms.select.basic name="account_id">
                                     <option value="">Select account</option>
                                     @foreach($accountsSelect as $id => $name)
-                                        <option value="{{ $id }}" {{ old('account_id') == $id ? 'selected' : '' }}>
+                                        <option
+                                            value="{{ $id }}"
+                                            @selected(old('account_id', $queryParams['account_id'] ?? null) == $id)
+                                        >
                                             {{ $name }}
                                         </option>
                                     @endforeach
                                 </x-forms.select.basic>
                                 @error('account_id')
-                                    <small class="text-danger">{{ $message }}</small>
+                                <small class="text-danger">{{ $message }}</small>
                                 @enderror
                             </div>
 

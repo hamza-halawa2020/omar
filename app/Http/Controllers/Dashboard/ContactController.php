@@ -31,14 +31,15 @@ class ContactController extends Controller
         ]);
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $accountsSelect = $this->accountService->pluck('name', 'id');
 
         return view('dashboard.crud.contacts.create', [
             'accountsSelect' => $accountsSelect,
             'title' => 'Contacts',
-            'subTitle' => 'Create contact'
+            'subTitle' => 'Create contact',
+            'queryParams' => $request->query()
         ]);
     }
 
