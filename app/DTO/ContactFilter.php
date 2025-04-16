@@ -5,9 +5,9 @@ namespace App\DTO;
 readonly class ContactFilter
 {
     public function __construct(
-        public readonly ?bool $withAccount = null,
-        public readonly ?int $accountId = null,
-        public readonly ?int $perPage = 10,
+        public ?bool $withAccount = null,
+        public ?int  $accountId = null,
+        public ?int  $perPage = 10,
     )
     {
     }

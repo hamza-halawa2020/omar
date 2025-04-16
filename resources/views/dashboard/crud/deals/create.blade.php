@@ -103,7 +103,7 @@
         const contactsSelect = document.getElementById('contactsSelect');
 
         // Get old values from the server
-        const oldAccountId = "{{ old('account_id') }}";
+        const oldAccountId = "{{ old('account_id', $queryParams['account_id'] ?? null) }}";
         const oldContactId = "{{ old('contact_id') }}";
 
         async function getAccountContacts(accountId, selectedContactId = null) {

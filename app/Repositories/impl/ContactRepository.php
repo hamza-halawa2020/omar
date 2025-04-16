@@ -20,7 +20,7 @@ class ContactRepository implements ContactRepositoryInterface
                 return $query->where('account_id', $filter?->accountId);
             })
             ->latest()
-            ->paginate($filter->perPage, ['*'], 'contacts_page')
+            ->paginate($filter?->perPage ?? 10, ['*'], 'contacts_page')
             ->appends(preserveOtherPagination('contacts_page'));
     }
 

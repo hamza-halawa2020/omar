@@ -3,9 +3,11 @@
 namespace App\Providers;
 
 use App\Repositories\AccountRepositoryInterface;
+use App\Repositories\CallRepositoryInterface;
 use App\Repositories\ContactRepositoryInterface;
 use App\Repositories\DealRepositoryInterface;
 use App\Repositories\impl\AccountRepository;
+use App\Repositories\impl\CallRepository;
 use App\Repositories\impl\ContactRepository;
 use App\Repositories\impl\DealRepository;
 use App\Repositories\impl\LeadRepository;
@@ -26,6 +28,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->singleton(AccountRepositoryInterface::class, AccountRepository::class);
         $this->app->singleton(TaskRepositoryInterface::class, TaskRepository::class);
         $this->app->singleton(DealRepositoryInterface::class, DealRepository::class);
+        $this->app->singleton(CallRepositoryInterface::class, CallRepository::class);
     }
 
     /**

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Dashboard\AccountController;
+use App\Http\Controllers\Dashboard\CallController;
 use App\Http\Controllers\Dashboard\ContactController;
 use App\Http\Controllers\Dashboard\ConvertLeadController;
 use App\Http\Controllers\Dashboard\DealController;
@@ -221,12 +222,15 @@ Route::group(['prefix' => 'dashboard'], function () {
     //  Accounts
     Route::resource('/accounts', AccountController::class)->except('show');
 
-    //  Contact
+    //  Contacts
     Route::resource('/contacts', ContactController::class)->except('show');
 
     //  Tasks
     Route::resource('/tasks', TaskController::class)->except('show');
 
-    //  Deal
+    //  Deals
     Route::resource('/deals', DealController::class)->except('show');
+
+    //  Calls
+    Route::resource('/calls', CallController::class)->except('show');
 });

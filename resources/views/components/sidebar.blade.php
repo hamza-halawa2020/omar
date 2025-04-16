@@ -58,6 +58,14 @@
                     <span>Deals</span>
                 </a>
             </li>
+
+            <li>
+                <a href="{{ route('calls.index') }}"
+                   class="d-flex align-items-center gap-2 {{ request()->is('dashboard/calls/*') ? 'active-page' : '' }}">
+                    <iconify-icon icon="mdi:phone" class="menu-icon"></iconify-icon>
+                    <span>calls</span>
+                </a>
+            </li>
         </ul>
     </div>
 </aside>
