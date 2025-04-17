@@ -4,8 +4,10 @@ namespace App\Enums\Leads;
 
 enum StatusType: string
 {
-    case WIN = 'win';
-    case LOSE = 'lose';
-    case NEW_TASK = 'new_task';
+    case NOT_CONTACTED = 'not_contacted';
+    case ANSWER = 'answer';
     case NO_ANSWER = 'no_answer';
+    case WRONG_NUMBER = 'wrong_number';
+    case SWITCHED_OFF = 'switched_off';
+    case INVALID_NUMBER = 'invalid_number';
 }

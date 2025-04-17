@@ -24,7 +24,7 @@ return new class extends Migration {
             $table->enum('source', array_column(SourceType::cases(), 'value'));
             $table->enum('status', array_column(Status::cases(), 'value'));
 
-            $table->unsignedInteger('assigned_to');
+            $table->unsignedBigInteger('assigned_to');
             $table->foreign('assigned_to')
                 ->references('id')
                 ->on('users');
