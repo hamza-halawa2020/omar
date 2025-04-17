@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Tasks\Status;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -14,15 +15,11 @@ return new class extends Migration {
             $table->id();
             $table->string('title');
             $table->date('due_date');
-            $table->enum('status', [
-                'pending',
-                'in_progress',
-                'completed',
-            ]);
+            $table->enum('status', array_column(Status::cases(), 'value'))->default(Status::cases()['value']);
 
             $table->morphs('related_to');
 
-            $table->unsignedBigInteger('assigned_to');
+            $table->unsignedInteger('assigned_to');
             $table->foreign('assigned_to')
                 ->references('id')
                 ->on('users');

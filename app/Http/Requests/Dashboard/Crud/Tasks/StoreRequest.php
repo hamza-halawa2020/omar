@@ -30,13 +30,4 @@ class StoreRequest extends CrmAdminRequest
             'notes' => 'nullable|string',
         ];
     }
-
-    public function validated($key = null, $default = null)
-    {
-        $validated = parent::validated($key, $default);
-
-        $validated['related_to_type'] = RelatedToType::valueFromName($validated['related_to_type']);
-
-        return $validated;
-    }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\Calls\OutcomeType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,8 +13,7 @@ return new class extends Migration {
     {
         Schema::create('crm_calls', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(\App\Models\Contact::class)
-                ->constrained('crm_contacts');
+            $table->morphs('related_to');
 
             $table->string('subject');
             $table->dateTime('call_time');
@@ -22,11 +22,7 @@ return new class extends Migration {
             $table->text('notes')
                 ->nullable();
 
-            $table->enum('outcome', [
-                'completed',
-                'no_answer',
-                'rescheduled'
-            ]);
+            $table->enum('outcome', array_column(OutcomeType::cases(), 'value'));
             $table->timestamps();
         });
     }

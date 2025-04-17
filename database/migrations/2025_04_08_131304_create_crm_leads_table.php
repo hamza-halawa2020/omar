@@ -1,5 +1,8 @@
 <?php
 
+use App\Enums\Leads\FlagType;
+use App\Enums\Leads\SourceType;
+use App\Enums\Tasks\Status;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -18,10 +21,10 @@ return new class extends Migration {
             $table->string('industry');
             $table->string('address');
             $table->string('position');
-            $table->enum('source', ['website', 'referral', 'ads']);
-            $table->enum('status', ['win', 'lose', 'new_task', 'no_answer']);
+            $table->enum('source', array_column(SourceType::cases(), 'value'));
+            $table->enum('status', array_column(Status::cases(), 'value'));
 
-            $table->unsignedBigInteger('assigned_to');
+            $table->unsignedInteger('assigned_to');
             $table->foreign('assigned_to')
                 ->references('id')
                 ->on('users');
@@ -30,7 +33,7 @@ return new class extends Migration {
             $table->text('notes')
                 ->nullable();
 
-            $table->enum('flag', ['hot', 'normal']);
+            $table->enum('flag', array_column(FlagType::cases(), 'value'));
 
             $table->timestamp('last_follow_up')->nullable();    //  last time I had contact with the lead
             $table->timestamp('next_follow_up')->nullable();    //  next lead call time

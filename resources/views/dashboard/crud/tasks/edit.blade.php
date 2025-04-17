@@ -14,13 +14,15 @@
                         @method('PUT')
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <x-forms.input-label.basic name="title" required value="{{ old('title', $task->title) }}">
+                                <x-forms.input-label.basic name="title" required
+                                                           value="{{ old('title', $task->title) }}">
                                     Title
                                 </x-forms.input-label.basic>
                             </div>
 
                             <div class="col-md-6">
-                                <x-forms.input-label.basic name="due_date" required value="{{ old('due_date', $task->due_date) }}"
+                                <x-forms.input-label.basic name="due_date" required
+                                                           value="{{ old('due_date', $task->due_date) }}"
                                                            type="date">
                                     Due date
                                 </x-forms.input-label.basic>
@@ -69,7 +71,7 @@
                                     @foreach(RelatedToType::cases() as $relatedToType)
                                         <option
                                             @selected(old('related_to_type', $task->related_to_type) == $relatedToType->value)
-                                            value="{{ strtolower($relatedToType->name) }}"
+                                            value="{{ $relatedToType->value }}"
                                         >
                                             {{ strtolower($relatedToType->name) }}
                                         </option>
@@ -94,7 +96,8 @@
                                 <x-forms.labels.basic>
                                     Notes
                                 </x-forms.labels.basic>
-                                <x-forms.textarea.basic name="notes">{{ old('notes', $task->notes) }}</x-forms.textarea.basic>
+                                <x-forms.textarea.basic
+                                    name="notes">{{ old('notes', $task->notes) }}</x-forms.textarea.basic>
                             </div>
 
                             <div class="col-12 pt-4 text-end">
@@ -119,26 +122,26 @@
             deal: @json(route('api.v1.deals.list')),
         };
 
-        const oldRelatedToType = "{{ old('related_to_type', strtolower(RelatedToType::from($task->related_to_type)->name)) }}";
+        const oldRelatedToType = "{{ old('related_to_type', str($task->related_to_type)->replace('\\', '\\\\')) }}";
         const oldRelatedToId = "{{ old('related_to_id', $task->related_to_id) }}";
 
         function getRelatedToData(relatedTo) {
-            const apis = {
-                'lead': async () => {
+            const map = {
+                'App\\Models\\Lead': async () => {
                     const res = await fetch(apiRoutes.lead);
                     return await res.json();
                 },
-                'contact': async () => {
+                'App\\Models\\Contact': async () => {
                     const res = await fetch(apiRoutes.contact);
                     return await res.json();
                 },
-                'deal': async () => {
+                'App\\Models\\Deal': async () => {
                     const res = await fetch(apiRoutes.deal);
                     return await res.json();
                 }
             };
 
-            return apis[relatedTo];
+            return map[relatedTo];
         }
 
         async function loadRelatedToOptions(type, selectedId = null) {

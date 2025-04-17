@@ -11,8 +11,14 @@
         <div class="row justify-content-center">
             <div class="col-12 col-md-12">
                 <div class="card border-0">
-                    <div class="card-header">
+                    <div class="card-header d-flex justify-content-between align-items-center">
                         <h6 class="text-lg font-weight-semibold mb-0">Edit lead</h6>
+                        <form action="{{ route('leads.convert', $lead->id) }}" method="post">
+                            @csrf
+                            <x-forms.buttons.success>
+                                Convert
+                            </x-forms.buttons.success>
+                        </form>
                     </div>
                     <form class="card-body" method="POST" action="{{ route('leads.update', $lead) }}">
                         @csrf
@@ -25,31 +31,36 @@
                             </div>
 
                             <div class="col-md-6">
-                                <x-forms.input-label.basic name="email" required value="{{ old('email', $lead->email) }}">
+                                <x-forms.input-label.basic name="email" required
+                                                           value="{{ old('email', $lead->email) }}">
                                     Email
                                 </x-forms.input-label.basic>
                             </div>
 
                             <div class="col-md-6">
-                                <x-forms.input-label.basic name="phone" required value="{{ old('phone', $lead->phone) }}">
+                                <x-forms.input-label.basic name="phone" required
+                                                           value="{{ old('phone', $lead->phone) }}">
                                     Phone
                                 </x-forms.input-label.basic>
                             </div>
 
                             <div class="col-md-6">
-                                <x-forms.input-label.basic name="industry" required value="{{ old('industry', $lead->industry) }}">
+                                <x-forms.input-label.basic name="industry" required
+                                                           value="{{ old('industry', $lead->industry) }}">
                                     Industry
                                 </x-forms.input-label.basic>
                             </div>
 
                             <div class="col-md-6">
-                                <x-forms.input-label.basic name="address" required value="{{ old('address', $lead->address) }}">
+                                <x-forms.input-label.basic name="address" required
+                                                           value="{{ old('address', $lead->address) }}">
                                     Address
                                 </x-forms.input-label.basic>
                             </div>
 
                             <div class="col-md-6">
-                                <x-forms.input-label.basic name="position" required value="{{ old('position', $lead->position) }}">
+                                <x-forms.input-label.basic name="position" required
+                                                           value="{{ old('position', $lead->position) }}">
                                     Position
                                 </x-forms.input-label.basic>
                             </div>
@@ -124,14 +135,14 @@
 
                             <div class="col-md-6">
                                 <x-forms.input-label.basic name="last_follow_up" type="datetime-local"
-                                    value="{{ old('last_follow_up', $lead->last_follow_up) }}">
+                                                           value="{{ old('last_follow_up', $lead->last_follow_up) }}">
                                     Last follow up
                                 </x-forms.input-label.basic>
                             </div>
 
                             <div class="col-md-6">
                                 <x-forms.input-label.basic name="next_follow_up" type="datetime-local"
-                                    value="{{ old('next_follow_up', $lead->next_follow_up) }}">
+                                                           value="{{ old('next_follow_up', $lead->next_follow_up) }}">
                                     Next follow up
                                 </x-forms.input-label.basic>
                             </div>

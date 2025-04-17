@@ -70,8 +70,8 @@
                                     <option value="">Select type</option>
                                     @foreach(RelatedToType::cases() as $relatedToType)
                                         <option
-                                            @selected(old('related_to_type') == str($relatedToType->name)->lower())
-                                            value="{{ str($relatedToType->name)->lower() }}"
+                                            @selected(old('related_to_type') == $relatedToType->value)
+                                            value="{{ $relatedToType->value }}"
                                         >
                                             {{ str($relatedToType->name)->lower() }}
                                         </option>
@@ -125,22 +125,22 @@
         const oldRelatedToId = "{{ old('related_to_id') }}";
 
         function getRelatedToData(relatedTo) {
-            const apis = {
-                'lead': async () => {
+            const map = {
+                'App\\Models\\Lead': async () => {
                     const res = await fetch(apiRoutes.lead);
                     return await res.json();
                 },
-                'contact': async () => {
+                'App\\Models\\Contact': async () => {
                     const res = await fetch(apiRoutes.contact);
                     return await res.json();
                 },
-                'deal': async () => {
+                'App\\Models\\Deal': async () => {
                     const res = await fetch(apiRoutes.deal);
                     return await res.json();
                 }
             };
 
-            return apis[relatedTo];
+            return map[relatedTo];
         }
 
         async function loadRelatedToOptions(type, selectedId = null) {

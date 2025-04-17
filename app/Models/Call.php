@@ -7,13 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Call extends CrmModel
 {
-    public function contact(): BelongsTo
+    public function relatedTo()
     {
-        return $this->belongsTo(Contact::class);
-    }
-
-    public function scopeWithContact($query)
-    {
-        return $query->with('contact');
+        return $this->morphTo();
     }
 }

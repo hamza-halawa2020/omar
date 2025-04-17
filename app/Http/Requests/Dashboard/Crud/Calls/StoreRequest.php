@@ -18,7 +18,8 @@ class StoreRequest extends CrmAdminRequest
     public function rules(): array
     {
         return [
-            'contact_id' => 'required|exists:crm_contacts,id',
+            'related_to_type' => 'required|string',
+            'related_to_id' => 'required|integer',
             'subject' => 'required|string',
             'call_time' => 'required|date',
             'duration_in_minutes' => 'required|integer',
