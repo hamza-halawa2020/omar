@@ -15,11 +15,11 @@ return new class extends Migration {
             $table->id();
             $table->string('title');
             $table->date('due_date');
-            $table->enum('status', array_column(Status::cases(), 'value'))->default(Status::cases()['value']);
+            $table->enum('status', array_column(Status::cases(), 'value'));
 
             $table->morphs('related_to');
 
-            $table->unsignedInteger('assigned_to');
+            $table->unsignedBigInteger('assigned_to');
             $table->foreign('assigned_to')
                 ->references('id')
                 ->on('users');

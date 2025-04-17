@@ -18,7 +18,7 @@ return new class extends Migration {
             $table->string('phone');
             $table->text('address');
 
-            $table->unsignedInteger('assigned_to');
+            $table->unsignedBigInteger('assigned_to');
             $table->foreign('assigned_to')
                 ->references('id')
                 ->on('users');

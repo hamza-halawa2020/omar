@@ -35,7 +35,7 @@ Route::controller(DashboardController::class)->group(function () {
 
     Route::get('/', function () {
         return view('dashboard.index');
-    });
+    })->name('home');
 
     Route::get('/test', function () {
         return view('dashboard.test');
