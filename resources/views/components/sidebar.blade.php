@@ -21,7 +21,7 @@
 
             <li>
                 <a href="{{ route('leads.index') }}"
-                   class="d-flex align-items-center gap-2 {{ request()->is('dashboard/leads/*') ? 'active-page' : '' }}">
+                   class="d-flex align-items-center gap-2 {{ request()->is('leads/*') ? 'active-page' : '' }}">
                     <iconify-icon icon="mdi:account-search-outline" class="menu-icon"></iconify-icon>
                     <span>Leads</span>
                 </a>
@@ -29,7 +29,7 @@
 
             <li>
                 <a href="{{ route('accounts.index') }}"
-                   class="d-flex align-items-center gap-2 {{ request()->is('dashboard/accounts/*') ? 'active-page' : '' }}">
+                   class="d-flex align-items-center gap-2 {{ request()->is('accounts/*') ? 'active-page' : '' }}">
                     <iconify-icon icon="mdi:briefcase-account-outline" class="menu-icon"></iconify-icon>
                     <span>Accounts</span>
                 </a>
@@ -37,7 +37,7 @@
 
             <li>
                 <a href="{{ route('contacts.index') }}"
-                   class="d-flex align-items-center gap-2 {{ request()->is('dashboard/contacts/*') ? 'active-page' : '' }}">
+                   class="d-flex align-items-center gap-2 {{ request()->is('contacts/*') ? 'active-page' : '' }}">
                     <iconify-icon icon="mdi:account-box-outline" class="menu-icon"></iconify-icon>
                     <span>Contacts</span>
                 </a>
@@ -45,7 +45,7 @@
 
             <li>
                 <a href="{{ route('tasks.index') }}"
-                   class="d-flex align-items-center gap-2 {{ request()->is('dashboard/tasks/*') ? 'active-page' : '' }}">
+                   class="d-flex align-items-center gap-2 {{ request()->is('tasks/*') ? 'active-page' : '' }}">
                     <iconify-icon icon="mdi:check-outline" class="menu-icon"></iconify-icon>
                     <span>Tasks</span>
                 </a>
@@ -53,7 +53,7 @@
 
             <li>
                 <a href="{{ route('deals.index') }}"
-                   class="d-flex align-items-center gap-2 {{ request()->is('dashboard/deals/*') ? 'active-page' : '' }}">
+                   class="d-flex align-items-center gap-2 {{ request()->is('deals/*') ? 'active-page' : '' }}">
                     <iconify-icon icon="mdi:handshake-outline" class="menu-icon"></iconify-icon>
                     <span>Deals</span>
                 </a>
@@ -61,7 +61,7 @@
 
             <li>
                 <a href="{{ route('calls.index') }}"
-                   class="d-flex align-items-center gap-2 {{ request()->is('dashboard/calls/*') ? 'active-page' : '' }}">
+                   class="d-flex align-items-center gap-2 {{ request()->is('calls/*') ? 'active-page' : '' }}">
                     <iconify-icon icon="mdi:phone" class="menu-icon"></iconify-icon>
                     <span>calls</span>
                 </a>

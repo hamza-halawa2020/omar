@@ -1,3 +1,4 @@
+@php use App\Enums\Calls\RelatedToType; @endphp
 @extends('dashboard.layouts.app')
 
 @section('content')
@@ -18,7 +19,8 @@
                                 <table class="table bordered-table mb-0 table-hover">
                                     <thead>
                                     <tr>
-                                        <th scope="col">Contact</th>
+                                        <th scope="col">Assigned to</th>
+                                        <th scope="col">Assigned to type</th>
                                         <th scope="col">Subject</th>
                                         <th scope="col">Time</th>
                                         <th scope="col">Duration in minutes</th>
@@ -35,9 +37,10 @@
                                             <td>
                                                 <div class="d-flex align-items-center">
                                                     <span
-                                                        class="text-lg text-secondary-light fw-semibold flex-grow-1">{{ $call->contact->name }}</span>
+                                                        class="text-lg text-secondary-light fw-semibold flex-grow-1">{{ $call->relatedTo->name }}</span>
                                                 </div>
                                             </td>
+                                            <td>{{ str(RelatedToType::from($call->related_to_type)->name)->lower() }}</td>
                                             <td>{{ $call->subject }}</td>
                                             <td>{{ $call->call_time }}</td>
                                             <td>{{ $call->duration_in_minutes }}</td>

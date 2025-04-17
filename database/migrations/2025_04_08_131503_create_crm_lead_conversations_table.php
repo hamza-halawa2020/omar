@@ -24,7 +24,7 @@ return new class extends Migration {
            $table->foreignIdFor(\App\Models\Deal::class)
                ->constrained('crm_deals');
 
-            $table->unsignedBigInteger('converted_by');
+            $table->unsignedInteger('converted_by');
             $table->foreign('converted_by')
                 ->references('id')
                 ->on('users');
