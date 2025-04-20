@@ -10,17 +10,50 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-12 col-md-12">
-                <div class="card border-0">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h6 class="text-lg font-weight-semibold mb-0">Edit lead</h6>
-                        <form action="{{ route('leads.convert', $lead->id) }}" method="post">
-                            @csrf
-                            <x-forms.buttons.success>
-                                Convert
-                            </x-forms.buttons.success>
-                        </form>
+                <div class="card d-flex justify-content-between align-items-start p-24 card-body">
+                    <div class="d-flex flex-column gap-20">
+                        <div class="text-lg mb-0 d-flex gap-20 align-items-center">
+                            <span class="fs-4">
+                                Current state
+                            </span>
+                            <span class="bg-secondary p-2 radius-24 text-white p-8" style="font-size: 12px; font-weight: bolder">
+                                {{ str($lead->status)->replace('_', ' ')->ucfirst() }}
+                            </span>
+                        </div>
+                        <div class="d-flex gap-44 mt-6 flex-wrap">
+                            <span class="fs-4">Transitions</span>
+                            <div class="d-flex gap-6">
+                                <x-forms.buttons.primary class="status-button" data-value="answer">
+                                    Answer
+                                </x-forms.buttons.primary>
+
+                                <x-forms.buttons.primary class="status-button" data-value="no_answer">
+                                    No answer
+                                </x-forms.buttons.primary>
+
+                                <x-forms.buttons.primary class="status-button" data-value="wrong_number">
+                                    Wrong number
+                                </x-forms.buttons.primary>
+
+                                <x-forms.buttons.primary class="status-button" data-value="switched_off">
+                                    Switched off
+                                </x-forms.buttons.primary>
+
+                                <x-forms.buttons.primary class="status-button" data-value="invalid_number">
+                                    Invalid number
+                                </x-forms.buttons.primary>
+                            </div>
+                        </div>
                     </div>
-                    <form class="card-body" method="POST" action="{{ route('leads.update', $lead) }}">
+                </div>
+
+                <div class="card border-0 mt-20">
+                    <form
+                        class="card-body"
+                        method="POST"
+                        action="{{ route('leads.update', $lead) }}"
+                        id="updateLeadForm"
+                    >
                         @csrf
                         @method('PUT')
                         <div class="row g-3">
@@ -86,7 +119,7 @@
                                 <x-forms.labels.basic>
                                     Status
                                 </x-forms.labels.basic>
-                                <x-forms.select.basic name="status" required>
+                                <x-forms.select.basic id="status" name="status" required>
                                     <option value="">Select status</option>
                                     @foreach(StatusType::cases() as $status)
                                         <option
@@ -165,4 +198,16 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.querySelectorAll('.status-button')
+            .forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.getElementById('status').value = btn.getAttribute('data-value');
+
+                    document.getElementById('updateLeadForm')
+                        .submit();
+                })
+            })
+    </script>
 @endsection

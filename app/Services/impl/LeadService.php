@@ -3,6 +3,7 @@
 namespace App\Services\impl;
 
 use App\DTO\LeadFilter;
+use App\Jobs\SendLeadCreationReminder;
 use App\Models\Account;
 use App\Models\Lead;
 use App\Repositories\ContactRepositoryInterface;
@@ -32,7 +33,16 @@ readonly class LeadService implements LeadServiceInterface
 
     public function create(array $data): Lead
     {
-        return $this->leadRepository->create($data);
+        $lead = $this->leadRepository->create($data);
+
+        SendLeadCreationReminder::dispatch($lead->id)
+            ->delay(
+                now()->addHours(
+                    config('lead_reminders.interval_hours')
+                )
+            );
+
+        return $lead;
     }
 
     public function getOne(int $id): Lead

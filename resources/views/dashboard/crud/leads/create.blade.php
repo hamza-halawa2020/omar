@@ -66,23 +66,6 @@
 
                             <div class="col-md-6">
                                 <x-forms.labels.basic>
-                                    Status
-                                </x-forms.labels.basic>
-                                <x-forms.select.basic name="status" required>
-                                    <option value="">Select status</option>
-                                    @foreach(StatusType::cases() as $status)
-                                        <option
-                                            value="{{ $status->value }}"
-                                            @selected(old('status') === $status->value)
-                                        >
-                                            {{ str($status->value)->replace('_', ' ')->lower()->ucfirst() }}
-                                        </option>
-                                    @endforeach
-                                </x-forms.select.basic>
-                            </div>
-
-                            <div class="col-md-6">
-                                <x-forms.labels.basic>
                                     Assigned to
                                 </x-forms.labels.basic>
                                 <x-forms.select.basic name="assigned_to">
@@ -99,6 +82,18 @@
                             </div>
 
                             <div class="col-md-6">
+                                <x-forms.input-label.basic name="last_follow_up" type="datetime-local">
+                                    Last follow up
+                                </x-forms.input-label.basic>
+                            </div>
+
+                            <div class="col-md-6">
+                                <x-forms.input-label.basic name="next_follow_up" type="datetime-local">
+                                    Next follow up
+                                </x-forms.input-label.basic>
+                            </div>
+
+                            <div class="col-md-6">
                                 <x-forms.labels.basic>
                                     Flag
                                 </x-forms.labels.basic>
@@ -112,18 +107,6 @@
                                             {{ str($flag->value)->replace('_', ' ')->lower()->ucfirst() }}</option>
                                     @endforeach
                                 </x-forms.select.basic>
-                            </div>
-
-                            <div class="col-md-6">
-                                <x-forms.input-label.basic name="last_follow_up" type="datetime-local">
-                                    Last follow up
-                                </x-forms.input-label.basic>
-                            </div>
-
-                            <div class="col-md-6">
-                                <x-forms.input-label.basic name="next_follow_up" type="datetime-local">
-                                    Next follow up
-                                </x-forms.input-label.basic>
                             </div>
 
                             <div class="col-12">

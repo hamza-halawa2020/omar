@@ -6,11 +6,10 @@ use App\Enums\Leads\FlagType;
 use App\Enums\Leads\SourceType;
 use App\Enums\Leads\StatusType;
 use App\Http\Requests\Dashboard\CrmAdminRequest;
-use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Enum;
 
-class StoreRequest extends CrmAdminRequest
+class UpdateRequest extends CrmAdminRequest
 {
     /**
      * Get the validation rules that apply to the request.
