@@ -11,8 +11,10 @@ use App\Services\impl\CallService;
 use App\Services\impl\ContactService;
 use App\Services\impl\DealService;
 use App\Services\impl\LeadService;
+use App\Services\impl\LeadStatusService;
 use App\Services\impl\TaskService;
 use App\Services\LeadServiceInterface;
+use App\Services\LeadStatusServiceInterface;
 use App\Services\TaskServiceInterface;
 use Illuminate\Support\ServiceProvider;
 
@@ -29,6 +31,7 @@ class ServiceServiceProvider extends ServiceProvider
         $this->app->singleton(TaskServiceInterface::class, TaskService::class);
         $this->app->singleton(DealServiceInterface::class, DealService::class);
         $this->app->singleton(CallServiceInterface::class, CallService::class);
+        $this->app->singleton(LeadStatusServiceInterface::class, LeadStatusService::class);
     }
 
     /**
