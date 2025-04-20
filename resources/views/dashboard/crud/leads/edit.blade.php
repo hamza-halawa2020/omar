@@ -1,7 +1,7 @@
 @php
     use App\Enums\Leads\FlagType;
     use App\Enums\Leads\SourceType;
-    use App\Enums\Leads\StatusType;
+    use App\Enums\Leads\StatusType;use Illuminate\Support\Facades\Blade;use Illuminate\Support\Js;
 @endphp
 
 @extends('dashboard.layouts.app')
@@ -16,32 +16,15 @@
                             <span class="fs-4">
                                 Current state
                             </span>
-                            <span class="bg-secondary p-2 radius-24 text-white p-8" style="font-size: 12px; font-weight: bolder">
-                                {{ str($lead->status)->replace('_', ' ')->ucfirst() }}
+                            <span class="current-lead-status bg-secondary p-2 radius-24 text-white p-8"
+                                  style="font-size: 12px; font-weight: bolder">
+                                {{ str($lead->status->name)->replace('_', ' ')->ucfirst() }}
                             </span>
                         </div>
                         <div class="d-flex gap-44 mt-6 flex-wrap">
                             <span class="fs-4">Transitions</span>
-                            <div class="d-flex gap-6">
-                                <x-forms.buttons.primary class="status-button" data-value="answer">
-                                    Answer
-                                </x-forms.buttons.primary>
+                            <div class="d-flex gap-6 statuses-container">
 
-                                <x-forms.buttons.primary class="status-button" data-value="no_answer">
-                                    No answer
-                                </x-forms.buttons.primary>
-
-                                <x-forms.buttons.primary class="status-button" data-value="wrong_number">
-                                    Wrong number
-                                </x-forms.buttons.primary>
-
-                                <x-forms.buttons.primary class="status-button" data-value="switched_off">
-                                    Switched off
-                                </x-forms.buttons.primary>
-
-                                <x-forms.buttons.primary class="status-button" data-value="invalid_number">
-                                    Invalid number
-                                </x-forms.buttons.primary>
                             </div>
                         </div>
                     </div>
@@ -117,23 +100,6 @@
 
                             <div class="col-md-6">
                                 <x-forms.labels.basic>
-                                    Status
-                                </x-forms.labels.basic>
-                                <x-forms.select.basic id="status" name="status" required>
-                                    <option value="">Select status</option>
-                                    @foreach(StatusType::cases() as $status)
-                                        <option
-                                            value="{{ $status->value }}"
-                                            @selected(old('status', $lead->status) === $status->value)
-                                        >
-                                            {{ str($status->value)->replace('_', ' ')->lower()->ucfirst() }}
-                                        </option>
-                                    @endforeach
-                                </x-forms.select.basic>
-                            </div>
-
-                            <div class="col-md-6">
-                                <x-forms.labels.basic>
                                     Assigned to
                                 </x-forms.labels.basic>
                                 <x-forms.select.basic name="assigned_to">
@@ -200,14 +166,92 @@
     </div>
 
     <script>
-        document.querySelectorAll('.status-button')
-            .forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.getElementById('status').value = btn.getAttribute('data-value');
+        const statusesListUrl = '{{ route('api.v1.lead-statuses.list') }}';
+        const statuesContainer = document.querySelector('.statuses-container');
 
-                    document.getElementById('updateLeadForm')
-                        .submit();
-                })
-            })
+        function createStatusButton(innerText, statusId) {
+            const updateLeadUrl = '{{ route('api.v1.leads.update', $lead->id) }}';
+
+            console.log(updateLeadUrl);
+
+            const button = document.createElement('button');
+
+            button.classList.add('status-btn', 'btn', 'btn-primary', 'd-flex', 'align-items-center', 'gap-2', 'px-6', 'py-2', 'rounded', 'fs-6');
+
+            button.setAttribute('type', 'button');
+            button.setAttribute('data-status-id', statusId);
+
+            button.textContent = innerText;
+
+            button.addEventListener('click', async () => {
+                try {
+                    const response = await fetch(updateLeadUrl, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            status_id: statusId
+                        })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+
+                        document.querySelector('.current-lead-status').innerText =
+                            data.newStatus?.name
+                                .replace('_', ' ')
+                                .toLowerCase()
+                                .replace(/^\w/, c => c.toUpperCase()) || '—';
+
+                        await renderStatusButtons(statusId);
+
+                    } else {
+                        console.error('Failed to update status');
+                        alert('Status update failed.');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An error occurred while updating status.');
+                }
+            });
+
+
+            return button;
+        }
+
+        async function renderStatusButtons(parentStatusId) {
+            const url = new URL(statusesListUrl);
+            url.searchParams.append('parent_id', parentStatusId);
+
+            const statuses = await fetch(url)
+                .then(res => res.json())
+                .catch(error => {
+                    console.error('Failed to fetch statuses:', error);
+                    return null;
+                });
+
+            // Clear old buttons before rendering new ones
+            statuesContainer.innerHTML = '';
+
+            if (statuses) {
+                for (const statusId in statuses) {
+                    statuesContainer.appendChild(
+                        createStatusButton(
+                            statuses[statusId]
+                                .replaceAll('_', ' ')
+                                .toLowerCase()
+                                .replace(/^\w/, (c) => c.toUpperCase()),
+                            statusId
+                        )
+                    );
+                }
+            }
+        }
+
+        renderStatusButtons({{ $lead->status_id }});
+
     </script>
+
 @endsection

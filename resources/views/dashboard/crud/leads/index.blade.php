@@ -48,7 +48,7 @@
                                             <td>{{ $lead->source }}</td>
                                             <td class="text-center">
                                                     <span class="px-24 py-4 rounded-pill fw-medium text-sm">
-                                                        {{ str($lead->status)->replace('_', ' ') }}
+                                                        {{ str($lead->status->name)->replace('_', ' ') }}
                                                     </span>
                                             </td>
                                             <td class="text-center">{{ $lead->assignedUser->full_name }}</td>
