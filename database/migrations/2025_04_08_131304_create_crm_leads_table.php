@@ -2,7 +2,7 @@
 
 use App\Enums\Leads\FlagType;
 use App\Enums\Leads\SourceType;
-use App\Enums\Tasks\Status;
+use App\Enums\Leads\StatusType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -22,7 +22,6 @@ return new class extends Migration {
             $table->string('address');
             $table->string('position');
             $table->enum('source', array_column(SourceType::cases(), 'value'));
-            $table->enum('status', array_column(Status::cases(), 'value'));
 
             $table->unsignedBigInteger('assigned_to');
             $table->foreign('assigned_to')

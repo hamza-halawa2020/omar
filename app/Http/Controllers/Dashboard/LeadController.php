@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Dashboard;
 use App\DTO\LeadFilter;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Dashboard\Crud\Leads\StoreRequest;
+use App\Http\Requests\Dashboard\Crud\Leads\UpdateRequest;
 use App\Models\Lead;
 use App\Models\User;
 use App\Services\impl\LeadService;
@@ -56,7 +57,7 @@ class LeadController extends Controller
         ]);
     }
 
-    public function update(StoreRequest $request, Lead $lead): RedirectResponse
+    public function update(UpdateRequest $request, Lead $lead): RedirectResponse
     {
         $this->leadService->update($lead, $request->validated());
 

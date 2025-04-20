@@ -5,8 +5,8 @@
         <div class="row justify-content-center">
             <div class="col-lg-12">
                 <div class="card shadow-sm border-0 rounded-3 p-3">
-                    <div class="card-header bg-white py-4 px-4 d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0 fw-semibold text-dark">Deals</h5>
+                    <div class="card-header py-4 px-4 d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0 fw-semibold">Deals</h5>
                         <a href="{{ route('deals.create') }}"
                            class="btn btn-primary btn-sm d-flex align-items-center gap-2">
                             <i class="bi bi-plus-circle"></i> Add New Deal
@@ -73,7 +73,7 @@
                                     </tbody>
                                 </table>
                             @else
-                                <div class="alert alert-light text-center rounded-3 shadow-sm mt-8" role="alert">
+                                <div class="alert text-center rounded-3 shadow-sm mt-8" role="alert">
                                     <i class="bi bi-info-circle me-2"></i> No deals exist
                                 </div>
                             @endif

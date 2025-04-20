@@ -30,4 +30,14 @@ class Lead extends CrmModel
     public function scopeWhereConverted($query) {
         return $query->where('is_converted', true);
     }
+
+    public function status(): BelongsTo
+    {
+        return $this->belongsTo(LeadsStatus::class, 'status_id');
+    }
+
+    public function scopeWithStatus($query)
+    {
+        return $query->with('status');
+    }
 }
