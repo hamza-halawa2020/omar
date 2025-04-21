@@ -35,8 +35,12 @@
 
                                             <td>
                                                 <div class="d-flex align-items-center">
-                                                    <span
-                                                        class="text-lg text-secondary-light fw-semibold flex-grow-1">{{ $deal->name }}</span>
+                                                    <a
+                                                        href="{{ route('deals.edit', $deal->id) }}"
+                                                        class="text-lg text-secondary-light fw-semibold flex-grow-1"
+                                                    >
+                                                        {{ $deal->name }}
+                                                    </a>
                                                 </div>
                                             </td>
                                             <td>{{ $deal->amount }}</td>

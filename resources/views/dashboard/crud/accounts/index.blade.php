@@ -18,7 +18,8 @@
                                 <table class="table bordered-table mb-0 table-hover">
                                     <thead>
                                     <tr>
-                                        <th scope="col">Name</th>
+                                        <th scope="col">First name</th>
+                                        <th scope="col">Last name</th>
                                         <th scope="col">Industry</th>
                                         <th scope="col">Email</th>
                                         <th scope="col">Phone</th>
@@ -34,10 +35,14 @@
                                         <tr>
                                             <td>
                                                 <div class="d-flex align-items-center">
-                                                    <span
-                                                        class="text-lg text-secondary-light fw-semibold flex-grow-1">{{ $account->name }}</span>
+                                                    <a href="{{ route('accounts.edit', $account->id) }}"
+                                                        class="text-lg text-secondary-light fw-semibold flex-grow-1"
+                                                    >
+                                                        {{ $account->first_name }}
+                                                    </a>
                                                 </div>
                                             </td>
+                                            <td>{{ $account->last_name }}</td>
                                             <td>{{ $account->industry }}</td>
                                             <td>{{ $account->email }}</td>
                                             <td>{{ $account->phone }}</td>

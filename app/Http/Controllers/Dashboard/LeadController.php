@@ -6,7 +6,9 @@ use App\DTO\QueryFilters\LeadFilter;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Dashboard\Crud\Leads\StoreRequest;
 use App\Http\Requests\Dashboard\Crud\Leads\UpdateRequest;
+use App\Models\Country;
 use App\Models\Lead;
+use App\Models\ProgramType;
 use App\Models\User;
 use App\Services\LeadServiceInterface;
 use Illuminate\Http\RedirectResponse;
@@ -30,8 +32,14 @@ class LeadController extends Controller
     {
         $usersSelect = User::select(['id', 'full_name'])->get()->pluck('full_name', 'id');
 
+        $countriesSelect = Country::pluck('name', 'id');
+
+        $programTypesSelect = ProgramType::pluck('name', 'id');
+
         return view('dashboard.crud.leads.create', [
             'usersSelect' => $usersSelect,
+            'countriesSelect' => $countriesSelect,
+            'programTypesSelect' => $programTypesSelect,
             'title' => 'Leads',
             'subTitle' => 'Create Lead'
         ]);
@@ -48,15 +56,21 @@ class LeadController extends Controller
     {
         $usersSelect = User::select(['id', 'full_name'])->get()->pluck('full_name', 'id');
 
+        $countriesSelect = Country::pluck('name', 'id');
+
+        $programTypesSelect = ProgramType::pluck('name', 'id');
+
         return view('dashboard.crud.leads.edit', [
             'lead' => $lead,
             'usersSelect' => $usersSelect,
+            'countriesSelect' => $countriesSelect,
+            'programTypesSelect' => $programTypesSelect,
             'title' => 'Leads',
             'subTitle' => 'Edit leads'
         ]);
     }
 
-    public function update(UpdateRequest $request, Lead $lead): RedirectResponse
+    public function update(StoreRequest $request, Lead $lead): RedirectResponse
     {
         $this->leadService->update($lead, $request->validated());
 

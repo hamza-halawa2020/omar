@@ -144,16 +144,7 @@
         }
 
         async function loadRelatedToOptions(type, selectedId = null) {
-            const getData = getRelatedToData(type);
 
-            if (!getData) {
-                console.warn('No API handler for:', type);
-                return;
-            }
-
-            const data = await getData();
-
-            // Clear previous options
             relatedToSelect.innerHTML = '';
 
             // Add a placeholder option
@@ -162,6 +153,15 @@
             placeholder.disabled = true;
             placeholder.selected = !selectedId;
             relatedToSelect.appendChild(placeholder);
+
+            const getData = getRelatedToData(type);
+
+            if (!getData) {
+                console.warn('No API handler for:', type);
+                return;
+            }
+
+            const data = await getData();
 
             // Populate options
             Object.entries(data).forEach(([id, name]) => {

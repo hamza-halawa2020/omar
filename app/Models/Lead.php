@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Lead extends CrmModel
 {
+    protected $appends = ['name'];
     public function assignedUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_to');
@@ -39,5 +40,10 @@ class Lead extends CrmModel
     public function scopeWithStatus($query)
     {
         return $query->with('status');
+    }
+
+    public function getNameAttribute(): string
+    {
+        return "$this->first_name $this->last_name";
     }
 }

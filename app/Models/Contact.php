@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Contact extends CrmModel
 {
+    protected $appends = ['name'];
+
     public function account(): BelongsTo
     {
         return $this->belongsTo(Account::class);
@@ -22,5 +24,10 @@ class Contact extends CrmModel
     public function scopeWithAccount($query)
     {
         return $query->with('account');
+    }
+
+    public function getNameAttribute(): string
+    {
+        return "$this->first_name $this->last_name";
     }
 }

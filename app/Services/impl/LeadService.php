@@ -63,7 +63,8 @@ readonly class LeadService implements LeadServiceInterface
         try {
             DB::transaction(function () use ($lead) {
                 $account = $this->accountService->create([
-                    'name' => $lead->name,
+                    'first_name' => $lead->first_name,
+                    'last_name' => $lead->last_name,
                     'industry' => $lead->industry,
                     'email' => $lead->email,
                     'phone' => $lead->phone,
@@ -72,7 +73,8 @@ readonly class LeadService implements LeadServiceInterface
                 ]);
 
                 $this->contactService->create([
-                    'name' => $lead->name,
+                    'first_name' => $lead->first_name,
+                    'last_name' => $lead->last_name,
                     'email' => $lead->email,
                     'phone' => $lead->phone,
                     'position' => $lead->position,

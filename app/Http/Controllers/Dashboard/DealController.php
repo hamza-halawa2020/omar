@@ -31,7 +31,7 @@ class DealController extends Controller
 
     public function create(Request $request, Deal $deal)
     {
-        $accountsSelect = $this->accountService->pluck('name', 'id');
+        $accountsSelect = $this->accountService->pluck('first_name', 'id');
 
         return view('dashboard.crud.deals.create', [
             'deal' => $deal,
@@ -51,7 +51,7 @@ class DealController extends Controller
 
     public function edit(Deal $deal)
     {
-        $accountsSelect = $this->accountService->pluck('name', 'id')->toArray();
+        $accountsSelect = $this->accountService->pluck('first_name', 'id')->toArray();
 
         return view('dashboard.crud.deals.edit', [
             'deal' => $deal,

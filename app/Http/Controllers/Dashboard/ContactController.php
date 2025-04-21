@@ -33,7 +33,7 @@ class ContactController extends Controller
 
     public function create(Request $request)
     {
-        $accountsSelect = $this->accountService->pluck('name', 'id');
+        $accountsSelect = $this->accountService->pluck('first_name', 'id');
 
         return view('dashboard.crud.contacts.create', [
             'accountsSelect' => $accountsSelect,
@@ -52,7 +52,7 @@ class ContactController extends Controller
 
     public function edit(Contact $contact)
     {
-        $accountsSelect = $this->accountService->pluck('name', 'id');
+        $accountsSelect = $this->accountService->pluck('first_name', 'id');
 
         return view('dashboard.crud.contacts.edit', [
             'accountsSelect' => $accountsSelect,

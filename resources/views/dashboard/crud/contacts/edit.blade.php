@@ -14,11 +14,21 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <x-forms.input-label.basic
-                                    name="name"
+                                    name="first_name"
                                     required
-                                    value="{{ old('name', $contact->name) }}"
+                                    value="{{ old('first_name', $contact->first_name) }}"
                                 >
-                                    Name
+                                    First name
+                                </x-forms.input-label.basic>
+                            </div>
+
+                            <div class="col-md-6">
+                                <x-forms.input-label.basic
+                                    name="last_name"
+                                    required
+                                    value="{{ old('last_name', $contact->last_name) }}"
+                                >
+                                    Last name
                                 </x-forms.input-label.basic>
                             </div>
 
