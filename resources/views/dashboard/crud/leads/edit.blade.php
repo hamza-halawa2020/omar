@@ -1,7 +1,7 @@
 @php
     use App\Enums\Leads\FlagType;
     use App\Enums\Leads\SourceType;
-    use App\Enums\Leads\StatusType;use Illuminate\Support\Facades\Blade;use Illuminate\Support\Js;
+    use App\Enums\Leads\TypeOfContact;
 @endphp
 
 @extends('dashboard.layouts.app')
@@ -41,8 +41,16 @@
                         @method('PUT')
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <x-forms.input-label.basic name="name" required value="{{ old('name', $lead->name) }}">
-                                    Name
+                                <x-forms.input-label.basic name="first_name" required
+                                                           value="{{ old('first_name', $lead->first_name) }}">
+                                    First name
+                                </x-forms.input-label.basic>
+                            </div>
+
+                            <div class="col-md-6">
+                                <x-forms.input-label.basic name="last_name" required
+                                                           value="{{ old('last_name', $lead->first_name) }}">
+                                    Last name
                                 </x-forms.input-label.basic>
                             </div>
 
@@ -75,12 +83,24 @@
                             </div>
 
                             <div class="col-md-6">
-                                <x-forms.input-label.basic name="position" required
-                                                           value="{{ old('position', $lead->position) }}">
+                                <x-forms.input-label.basic
+                                    name="position"
+                                    required
+                                    value="{{ old('position', $lead->position) }}"
+                                >
                                     Position
                                 </x-forms.input-label.basic>
                             </div>
 
+                            <div class="col-md-6">
+                                <x-forms.input-label.basic
+                                    name="ad_code"
+                                    required
+                                    value="{{ old('ad_code', $lead->ad_code) }}"
+                                >
+                                    Ad code
+                                </x-forms.input-label.basic>
+                            </div>
                             <div class="col-md-6">
                                 <x-forms.labels.basic>
                                     Source
@@ -110,6 +130,74 @@
                                             @selected(old('assigned_to', $lead->assigned_to) == $id)
                                         >
                                             {{ $fullName }}
+                                        </option>
+                                    @endforeach
+                                </x-forms.select.basic>
+                            </div>
+
+                            <div class="col-md-6">
+                                <x-forms.labels.basic>
+                                    Creator
+                                </x-forms.labels.basic>
+                                <x-forms.select.basic name="creator_id">
+                                    <option value="">Select user</option>
+                                    @foreach($usersSelect as $id => $fullName)
+                                        <option
+                                            value="{{ $id }}"
+                                            @selected(old('creator_id', $lead->creator_id) == $id)
+                                        >
+                                            {{ $fullName }}
+                                        </option>
+                                    @endforeach
+                                </x-forms.select.basic>
+                            </div>
+
+                            <div class="col-md-6">
+                                <x-forms.labels.basic>
+                                    Country
+                                </x-forms.labels.basic>
+                                <x-forms.select.basic name="country_id">
+                                    <option value="">Select country</option>
+                                    @foreach($countriesSelect as $id => $name)
+                                        <option
+                                            value="{{ $id }}"
+                                            @selected(old('country_id', $lead->country_id) == $id)
+                                        >
+                                            {{ $name }}
+                                        </option>
+                                    @endforeach
+                                </x-forms.select.basic>
+                            </div>
+
+                            <div class="col-md-6">
+                                <x-forms.labels.basic>
+                                    Type of contact
+                                </x-forms.labels.basic>
+                                <x-forms.select.basic name="type_of_contact">
+                                    <option value="">Select type</option>
+                                    @foreach(TypeOfContact::cases() as $type)
+                                        <option
+                                            value="{{ $type->value }}"
+                                            @selected(old('type_of_contact', $lead->type_of_contact) == $type->value)
+                                        >
+                                            {{ $type->value }}
+                                        </option>
+                                    @endforeach
+                                </x-forms.select.basic>
+                            </div>
+
+                            <div class="col-md-6">
+                                <x-forms.labels.basic>
+                                    Program type
+                                </x-forms.labels.basic>
+                                <x-forms.select.basic name="program_type_id">
+                                    <option value="">Select type</option>
+                                    @foreach($programTypesSelect as $id => $name)
+                                        <option
+                                            value="{{ $id }}"
+                                            @selected(old('program_type_id', $lead->program_type_id) == $id)
+                                        >
+                                            {{ $name }}
                                         </option>
                                     @endforeach
                                 </x-forms.select.basic>
@@ -421,7 +509,7 @@
         }
 
         function tomorrowAt(time) {
-            if(!time)
+            if (!time)
                 return;
 
             const tomorrow = new Date();

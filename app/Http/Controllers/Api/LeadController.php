@@ -22,7 +22,7 @@ class LeadController extends Controller
     public function list(): JsonResponse
     {
         return Response::json(
-            $this->leadService->pluck('name', 'id')
+            $this->leadService->pluck('first_name', 'id')
         );
     }
 

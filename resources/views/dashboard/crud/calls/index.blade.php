@@ -36,8 +36,12 @@
                                         <tr>
                                             <td>
                                                 <div class="d-flex align-items-center">
-                                                    <span
-                                                        class="text-lg text-secondary-light fw-semibold flex-grow-1">{{ $call->relatedTo->name }}</span>
+                                                    <a
+                                                        href="{{ route('calls.edit', $call->id) }}"
+                                                        class="text-lg text-secondary-light fw-semibold flex-grow-1"
+                                                    >
+                                                        {{ $call->relatedTo->name }}
+                                                    </a>
                                                 </div>
                                             </td>
                                             <td>{{ str(RelatedToType::from($call->related_to_type)->name)->lower() }}</td>

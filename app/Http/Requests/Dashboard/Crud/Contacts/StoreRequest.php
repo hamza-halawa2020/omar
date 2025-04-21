@@ -16,7 +16,8 @@ class StoreRequest extends CrmAdminRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|string|min:2|max:255',
+            'first_name' => 'required|string|min:2|max:255',
+            'last_name' => 'required|string|min:2|max:255',
             'email' => 'required|string|email|max:255',
             'phone' => 'required|string|max:255',
             'position' => 'required|string|max:255',

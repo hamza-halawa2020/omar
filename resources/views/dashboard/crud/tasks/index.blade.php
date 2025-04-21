@@ -37,14 +37,18 @@
 
                                             <td>
                                                 <div class="d-flex align-items-center">
-                                                    <span
-                                                            class="text-lg text-secondary-light fw-semibold flex-grow-1">{{ $task->title }}</span>
+                                                    <a
+                                                        href="{{ route('tasks.edit', $task->id) }}"
+                                                        class="text-lg text-secondary-light fw-semibold flex-grow-1"
+                                                    >
+                                                        {{ $task->title }}
+                                                    </a>
                                                 </div>
                                             </td>
                                             <td>{{ \Illuminate\Support\Carbon::create($task->due_date)->format('M d, Y h:i A') }}</td>
                                             <td>{{ $task->status }}</td>
                                             <td>{{ str(RelatedToType::from($task->related_to_type)->name)->lower() }}</td>
-                                            <td class="text-center">{{ $task->relatedTo->name }}</td>
+                                            <td class="text-center">{{ $task->relatedTo->first_name }}</td>
                                             <td class="text-center">{{ $task->assignedUser->full_name }}</td>
                                             <td class="text-center">{{ str($task->notes)->limit(30) }}</td>
                                             <td class="text-center">{{ $task->created_at ?? '-' }}</td>
@@ -57,9 +61,9 @@
                                                         <iconify-icon icon="lucide:edit" class="text-lg"></iconify-icon>
                                                     </a>
                                                     <form
-                                                            action="{{ route('tasks.destroy', ['task' => $task->id]) }}"
-                                                            method="POST"
-                                                            onsubmit="return confirm('Are you sure you want to delete this task?');">
+                                                        action="{{ route('tasks.destroy', ['task' => $task->id]) }}"
+                                                        method="POST"
+                                                        onsubmit="return confirm('Are you sure you want to delete this task?');">
                                                         @method('DELETE')
                                                         @csrf
                                                         <button type="submit"

@@ -16,6 +16,6 @@ class ContactController extends Controller
     {
         $accountId = (int) request()->query('account_id');
 
-        return Response::json($this->contactService->pluck('name', 'id', new ContactFilter(accountId: $accountId)));
+        return Response::json($this->contactService->pluck('first_name', 'id', new ContactFilter(accountId: $accountId)));
     }
 }

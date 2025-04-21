@@ -13,15 +13,22 @@
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <x-forms.input-label.basic
-                                    name="name"
+                                    name="first_name"
                                     required
-                                    value="{{ old('name') }}"
+                                    value="{{ old('first_name') }}"
                                 >
-                                    Name
+                                    First name
                                 </x-forms.input-label.basic>
-                                @error('name')
-                                <small class="text-danger">{{ $message }}</small>
-                                @enderror
+                            </div>
+
+                            <div class="col-md-6">
+                                <x-forms.input-label.basic
+                                    name="last_name"
+                                    required
+                                    value="{{ old('last_name') }}"
+                                >
+                                    Last name
+                                </x-forms.input-label.basic>
                             </div>
 
                             <div class="col-md-6">
@@ -32,9 +39,6 @@
                                 >
                                     Email
                                 </x-forms.input-label.basic>
-                                @error('email')
-                                <small class="text-danger">{{ $message }}</small>
-                                @enderror
                             </div>
 
                             <div class="col-md-6">
@@ -45,9 +49,6 @@
                                 >
                                     Phone
                                 </x-forms.input-label.basic>
-                                @error('phone')
-                                <small class="text-danger">{{ $message }}</small>
-                                @enderror
                             </div>
 
                             <div class="col-md-6">
@@ -58,9 +59,6 @@
                                 >
                                     Position
                                 </x-forms.input-label.basic>
-                                @error('position')
-                                <small class="text-danger">{{ $message }}</small>
-                                @enderror
                             </div>
 
                             <div class="col-md-6">
@@ -78,9 +76,6 @@
                                         </option>
                                     @endforeach
                                 </x-forms.select.basic>
-                                @error('account_id')
-                                <small class="text-danger">{{ $message }}</small>
-                                @enderror
                             </div>
 
                             <div class="col-12 pt-4 text-end">

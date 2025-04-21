@@ -32,7 +32,7 @@ class CallController extends Controller
 
     public function create()
     {
-        $contacts = $this->contactService->pluck('name', 'id');
+        $contacts = $this->contactService->pluck('first_name', 'id');
 
         return view('dashboard.crud.calls.create', [
             'contacts' => $contacts,
@@ -50,7 +50,7 @@ class CallController extends Controller
 
     public function edit(Call $call)
     {
-        $contacts = $this->contactService->pluck('name', 'id');
+        $contacts = $this->contactService->pluck('first_name', 'id');
 
         return view('dashboard.crud.calls.edit', [
             'call' => $call,

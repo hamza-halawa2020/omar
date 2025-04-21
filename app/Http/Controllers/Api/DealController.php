@@ -17,7 +17,7 @@ class DealController extends Controller
     public function list(): JsonResponse
     {
         return Response::json(
-            $this->dealService->pluck('title', 'id')
+            $this->dealService->pluck('name', 'id')
         );
     }
 }

@@ -12,8 +12,14 @@
                         @csrf
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <x-forms.input-label.basic name="name" required value="{{ old('name') }}">
-                                    Name
+                                <x-forms.input-label.basic name="first_name" required value="{{ old('first_name') }}">
+                                    First name
+                                </x-forms.input-label.basic>
+                            </div>
+
+                            <div class="col-md-6">
+                                <x-forms.input-label.basic name="last_name" required value="{{ old('last_name') }}">
+                                    Last name
                                 </x-forms.input-label.basic>
                             </div>
 

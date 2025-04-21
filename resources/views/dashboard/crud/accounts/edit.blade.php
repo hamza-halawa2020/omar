@@ -13,9 +13,22 @@
                         @method('PATCH')
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <x-forms.input-label.basic name="name" required
-                                                           value="{{ old('name', $account->name) }}">
-                                    Name
+                                <x-forms.input-label.basic
+                                    name="first_name"
+                                    required
+                                    value="{{ old('first_name', $account->first_name) }}"
+                                >
+                                    First name
+                                </x-forms.input-label.basic>
+                            </div>
+
+                            <div class="col-md-6">
+                                <x-forms.input-label.basic
+                                    name="last_name"
+                                    required
+                                    value="{{ old('last_name', $account->last_name) }}"
+                                >
+                                    Last name
                                 </x-forms.input-label.basic>
                             </div>
 
@@ -55,7 +68,7 @@
                                     <option value="">Select user</option>
                                     @foreach($usersSelect as $id => $fullName)
                                         <option
-                                                value="{{ $id }}" {{ $id == old('assigned_to', $account->assigned_to) ? 'selected' : '' }}>
+                                            value="{{ $id }}" {{ $id == old('assigned_to', $account->assigned_to) ? 'selected' : '' }}>
                                             {{ $fullName }}
                                         </option>
                                     @endforeach
@@ -75,6 +88,6 @@
 
         <x-dashboard.contacts.table :contacts="$contacts" :queryParams="['account_id' => $account->id]"/>
 
-        <x-dashboard.deals.table :deals="$deals" :queryParams="['account_id' => $account->id]" />
+        <x-dashboard.deals.table :deals="$deals" :queryParams="['account_id' => $account->id]"/>
     </div>
 @endsection
