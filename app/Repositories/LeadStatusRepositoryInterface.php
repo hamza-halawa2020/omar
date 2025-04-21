@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-use App\DTO\LeadStatusFilter;
+use App\DTO\QueryFilters\LeadStatusFilter;
 use App\Models\LeadsStatus;
 use Illuminate\Support\Collection;
 

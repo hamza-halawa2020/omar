@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DTO;
+namespace App\DTO\QueryFilters;
 
 readonly class LeadFilter
 {
@@ -8,6 +8,7 @@ readonly class LeadFilter
         public ?bool $withAssignedUsers = false,
         public ?bool $available = false,
         public ?bool $converted = false,
+        public ?bool $withStatus = false,
         public ?int $perPage = 10,
     )
     {

@@ -2,21 +2,19 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\DTO\QueryFilters\LeadFilter;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Dashboard\Crud\Leads\UpdateRequest;
+use App\Http\Requests\Api\Leads\UpdateRequest;
 use App\Models\Lead;
-use App\Models\LeadsStatus;
 use App\Services\LeadServiceInterface;
 use App\Services\LeadStatusServiceInterface;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 
 class LeadController extends Controller
 {
     public function __construct(
-        private readonly LeadServiceInterface       $leadService,
-        private readonly LeadStatusServiceInterface $leadStatusService,
+        private readonly LeadServiceInterface $leadService,
     )
     {
     }
@@ -28,14 +26,12 @@ class LeadController extends Controller
         );
     }
 
-    public function update(Request $request, Lead $lead)
+    public function update(UpdateRequest $request, Lead $lead): JsonResponse
     {
-        $this->leadService->update($lead, [
-            'status_id' => $request->status_id
-        ]);
+        $this->leadService->update($lead, $request->validated());
 
         return Response::json([
-            'newStatus' => $this->leadStatusService->getById($request->status_id),
+            'lead' => $this->leadService->getOne($lead->id)->load('status'),
         ]);
     }
 }

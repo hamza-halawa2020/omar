@@ -2,9 +2,8 @@
 
 namespace App\Repositories\impl;
 
-use App\DTO\AccountFilter;
+use App\DTO\QueryFilters\AccountFilter;
 use App\Models\Account;
-use App\Models\Lead;
 use App\Repositories\AccountRepositoryInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;

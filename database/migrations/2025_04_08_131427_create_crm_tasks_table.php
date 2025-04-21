@@ -14,7 +14,7 @@ return new class extends Migration {
         Schema::create('crm_tasks', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->date('due_date');
+            $table->dateTime('due_date');
             $table->enum('status', array_column(Status::cases(), 'value'));
 
             $table->morphs('related_to');

@@ -8,11 +8,28 @@ use App\Http\Requests\Dashboard\CrmAdminRequest;
 use App\Models\CrmModel;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 
 class StoreRequest extends CrmAdminRequest
 {
+
+    /**
+     * Prepare the data for validation.
+     *
+     * @return void
+     */
+    protected function prepareForValidation()
+    {
+        // Convert the due_date to Africa/Cairo timezone
+        if ($this->has('due_date')) {
+            $this->merge([
+                'due_date' => Carbon::parse($this->due_date)->timezone('Africa/Cairo')
+            ]);
+        }
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *

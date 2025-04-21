@@ -2,9 +2,8 @@
 
 namespace App\Services;
 
-use App\DTO\ContactFilter;
+use App\DTO\QueryFilters\ContactFilter;
 use App\Models\Contact;
-use App\Models\Lead;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 

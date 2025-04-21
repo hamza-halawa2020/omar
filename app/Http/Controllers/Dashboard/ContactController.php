@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Dashboard;
 
-use App\DTO\ContactFilter;
+use App\DTO\QueryFilters\ContactFilter;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Dashboard\Crud\Contacts\StoreRequest;
 use App\Models\Contact;

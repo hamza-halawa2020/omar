@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers\Dashboard;
 
-use App\DTO\DealFilter;
+use App\DTO\QueryFilters\DealFilter;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Dashboard\Crud\Deals\StoreRequest;
 use App\Models\Deal;
 use App\Services\AccountServiceInterface;
 use App\Services\DealServiceInterface;
 use Illuminate\Http\Request;
-use Illuminate\Session\Store;
 
 class DealController extends Controller
 {

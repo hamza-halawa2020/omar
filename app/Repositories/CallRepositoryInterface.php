@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-use App\DTO\CallFilter;
+use App\DTO\QueryFilters\CallFilter;
 use App\Models\Call;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;

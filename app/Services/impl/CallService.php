@@ -2,10 +2,9 @@
 
 namespace App\Services\impl;
 
-use App\DTO\CallFilter;
+use App\DTO\QueryFilters\CallFilter;
 use App\Models\Call;
 use App\Repositories\CallRepositoryInterface;
-use App\Repositories\impl\CallRepository;
 use App\Services\CallServiceInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
