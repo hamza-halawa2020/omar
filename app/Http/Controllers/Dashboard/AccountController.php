@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Dashboard;
 
-use App\DTO\AccountFilter;
-use App\DTO\ContactFilter;
-use App\DTO\DealFilter;
+use App\DTO\QueryFilters\AccountFilter;
+use App\DTO\QueryFilters\ContactFilter;
+use App\DTO\QueryFilters\DealFilter;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Dashboard\Crud\Accounts\StoreRequest;
 use App\Models\Account;
@@ -12,9 +12,7 @@ use App\Models\User;
 use App\Services\AccountServiceInterface;
 use App\Services\ContactServiceInterface;
 use App\Services\DealServiceInterface;
-use App\Services\impl\AccountService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 
 class AccountController extends Controller
 {

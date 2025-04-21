@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers\Dashboard;
 
-use App\DTO\LeadFilter;
+use App\DTO\QueryFilters\LeadFilter;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Dashboard\Crud\Leads\StoreRequest;
 use App\Http\Requests\Dashboard\Crud\Leads\UpdateRequest;
 use App\Models\Lead;
 use App\Models\User;
-use App\Services\impl\LeadService;
 use App\Services\LeadServiceInterface;
 use Illuminate\Http\RedirectResponse;
 
@@ -18,7 +17,7 @@ class LeadController extends Controller
 
     public function index()
     {
-        $leads = $this->leadService->getAll(new LeadFilter(withAssignedUsers: true, available: true));
+        $leads = $this->leadService->getAll(new LeadFilter(withAssignedUsers: true, available: true, withStatus: true));
 
         return view('dashboard.crud.leads.index', [
             'leads' => $leads,

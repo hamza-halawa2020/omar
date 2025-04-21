@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers\Dashboard;
 
-use App\DTO\TaskFilter;
-use App\Enums\Tasks\RelatedToType;
+use App\DTO\QueryFilters\TaskFilter;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Dashboard\Crud\Tasks\StoreRequest;
 use App\Models\Task;
 use App\Models\User;
 use App\Services\TaskServiceInterface;
-use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {

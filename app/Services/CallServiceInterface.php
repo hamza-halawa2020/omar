@@ -2,9 +2,8 @@
 
 namespace App\Services;
 
-use App\DTO\CallFilter;
+use App\DTO\QueryFilters\CallFilter;
 use App\Models\Call;
-use App\Models\Lead;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 

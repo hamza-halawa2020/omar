@@ -2,13 +2,10 @@
 
 namespace App\Services\impl;
 
-use App\DTO\LeadStatusFilter;
-use App\Models\Account;
-use App\Models\Lead;
+use App\DTO\QueryFilters\LeadStatusFilter;
 use App\Models\LeadsStatus;
 use App\Repositories\LeadStatusRepositoryInterface;
 use App\Services\LeadStatusServiceInterface;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
 readonly class LeadStatusService implements LeadStatusServiceInterface

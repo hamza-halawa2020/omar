@@ -2,7 +2,7 @@
 
 namespace App\Services\impl;
 
-use App\DTO\DealFilter;
+use App\DTO\QueryFilters\DealFilter;
 use App\Models\Deal;
 use App\Repositories\DealRepositoryInterface;
 use App\Services\DealServiceInterface;

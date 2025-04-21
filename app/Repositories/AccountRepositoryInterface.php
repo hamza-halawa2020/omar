@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-use App\DTO\AccountFilter;
+use App\DTO\QueryFilters\AccountFilter;
 use App\Models\Account;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;

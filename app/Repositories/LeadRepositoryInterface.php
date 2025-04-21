@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-use App\DTO\LeadFilter;
+use App\DTO\QueryFilters\LeadFilter;
 use App\Models\Lead;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -13,7 +13,7 @@ interface LeadRepositoryInterface
 
     public function create(array $data): Lead;
 
-    public function getById(int $id): Lead;
+    public function getById(int $id, LeadFilter $filter = null): Lead;
 
     public function update(Lead $lead, array $data): bool;
 

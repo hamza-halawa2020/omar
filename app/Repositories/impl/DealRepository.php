@@ -2,7 +2,7 @@
 
 namespace App\Repositories\impl;
 
-use App\DTO\DealFilter;
+use App\DTO\QueryFilters\DealFilter;
 use App\Models\Deal;
 use App\Repositories\DealRepositoryInterface;
 use Illuminate\Pagination\LengthAwarePaginator;

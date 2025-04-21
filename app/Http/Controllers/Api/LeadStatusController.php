@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\DTO\LeadStatusFilter;
+use App\DTO\QueryFilters\LeadStatusFilter;
 use App\Http\Controllers\Controller;
 use App\Models\LeadsStatus;
-use App\Services\impl\LeadStatusService;
 use App\Services\LeadStatusServiceInterface;
 use Illuminate\Http\Request;
 

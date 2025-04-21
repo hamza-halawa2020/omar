@@ -2,7 +2,7 @@
 
 namespace App\Repositories\impl;
 
-use App\DTO\TaskFilter;
+use App\DTO\QueryFilters\TaskFilter;
 use App\Models\Task;
 use App\Repositories\TaskRepositoryInterface;
 use Illuminate\Pagination\LengthAwarePaginator;

@@ -2,7 +2,7 @@
 
 namespace App\Repositories\impl;
 
-use App\DTO\LeadFilter;
+use App\DTO\QueryFilters\LeadFilter;
 use App\Models\Lead;
 use App\Repositories\LeadRepositoryInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -22,6 +22,9 @@ class LeadRepository implements LeadRepositoryInterface
             ->when($filter?->converted, function ($query) use ($filter) {
                 return $query->whereConverted();
             })
+            ->when($filter?->withStatus, function ($query) use ($filter) {
+                return $query->withStatus();
+            })
             ->paginate($filter?->perPage ?? 10, ['*'], 'leads_page')
             ->appends(preserveOtherPagination('leads_page'));
     }
@@ -31,9 +34,15 @@ class LeadRepository implements LeadRepositoryInterface
         return Lead::create($data);
     }
 
-    public function getById(int $id): Lead
+    public function getById(int $id, LeadFilter $filter = null): Lead
     {
-        return Lead::findOrFail($id);
+        return Lead::query()
+            ->when($filter?->available, fn($q) => $q->whereAvailable())
+            ->when($filter?->withAssignedUsers, fn($q) => $q->with('assignedUsers'))
+            ->when($filter?->converted, fn($q) => $q->whereConverted())
+            ->when($filter?->withStatus, fn($q) => $q->with('status'))
+            ->where('id', $id)
+            ->firstOrFail();
     }
 
     public function update(Lead $lead, array $data): bool
@@ -57,6 +66,9 @@ class LeadRepository implements LeadRepositoryInterface
             })
             ->when($filter?->converted, function ($query) use ($filter) {
                 return $query->whereConverted();
+            })
+            ->when($filter?->withStatus, function ($query) use ($filter) {
+                return $query->withStatus();
             });
 
         return $key

@@ -1,11 +1,10 @@
 <?php
 
-namespace App\DTO;
+namespace App\DTO\QueryFilters;
 
-readonly class TaskFilter
+readonly class AccountFilter
 {
     public function __construct(
-        public ?bool $withRelatedTo = null,
         public ?bool $withAssignedUser = null,
         public ?int  $perPage = 10,
     )

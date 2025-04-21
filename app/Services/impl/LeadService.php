@@ -2,11 +2,9 @@
 
 namespace App\Services\impl;
 
-use App\DTO\LeadFilter;
+use App\DTO\QueryFilters\LeadFilter;
 use App\Jobs\SendLeadCreationReminder;
-use App\Models\Account;
 use App\Models\Lead;
-use App\Repositories\ContactRepositoryInterface;
 use App\Repositories\LeadRepositoryInterface;
 use App\Services\AccountServiceInterface;
 use App\Services\ContactServiceInterface;
@@ -45,7 +43,7 @@ readonly class LeadService implements LeadServiceInterface
         return $lead;
     }
 
-    public function getOne(int $id): Lead
+    public function getOne(int $id, LeadFilter $filter = null): Lead
     {
         return $this->leadRepository->getById($id);
     }

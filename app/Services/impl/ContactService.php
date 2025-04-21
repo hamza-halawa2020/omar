@@ -2,10 +2,8 @@
 
 namespace App\Services\impl;
 
-use App\DTO\ContactFilter;
+use App\DTO\QueryFilters\ContactFilter;
 use App\Models\Contact;
-
-use App\Models\Lead;
 use App\Repositories\ContactRepositoryInterface;
 use App\Services\ContactServiceInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
