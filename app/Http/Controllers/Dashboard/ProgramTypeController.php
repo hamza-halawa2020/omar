@@ -3,67 +3,57 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
-use App\Services\ProgramTypeServiceInterface;
+use App\Http\Requests\Dashboard\Crud\ProgramType\StoreRequest;
+use App\Models\ProgramType;
 use Illuminate\Http\Request;
 
 class ProgramTypeController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-
-    public function __construct(private readonly ProgramTypeServiceInterface $programTypeService) {}
-    public function index()
+    public function index(Request $request)
     {
-        $programTypes = $this->programTypeService->getAll();
-        return view('dashboard.crud.program_types.index', ['programTypes' => $programTypes]);
+        $types = ProgramType::paginate(10);
+        return view('dashboard.crud.program_types.index', compact('types'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+    public function store(StoreRequest $request)
+    {
+        ProgramType::create($request->validated());
+        return redirect()->route('program_types.index')->with('success', 'Track type added successfully');
+    }
+
+    public function show($id)
+    {
+        $type = ProgramType::findOrFail($id);
+        return view('dashboard.crud.program_types.edit', compact( 'type'));
+    }
+
+
+    public function edit($id)
+    {
+        $type = ProgramType::findOrFail($id);
+
+        return view('dashboard.crud.program_types.edit', compact('type'));
+    }
+
+
     public function create()
     {
-        //
+        $types = ProgramType::all();
+        return view('dashboard.crud.program_types.create', compact('types'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+
+    public function update(StoreRequest $request, $id)
     {
-        //
+        $type = ProgramType::findOrFail($id);
+        $type->update($request->validated());
+        return redirect()->route('program_types.index')->with('success', 'Track type updated successfully');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function destroy($id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        $type = ProgramType::findOrFail($id);
+        $type->delete();
+        return redirect()->route('program_types.index')->with('success', 'Track type deleted successfully');
     }
 }

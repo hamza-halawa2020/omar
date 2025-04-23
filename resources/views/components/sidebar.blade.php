@@ -66,6 +66,29 @@
                     <span>calls</span>
                 </a>
             </li>
+            <li>
+                <a href="{{ route('program_types.index') }}"
+                   class="d-flex align-items-center gap-2 {{ request()->is('calls/*') ? 'active-page' : '' }}">
+                    <iconify-icon icon="mdi:phone" class="menu-icon"></iconify-icon>
+                    <span>program types</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ route('workflow.index') }}"
+                   class="d-flex align-items-center gap-2 {{ request()->is('calls/*') ? 'active-page' : '' }}">
+                    <iconify-icon icon="mdi:phone" class="menu-icon"></iconify-icon>
+                    <span>WorkFlow</span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('call_status.index') }}"
+                   class="d-flex align-items-center gap-2 {{ request()->is('calls/*') ? 'active-page' : '' }}">
+                    <iconify-icon icon="mdi:phone" class="menu-icon"></iconify-icon>
+                    <span>call status</span>
+                </a>
+            </li>
+           
         </ul>
     </div>
 </aside>

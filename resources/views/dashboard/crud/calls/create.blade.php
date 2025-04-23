@@ -1,4 +1,8 @@
-@php use App\Enums\Calls\OutcomeType;use App\Enums\Calls\RelatedToType; @endphp
+@php
+ use App\Enums\Calls\OutcomeType;
+ use App\Enums\Calls\RelatedToType; 
+ use App\Models\CallStatus; 
+@endphp
 @extends('dashboard.layouts.app')
 
 @section('content')
@@ -68,7 +72,7 @@
                                 </x-forms.input-label.basic>
                             </div>
 
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <x-forms.input-label.basic
                                     name="duration_in_minutes"
                                     value="{{ old('duration_in_minutes') }}"
@@ -79,7 +83,7 @@
                                 </x-forms.input-label.basic>
                             </div>
 
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <x-forms.labels.basic>
                                     Outcome
                                 </x-forms.labels.basic>
@@ -91,6 +95,23 @@
                                             @selected(old('outcome') === $outcome->value)
                                         >
                                             {{ str($outcome->value)->replace('_', ' ')->lower()->ucfirst() }}</option>
+                                    @endforeach
+                                </x-forms.select.basic>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <x-forms.labels.basic>
+                                    Status
+                                </x-forms.labels.basic>
+                                <x-forms.select.basic name="call_status_id" required>
+                                    <option value="">Select status</option>
+                                    @foreach(CallStatus::all() as $status)
+                                        <option
+                                            value="{{ $status->id }}"
+                                            @selected(old('call_status_id') == $status->id)
+                                        >
+                                            {{ $status->name }}
+                                        </option>
                                     @endforeach
                                 </x-forms.select.basic>
                             </div>

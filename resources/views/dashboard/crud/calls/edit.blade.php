@@ -1,6 +1,8 @@
 @php
     use App\Enums\Calls\OutcomeType;
     use App\Enums\Calls\RelatedToType;
+    use App\Models\CallStatus;
+
 @endphp
 @extends('dashboard.layouts.app')
 
@@ -22,11 +24,8 @@
                                 </x-forms.labels.basic>
                                 <x-forms.select.basic id="relatedToTypeSelect" name="related_to_type" required>
                                     <option value="">Select type</option>
-                                    @foreach(RelatedToType::cases() as $relatedToType)
-                                        <option
-                                                @selected(old('related_to_type', $call->related_to_type) == $relatedToType->value)
-                                                value="{{ $relatedToType->value }}"
-                                        >
+                                    @foreach (RelatedToType::cases() as $relatedToType)
+                                        <option @selected(old('related_to_type', $call->related_to_type) == $relatedToType->value) value="{{ $relatedToType->value }}">
                                             {{ str($relatedToType->name)->lower()->replace('_', ' ')->ucfirst() }}
                                         </option>
                                     @endforeach
@@ -37,59 +36,57 @@
                                 <x-forms.labels.basic>
                                     Related to
                                 </x-forms.labels.basic>
-                                <x-forms.select.basic
-                                        name="related_to_id"
-                                        id="relatedToSelect"
-                                        required
-                                >
+                                <x-forms.select.basic name="related_to_id" id="relatedToSelect" required>
                                     <option value="">Select</option>
                                 </x-forms.select.basic>
                             </div>
 
                             <div class="col-md-6">
-                                <x-forms.input-label.basic
-                                        name="subject"
-                                        value="{{ old('subject', $call->subject) }}"
-                                        required
-                                >
+                                <x-forms.input-label.basic name="subject" value="{{ old('subject', $call->subject) }}"
+                                    required>
                                     Subject
                                 </x-forms.input-label.basic>
                             </div>
 
                             <div class="col-md-6">
-                                <x-forms.input-label.basic
-                                        name="call_time"
-                                        value="{{ old('call_time', \Carbon\Carbon::parse($call->call_time)->format('Y-m-d\TH:i')) }}"
-                                        type="datetime-local"
-                                        required
-                                >
+                                <x-forms.input-label.basic name="call_time"
+                                    value="{{ old('call_time', \Carbon\Carbon::parse($call->call_time)->format('Y-m-d\TH:i')) }}"
+                                    type="datetime-local" required>
                                     Call time
                                 </x-forms.input-label.basic>
                             </div>
 
-                            <div class="col-md-6">
-                                <x-forms.input-label.basic
-                                        name="duration_in_minutes"
-                                        value="{{ old('duration_in_minutes', $call->duration_in_minutes) }}"
-                                        type="number"
-                                        required
-                                >
+                            <div class="col-md-4">
+                                <x-forms.input-label.basic name="duration_in_minutes"
+                                    value="{{ old('duration_in_minutes', $call->duration_in_minutes) }}" type="number"
+                                    required>
                                     Duration in minutes
                                 </x-forms.input-label.basic>
                             </div>
 
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <x-forms.labels.basic>
                                     Outcome
                                 </x-forms.labels.basic>
                                 <x-forms.select.basic name="outcome" required>
                                     <option value="">Select outcome</option>
-                                    @foreach(OutcomeType::cases() as $outcome)
-                                        <option
-                                                value="{{ $outcome->value }}"
-                                                @selected(old('outcome', $call->outcome) === $outcome->value)
-                                        >
+                                    @foreach (OutcomeType::cases() as $outcome)
+                                        <option value="{{ $outcome->value }}" @selected(old('outcome', $call->outcome) === $outcome->value)>
                                             {{ str($outcome->value)->replace('_', ' ')->lower()->ucfirst() }}</option>
+                                    @endforeach
+                                </x-forms.select.basic>
+                            </div>
+
+                            <div class="col-md-4">
+                                <x-forms.labels.basic>
+                                    Status
+                                </x-forms.labels.basic>
+                                <x-forms.select.basic name="call_status_id" required>
+                                    <option value="">Select status</option>
+                                    @foreach (CallStatus::all() as $status)
+                                        <option value="{{ $status->id }}" @selected(old('call_status_id', $call->call_status_id) == $status->id)>
+                                            {{ $status->name }}
+                                        </option>
                                     @endforeach
                                 </x-forms.select.basic>
                             </div>
@@ -99,8 +96,7 @@
                                     Notes
                                 </x-forms.labels.basic>
                                 <x-forms.textarea.basic
-                                        name="notes"
-                                >{{ old('notes', $call->notes) }}</x-forms.textarea.basic>
+                                    name="notes">{{ old('notes', $call->notes) }}</x-forms.textarea.basic>
                             </div>
 
                             <div class="col-12 pt-4 text-end">

@@ -22,7 +22,9 @@ use App\Http\Controllers\UsersController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\RoleandaccessController;
 use App\Http\Controllers\CryptocurrencyController;
+use App\Http\Controllers\Dashboard\CallStatusController;
 use App\Http\Controllers\Dashboard\ProgramTypeController;
+use App\Http\Controllers\Dashboard\WorkFlowController;
 
 Route::controller(DashboardController::class)->group(function () {
     Route::get('/', 'index')->name('index');
@@ -30,52 +32,49 @@ Route::controller(DashboardController::class)->group(function () {
 
 
 
-    Route::get('/login', function () {
-        return view('dashboard.login');
-    });
+Route::get('/login', function () {
+    return view('dashboard.login');
+});
 
-    Route::get('/', function () {
-        return view('dashboard.index');
-    })->name('home');
+Route::get('/', function () {
+    return view('dashboard.index');
+})->name('home');
 
-    Route::get('/test', function () {
-        return view('dashboard.test');
-    });
+Route::get('/test', function () {
+    return view('dashboard.test');
+});
 
-    //  Leads
-    Route::resource('/leads', LeadController::class)->except('show');
-    Route::post('/leads/{lead}/convert', ConvertLeadController::class)->name('leads.convert');
+//  Leads
+Route::resource('/leads', LeadController::class)->except('show');
+Route::post('/leads/{lead}/convert', ConvertLeadController::class)->name('leads.convert');
 
-    //  Accounts
-    Route::resource('/accounts', AccountController::class)->except('show');
+//  Accounts
+Route::resource('/accounts', AccountController::class)->except('show');
 
-    //  Contacts
-    Route::resource('/contacts', ContactController::class)->except('show');
+//  Contacts
+Route::resource('/contacts', ContactController::class)->except('show');
 
-    //  Tasks
-    Route::resource('/tasks', TaskController::class)->except('show');
+//  Tasks
+Route::resource('/tasks', TaskController::class)->except('show');
 
-    //  Deals
-    Route::resource('/deals', DealController::class)->except('show');
+//  Deals
+Route::resource('/deals', DealController::class)->except('show');
 
-    //  Calls
-    Route::resource('/calls', CallController::class)->except('show');
-    Route::post('/calls/update-outcome', [CallController::class, 'updateOutcome'])->name('calls.update.outcome');
-
-
-
-
-Route::get('/calls', [CallController::class, 'index'])->name('calls.index');
+//  Calls
+Route::resource('/calls', CallController::class)->except('show');
+// Route::get('/calls', [CallController::class, 'index'])->name('calls.index');
+Route::post('/calls/update-outcome', [CallController::class, 'updateOutcome'])->name('calls.update.outcome');
 Route::get('/calls/kanban-partial', [CallController::class, 'kanbanPartial'])->name('calls.kanban.partial');
 Route::get('/calls/list-partial', [CallController::class, 'listPartial'])->name('calls.list.partial');
-// Other routes (create, store, edit, update, destroy, updateOutcome) remain unchanged
 
-// Other routes (create, store, edit, update, destroy, updateOutcome) remain unchanged
-       //  Program Types
+//  Program Types
+Route::resource('/program_types', ProgramTypeController::class);
 
+// workflow
+Route::resource('/workflow', WorkFlowController::class);
 
-
-    Route::resource('/program_types', ProgramTypeController::class);
+// call_status
+Route::resource('/call_status', CallStatusController::class);
 
 
 
@@ -253,6 +252,3 @@ Route::prefix('cryptocurrency')->group(function () {
         Route::get('/wallet', 'wallet')->name('wallet');
     });
 });
-
-
-

@@ -114,8 +114,8 @@
                     </div>
                 </div>
             @endforeach
-            <div class="w-25 kanban-item radius-12 overflow-hidden">
-                <div class="card p-0 radius-12 overflow-hidden shadow-none">
+            <div class="w-25 kanban-item radius-12">
+                <div class="card p-0 radius-12">
                     <div class="card-body p-24">
                         <a href="{{ route('calls.create') }}"
                             class="add-kanban d-flex align-items-center gap-2 fw-medium w-100 text-primary-600 justify-content-center text-hover-primary-800 line-height-1">

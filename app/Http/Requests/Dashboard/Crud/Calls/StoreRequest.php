@@ -20,6 +20,7 @@ class StoreRequest extends CrmAdminRequest
         return [
             'related_to_type' => 'required|string',
             'related_to_id' => 'required|integer',
+            'call_status_id' => 'required',
             'subject' => 'required|string',
             'call_time' => 'required|date',
             'duration_in_minutes' => 'required|integer',
