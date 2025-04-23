@@ -17,6 +17,8 @@
                         <th scope="col">Subject</th>
                         <th scope="col">Time</th>
                         <th scope="col">Duration in minutes</th>
+                        <th scope="col" class="text-center">CallStatus</th>
+                        <th scope="col" class="text-center">WorkFlow</th>
                         <th scope="col" class="text-center">Outcome</th>
                         <th scope="col" class="text-center">Notes</th>
                         <th scope="col" class="text-center">Created At</th>
@@ -39,6 +41,8 @@
                             <td>{{ $call->subject }}</td>
                             <td>{{ $call->call_time }}</td>
                             <td>{{ $call->duration_in_minutes }}</td>
+                            <td>{{ $call->callStatus->workFlow->name ?? '-' }}</td>
+                            <td>{{ $call->callStatus->name ?? '-' }}</td>
                             <td>{{ str($call->outcome)->replace('_', ' ')->ucfirst() }}</td>
                             <td>{{ str($call->notes)->limit(30) }}</td>
                             <td class="text-center">{{ $call->created_at ?? '-' }}</td>

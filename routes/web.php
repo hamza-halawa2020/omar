@@ -63,9 +63,9 @@ Route::resource('/deals', DealController::class)->except('show');
 //  Calls
 Route::resource('/calls', CallController::class)->except('show');
 // Route::get('/calls', [CallController::class, 'index'])->name('calls.index');
-Route::post('/calls/update-outcome', [CallController::class, 'updateOutcome'])->name('calls.update.outcome');
 Route::get('/calls/kanban-partial', [CallController::class, 'kanbanPartial'])->name('calls.kanban.partial');
 Route::get('/calls/list-partial', [CallController::class, 'listPartial'])->name('calls.list.partial');
+Route::post('calls/update-call-status', [CallController::class, 'updateCallStatus'])->name('calls.update.call.status');
 
 //  Program Types
 Route::resource('/program_types', ProgramTypeController::class);

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Dashboard;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Dashboard\Crud\Calls\StoreRequest;
 use App\Models\Call;
+use App\Models\WorkFlow;
 use App\Services\CallServiceInterface;
 use App\Services\ContactServiceInterface;
 use Illuminate\Http\RedirectResponse;
@@ -31,14 +32,14 @@ class CallController extends Controller
 
 
 
-
-  
     public function index()
     {
         $calls = $this->callService->getAll();
+        $workflows = WorkFlow::with('callStatus')->where('type','call')->get();
 
         return view('dashboard.crud.calls.index', [
             'calls' => $calls,
+            'workflows' => $workflows,
             'title' => 'Calls',
             'subTitle' => 'All Calls',
         ]);
@@ -47,8 +48,12 @@ class CallController extends Controller
     public function kanbanPartial()
     {
         $calls = $this->callService->getAll();
+        $workflows = WorkFlow::with('callStatus')->where('type','call')->get();
+
+
         return view('dashboard.crud.calls.partials.kanban', [
             'calls' => $calls,
+            'workflows' => $workflows,
             'title' => 'Calls',
             'subTitle' => 'All Calls',
         ]);
@@ -57,13 +62,35 @@ class CallController extends Controller
     public function listPartial()
     {
         $calls = $this->callService->getAll();
+        $workflows = WorkFlow::with('callStatus')->where('type','call')->get();
+
+
         return view('dashboard.crud.calls.partials.list', [
             'calls' => $calls,
+            'workflows' => $workflows,
             'title' => 'Calls',
             'subTitle' => 'All Calls',
         ]);
     }
 
+    public function updateCallStatus(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:crm_calls,id',
+            'call_status_id' => 'required|exists:crm_call_statuses,id',
+        ]);
+
+        $call = Call::findOrFail($request->id);
+        if ($call->call_status_id === $request->call_status_id) {
+            Log::info('No change in call status, skipping update', ['call_id' => $call->id]);
+            return response()->json(['message' => 'No change in call status']);
+        }
+
+        $call->call_status_id = $request->call_status_id;
+        $call->save();
+
+        return response()->json(['message' => 'Call status updated successfully']);
+    }
 
 
     public function create()
@@ -115,24 +142,5 @@ class CallController extends Controller
 
 
 
-    public function updateOutcome(Request $request)
-    {
-        $request->validate([
-            'id' => 'required|exists:crm_calls,id',
-            'outcome' => 'required'
-        ]);
-
-        $call = Call::findOrFail($request->id);
-        if ($call->outcome === $request->outcome) {
-            Log::info('No change in outcome, skipping update', ['call_id' => $call->id]);
-            return response()->json(['message' => 'No change in outcome']);
-        }
-
-        $call->outcome = $request->outcome;
-        $call->save();
-
-
-
-        return response()->json(['message' => 'Outcome updated successfully']);
-    }
+   
 }

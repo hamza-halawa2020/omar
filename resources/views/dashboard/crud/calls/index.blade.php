@@ -30,14 +30,11 @@
         $(document).ready(function() {
             let currentView = 'kanban';
 
-
             initializeSortable();
-
 
             $('.view-toggle-btn').on('click', function(e) {
                 e.preventDefault();
                 const view = $(this).data('view');
-
 
                 if (view === currentView) {
                     return;
@@ -52,16 +49,13 @@
                     success: function(response) {
                         $('.view-content').html(response);
 
-
                         if (view === 'kanban') {
                             initializeSortable();
                         }
 
-
                         $('.view-toggle-btn').hide();
                         $(`.view-toggle-btn[data-view="${view === 'kanban' ? 'list' : 'kanban'}"]`)
                             .show();
-
 
                         currentView = view;
                     },
@@ -72,47 +66,46 @@
                 });
             });
 
-
             function initializeSortable() {
+                // تهيئة Sortable لكل WorkFlow
+                $('[id^="sortable-wrapper-"]').each(function() {
+                    $(this).sortable({
+                        items: ".kanban-item",
+                        handle: ".card-header",
+                        update: function(event, ui) {
+                            console.log('Columns reordered:', $(this).sortable("toArray"));
+                        }
+                    }).disableSelection();
+                });
 
-                $("#sortable-wrapper").sortable({
-                    items: ".kanban-item",
-                    handle: ".card-header",
-                    update: function(event, ui) {
-
-                        console.log('Columns reordered:', $("#sortable-wrapper").sortable("toArray"));
-                    }
-                }).disableSelection();
-
-
+                // تهيئة Sortable للسحب والإفلات بين الأعمدة داخل نفس الـ WorkFlow
                 $(".connectedSortable").sortable({
-                    connectWith: ".connectedSortable",
+                    connectWith: ".connectedSortable[data-workflow-id]", // تحديد أن السحب يتم داخل نفس الـ WorkFlow فقط
                     update: function(event, ui) {
                         if (ui.sender) {
                             let callId = ui.item.attr('id').replace('kanban-', '');
-                            let newOutcome = $(this).closest('.kanban-item').data('outcome') ||
-                                $(this).closest('.kanban-item').find('h6').text().trim().toLowerCase()
-                                .replace(/ /g, '_');
-                            let currentOutcome = ui.item.data('current-outcome');
-                            if (newOutcome && newOutcome !== currentOutcome) {
+                            let newStatusId = $(this).closest('.kanban-item').data('status-id');
+                            let currentStatusId = ui.item.data('current-status-id');
+                            let workflowId = $(this).closest('.kanban-item').data('workflow-id');
+                            if (newStatusId && newStatusId !== currentStatusId) {
                                 $.ajax({
-                                    url: "{{ route('calls.update.outcome') }}",
+                                    url: "{{ route('calls.update.call.status') }}",
                                     method: "POST",
                                     data: {
                                         _token: "{{ csrf_token() }}",
                                         id: callId,
-                                        outcome: newOutcome
+                                        call_status_id: newStatusId
                                     },
                                     success: function(res) {
-                                        ui.item.data('current-outcome', newOutcome);
+                                        ui.item.data('current-status-id', newStatusId);
                                     },
                                     error: function(err) {
-                                        alert('Error updating outcome!');
+                                        alert('Error updating call status!');
                                         console.error(err);
                                     }
                                 });
                             } else {
-                                console.log("No change in outcome, skipping update.");
+                                console.log("No change in call status, skipping update.");
                             }
                         }
                     }
