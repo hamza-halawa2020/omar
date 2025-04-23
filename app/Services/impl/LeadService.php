@@ -56,6 +56,7 @@ readonly class LeadService implements LeadServiceInterface
     public function delete(Lead $lead): bool
     {
         return $this->leadRepository->delete($lead);
+
     }
 
     public function convertIntoAccountAndContact(Lead $lead): bool

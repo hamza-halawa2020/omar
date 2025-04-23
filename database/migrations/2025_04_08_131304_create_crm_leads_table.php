@@ -32,7 +32,8 @@ return new class extends Migration {
             $table->text('notes')
                 ->nullable();
 
-            $table->enum('flag', array_column(FlagType::cases(), 'value'));
+            $table->enum('flag', array_column(FlagType::cases(), 'value'))
+            ->nullable();
 
             $table->timestamp('last_follow_up')->nullable();    //  last time I had contact with the lead
             $table->timestamp('next_follow_up')->nullable();    //  next lead call time
