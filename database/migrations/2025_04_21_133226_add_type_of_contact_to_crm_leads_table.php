@@ -14,6 +14,7 @@ return new class extends Migration
     {
         Schema::table('crm_leads', function (Blueprint $table) {
             $table->enum('type_of_contact', array_column(TypeOfContact::cases(), 'value'))
+                ->nullable()
             ->after('creator_id');
         });
     }

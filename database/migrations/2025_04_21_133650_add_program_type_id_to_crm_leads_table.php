@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::table('crm_leads', function (Blueprint $table) {
             $table->foreignIdFor(\App\Models\ProgramType::class)
+                ->nullable()
                 ->after('ad_code')
             ->constrained();
         });
