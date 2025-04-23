@@ -9,16 +9,30 @@ use App\Services\CallServiceInterface;
 use App\Services\ContactServiceInterface;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class CallController extends Controller
 {
     public function __construct(
         private readonly CallServiceInterface    $callService,
         private readonly ContactServiceInterface $contactService,
-    )
-    {
-    }
+    ) {}
 
+    // public function index()
+    // {
+    //     $calls = $this->callService->getAll();
+
+    //     return view('dashboard.crud.calls.index', [
+    //         'calls' => $calls,
+    //         'title' => 'Calls',
+    //         'subTitle' => 'All Calls',
+    //     ]);
+    // }
+
+
+
+
+  
     public function index()
     {
         $calls = $this->callService->getAll();
@@ -29,6 +43,28 @@ class CallController extends Controller
             'subTitle' => 'All Calls',
         ]);
     }
+
+    public function kanbanPartial()
+    {
+        $calls = $this->callService->getAll();
+        return view('dashboard.crud.calls.partials.kanban', [
+            'calls' => $calls,
+            'title' => 'Calls',
+            'subTitle' => 'All Calls',
+        ]);
+    }
+
+    public function listPartial()
+    {
+        $calls = $this->callService->getAll();
+        return view('dashboard.crud.calls.partials.list', [
+            'calls' => $calls,
+            'title' => 'Calls',
+            'subTitle' => 'All Calls',
+        ]);
+    }
+
+
 
     public function create()
     {
@@ -74,5 +110,29 @@ class CallController extends Controller
 
         return redirect()->route('calls.index')
             ->with('success', 'Call deleted successfully!');
+    }
+
+
+
+
+    public function updateOutcome(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|exists:crm_calls,id',
+            'outcome' => 'required'
+        ]);
+
+        $call = Call::findOrFail($request->id);
+        if ($call->outcome === $request->outcome) {
+            Log::info('No change in outcome, skipping update', ['call_id' => $call->id]);
+            return response()->json(['message' => 'No change in outcome']);
+        }
+
+        $call->outcome = $request->outcome;
+        $call->save();
+
+
+
+        return response()->json(['message' => 'Outcome updated successfully']);
     }
 }

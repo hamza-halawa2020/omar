@@ -22,6 +22,7 @@ use App\Http\Controllers\UsersController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\RoleandaccessController;
 use App\Http\Controllers\CryptocurrencyController;
+use App\Http\Controllers\Dashboard\ProgramTypeController;
 
 Route::controller(DashboardController::class)->group(function () {
     Route::get('/', 'index')->name('index');
@@ -59,6 +60,22 @@ Route::controller(DashboardController::class)->group(function () {
 
     //  Calls
     Route::resource('/calls', CallController::class)->except('show');
+    Route::post('/calls/update-outcome', [CallController::class, 'updateOutcome'])->name('calls.update.outcome');
+
+
+
+
+Route::get('/calls', [CallController::class, 'index'])->name('calls.index');
+Route::get('/calls/kanban-partial', [CallController::class, 'kanbanPartial'])->name('calls.kanban.partial');
+Route::get('/calls/list-partial', [CallController::class, 'listPartial'])->name('calls.list.partial');
+// Other routes (create, store, edit, update, destroy, updateOutcome) remain unchanged
+
+// Other routes (create, store, edit, update, destroy, updateOutcome) remain unchanged
+       //  Program Types
+
+
+
+    Route::resource('/program_types', ProgramTypeController::class);
 
 
 
