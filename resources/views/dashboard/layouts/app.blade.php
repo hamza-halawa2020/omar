@@ -2,30 +2,52 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 
-<x-head/>
+<x-head />
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
 <body>
-<x-sidebar/>
+    @if (!Route::is('auth.login'))
+        <x-sidebar />
+    @endif
 
-<main class="dashboard-main">
+    <style>
+        .dashboard-main.no-sidebar {
+            /* margin-left: 0; */
+        }
 
-    <x-navbar/>
+        .dashboard-main-body {
+            /* padding: 20px; */
+        }
+    </style>
+        <main class="{{ Route::is('auth.login') ? '' : 'dashboard-main' }}">
 
-    <div class="dashboard-main-body">
-        <x-breadcrumb title='{{ $title ?? "" }}' subTitle='{{ $subTitle ?? "" }}'/>
+        @if (!Route::is('auth.login'))
+            <x-navbar />
+        @endif
 
-        @yield('content')
+        <div class="{{ Route::is('auth.login') ? '' : 'dashboard-main-body' }}">
+            <x-breadcrumb title='{{ $title ?? '' }}' subTitle='{{ $subTitle ?? '' }}' />
 
-    </div>
-    <!-- ..::  footer  start ::.. -->
-    <x-footer/>
-    <!-- ..::  footer area end ::.. -->
+            @yield('content')
 
-</main>
+        </div>
+        <!-- ..::  footer  start ::.. -->
+        <x-footer />
+        <!-- ..::  footer area end ::.. -->
 
-<!-- ..::  scripts  start ::.. -->
-<x-script script='{!! isset($script) ? $script : "" !!}'/>
-<!-- ..::  scripts  end ::.. -->
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    @yield('scripts')
+
+
+    <!-- ..::  scripts  start ::.. -->
+    <x-script script='{!! isset($script) ? $script : '' !!}' />
+    <!-- ..::  scripts  end ::.. -->
 
 </body>
 
