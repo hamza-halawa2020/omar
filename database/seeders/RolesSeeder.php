@@ -16,6 +16,11 @@ class RolesSeeder extends Seeder
     public function run()
     {
         // Create Admin role and assign permissions
+        $superAdminRole = Role::create(['super name' => 'admin', 'guard_name' => 'web']);
+        $superAdminRolePermissions = Permission::all();
+        $superAdminRole->syncPermissions($superAdminRolePermissions);
+
+        // Create Admin role and assign permissions
         $adminRole = Role::create(['name' => 'admin', 'guard_name' => 'web']);
         $adminPermissions = Permission::all();
         $adminRole->syncPermissions($adminPermissions);

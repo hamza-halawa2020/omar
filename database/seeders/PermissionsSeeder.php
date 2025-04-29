@@ -51,5 +51,8 @@ class PermissionsSeeder extends Seeder
         Permission::create(['name' => 'manage_users', 'guard_name' => 'web']);
         Permission::create(['name' => 'manage_roles', 'guard_name' => 'web']);
         Permission::create(['name' => 'manage_settings', 'guard_name' => 'web']);
+        Permission::create(['name' => 'view_roles', 'guard_name' => 'web']);
+        Permission::create(['name' => 'view_permissions', 'guard_name' => 'web']);
+        Permission::create(['name' => 'assign_roles', 'guard_name' => 'web']);
     }
 }
