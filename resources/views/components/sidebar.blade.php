@@ -27,15 +27,6 @@
                     </a>
                 </li>
             @endcan
-            @can('view_permissions')
-                <li>
-                    <a href="{{ route('permissions.index') }}"
-                        class="d-flex align-items-center gap-2 {{ request()->is('permissions/*') ? 'active-page' : '' }}">
-                        <iconify-icon icon="mdi:phone" class="menu-icon"></iconify-icon>
-                        <span>Permissions</span>
-                    </a>
-                </li>
-            @endcan
             @can('assign_roles')
                 <li>
                     <a href="{{ route('user-role-permissions.index') }}"

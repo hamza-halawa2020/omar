@@ -21,6 +21,5 @@ Route::middleware('auth')->group(function () {
     })->name('dashboard');
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
     Route::resource('roles', RoleController::class)->middleware('check.permission:view_roles');
-    Route::resource('permissions', PermissionController::class)->middleware('check.permission:view_permissions');
     Route::resource('user-role-permissions', UserRolePermissionController::class)->only(['index', 'edit', 'update'])->middleware('check.permission:assign_roles');
 });

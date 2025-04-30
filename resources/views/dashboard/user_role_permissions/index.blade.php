@@ -16,10 +16,11 @@
                 No users found.
             </div>
         @else
-            <div class="card shadow-sm">
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover table-bordered mb-0">
+            <div class="">
+                <div class="">
+                    <div class="">
+                            <table class="table table-bordered table-sm table bordered-table sm-table mb-0">
+
                             <thead class="table-light">
                                 <tr>
                                     <th scope="col">Name</th>
@@ -38,12 +39,12 @@
                                                 @forelse ($user->roles as $role)
                                                     <span class="badge bg-blue me-1">{{ $role->name }}</span>
                                                 @empty
-                                                    <span class="text-muted">No roles</span>
+                                                    <span class="text-muted badge bg-danger me-1">No roles</span>
                                                 @endforelse
                                             </td>
                                             <td>
                                                 <a href="{{ route('user-role-permissions.edit', $user->id) }}"
-                                                    class="btn btn-blue btn-sm">Edit</a>
+                                                    class="btn btn-blue btn-sm btn-info">Edit</a>
                                             </td>
                                         </tr>
                                     @endif
