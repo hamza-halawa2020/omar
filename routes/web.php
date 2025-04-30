@@ -18,7 +18,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/', function () {
         return view('dashboard.dashboard');
-    });
+    })->name('dashboard');
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
     Route::resource('roles', RoleController::class)->middleware('check.permission:view_roles');
     Route::resource('permissions', PermissionController::class)->middleware('check.permission:view_permissions');

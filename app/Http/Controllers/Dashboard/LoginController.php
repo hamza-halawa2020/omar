@@ -22,7 +22,7 @@ class LoginController extends Controller
         $this->validateLogin($request);
         if ($this->attemptLogin($request)) {
             $user = Auth::user();
-            return redirect()->intended(route('roles.index'));
+            return redirect()->route('dashboard');
         }
         Log::warning('Failed login attempt for email/username: ' . $request->email);
         return redirect()->route('login')
@@ -57,7 +57,6 @@ class LoginController extends Controller
         $userId = Auth::id();
         DB::table('sessions')->where('user_id', $userId)->delete();
         Auth::logout();
-        return route('login');
+        return redirect()->route('login');
     }
-
 }
