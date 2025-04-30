@@ -18,17 +18,23 @@
                 <div class="dropdown">
                     <button class="d-flex justify-content-center align-items-center rounded-circle" type="button"
                         data-bs-toggle="dropdown">
-                        <img src="{{ asset('assets/images/user.png') }}" alt="image"
+                        @php
+                            $user = Auth::user();
+                            $profileImage = $user->staff->staff_photo ?? asset('assets/images/logo-icon.png');
+                        @endphp
+
+                        <img src="{{ $profileImage }}" alt="image"
                             class="w-40-px h-40-px object-fit-cover rounded-circle">
+
+
                     </button>
                     <div class="dropdown-menu to-top dropdown-menu-sm">
                         <div
                             class="py-12 px-16 radius-8 bg-primary-50 mb-16 d-flex align-items-center justify-content-between gap-2">
                             <div>
                                 <h6 class="text-lg text-primary-light fw-semibold mb-2">
-                                    {{ Auth::user()->full_name ? Auth::user()->full_name : Auth::user()->first_name }}
+                                    {{ Auth::user()?->full_name ?? (Auth::user()?->first_name ?? 'Guest') }}
                                 </h6>
-                                
                             </div>
                             <button type="button" class="hover-text-danger">
                                 <iconify-icon icon="radix-icons:cross-1" class="icon text-xl"></iconify-icon>
@@ -46,7 +52,7 @@
                             </li>
                         </ul>
                     </div>
-                </div><!-- Profile dropdown end -->
+                </div>
             </div>
         </div>
     </div>

@@ -11,4 +11,10 @@ class User extends Authenticatable
     use HasApiTokens, Notifiable, HasRoles;
 
     protected $table = 'users';
+
+    
+    public function staff()
+    {
+        return $this->hasOne(Staff::class, 'user_id');
+    }
 }

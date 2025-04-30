@@ -49,11 +49,11 @@
                 </div>
                 <div class="mb-20">
                     <div class="d-flex justify-content-between gap-2">
-                        <div class="form-check style-check d-flex align-items-center">
+                        {{-- <div class="form-check style-check d-flex align-items-center">
                             <input class="form-check-input border border-neutral-300" type="checkbox" name="remember"
                                 id="remember" {{ old('remember') ? 'checked' : '' }}>
                             <label class="form-check-label" for="remember">Remember me</label>
-                        </div>
+                        </div> --}}
                         {{-- <a href="" class="text-primary-600 fw-medium">Forgot
                             Password?</a> --}}
                     </div>
