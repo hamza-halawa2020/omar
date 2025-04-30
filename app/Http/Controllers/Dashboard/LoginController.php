@@ -5,47 +5,29 @@ namespace App\Http\Controllers\Dashboard;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Log;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class LoginController extends Controller
 {
-   
+
     public function showLoginForm()
     {
         return view('dashboard.auth.index');
     }
-
-
     public function login(Request $request)
     {
         $this->validateLogin($request);
-
-        $key = 'login-attempts:' . $request->ip();
-        if (RateLimiter::tooManyAttempts($key, 5)) {
-            return redirect()->route('login')
-                ->with('error', 'Too many login attempts. Try again in ' . RateLimiter::availableIn($key) . ' seconds.');
-        }
         if ($this->attemptLogin($request)) {
             $user = Auth::user();
-            RateLimiter::clear($key);
             return redirect()->intended(route('roles.index'));
         }
-
         Log::warning('Failed login attempt for email/username: ' . $request->email);
-        RateLimiter::hit($key, 60);
-
         return redirect()->route('login')
             ->with('error', 'Invalid email/username or password.')
             ->withInput($request->only('email', 'remember'));
-    }
-
-    public function logout(Request $request)
-    {
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        return redirect()->route('login');
     }
 
     protected function validateLogin(Request $request)
@@ -68,4 +50,14 @@ class LoginController extends Controller
             'password' => $request->password,
         ], $request->filled('remember'));
     }
+
+
+    public function logout()
+    {
+        $userId = Auth::id();
+        DB::table('sessions')->where('user_id', $userId)->delete();
+        Auth::logout();
+        return route('login');
+    }
+
 }
