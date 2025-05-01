@@ -3,12 +3,22 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use App\Models\User;
 
-class UserRolePermissionController extends Controller
+class UserRolePermissionController extends BaseController
 {
+
+
+
+    public function __construct()
+    {
+        $this->middleware('check.permission:user_role_permissions_index')->only('index');
+        $this->middleware('check.permission:user_role_permissions_update')->only('edit');
+        $this->middleware('check.permission:user_role_permissions_update')->only('update');
+    }
 
     public function index()
     {

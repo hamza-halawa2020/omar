@@ -10,7 +10,7 @@
                             style="width: 140px;">
                         <h5 class="card-title fw-bold">CRM</h5>
                         <p class="card-text text-muted">CRM platform for customer-facing teams.</p>
-                        <a href="#" class="text-primary fw-semibold text-decoration-none">TRY NOW
+                        <a href="http://127.0.0.1:8001" class="text-primary fw-semibold text-decoration-none">TRY NOW
                             <span>&rarr;</span></a>
                     </div>
                 </div>
@@ -23,7 +23,7 @@
                             style="width: 140px;">
                         <h5 class="card-title fw-bold">HR</h5>
                         <p class="card-text text-muted">Secure email service for teams of all sizes.</p>
-                        <a href="http://127.0.0.1:8001" class="text-primary fw-semibold text-decoration-none">TRY NOW
+                        <a href="http://127.0.0.1:8002" class="text-primary fw-semibold text-decoration-none">TRY NOW
                             <span>&rarr;</span></a>
                     </div>
                 </div>
@@ -36,7 +36,7 @@
                             style="width: 140px;">
                         <h5 class="card-title fw-bold">Academy</h5>
                         <p class="card-text text-muted">software to deliver great customer support.</p>
-                        <a href="#" class="text-primary fw-semibold text-decoration-none">TRY NOW
+                        <a href="http://127.0.0.1:8003" class="text-primary fw-semibold text-decoration-none">TRY NOW
                             <span>&rarr;</span></a>
                     </div>
                 </div>

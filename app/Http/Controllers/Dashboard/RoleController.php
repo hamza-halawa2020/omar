@@ -6,9 +6,22 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Illuminate\Routing\Controller as BaseController;
 
-class RoleController extends Controller
+class RoleController extends BaseController
 {
+
+    public function __construct()
+    {
+        $this->middleware('check.permission:roles_index')->only('index');
+        $this->middleware('check.permission:roles_show')->only('show');
+        $this->middleware('check.permission:roles_create')->only(['create', 'store']);
+        $this->middleware('check.permission:roles_update')->only(['edit', 'update']);
+        $this->middleware('check.permission:roles_delete')->only('destroy');
+    }
+
+
+
     public function index()
     {
         $roles = Role::with('permissions')->get();
@@ -49,12 +62,12 @@ class RoleController extends Controller
             'name' => 'required|unique:roles,name,' . $role->id,
             'permissions' => 'required|array',
         ]);
-    
+
         $role->update(['name' => $request->name]);
-    
+
         $permissions = Permission::whereIn('id', $request->permissions)->pluck('name')->toArray();
         $role->syncPermissions($permissions);
-    
+
         return redirect()->route('roles.index')->with('success', 'Role updated successfully.');
     }
 

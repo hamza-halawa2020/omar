@@ -20,6 +20,7 @@ Route::middleware('auth')->group(function () {
         return view('dashboard.dashboard');
     })->name('dashboard');
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-    Route::resource('roles', RoleController::class)->middleware('check.permission:view_roles');
-    Route::resource('user-role-permissions', UserRolePermissionController::class)->only(['index', 'edit', 'update'])->middleware('check.permission:assign_roles');
+ 
+    Route::resource('roles', RoleController::class);
+    Route::resource('user-role-permissions', UserRolePermissionController::class);
 });
