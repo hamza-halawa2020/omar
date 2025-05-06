@@ -25,7 +25,8 @@ class PermissionSeeder extends Seeder
         }
 
         $customRoutes = [
-            'assign_roles',
+            'user_role_permissions',
+
         ];
 
         foreach ($customRoutes as $route) {

@@ -38,6 +38,7 @@ class UserRolePermissionController extends BaseController
         $user = User::findOrFail($id);
         $request->validate([
             'roles' => 'array|nullable',
+            'project_access' => 'array|nullable',
         ]);
 
         if ($request->roles) {
@@ -47,6 +48,8 @@ class UserRolePermissionController extends BaseController
         }
 
         $user->syncRoles($roles);
+        $user->project_access =  json_encode($request->project_access);
+        $user->save();
 
 
         return redirect()->route('user-role-permissions.index')
