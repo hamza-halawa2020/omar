@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Dashboard\LoginController;
 use App\Http\Controllers\Dashboard\PermissionController;
+use App\Http\Controllers\Dashboard\ProjectController;
 use App\Http\Controllers\Dashboard\RoleController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Dashboard\UserRolePermissionController;
@@ -15,12 +16,8 @@ Route::middleware('guest')->group(function () {
 
 
 Route::middleware('auth')->group(function () {
-
-    Route::get('/', function () {
-        return view('dashboard.dashboard');
-    })->name('dashboard');
+    Route::get('/', [ProjectController::class, 'index'])->name('dashboard');
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
- 
     Route::resource('roles', RoleController::class);
     Route::resource('user-role-permissions', UserRolePermissionController::class);
 });

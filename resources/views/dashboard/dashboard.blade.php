@@ -1,48 +1,131 @@
-@extends('dashboard.layouts.app')
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<x-head />
 
-@section('content')
-    <div class="container py-5">
-        <div class="row row-cols-1 row-cols-md-4 g-4">
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm rounded-3">
-                    <div class="card-body text-center">
-                        <img src="{{ asset('assets/images/logo.png') }}" alt="CRM Icon" class="mb-3"
-                            style="width: 140px;">
-                        <h5 class="card-title fw-bold">CRM</h5>
-                        <p class="card-text text-muted">CRM platform for customer-facing teams.</p>
-                        <a href="http://127.0.0.1:8001" class="text-primary fw-semibold text-decoration-none">TRY NOW
-                            <span>&rarr;</span></a>
+<body>
+    <x-navbar />
+    <div class="outer-container">
+        <div class="container bg-primary-50 rounded">
+            <div class="inner-grid">
+                @foreach ($projects as $project)
+                    <div class="inner-box project-card p-4">
+                        <img src="{{ asset($project['image']) }}" alt="{{ $project['name'] }} Icon">
+                        <div class="box-content">
+                            <div class="title mt-3">{{ $project['name'] }}</div>
+                            <p class="description">{{ $project['description'] }}</p>
+                            <a href="{{ $project['url'] }}" class="mb-3">
+                                TRY NOW <span>→</span>
+                            </a>
+                        </div>
                     </div>
-                </div>
+                @endforeach
             </div>
-
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm rounded-3">
-                    <div class="card-body text-center">
-                        <img src="{{ asset('assets/images/logo.png') }}" alt="Mail Icon" class="mb-3"
-                            style="width: 140px;">
-                        <h5 class="card-title fw-bold">HR</h5>
-                        <p class="card-text text-muted">Secure email service for teams of all sizes.</p>
-                        <a href="http://127.0.0.1:8002" class="text-primary fw-semibold text-decoration-none">TRY NOW
-                            <span>&rarr;</span></a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm rounded-3">
-                    <div class="card-body text-center">
-                        <img src="{{ asset('assets/images/logo.png') }}" alt="Desk Icon" class="mb-3"
-                            style="width: 140px;">
-                        <h5 class="card-title fw-bold">Academy</h5>
-                        <p class="card-text text-muted">software to deliver great customer support.</p>
-                        <a href="http://127.0.0.1:8003" class="text-primary fw-semibold text-decoration-none">TRY NOW
-                            <span>&rarr;</span></a>
-                    </div>
-                </div>
-            </div>
-
-          
         </div>
     </div>
-@endsection
+    <x-script />
+    <x-footer />
+
+    <style>
+        .outer-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .container {}
+
+        .sidebar-toggle {
+            display: none;
+        }
+
+        .rounded {
+            border-radius: 20px !important;
+        }
+
+        .inner-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: auto;
+            grid-auto-rows: minmax(150px, auto);
+        }
+
+        .inner-box {
+            display: flex;
+            align-items: center;
+        }
+
+        .project-card {
+            border-bottom: 1px solid #2b5c9b;
+            border-right: 1px solid #2b5c9b;
+            background-color: transparent;
+            padding: 20px;
+            position: relative;
+        }
+
+        .project-card:nth-last-child(-n+4) {
+            border-bottom: none;
+        }
+
+        .project-card:nth-child(4n) {
+            border-right: none;
+        }
+
+
+
+        .inner-box img {
+            width: 60px;
+            height: 60px;
+            margin: 0 15px;
+            transition: transform 0.3s ease;
+        }
+
+        .inner-box:hover img {
+            transform: scale(1.1);
+        }
+
+        .box-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #2b5c9b;
+            transition: color 0.3s ease;
+        }
+
+        .project-card:hover .title {
+            color: #1a3e6f;
+        }
+
+
+        .box-content a {
+            font-size: 0.9rem;
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 8px;
+            display: inline-flex;
+            align-items: center;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+
+        .box-content a span {
+            margin-left: 5px;
+            transition: transform 0.3s ease;
+        }
+
+        .box-content a:hover {
+            color: #0056b3;
+        }
+
+        .box-content a:hover span {
+            transform: translateX(3px);
+        }
+    </style>
+</body>
+
+</html>
