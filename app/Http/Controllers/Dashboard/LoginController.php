@@ -22,7 +22,7 @@ class LoginController extends Controller
         $this->validateLogin($request);
         if ($this->attemptLogin($request)) {
             $user = Auth::user();
-            return redirect()->route('dashboard');
+            return redirect()->route('settings');
         }
         Log::warning('Failed login attempt for email/username: ' . $request->email);
         return redirect()->route('login')

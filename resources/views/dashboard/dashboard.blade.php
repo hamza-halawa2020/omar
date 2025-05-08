@@ -13,7 +13,7 @@
                         <div class="box-content">
                             <div class="title mt-4 text-xl font-bold text-blue-900 transition-colors duration-300 hover:text-blue-700">{{ $project['name'] }}</div>
                             <p class="description text-gray-600 text-sm leading-relaxed mt-2">{{ $project['description'] }}</p>
-                            <a href="{{ $project['url'] }}" class="mt-4 inline-flex items-center text-blue-600 font-semibold text-base hover:text-blue-800 transition-all duration-300 group">
+                            <a href="{{ $project['url'] }}" class="mt-4 inline-flex items-center text-blue-600 font-semibold hover:text-blue-800 transition-all duration-300 group">
                                 TRY NOW
                                 <span class="ml-2 inline-block transition-transform duration-300 group-hover:translate-x-2">→</span>
                             </a>

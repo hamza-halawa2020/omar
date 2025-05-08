@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\CheckPermission;
+use App\Http\Middleware\CheckProjectAccess;
 use App\Http\Middleware\Cors;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -22,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'check.permission' => CheckPermission::class,
             'abilities' => CheckAbilities::class,
             'ability' => CheckForAnyAbility::class,
+            'CheckProjectAccess' => CheckProjectAccess::class,
             'cors' => Cors::class,
             
         ]);

@@ -16,6 +16,11 @@ Route::middleware('guest')->group(function () {
 
 
 Route::middleware('auth')->group(function () {
+    Route::get('/systems', [ProjectController::class, 'settings'])->name('settings');
+});
+
+
+Route::middleware('CheckProjectAccess')->group(function () {
     Route::get('/', [ProjectController::class, 'index'])->name('dashboard');
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
     Route::resource('roles', RoleController::class);
