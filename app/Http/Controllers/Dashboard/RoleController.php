@@ -71,8 +71,10 @@ class RoleController extends BaseController
         return redirect()->route('roles.index')->with('success', 'Role updated successfully.');
     }
 
-    public function destroy(Role $role)
+
+    public function destroy($id)
     {
+        $role = Role::findOrFail($id); // Use findOrFail to throw a 404 if not found
         $role->delete();
         return redirect()->route('roles.index')->with('success', 'Role deleted successfully.');
     }
