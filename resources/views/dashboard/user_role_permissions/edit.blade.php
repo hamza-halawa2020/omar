@@ -2,11 +2,6 @@
 
 @section('content')
     <div class="container mt-4">
-
-
-        
-
-
         <h2 class="mb-4">Assign Roles to {{ $user->full_name ?? ($user->name ?? 'User') }}</h2>
 
         @if (session('success'))
@@ -63,25 +58,18 @@
                         <option value="hr" {{ in_array('hr', $access ?? []) ? 'selected' : '' }}>HR</option>
                         <option value="crm" {{ in_array('crm', $access ?? []) ? 'selected' : '' }}>CRM</option>
                         <option value="academy" {{ in_array('academy', $access ?? []) ? 'selected' : '' }}>Academy</option>
+                        <option value="settings" {{ in_array('settings', $access ?? []) ? 'selected' : '' }}>Settings</option>
                     </select>
                 
                     @error('project_access')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
-                
-
                 <div class="d-flex gap-2">
                     <button type="submit" class="btn btn-blue">Update Roles</button>
                     <a href="{{ route('user-role-permissions.index') }}" class="btn btn-secondary">Cancel</a>
                 </div>
-            </form>
-
-
- 
-    
-
-
+            </form> 
         @else
             <div class="alert alert-danger" role="alert">
                 User not found.
@@ -90,24 +78,25 @@
     </div>
 
 
-
-
-    
-
-
 @endsection
 
-@section('scripts')
-    {{-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script> --}}
-    <script>
-        $(document).ready(function () {
-            $('#access').select2({
-                placeholder: "Select"
-            });
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#access').select2({
+            placeholder: "Select"
         });
-    </script>
-@endsection
+    });
+</script>
+
+
+
 
 <style>
     .btn-blue {
