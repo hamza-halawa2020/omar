@@ -27,6 +27,9 @@
     <x-footer />
 
     <style>
+        .sidebar-toggle{
+            display: none !important;
+        }
         .outer-container {
             min-height: 100vh;
             display: flex;
