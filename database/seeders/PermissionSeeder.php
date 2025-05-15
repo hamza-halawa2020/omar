@@ -9,28 +9,22 @@ class PermissionSeeder extends Seeder
 {
     public function run()
     {
-        // Add resource route names (used for permissions like roles_index, roles_create, etc.)
-        $resources = [
-            'roles',
-            'user_role_permissions',
-        ];
-
+        $system = 'general';
+        $resources = ['roles', 'user_role_permissions'];
         $actions = ['index', 'show', 'create', 'update', 'delete'];
 
         foreach ($resources as $resource) {
             foreach ($actions as $action) {
-                $name = "{$resource}_{$action}";
+                $name = "{$system}_{$resource}_{$action}";
                 Permission::firstOrCreate(['name' => $name]);
             }
         }
 
-        $customRoutes = [
-            'user_role_permissions',
-
-        ];
+        $customRoutes = ['user_role_permissions'];
 
         foreach ($customRoutes as $route) {
-            Permission::firstOrCreate(['name' => $route]);
+            $name = "{$system}_{$route}";
+            Permission::firstOrCreate(['name' => $name]);
         }
     }
 }

@@ -13,12 +13,12 @@ class UserRolePermissionController extends BaseController
 
 
 
-    public function __construct()
-    {
-        $this->middleware('check.permission:user_role_permissions_index')->only('index');
-        $this->middleware('check.permission:user_role_permissions_update')->only('edit');
-        $this->middleware('check.permission:user_role_permissions_update')->only('update');
-    }
+    // public function __construct()
+    // {
+    //     $this->middleware('check.permission:general_user_role_permissions_index')->only('index');
+    //     $this->middleware('check.permission:general_user_role_permissions_update')->only('edit');
+    //     $this->middleware('check.permission:general_user_role_permissions_update')->only('update');
+    // }
 
     public function index()
     {

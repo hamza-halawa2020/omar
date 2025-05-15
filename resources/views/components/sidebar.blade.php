@@ -18,7 +18,7 @@
                 </a>
             </li>
             <li class="sidebar-menu-group-title">Application</li>
-            @can('roles_index')
+            @can('general_roles_index')
                 <li>
                     <a href="{{ route('roles.index') }}"
                         class="d-flex align-items-center gap-2 {{ request()->is('roles/*') ? 'active-page' : '' }}">
@@ -27,7 +27,7 @@
                     </a>
                 </li>
             @endcan
-            @can('user_role_permissions_index')
+            @can('general_user_role_permissions_index')
                 <li>
                     <a href="{{ route('user-role-permissions.index') }}"
                         class="d-flex align-items-center gap-2 {{ request()->is('user-role-permissions/*') ? 'active-page' : '' }}">
