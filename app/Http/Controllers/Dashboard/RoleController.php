@@ -22,9 +22,16 @@ class RoleController extends BaseController
 
 
 
-    public function index()
+    public function index(Request $request)
     {
-        $roles = Role::with('permissions')->get();
+             $query = Role::query();
+        $query->with('permissions');
+
+        if ($search = $request->query('search')) {
+            $query->where('name', 'like', "%{$search}%");
+        }
+        $perPage = $request->query('per_page', 10);
+        $roles = $query->paginate($perPage);
         return view('dashboard.roles.index', compact('roles'));
     }
 

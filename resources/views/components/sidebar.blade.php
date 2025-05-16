@@ -13,7 +13,7 @@
         <ul class="sidebar-menu" id="sidebar-menu">
             <li>
                 <a href="{{ route('dashboard') }}">
-                    <iconify-icon icon="solar:home-smile-angle-outline" class="menu-icon"></iconify-icon>
+                    <iconify-icon icon="mdi:view-dashboard" class="menu-icon"></iconify-icon>
                     <span>Dashboard</span>
                 </a>
             </li>
@@ -22,7 +22,7 @@
                 <li>
                     <a href="{{ route('roles.index') }}"
                         class="d-flex align-items-center gap-2 {{ request()->is('roles/*') ? 'active-page' : '' }}">
-                        <iconify-icon icon="mdi:phone" class="menu-icon"></iconify-icon>
+                        <iconify-icon icon="mdi:shield-account" class="menu-icon"></iconify-icon>
                         <span>Roles</span>
                     </a>
                 </li>
@@ -31,8 +31,8 @@
                 <li>
                     <a href="{{ route('user-role-permissions.index') }}"
                         class="d-flex align-items-center gap-2 {{ request()->is('user-role-permissions/*') ? 'active-page' : '' }}">
-                        <iconify-icon icon="mdi:phone" class="menu-icon"></iconify-icon>
-                        <span>assign</span>
+                        <iconify-icon icon="mdi:account-key" class="menu-icon"></iconify-icon>
+                        <span>Assign</span>
                     </a>
                 </li>
             @endcan

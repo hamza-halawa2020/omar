@@ -13,16 +13,24 @@ class UserRolePermissionController extends BaseController
 
 
 
-    // public function __construct()
-    // {
-    //     $this->middleware('check.permission:general_user_role_permissions_index')->only('index');
-    //     $this->middleware('check.permission:general_user_role_permissions_update')->only('edit');
-    //     $this->middleware('check.permission:general_user_role_permissions_update')->only('update');
-    // }
-
-    public function index()
+    public function __construct()
     {
-        $users = User::with('roles')->paginate(10);
+        $this->middleware('check.permission:general_user_role_permissions_index')->only('index');
+        $this->middleware('check.permission:general_user_role_permissions_update')->only('edit');
+        $this->middleware('check.permission:general_user_role_permissions_update')->only('update');
+    }
+
+    public function index(Request $request)
+    {
+        $query = User::query();
+        $query->with('roles');
+
+      
+        if ($search = $request->query('search')) {
+            $query->where('full_name', 'like', "%{$search}%");
+        }
+        $perPage = $request->query('per_page', 10);
+        $users = $query->paginate($perPage);
         return view('dashboard.user_role_permissions.index', compact('users'));
     }
 
