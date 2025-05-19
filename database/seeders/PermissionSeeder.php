@@ -11,7 +11,8 @@ class PermissionSeeder extends Seeder
     {
         $system = 'general';
         $resources = ['roles', 'user_role_permissions'];
-        $actions = ['index', 'show', 'create', 'update', 'delete'];
+        $actions = ['index', 'show', 'create', 'store', 'edit','update', 'destroy'];
+
 
         foreach ($resources as $resource) {
             foreach ($actions as $action) {
