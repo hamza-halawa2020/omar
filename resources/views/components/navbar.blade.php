@@ -36,9 +36,6 @@
                                     {{ Auth::user()?->full_name ?? (Auth::user()?->first_name ?? 'Guest') }}
                                 </h6>
                             </div>
-                            <button type="button" class="hover-text-danger">
-                                <iconify-icon icon="radix-icons:cross-1" class="icon text-xl"></iconify-icon>
-                            </button>
                         </div>
                         <ul class="to-top-list">
                             <li>
