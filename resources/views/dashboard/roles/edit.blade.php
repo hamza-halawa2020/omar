@@ -22,7 +22,8 @@
                     <!-- Role Name -->
                     <div class="mb-4">
                         <label for="name" class="form-label fw-bold">Role Name</label>
-                        <input type="text" name="name" id="name" value="{{ $role->name }}"
+
+                        <input  @disabled(!$role->is_editable)  type="text" name="name" id="name" value="{{ $role->name }}"
                             class="form-control rounded-3" required>
                         @error('name')
                             <div class="text-danger mt-1">{{ $message }}</div>

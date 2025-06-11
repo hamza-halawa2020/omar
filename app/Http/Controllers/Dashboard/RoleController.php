@@ -24,7 +24,7 @@ class RoleController extends BaseController
 
     public function index(Request $request)
     {
-             $query = Role::query();
+        $query = Role::query();
         $query->with('permissions');
 
         if ($search = $request->query('search')) {
@@ -46,9 +46,10 @@ class RoleController extends BaseController
         $request->validate([
             'name' => 'required|unique:roles,name',
             'permissions' => 'required|array',
+            'is_editable' => 'required|boolean',
         ]);
 
-        $role = Role::create(['name' => $request->name]);
+        $role = Role::create(['name' => $request->name,'is_editable' => $request->is_editable]);
 
         $permissions = Permission::whereIn('id', $request->permissions)->pluck('name')->toArray();
         $role->syncPermissions($permissions);
