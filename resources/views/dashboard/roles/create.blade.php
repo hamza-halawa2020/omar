@@ -17,6 +17,7 @@
             <div class="card-body p-4">
                 <form action="{{ route('roles.store') }}" method="POST">
                     @csrf
+                     <input type="number" name="is_editable" value="1" hidden>
 
                     <!-- Role Name -->
                     <div class="mb-4">

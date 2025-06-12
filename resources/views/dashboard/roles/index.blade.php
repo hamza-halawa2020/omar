@@ -50,6 +50,7 @@
                                                 icon="lucide:edit" class="text-lg"></iconify-icon></a>
 
                                         @if (Str::lower($role->name) !== 'super admin')
+                                        @if ($role->is_editable)
                                             <button type="button" class="btn btn-outline-danger btn-sm radius-8"
                                                 data-bs-toggle="modal" data-bs-target="#deleteModal-{{ $role->id }}"
                                                 data-id="{{ $role->id }}" data-name="{{ $role->name }}">
@@ -58,6 +59,7 @@
                                                     class="text-lg"></iconify-icon>
 
                                             </button>
+                                        @endif
                                         @else
                                             <small class="border border-primary p-1 radius-8">Super Admin</small>
                                         @endif
