@@ -146,6 +146,9 @@
         .hover:-translate-y-2 {
             transform: translateY(-0.5rem);
         }
+        #GENERAL_LINK{
+            display: none !important;
+        }
     </style>
 </body>
 
