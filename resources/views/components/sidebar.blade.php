@@ -27,7 +27,7 @@
                     </a>
                 </li>
             @endcan
-            @can('general_user_role_permissions_index')
+            {{-- @can('general_user_role_permissions_index')
                 <li>
                     <a href="{{ route('user-role-permissions.index') }}"
                         class="d-flex align-items-center gap-2 {{ request()->is('user-role-permissions/*') ? 'active-page' : '' }}">
@@ -35,7 +35,7 @@
                         <span>Assign</span>
                     </a>
                 </li>
-            @endcan
+            @endcan --}}
         </ul>
     </div>
 </aside>
