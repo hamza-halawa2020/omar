@@ -35,6 +35,12 @@ return [
         'description' => 'CRM platform for customer-facing teams.',
         'image' => 'assets/images/logo.png',
     ],
+    [
+        'name' => 'Retention',
+        'url' => env('Retention_URL', 'http://retention.upedia.test'),
+        'description' => 'Retention platform for customer-facing teams.',
+        'image' => 'assets/images/logo.png',
+    ],
 
 
 ];
