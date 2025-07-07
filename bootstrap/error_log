@@ -1,0 +1,12 @@
+[02-Jul-2025 02:01:26 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/bootstrap/app.php:13
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/bootstrap/app.php on line 13
+[02-Jul-2025 02:02:21 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/bootstrap/app.php:13
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/bootstrap/app.php on line 13
+[02-Jul-2025 04:33:28 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Application" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/bootstrap/app.php:13
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/bootstrap/app.php on line 13

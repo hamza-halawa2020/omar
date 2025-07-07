@@ -1,0 +1,56 @@
+[02-Jul-2025 14:26:13 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/database/migrations/2025_06_11_111447_add_is_editable_to_roles_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/database/migrations/2025_06_11_111447_add_is_editable_to_roles_table.php on line 7
+[02-Jul-2025 16:15:01 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/database/migrations/2025_06_11_111447_add_is_editable_to_roles_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/database/migrations/2025_06_11_111447_add_is_editable_to_roles_table.php on line 7
+[02-Jul-2025 20:11:47 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/database/migrations/2025_06_03_155356_update_role_id_foreign_on_users_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/database/migrations/2025_06_03_155356_update_role_id_foreign_on_users_table.php on line 7
+[02-Jul-2025 21:29:52 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/database/migrations/2025_06_03_155356_update_role_id_foreign_on_users_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/database/migrations/2025_06_03_155356_update_role_id_foreign_on_users_table.php on line 7
+[02-Jul-2025 21:51:25 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/database/migrations/2025_04_28_115134_create_permission_tables.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/database/migrations/2025_04_28_115134_create_permission_tables.php on line 7
+[02-Jul-2025 22:00:43 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/database/migrations/2025_04_28_115134_create_permission_tables.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/database/migrations/2025_04_28_115134_create_permission_tables.php on line 7
+[02-Jul-2025 23:05:30 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/database/migrations/2025_04_28_115134_create_permission_tables.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/database/migrations/2025_04_28_115134_create_permission_tables.php on line 7
+[04-Jul-2025 07:05:18 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/database/migrations/2025_04_28_115134_create_permission_tables.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/database/migrations/2025_04_28_115134_create_permission_tables.php on line 7
+[04-Jul-2025 07:28:33 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/database/migrations/2025_06_23_131335_add_column_to_users_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/database/migrations/2025_06_23_131335_add_column_to_users_table.php on line 7
+[04-Jul-2025 09:24:59 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/database/migrations/2025_04_28_114606_add_column_to_permissions_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/database/migrations/2025_04_28_114606_add_column_to_permissions_table.php on line 7
+[04-Jul-2025 10:38:58 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/database/migrations/2025_06_03_155356_update_role_id_foreign_on_users_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/database/migrations/2025_06_03_155356_update_role_id_foreign_on_users_table.php on line 7
+[04-Jul-2025 12:16:40 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/database/migrations/2025_04_28_114606_add_column_to_roles_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/database/migrations/2025_04_28_114606_add_column_to_roles_table.php on line 7
+[04-Jul-2025 20:13:30 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/database/migrations/2025_06_03_155356_update_role_id_foreign_on_staffs_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/database/migrations/2025_06_03_155356_update_role_id_foreign_on_staffs_table.php on line 7
+[06-Jul-2025 11:43:05 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Migrations\Migration" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/database/migrations/2025_06_11_111447_add_is_editable_to_roles_table.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/database/migrations/2025_06_11_111447_add_is_editable_to_roles_table.php on line 7

@@ -4,21 +4,28 @@
 
 <body>
     <x-navbar />
-    <div class="outer-container">
-        <div class="container bg-primary-50 rounded-lg shadow-lg mx-auto p-6">
+    <div class="outer-container bg-gradient-to-br from-blue-50 to-indigo-100 py-16">
+        <div class="container mx-auto px-4">
+            <h4 class="text-5xl font-extrabold text-gray-900 text-center mb-4 leading-tight">
+                Choose Your <span class="text-blue-700">Service</span>
+            </h4>
+            <p class="text-xl text-gray-600 text-center mb-16 max-w-2xl mx-auto">
+                Click a service below to get started.
+            </p>
+
             <div class="inner-grid">
                 @foreach ($projects as $project)
-                    <div class="inner-box project-card p-5 bg-white rounded-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-2">
-                        <img src="{{ asset($project['image']) }}" alt="{{ $project['name'] }} Icon" class="w-16 h-16 object-contain transition-transform duration-300 hover:scale-110">
-                        <div class="box-content">
-                            <div class="title mt-4 text-xl font-bold text-blue-900 transition-colors duration-300 hover:text-blue-700">{{ $project['name'] }}</div>
-                            <p class="description text-gray-600 text-sm leading-relaxed mt-2">{{ $project['description'] }}</p>
-                            <a href="{{ $project['url'] }}" class="mt-4 inline-flex items-center text-blue-600 font-semibold hover:text-blue-800 transition-all duration-300 group">
-                                TRY NOW
-                                <span class="ml-2 inline-block transition-transform duration-300 group-hover:translate-x-2">→</span>
-                            </a>
+                    <a href="{{ $project['url'] }}" class="service-card group bg-white rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-2 hover:scale-[1.01] border border-gray-100 flex flex-col items-center justify-center text-center p-8 cursor-pointer">
+                        <div class="icon-wrapper w-28 h-28 flex items-center justify-center mb-6 rounded-full bg-blue-50 group-hover:bg-blue-100 transition-colors duration-300">
+                            <img src="{{ asset($project['image']) }}" alt="{{ $project['name'] }} Icon" class="w-20 h-20 object-contain">
                         </div>
-                    </div>
+                        <h5 class="text-3xl mt-3 font-bold text-gray-800 mb-2 group-hover:text-blue-700 transition-colors duration-300 leading-tight">
+                            {{ $project['name'] }}
+                        </h5>
+                        <p class="description text-gray-600 text-base leading-relaxed">
+                            {{ $project['description'] }}
+                        </p>
+                    </a>
                 @endforeach
             </div>
         </div>
@@ -26,130 +33,102 @@
     <x-script />
     <x-footer />
 
-    <style>
-        .sidebar-toggle{
-            display: none !important;
-        }
-        .outer-container {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 20px 0;
-        }
+<style>
+    .sidebar-toggle, #GENERAL_LINK {
+        display: none !important;
+    }
 
-        .container {
-            max-width: 1200px;
-        }
+    .outer-container {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        background: linear-gradient(135deg, #f9fafb, #e0ecff);
+    }
 
-        .rounded-lg {
-            border-radius: 1.5rem !important;
-        }
+    .container {
+        max-width: 1200px;
+        margin: auto;
+    }
 
+    .inner-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+        padding: 1rem;
+    }
+
+    .service-card {
+        background: #ffffff;
+        border-radius: 1.5rem;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
+        border: 1px solid #eaeaea;
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .service-card:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 20px 30px rgba(0, 0, 0, 0.08);
+        border-color: #d0e2ff;
+    }
+
+    .icon-wrapper {
+        width: 100px;
+        height: 100px;
+        border-radius: 9999px;
+        background-color: #eff6ff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+        transition: background-color 0.3s;
+        margin-top: 2rem;
+    }
+
+    .service-card:hover .icon-wrapper {
+        background-color: #dbeafe;
+    }
+
+    .icon-wrapper img {
+        width: 60px;
+        height: 60px;
+        object-fit: contain;
+    }
+
+    .service-card h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+    }
+
+    .service-card:hover h2 {
+        color: #2563eb;
+    }
+
+    .description {
+        font-size: 0.95rem;
+        color: #6b7280;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        min-height: 2.5rem;
+    }
+
+    @media (max-width: 768px) {
         .inner-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            grid-gap: 1.5rem;
-            padding: 1rem;
+            grid-template-columns: 1fr;
         }
+    }
+</style>
 
-        @media (max-width: 1024px) {
-            .inner-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 640px) {
-            .inner-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-  
-        .project-card {
-            border: 1px solid #e0e7ff;
-            background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
-            position: relative;
-            overflow: hidden;
-            cursor: pointer;
-        }
-
-        .inner-box img {
-            flex-shrink: 0;
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .box-content {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .title {
-            font-size: 1.25rem;
-            line-height: 1.5;
-            color: #2b5c9b;
-            transition: color 0.3s ease-in-out;
-        }
-
-        .project-card:hover .title {
-            color: #1a3e6f;
-        }
-
-        .description {
-            color: #4b5563;
-            font-size: 0.875rem;
-            margin-top: 0.5rem;
-            max-height: 3rem;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-        }
-
-        .box-content a {
-            color: #3b82f6;
-            text-decoration: none;
-            font-weight: 600;
-            margin-top: 1rem;
-            display: inline-flex;
-            align-items: center;
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.375rem;
-            transition: all 0.3s ease-in-out;
-        }
-
-        .box-content a:hover {
-            background-color: #dbeafe;
-            color: #1e40af;
-        }
-
-        .box-content a span {
-            margin-left: 0.5rem;
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .box-content a:hover span {
-            transform: translateX(0.5rem);
-        }
-
-        .shadow-lg {
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-
-        .hover:shadow-xl {
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-
-        .hover:-translate-y-2 {
-            transform: translateY(-0.5rem);
-        }
-        #GENERAL_LINK{
-            display: none !important;
-        }
-    </style>
 </body>
-
 </html>

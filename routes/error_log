@@ -1,0 +1,24 @@
+[02-Jul-2025 03:31:30 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Support\Facades\Artisan" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/routes/console.php:6
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/routes/console.php on line 6
+[02-Jul-2025 04:14:06 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Support\Facades\Artisan" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/routes/console.php:6
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/routes/console.php on line 6
+[02-Jul-2025 05:40:33 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Support\Facades\Route" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/routes/web.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/routes/web.php on line 12
+[02-Jul-2025 06:22:20 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Support\Facades\Route" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/routes/web.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/routes/web.php on line 12
+[02-Jul-2025 06:31:41 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Support\Facades\Route" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/routes/web.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/routes/web.php on line 12
+[02-Jul-2025 06:34:30 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Support\Facades\Artisan" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/routes/console.php:6
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/routes/console.php on line 6

@@ -1,0 +1,8 @@
+[04-Jul-2025 06:49:25 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Model" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/app/Models/Staff.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/app/Models/Staff.php on line 8
+[04-Jul-2025 07:09:42 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Auth\User" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/app/Models/User.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/app/Models/User.php on line 9

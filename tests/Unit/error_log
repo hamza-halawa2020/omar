@@ -1,0 +1,4 @@
+[04-Jul-2025 07:25:57 UTC] PHP Fatal error:  Uncaught Error: Class "PHPUnit\Framework\TestCase" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/tests/Unit/ExampleTest.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/tests/Unit/ExampleTest.php on line 7

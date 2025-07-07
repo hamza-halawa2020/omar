@@ -1,0 +1,4 @@
+[04-Jul-2025 13:01:00 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/tests/Feature/ExampleTest.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/tests/Feature/ExampleTest.php on line 8

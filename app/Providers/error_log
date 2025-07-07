@@ -1,0 +1,12 @@
+[04-Jul-2025 06:35:43 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Support\ServiceProvider" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/app/Providers/RepositoryServiceProvider.php:21
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/app/Providers/RepositoryServiceProvider.php on line 21
+[04-Jul-2025 07:56:09 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Support\ServiceProvider" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/app/Providers/ServiceServiceProvider.php:21
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/app/Providers/ServiceServiceProvider.php on line 21
+[04-Jul-2025 15:00:59 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Support\ServiceProvider" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/app/Providers/AppServiceProvider.php:10
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/app/Providers/AppServiceProvider.php on line 10
