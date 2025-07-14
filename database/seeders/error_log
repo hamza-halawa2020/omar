@@ -10,3 +10,15 @@ Stack trace:
 Stack trace:
 #0 {main}
   thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/database/seeders/DatabaseSeeder.php on line 7
+[12-Jul-2025 20:36:32 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/database/seeders/DatabaseSeeder.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/database/seeders/DatabaseSeeder.php on line 7
+[13-Jul-2025 00:40:18 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/database/seeders/PermissionSeeder.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/database/seeders/PermissionSeeder.php on line 8
+[13-Jul-2025 17:58:38 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Seeder" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/database/seeders/RolesSeeder.php:9
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/database/seeders/RolesSeeder.php on line 9

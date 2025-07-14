@@ -2,3 +2,7 @@
 Stack trace:
 #0 {main}
   thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/database/factories/UserFactory.php on line 12
+[13-Jul-2025 20:36:10 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/database/factories/UserFactory.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/database/factories/UserFactory.php on line 12

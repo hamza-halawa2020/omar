@@ -10,3 +10,19 @@ Stack trace:
 Stack trace:
 #0 {main}
   thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/tests/TestCase.php on line 7
+[12-Jul-2025 22:55:52 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Testing\TestCase" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/tests/TestCase.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/tests/TestCase.php on line 7
+[12-Jul-2025 23:14:03 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Testing\TestCase" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/tests/TestCase.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/tests/TestCase.php on line 7
+[13-Jul-2025 00:06:20 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Testing\TestCase" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/tests/TestCase.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/tests/TestCase.php on line 7
+[13-Jul-2025 00:57:22 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Foundation\Testing\TestCase" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/tests/TestCase.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/tests/TestCase.php on line 7
