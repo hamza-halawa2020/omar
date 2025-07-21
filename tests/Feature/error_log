@@ -2,3 +2,23 @@
 Stack trace:
 #0 {main}
   thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/tests/Feature/ExampleTest.php on line 8
+[15-Jul-2025 18:44:38 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/tests/Feature/ExampleTest.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/tests/Feature/ExampleTest.php on line 8
+[18-Jul-2025 13:39:05 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/tests/Feature/ExampleTest.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/tests/Feature/ExampleTest.php on line 8
+[19-Jul-2025 05:42:31 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/tests/Feature/ExampleTest.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/tests/Feature/ExampleTest.php on line 8
+[19-Jul-2025 08:58:01 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/tests/Feature/ExampleTest.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/tests/Feature/ExampleTest.php on line 8
+[19-Jul-2025 19:19:57 UTC] PHP Fatal error:  Uncaught Error: Class "Tests\TestCase" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/tests/Feature/ExampleTest.php:8
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/tests/Feature/ExampleTest.php on line 8

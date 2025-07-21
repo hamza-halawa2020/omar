@@ -129,6 +129,62 @@
         }
     }
 </style>
+<!-- Firebase Scripts -->
+<script src="https://www.gstatic.com/firebasejs/10.3.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.3.1/firebase-messaging-compat.js"></script>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyC9655aXFRUDOg7tcGqYt2cCKoS44EA6h8",
+        authDomain: "test-be06b.firebaseapp.com",
+        projectId: "test-be06b",
+        storageBucket: "test-be06b.firebasestorage.app",
+        messagingSenderId: "796086195914",
+        appId: "1:796086195914:web:66c4b9441e333209974633",
+        measurementId: "G-58NQ2EXNR1"
+    };
+
+
+    if ('serviceWorker' in navigator) {
+       navigator.serviceWorker.register('/assets/firebase-messaging-sw.js')
+            .then(function (registration) {
+                console.log('Service Worker Registered');
+                  
+           
+
+                // طلب صلاحية الإشعارات
+                Notification.requestPermission().then(function (permission) {
+                    if (permission === 'granted') {
+                        // ✅ استبدل VAPID_KEY بالقيمة الموجودة في Firebase > Project Settings > Cloud Messaging > Web Push certificates
+                        messaging.getToken({ vapidKey: "BKVeYZaS040VhIperW-_1sT1tS7pz6Uzfpy01nj8XAcoyGCj74DtqmmUZNZxTUz1b7PvqhBJTsyNXs3b3xyP9uU" })
+                            .then(function (token) {
+                                console.log("FCM Token:", token);
+
+                                // ✅ إرسال التوكن للـ backend
+                                fetch("{{ route('fcm.token') }}", {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                    },
+                                    body: JSON.stringify({
+                                        token: token,
+                                        device: 'web'
+                                    })
+                                }).then(res => res.json())
+                                  .then(data => console.log(data))
+                                  .catch(err => console.error(err));
+                            })
+                            .catch(function (err) {
+                                console.warn('Error getting token', err);
+                            });
+                    } else {
+                        console.warn('Notification permission denied');
+                    }
+                });
+            });
+    }
+</script>
 
 </body>
 </html>

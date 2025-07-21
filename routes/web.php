@@ -18,6 +18,7 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/systems', [ProjectController::class, 'settings'])->name('settings');
     Route::get('/', [ProjectController::class, 'index'])->name('dashboard');
+    Route::post('fcm-token', [LoginController::class, 'fcmToken'])->name('fcm.token');
 });
 
 
@@ -26,3 +27,4 @@ Route::middleware('CheckProjectAccess')->group(function () {
     Route::resource('roles', RoleController::class);
     Route::resource('user-role-permissions', UserRolePermissionController::class);
 });
+

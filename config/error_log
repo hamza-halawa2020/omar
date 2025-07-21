@@ -550,3 +550,187 @@ Stack trace:
 Stack trace:
 #0 {main}
   thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/mail.php on line 17
+[15-Jul-2025 18:29:53 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/session.php:21
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/session.php on line 21
+[15-Jul-2025 18:29:54 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/sanctum.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/sanctum.php on line 18
+[15-Jul-2025 18:34:28 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/filesystems.php:16
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/filesystems.php on line 16
+[15-Jul-2025 18:54:58 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/logging.php:21
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/logging.php on line 21
+[15-Jul-2025 18:56:49 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/mail.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/mail.php on line 17
+[15-Jul-2025 19:01:11 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/services.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/services.php on line 18
+[15-Jul-2025 19:02:16 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/database.php:19
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/database.php on line 19
+[15-Jul-2025 19:06:25 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/filesystems.php:16
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/filesystems.php on line 16
+[15-Jul-2025 19:09:27 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/projects.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/projects.php on line 7
+[15-Jul-2025 19:27:18 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/queue.php:16
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/queue.php on line 16
+[15-Jul-2025 19:28:19 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/cache.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/cache.php on line 18
+[15-Jul-2025 19:49:24 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/projects.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/projects.php on line 7
+[15-Jul-2025 20:50:25 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/session.php:21
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/session.php on line 21
+[15-Jul-2025 21:06:06 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/filesystems.php:16
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/filesystems.php on line 16
+[15-Jul-2025 21:17:03 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/logging.php:21
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/logging.php on line 21
+[15-Jul-2025 21:41:21 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/services.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/services.php on line 18
+[15-Jul-2025 22:38:30 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/mail.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/mail.php on line 17
+[15-Jul-2025 23:18:28 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/sanctum.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/sanctum.php on line 18
+[16-Jul-2025 00:33:15 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/database.php:19
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/database.php on line 19
+[16-Jul-2025 01:00:43 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/app.php:16
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/app.php on line 16
+[16-Jul-2025 03:34:17 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/auth.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/auth.php on line 17
+[16-Jul-2025 03:53:14 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/session.php:21
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/session.php on line 21
+[16-Jul-2025 04:17:56 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/auth.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/auth.php on line 17
+[16-Jul-2025 05:12:32 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/queue.php:16
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/queue.php on line 16
+[16-Jul-2025 05:55:48 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/cache.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/cache.php on line 18
+[16-Jul-2025 06:58:15 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/auth.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/auth.php on line 17
+[16-Jul-2025 06:58:44 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/logging.php:21
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/logging.php on line 21
+[16-Jul-2025 07:03:28 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/app.php:16
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/app.php on line 16
+[16-Jul-2025 15:49:57 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/mail.php:17
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/mail.php on line 17
+[19-Jul-2025 05:51:32 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/database.php:19
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/database.php on line 19
+[19-Jul-2025 06:37:20 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/queue.php:16
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/queue.php on line 16
+[19-Jul-2025 08:55:48 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/projects.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/projects.php on line 7
+[19-Jul-2025 09:49:38 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/app.php:16
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/app.php on line 16
+[19-Jul-2025 10:21:44 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/cache.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/cache.php on line 18
+[19-Jul-2025 11:54:18 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/sanctum.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/sanctum.php on line 18
+[19-Jul-2025 13:54:56 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/services.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/services.php on line 18
+[21-Jul-2025 10:07:17 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/session.php:21
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/session.php on line 21
+[21-Jul-2025 10:08:22 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/sanctum.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/sanctum.php on line 18
+[21-Jul-2025 10:51:33 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/logging.php:21
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/logging.php on line 21
+[21-Jul-2025 10:57:43 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/filesystems.php:16
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/filesystems.php on line 16
+[21-Jul-2025 11:00:54 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/services.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/services.php on line 18
+[21-Jul-2025 11:01:57 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/database.php:19
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/database.php on line 19
+[21-Jul-2025 11:07:09 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/projects.php:7
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/projects.php on line 7
+[21-Jul-2025 11:33:38 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/queue.php:16
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/queue.php on line 16
+[21-Jul-2025 11:34:43 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/cache.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/cache.php on line 18
+[21-Jul-2025 11:46:09 UTC] PHP Fatal error:  Uncaught Error: Call to undefined function env() in /home/upedia/public_html/upedia-setting.thetailors.tech/config/cache.php:18
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/config/cache.php on line 18

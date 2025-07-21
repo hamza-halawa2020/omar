@@ -6,3 +6,27 @@ Stack trace:
 Stack trace:
 #0 {main}
   thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/database/factories/UserFactory.php on line 12
+[15-Jul-2025 23:21:12 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/database/factories/UserFactory.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/database/factories/UserFactory.php on line 12
+[16-Jul-2025 13:58:18 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/database/factories/UserFactory.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/database/factories/UserFactory.php on line 12
+[16-Jul-2025 18:50:04 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/database/factories/UserFactory.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/database/factories/UserFactory.php on line 12
+[19-Jul-2025 01:22:52 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/database/factories/UserFactory.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/database/factories/UserFactory.php on line 12
+[21-Jul-2025 03:35:47 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/database/factories/UserFactory.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/database/factories/UserFactory.php on line 12
+[21-Jul-2025 08:43:02 UTC] PHP Fatal error:  Uncaught Error: Class "Illuminate\Database\Eloquent\Factories\Factory" not found in /home/upedia/public_html/upedia-setting.thetailors.tech/database/factories/UserFactory.php:12
+Stack trace:
+#0 {main}
+  thrown in /home/upedia/public_html/upedia-setting.thetailors.tech/database/factories/UserFactory.php on line 12

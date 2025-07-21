@@ -85,6 +85,19 @@ class LoginController extends Controller
         return false;
     }
 
+    public function fcmToken(Request $request)
+    {
+        // $request->validate([
+        //     'token' => 'required|string|unique:users,fcm_token',
+        //     'device' => 'nullable|string'
+        // ]);
+
+        $request->user()->update([
+            'fcm_token' => $request->token,
+        ]);
+        
+        return response()->json(['message' => 'FCM Token saved']);
+    }
 
 
     public function logout()
