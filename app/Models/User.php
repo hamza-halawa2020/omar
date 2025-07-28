@@ -17,4 +17,6 @@ class User extends Authenticatable
     {
         return $this->hasOne(Staff::class, 'user_id');
     }
+
+
 }

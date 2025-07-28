@@ -10,6 +10,11 @@ class Staff extends Model
     use HasFactory;
     protected $table = 'sm_staffs';
 
+    public function department()
+    {
+        return $this->belongsTo(SmHumanDepartment::class);
+    }
+
     // public function role()
     // {
     //     return $this->belongsTo(Role::class);

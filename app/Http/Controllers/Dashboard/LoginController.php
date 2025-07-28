@@ -30,14 +30,16 @@ class LoginController extends Controller
             return redirect()->route('login')->with('error', 'Too many login attempts. Please try again in ' . $seconds . ' seconds.')->withInput($request->only('email', 'remember'));
         }
 
-        if ($this->attemptLogin($request)) {
+        $result = $this->attemptLogin($request);
+
+        if ($result['success']) {
             $request->session()->regenerate();
             RateLimiter::clear($throttleKey);
             return redirect()->route('settings');
         }
 
         RateLimiter::hit($throttleKey, 300);
-        return redirect()->route('login')->with('error', 'Invalid phone number, email, or password.')->withInput($request->only('email', 'remember'));
+        return redirect()->route('login')->with('error', $result['message'])->withInput($request->only('email', 'remember'));
     }
 
     protected function throttleKey(Request $request)
@@ -65,25 +67,35 @@ class LoginController extends Controller
         $password = $request->input('password');
         $remember = $request->filled('remember');
 
-        if (filter_var($rawInput, FILTER_VALIDATE_EMAIL)) {
-            if (Auth::attempt(['email' => $rawInput, 'password' => $password], $remember)) {
-                return true;
-            }
+        $user = User::with(['staff.department'])->where(function ($q) use ($rawInput, $input) {
+            $q->where('email', $rawInput)
+                ->orWhere('phone_number', ltrim($input, '+'))
+                ->orWhereRaw("REPLACE(CONCAT(mobile_dial_code, phone_number), '+', '') = ?", [ltrim($input, '+')]);
+        })->first();
+
+        if (!$user) {
+            return ['success' => false, 'message' => 'No user found with provided credentials.'];
         }
 
-        $normalizedInput = ltrim($input, '+');
+        $staff = $user->staff;
 
-        $user = User::where('phone_number', $normalizedInput)->orWhereRaw("REPLACE(CONCAT(mobile_dial_code, phone_number), '+', '') = ?", [$normalizedInput])->first();
-
-        if ($user) {
-            return Auth::attempt([
-                'phone_number' => $user->phone_number,
-                'password' => $password
-            ], $remember);
+        if (!$staff || $staff->active_status != 1) {
+            return ['success' => false, 'message' => 'Your account is inactive. Please contact support.'];
         }
 
-        return false;
+        $department = $staff?->department;
+
+        if ($department && in_array($department->slug, ['tester', 'teacher'])) {
+            return ['success' => false, 'message' => 'You are not allowed to login from this portal.'];
+        }
+
+        if (Auth::attempt(['email' => $user->email, 'password' => $password], $remember)) {
+            return ['success' => true, 'message' => 'Login successful.'];
+        } else {
+            return ['success' => false, 'message' => 'Invalid password.'];
+        }
     }
+
 
     public function fcmToken(Request $request)
     {
@@ -95,7 +107,7 @@ class LoginController extends Controller
         $request->user()->update([
             'fcm_token' => $request->token,
         ]);
-        
+
         return response()->json(['message' => 'FCM Token saved']);
     }
 
