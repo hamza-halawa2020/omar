@@ -89,7 +89,7 @@
 
 
     <!-- SweetAlert2 Handler -->
-    <script>
+    {{-- <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Success message
             @if (session('success'))
@@ -125,7 +125,7 @@
                 });
             @endif
         });
-    </script>
+    </script> --}}
 
     <?php echo isset($script) ? $script : ''; ?>
 
