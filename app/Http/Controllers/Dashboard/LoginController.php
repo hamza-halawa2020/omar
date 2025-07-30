@@ -74,7 +74,9 @@ class LoginController extends Controller
         })->first();
 
         if (!$user) {
-            return ['success' => false, 'message' => 'No user found with provided credentials.'];
+            return ['success' => false, 'message' => 'Invalid phone number, email, or password.'];
+            // return ['success' => false, 'message' => 'No user found with provided credentials.'];
+            
         }
 
         $staff = $user->staff;
@@ -92,7 +94,7 @@ class LoginController extends Controller
         if (Auth::attempt(['email' => $user->email, 'password' => $password], $remember)) {
             return ['success' => true, 'message' => 'Login successful.'];
         } else {
-            return ['success' => false, 'message' => 'Invalid password.'];
+            return ['success' => false, 'message' => 'Invalid phone number, email, or password.'];
         }
     }
 
