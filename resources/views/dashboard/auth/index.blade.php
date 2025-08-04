@@ -1,7 +1,7 @@
 @extends('dashboard.layouts.app')
 
 @section('content')
-
+@include('components.alert')
     <div class="d-flex align-items-center justify-content-center min-vh-100">
         <div class="max-w-464-px mx-auto w-100 p-4">
 

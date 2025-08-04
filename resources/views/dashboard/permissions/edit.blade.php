@@ -1,8 +1,10 @@
 @extends('dashboard.layouts.app')
 
 @section('content')
+@include('components.alert')
+
 <div class="container mt-4">
-    @include('dashboard.layouts.flash')
+    {{-- @include('dashboard.layouts.flash') --}}
 
     <h1>Edit Permission</h1>
 

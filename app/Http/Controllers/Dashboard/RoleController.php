@@ -17,7 +17,7 @@ class RoleController extends BaseController
         $this->middleware('check.permission:general_roles_show')->only('show');
         $this->middleware('check.permission:general_roles_create')->only(['create', 'store']);
         $this->middleware('check.permission:general_roles_update')->only(['edit', 'update']);
-        $this->middleware('check.permission:general_roles_delete')->only('destroy');
+        $this->middleware('check.permission:general_roles_destroy')->only('destroy');
     }
 
 
@@ -83,6 +83,10 @@ class RoleController extends BaseController
     public function destroy($id)
     {
         $role = Role::findOrFail($id); // Use findOrFail to throw a 404 if not found
+        if ($role->users()->count() > 0) {
+            return redirect()->route('roles.index')
+                ->with('error', 'Cannot delete role because it is assigned to users.');
+        }
         $role->delete();
         return redirect()->route('roles.index')->with('success', 'Role deleted successfully.');
     }

@@ -1,8 +1,10 @@
 @extends('dashboard.layouts.app')
 
 @section('content')
+@include('components.alert')
+
     <div class="container mt-5">
-        @include('dashboard.layouts.flash')
+        {{-- @include('dashboard.layouts.flash') --}}
 
         <div class="card shadow-lg border-0 rounded-3 p-3">
             <div class="card-header d-flex justify-content-between align-items-center py-3">

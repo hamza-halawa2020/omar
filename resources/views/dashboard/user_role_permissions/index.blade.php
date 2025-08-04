@@ -1,6 +1,8 @@
 @extends('dashboard.layouts.app')
 
 @section('content')
+@include('components.alert')
+
     <div class="container mt-4">
         @if (session('success'))
             <div class="alert alert-info alert-dismissible fade show" role="alert">

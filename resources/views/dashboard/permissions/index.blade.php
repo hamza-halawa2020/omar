@@ -1,8 +1,10 @@
 @extends('dashboard.layouts.app')
 
 @section('content')
+@include('components.alert')
+
 <div class="container mt-4">
-    @include('dashboard.layouts.flash')
+    {{-- @include('dashboard.layouts.flash') --}}
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1>Permissions</h1>

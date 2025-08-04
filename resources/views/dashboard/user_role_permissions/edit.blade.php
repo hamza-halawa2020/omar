@@ -1,6 +1,8 @@
 @extends('dashboard.layouts.app')
 
 @section('content')
+@include('components.alert')
+
     <div class="container mt-5">
         <!-- Flash Messages -->
         @if (session('success'))
