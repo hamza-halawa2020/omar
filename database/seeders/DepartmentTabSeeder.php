@@ -2,9 +2,12 @@
 
 namespace Database\Seeders;
 
+use App\Models\SmHumanDepartment;
+use App\Models\Tab;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+
 class DepartmentTabSeeder extends Seeder
 {
     /**
@@ -12,13 +15,21 @@ class DepartmentTabSeeder extends Seeder
      */
     public function run(): void
     {
-        $departmentTabs = [
-            ['department_id' => 39, 'tab_id' => 7],
-            ['department_id' => 39, 'tab_id' => 8],
-            ['department_id' => 39, 'tab_id' => 9],
-            ['department_id' => 39, 'tab_id' => 10],
-            ['department_id' => 39, 'tab_id' => 11],
-        ];
+
+        $scheduleDepartment = SmHumanDepartment::where('slug', 'schedule')->first();
+
+        $allTabs = Tab::all();
+
+        $departmentTabs = [];
+
+        foreach ($allTabs as $tab) {
+            $departmentTabs[] = [
+                'department_id' => $scheduleDepartment->id,
+                'tab_id' => $tab->id,
+                'created_at' => now(),
+                'updated_at' => now()
+            ];
+        }
 
         DB::table('department_tab')->insert($departmentTabs);
     }
