@@ -7,8 +7,16 @@ use App\Models\SmHumanDepartment;
 
 class Tab extends Model
 {
-  
-     protected $fillable = [];
+
+    public $timestamps = true;
+    protected $fillable = [
+        'label',
+        'url',
+        'icon',
+        'parent_id',
+        'permission_required',
+        'order'
+    ];
     public function children()
     {
         return $this->hasMany(Tab::class, 'parent_id');
@@ -20,7 +28,7 @@ class Tab extends Model
     }
 
     public function departments()
-{
-    return $this->belongsToMany(SmHumanDepartment::class, 'department_tab', 'tab_id', 'department_id');
-}
+    {
+        return $this->belongsToMany(SmHumanDepartment::class, 'department_tab', 'tab_id', 'department_id');
+    }
 }

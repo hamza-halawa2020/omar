@@ -12483,10 +12483,10 @@ textarea:active {
   position: relative;
   flex-shrink: 0;
   margin-left: 0;
-  margin-top: 0;
+  /* margin-top: 0; */
   cursor: pointer;
+  margin-right: 5px
 }
-
 .form-check .form-check-input:checked[type=radio] {
   background-image: none;
   border-color: var(--primary-600);

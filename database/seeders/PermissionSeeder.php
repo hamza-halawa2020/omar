@@ -11,7 +11,7 @@ class PermissionSeeder extends Seeder
     {
         $system = 'general';
         $resources = ['roles', 'user_role_permissions'];
-        $actions = ['index', 'show', 'create', 'store', 'edit','update', 'destroy'];
+        $actions = ['index', 'show', 'create', 'store', 'edit', 'update', 'destroy'];
 
 
         foreach ($resources as $resource) {
@@ -21,7 +21,13 @@ class PermissionSeeder extends Seeder
             }
         }
 
-        $customRoutes = ['user_role_permissions'];
+        $customRoutes = [
+            'user_role_permissions',
+            'departments_index',
+            'departments_update',
+            'tabs_index',
+            'tabs_update'
+        ];
 
         foreach ($customRoutes as $route) {
             $name = "{$system}_{$route}";

@@ -12235,8 +12235,9 @@ div.dt-container .dt-paging .dt-paging-button:hover:hover, div.dt-container .dt-
   position: relative;
   flex-shrink: 0;
   margin-left: 0;
-  margin-top: 0;
+  /* margin-top: 0; */
   cursor: pointer;
+  margin-right: 5px
 }
 
 .form-check .form-check-input:checked[type=radio] {

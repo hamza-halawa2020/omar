@@ -7,6 +7,8 @@ use App\Http\Controllers\Dashboard\RoleController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Dashboard\UserRolePermissionController;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Dashboard\DepartmentController;
+use App\Http\Controllers\Dashboard\TabController;
 
 // Login routes (accessible only by guests)
 Route::middleware('guest')->group(function () {
@@ -26,5 +28,8 @@ Route::middleware('CheckProjectAccess')->group(function () {
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
     Route::resource('roles', RoleController::class);
     Route::resource('user-role-permissions', UserRolePermissionController::class);
-});
+    
+    Route::resource('departments', DepartmentController::class);
+    Route::resource('tabs', TabController::class);
 
+});
