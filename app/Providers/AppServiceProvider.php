@@ -80,37 +80,38 @@ class AppServiceProvider extends ServiceProvider
             
 
 
-      //  dd(auth()->check());
+ 
         View::composer('*', function ($view) {
             if(auth()->check()){
+                if (!Session::has('menuTabs')) {
+                      
         
-                $department = auth()->user()->staff->department;
-
-
-                $user = Auth::user();
-
-
-                $tabs = Tab::whereHas('departments', function ($query) use ($user, $department) {
-                    $query->where('sm_human_departments.id', $department->id);
-                })
-                ->with(['children' => function ($q) use ($user, $department) {
-                    $q->whereHas('departments', function ($query) use ($user, $department) {
+        
+                    $user = Auth::user();
+                    $department = $user->staff->department;
+    
+                    $tabs = Tab::whereHas('departments', function ($query) use ($user, $department) {
                         $query->where('sm_human_departments.id', $department->id);
-                    });
-                }])
-                ->orderBy('order')
-                ->get();
-
-     
-                $tabs = $tabs->filter(fn($tab) => !$tab->permission_required || $user->can($tab->permission_required))
-                            ->map(function ($tab) use ($user) {
-                                $tab->children = $tab->children->filter(fn($child) => !$child->permission_required || $user->can($child->permission_required));
-                                return $tab;
-                            });
-
-                session(['menuTabs' => $tabs]);
+                    })
+                    ->with(['children' => function ($q) use ($user, $department) {
+                        $q->whereHas('departments', function ($query) use ($user, $department) {
+                            $query->where('sm_human_departments.id', $department->id);
+                        });
+                    }])
+                    ->orderBy('order')
+                    ->get();
+    
          
-            }   
+                    $tabs = $tabs->filter(fn($tab) => !$tab->permission_required || $user->can($tab->permission_required))
+                                ->map(function ($tab) use ($user) {
+                                    $tab->children = $tab->children->filter(fn($child) => !$child->permission_required || $user->can($child->permission_required));
+                                    return $tab;
+                                });
+    
+                    session(['menuTabs' => $tabs]);
+                 
+                }   
+            }
        
          }); 
 
