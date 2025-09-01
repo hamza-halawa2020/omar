@@ -7,7 +7,7 @@ use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Sanctum\PersonalAccessToken;
 use Laravel\Sanctum\Sanctum;
-
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Config;
 
@@ -84,9 +84,6 @@ class AppServiceProvider extends ServiceProvider
         View::composer('*', function ($view) {
             if(auth()->check()){
                 if (!Session::has('menuTabs')) {
-                      
-        
-        
                     $user = Auth::user();
                     $department = $user->staff->department;
     
@@ -101,7 +98,6 @@ class AppServiceProvider extends ServiceProvider
                     ->orderBy('order')
                     ->get();
     
-         
                     $tabs = $tabs->filter(fn($tab) => !$tab->permission_required || $user->can($tab->permission_required))
                                 ->map(function ($tab) use ($user) {
                                     $tab->children = $tab->children->filter(fn($child) => !$child->permission_required || $user->can($child->permission_required));
