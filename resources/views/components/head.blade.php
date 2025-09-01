@@ -32,7 +32,15 @@
 
     <link rel="stylesheet" href="{{ asset('assets/css/lib/audioplayer.css') }}">
     <!-- main css -->
-    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+       
+        @if(config('app.client_name') == "Alkarim");
+          <link rel="stylesheet" href="{{ asset('assets/css/alkarim-style.css') }}">
+       @elseif(config('app.client_name') == "Upedia")
+           <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+       @else
+          <link rel="stylesheet" href="{{ asset('assets/css/tailors-style.css') }}">
+    @endif
+            
     <!-- Sweet Alert css -->
     <link rel="stylesheet" href="{{ asset('assets/css/lib/sweetalert2.css') }}">
 

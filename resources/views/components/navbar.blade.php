@@ -10,7 +10,7 @@
                     <iconify-icon icon="heroicons:bars-3-solid" class="icon"></iconify-icon>
                 </button>
                 <div id="GENERAL_LINK" class="d-flex align-items-center gap-2 hover-bg-transparent hover-text-primary">
-                    <a href="{{ env('GENERAL_LINK') }}" class="btn btn-primary btn-sm radius-8 d-flex align-items-center gap-2 fw-semibold">
+                    <a href="{{ config('app.general_link') }}" class="btn btn-primary btn-sm radius-8 d-flex align-items-center gap-2 fw-semibold">
                         <iconify-icon icon="heroicons:arrow-left" class="icon"></iconify-icon>back to general
                     </a>
                 </div>

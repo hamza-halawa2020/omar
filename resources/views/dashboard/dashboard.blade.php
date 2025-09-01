@@ -15,9 +15,25 @@
 
             <div class="inner-grid">
                 @foreach ($projects as $project)
-                    <a href="{{ $project['url'] }}" class="service-card group bg-white rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-2 hover:scale-[1.01] border border-gray-100 flex flex-col items-center justify-center text-center p-8 cursor-pointer">
-                        <div class="icon-wrapper w-28 h-28 flex items-center justify-center mb-6 rounded-full bg-blue-50 group-hover:bg-blue-100 transition-colors duration-300">
-                            <img src="{{ asset($project['image']) }}" alt="{{ $project['name'] }} Icon" class="w-20 h-20 object-contain">
+                    <a href="{{ config('app.' . $project['url']) }}" class="service-card group bg-white rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-2 hover:scale-[1.01] border border-gray-100 flex flex-col items-center justify-center text-center p-8 cursor-pointer">
+                     
+                            
+                @if(config('app.client_name') == "Alkarim")
+             <div class="icon-wrapper-alkarim w-28 h-28 flex items-center justify-center mb-6 rounded-full bg-blue-50 group-hover:bg-blue-100 transition-colors duration-300">
+                   
+                     <img src="{{asset('assets/images/alkarim.png')  }}" alt="{{ $project['name'] }} Icon" class="w-20 h-20 object-contain">
+               @elseif(config('app.client_name') == "Upedia")
+               <div class="icon-wrapper w-28 h-28 flex items-center justify-center mb-6 rounded-full bg-blue-50 group-hover:bg-blue-100 transition-colors duration-300">
+                       <img src="{{asset('assets/images/logo.png')  }}" alt="{{ $project['name'] }} Icon" class="w-20 h-20 object-contain">
+           
+           
+               @else
+               <div class="icon-wrapper w-28 h-28 flex items-center justify-center mb-6 rounded-full bg-blue-50 group-hover:bg-blue-100 transition-colors duration-300">
+                 <img src="{{asset('assets/images/tailors.png')  }}" alt="{{ $project['name'] }} Icon" class="w-20 h-20 object-contain">
+
+            @endif
+            
+                         
                         </div>
                         <h5 class="text-3xl mt-3 font-bold text-gray-800 mb-2 group-hover:text-blue-700 transition-colors duration-300 leading-tight">
                             {{ $project['name'] }}
@@ -30,6 +46,11 @@
             </div>
         </div>
     </div>
+    
+    <!--<button onclick="requestNotificationPermission()">Enable Notifications</button>-->
+
+
+
     <x-script />
     <x-footer />
 
@@ -90,9 +111,27 @@
         transition: background-color 0.3s;
         margin-top: 2rem;
     }
+    
+        .icon-wrapper-alkarim {
+        width: 100px;
+        height: 100px;
+        border-radius: 9999px;
+        background-color: #fff0b9;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
+        transition: background-color 0.3s;
+        margin-top: 2rem;
+    }
+    
 
     .service-card:hover .icon-wrapper {
         background-color: #dbeafe;
+    }
+    
+        .service-card:hover .icon-wrapper-alkarim {
+        background-color: #e6bc23;
     }
 
     .icon-wrapper img {
@@ -134,54 +173,74 @@
 <script src="https://www.gstatic.com/firebasejs/10.3.1/firebase-messaging-compat.js"></script>
 
 <script>
+function requestNotificationPermission() {
+    Notification.requestPermission().then(function (permission) {
+        console.log('Permission:', permission);
+        // your existing logic here...
+    });
+}
+</script>
+<script>
     const firebaseConfig = {
-        apiKey: "AIzaSyC9655aXFRUDOg7tcGqYt2cCKoS44EA6h8",
-        authDomain: "test-be06b.firebaseapp.com",
-        projectId: "test-be06b",
-        storageBucket: "test-be06b.firebasestorage.app",
-        messagingSenderId: "796086195914",
-        appId: "1:796086195914:web:66c4b9441e333209974633",
-        measurementId: "G-58NQ2EXNR1"
+        apiKey: "AIzaSyA8XAA3PmpKcq4jcxM5A8AAyrOEqwgSKcI",
+        authDomain: "upedia-d1c7b.firebaseapp.com",
+        projectId: "upedia-d1c7b",
+        storageBucket: "upedia-d1c7b.appspot.com",
+        messagingSenderId: "141880628391",
+        appId: "1:141880628391:web:96b93a0b276b1d7d39f782",
+        measurementId: "G-SY275K79WF"
     };
+firebase.initializeApp(firebaseConfig);
 
-
+console.log("serviceWorker before found");
     if ('serviceWorker' in navigator) {
-       navigator.serviceWorker.register('/assets/firebase-messaging-sw.js')
+         console.log("serviceWorker found");
+       navigator.serviceWorker.register('/firebase-messaging-sw.js')
             .then(function (registration) {
                 console.log('Service Worker Registered');
                   
-           
+          const messaging = firebase.messaging();
 
-                // طلب صلاحية الإشعارات
-                Notification.requestPermission().then(function (permission) {
-                    if (permission === 'granted') {
-                        // ✅ استبدل VAPID_KEY بالقيمة الموجودة في Firebase > Project Settings > Cloud Messaging > Web Push certificates
-                        messaging.getToken({ vapidKey: "BKVeYZaS040VhIperW-_1sT1tS7pz6Uzfpy01nj8XAcoyGCj74DtqmmUZNZxTUz1b7PvqhBJTsyNXs3b3xyP9uU" })
-                            .then(function (token) {
-                                console.log("FCM Token:", token);
 
-                                // ✅ إرسال التوكن للـ backend
-                                fetch("{{ route('fcm.token') }}", {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                    },
-                                    body: JSON.stringify({
-                                        token: token,
-                                        device: 'web'
-                                    })
-                                }).then(res => res.json())
-                                  .then(data => console.log(data))
-                                  .catch(err => console.error(err));
-                            })
-                            .catch(function (err) {
-                                console.warn('Error getting token', err);
-                            });
-                    } else {
-                        console.warn('Notification permission denied');
-                    }
-                });
+               // Request notification permission
+Notification.requestPermission().then(function (permission) {
+    console.log("before granted");
+
+    if (permission === 'granted') {
+        console.log("granted");
+
+        // Clear any existing token to force new retrieval
+        messaging.deleteToken().then(function () {
+            messaging.getToken({
+                vapidKey: "BFacVo6vw9yi-qVd-gPQPPDtawYPbi2wWtqwd6NDyH5KMLlYOkI2syUzG3vVYkA3_9seNilsv4uZ6qnbi4lUb4c"
+            }).then(function (token) {
+                console.log("New FCM Token:", token);
+
+                // Send token to the backend
+                fetch("{{ route('fcm.token') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        token: token,
+                        device: 'web'
+                    })
+                }).then(res => res.json())
+                  .then(data => console.log(data))
+                  .catch(err => console.error(err));
+            }).catch(function (err) {
+                console.warn('Error getting token', err);
+            });
+        }).catch(function (err) {
+            console.warn('Unable to delete old token:', err);
+        });
+    } else {
+        console.warn('Notification permission denied');
+    }
+});
+
             });
     }
 </script>

@@ -31,9 +31,13 @@ class LoginController extends Controller
         }
 
         $result = $this->attemptLogin($request);
-
+      
+    
         if ($result['success']) {
+            
             $request->session()->regenerate();
+            session(['user_id' => auth()->id()]);
+            $request->session()->save();
             RateLimiter::clear($throttleKey);
             return redirect()->route('settings');
         }

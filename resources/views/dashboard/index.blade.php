@@ -7,7 +7,18 @@
 
             <div>
                 <a href="" class="mb-40 max-w-290-px">
-                    <img src="{{ asset('assets/images/logo.png') }}" alt="">
+             
+                    
+                        @if(config('app.client_name') == "Alkarim")
+            
+                          <img src="{{ asset('assets/images/alkarim.png') }}" alt="">
+               @elseif(config('app.client_name') == "Upedia")
+                         <img src="{{ asset('assets/images/logo.png') }}" alt="">
+               @else
+                 <img src="{{ asset('assets/images/tailors.png') }}" alt="site logo" class="light-logo">
+    
+               
+            @endif
                 </a>
             </div>
 
