@@ -28,4 +28,10 @@ class SmHumanDepartment extends Model
     {
         return $this->hasMany(Staff::class, 'department_id');
     }
+
+       public function tabs()
+    {
+        return $this->belongsToMany(Tab::class, 'department_tab', 'department_id');
+    }
+
 }

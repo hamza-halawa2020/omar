@@ -37,5 +37,42 @@
                 </li>
             @endcan --}}
         </ul>
+                --------
+<ul class="sidebar-menu">
+    @foreach(session('menuTabs') as $tab)
+           @if($tab->children->count() > 0)
+            <li class="dropdown">
+                <a href="javascript:void(0)">
+                    <iconify-icon icon="{{ $tab->icon }}" class="menu-icon"></iconify-icon>
+                    <span>{{ $tab->label }}</span>
+                </a>
+                    <ul class="sidebar-submenu">
+                        @foreach($tab->children as $child)
+                      
+                            @if(!$child->permission_required || auth()->user()->can($child->permission_required))
+                                <li>
+                                    <a href="{{ $child->url }}">
+                                        <iconify-icon icon="{{ $child->icon }}" class="me-2"></iconify-icon>
+                                        <span>{{ $child->label }}</span>
+                                    </a>
+                                </li>
+                            @endif
+                        @endforeach
+                    </ul>
+            </li>
+           @elseif($tab->parent_id)
+    
+        @else
+       
+            <li>
+                <a href="{{ $tab->url }}">
+                    <iconify-icon icon="{{ $tab->icon }}" class="menu-icon"></iconify-icon>
+                    <span>{{ $tab->label }}</span>
+                </a>
+            </li>
+        @endif
+
+    @endforeach
+</ul>
     </div>
 </aside>
