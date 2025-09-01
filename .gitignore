@@ -18,3 +18,4 @@ yarn-error.log
 /.idea
 /.vscode
 /app/config/projects.php
+/app/Providers/AppServiceProvider.php
