@@ -35,10 +35,19 @@ class TabController extends \Illuminate\Routing\Controller
     }
 
 
-    public function edit($id)
+    public function store(Request $request)
     {
-        $tab = Tab::findOrFail($id);
-        return view('dashboard.tabs.edit', compact('tab'));
+        $validated = $request->validate([
+            'label' => 'required|string|max:255',
+            'icon' => 'nullable|string|max:255',
+            'order' => 'nullable|integer',
+        ]);
+
+        Tab::create($validated);
+
+        return redirect()->route('tabs.index')
+            ->with('success', 'Tab created successfully!');
+
     }
 
     public function update(Request $request, $id)
@@ -57,4 +66,5 @@ class TabController extends \Illuminate\Routing\Controller
         return redirect()->route('tabs.index')
             ->with('success', 'Tab updated successfully!');
     }
+    
 }
