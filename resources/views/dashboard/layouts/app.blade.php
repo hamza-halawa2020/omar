@@ -1,8 +1,8 @@
 <!-- meta tags and other links -->
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
 <x-head />
 
@@ -78,55 +78,32 @@
     <script src="{{ asset('assets/js/lib/audioplayer.js') }}"></script>
 
     <!-- multi select -->
-    <script src="{{ asset('assets/js/lib/multi-select.js') }}"></script>
+    {{-- <script src="{{ asset('assets/js/lib/multi-select.js') }}"></script> --}}
 
     <!-- main js -->
     <script src="{{ asset('assets/js/app.js') }}"></script>
 
     <!-- Select2 JS -->
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 
 
+    <script src="{{ asset('assets/js/lib/toaster.js') }}"></script>
 
-    <!-- SweetAlert2 Handler -->
-    {{-- <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Success message
+    <script>
+        $(document).ready(function() {
             @if (session('success'))
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success',
-                    text: '{{ session('success') }}',
-                    timer: 3000,
-                    timerProgressBar: true,
-                    showConfirmButton: false
-                });
+                toastr.success("{{ session('success') }}");
             @endif
 
-            // Error message from session
             @if (session('error'))
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: '{{ session('error') }}',
-                    timer: 3000,
-                    timerProgressBar: true,
-                    showConfirmButton: false
-                });
+                toastr.error("{{ session('error') }}");
             @endif
 
-            // Validation errors
-            @if ($errors->any())
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Validation Error',
-                    html: `{!! implode('<br>', $errors->all()) !!}`,
-                    showConfirmButton: true
-                });
-            @endif
+
         });
-    </script> --}}
+    </script>
+
 
     <?php echo isset($script) ? $script : ''; ?>
 

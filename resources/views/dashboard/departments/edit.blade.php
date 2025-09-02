@@ -109,7 +109,9 @@
                                                             name="tabs[]" 
                                                             value="{{ $tab->id }}" 
                                                             id="tab-{{ $tab->id }}" 
-                                                            aria-label="Select {{ $tab->label }}">
+                                                            aria-label="Select {{ $tab->label }}"
+                                                            {{ $department->tabs->contains($tab->id) ? 'checked' : '' }}
+                                                            >
                                                             <label class="form-check-label fw-semibold" for="tab-{{ $tab->id }}">
                                                                 {{ $tab->label }}
                                                             </label>
