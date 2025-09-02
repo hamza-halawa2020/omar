@@ -51,7 +51,7 @@
             @can('general_tabs_index')
                 <li>
                     <a href="{{ route('tabs.index') }}"
-                        class="d-flex align-items-center gap-2 {{ request()->is('departments/*') ? 'active-page' : '' }}">
+                        class="d-flex align-items-center gap-2 {{ request()->is('tabs/*') ? 'active-page' : '' }}">
                         <iconify-icon icon="mdi:format-list-bulleted-type" class="menu-icon"></iconify-icon>
                         <span>SideBar Tabs</span>
                     </a>

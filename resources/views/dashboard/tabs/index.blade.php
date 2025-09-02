@@ -7,8 +7,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="card h-100 border-0 shadow-sm overflow-hidden p-3">
-                    <div
-                        class="card-header border-bottom py-3 px-5 d-flex align-items-center flex-wrap justify-content-between gap-3">
+                    <div class="card-header border-bottom d-flex align-items-center flex-wrap justify-content-between gap-3">
                         <form action="{{ route('tabs.index') }}" method="GET">
                             <select name="per_page" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
                                 @foreach ([5, 10, 25, 50, 100, 150] as $count)
@@ -29,22 +28,24 @@
                             </div>
                         </form>
 
+                        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#createModal">
+                             Add Parent Tab 
+                        </button>
+
                     </div>
 
                     <div class="table-responsive">
                         <!-- tabs Table -->
                         <table class="table table-bordered table-sm table bordered-table sm-table mb-0">
 
-                            <thead class="table-dark">
+                            <thead class="">
                                 <tr>
                                     <th>Id</th>
-                                    <th class=>label</th>
-                                    <th class=>url</th>
-                                    <th class=>icon</th>
-                                    <th class=>parent_id</th>
-                                    <th class=>permission_required</th>
-                                    <th class=>order</th>
-                                    <th>Actions</th>
+                                    <th class=>Label</th>
+                                    <th class=>Icon</th>
+                                    <th class=>Parent</th>
+                                    <th class=>Order</th>
+                                    <th>Assign</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -52,10 +53,8 @@
                                     <tr>
                                         <td>{{ $tab->id }}</td>
                                         <td>{{ $tab->label }}</td>
-                                        <td>{{ $tab->url }}</td>
                                         <td>{{ $tab->icon }}</td>
-                                        <td>{{ $tab->parent_id }}</td>
-                                        <td>{{ $tab->permission_required }}</td>
+                                        <td>{{ $tab->parent->label ?? '' }}</td>
                                         <td>{{ $tab->order }}</td>
                                         <td>
                                             <!-- Edit Button -->
