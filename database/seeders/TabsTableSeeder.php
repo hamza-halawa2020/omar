@@ -466,6 +466,22 @@ class TabsTableSeeder extends Seeder
             'permission_required' => 'crm_email-settings_index',
             'order' => $settingsIndex++,
         ]);
+        Tab::create([
+            'label' => 'Social Media Settings',
+            'url' => config('app.CRM_URL') . 'settings/index',
+            'icon' => 'mdi:email-cog-outline',
+            'parent_id' => $settings->id,
+            'permission_required' => 'crm_media-settings_index',
+            'order' => $settingsIndex++,
+        ]);
+        Tab::create([
+            'label' => 'Referral Settings',
+            'url' => config('app.CRM_URL') . 'referralsettings',
+            'icon' => 'mdi:email-cog-outline',
+            'parent_id' => $settings->id,
+            'permission_required' => 'crm_referral-settings_index',
+            'order' => $settingsIndex++,
+        ]);
 
         Tab::create([
             'label' => 'Social Media Settings',
@@ -508,6 +524,14 @@ class TabsTableSeeder extends Seeder
             'order' => $settingsIndex++,
         ]);
         Tab::create([
+            'label' => 'Lead Workflow',
+            'url' => config('app.CRM_URL') . 'workflow',
+            'icon' => 'mdi:play-circle',
+            'parent_id' => $settings->id,
+            'permission_required' => 'crm_leadactions-view',
+            'order' => $settingsIndex++,
+        ]);
+        Tab::create([
             'label' => 'Reminder Settings',
             'url' => config('app.CRM_URL') . 'leads-reminder-settings',
             'icon' => 'mdi:bell-outline',
@@ -528,7 +552,7 @@ class TabsTableSeeder extends Seeder
 
         Tab::create([
             'label' => 'Messanger',
-            'url' => config('app.CRM_URL') . 'messangers',
+            'url' => config('app.CRM_URL') . 'messangers/index',
             'icon' => 'mdi:chat-outline',
             'parent_id' => null,
             'permission_required' => 'crm_messanger-view',
@@ -536,7 +560,7 @@ class TabsTableSeeder extends Seeder
         ]);
         Tab::create([
             'label' => 'Instagram',
-            'url' => config('app.CRM_URL') . 'instagrams',
+            'url' => config('app.CRM_URL') . 'instagram/index',
             'icon' => 'mdi:instagram',
             'parent_id' => null,
             'permission_required' => 'crm_instagram-view',

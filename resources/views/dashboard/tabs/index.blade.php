@@ -7,7 +7,7 @@
         <div class="row">
             <div class="col-12">
                 <div class="card h-100 border-0 shadow-sm overflow-hidden p-3">
-                    <div class="card-header border-bottom d-flex align-items-center flex-wrap justify-content-between gap-3">
+                    <div class="card-header border-bottom d-flex align-items-center flex-wrap justify-content-end gap-3">
                         <form action="{{ route('tabs.index') }}" method="GET">
                             <select name="per_page" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
                                 @foreach ([5, 10, 25, 50, 100, 150] as $count)
