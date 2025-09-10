@@ -79,7 +79,7 @@ class TabsTableSeeder extends Seeder
             'url' => config('app.Retention_URL') . 'products/all',
             'icon' => 'mdi:view-list',
             'parent_id' => $scheduleProducts->id,
-            'permission_required' => 'academy_products_index',
+            'permission_required' => 'retention_products_index',
             'order' => $scheduleProductsIndex++,
         ]);
 
@@ -91,7 +91,7 @@ class TabsTableSeeder extends Seeder
                 'url' => config('app.Retention_URL') . 'products/all?' . http_build_query(['type' => $type]),
                 'icon' => 'mdi:tag-outline',
                 'parent_id' => $scheduleProducts->id,
-                'permission_required' => 'academy_products_index',
+                'permission_required' => 'retention_products_index',
                 'order' => $scheduleProductsIndex++,
             ]);
         }
@@ -122,7 +122,7 @@ class TabsTableSeeder extends Seeder
             'url' => config('app.Retention_URL') . 'students',
             'icon' => 'mdi:school-outline',
             'parent_id' => null,
-            'permission_required' => 'academy_students_index',
+            'permission_required' => 'retention_students_index',
             'order' => $parent++,
         ]);
         Tab::create([
@@ -130,7 +130,7 @@ class TabsTableSeeder extends Seeder
             'url' => config('app.Retention_URL') . 'urgents',
             'icon' => 'mdi:alert-circle-outline',
             'parent_id' => null,
-            'permission_required' => 'academy_urgents_index',
+            'permission_required' => 'retention_urgents_index',
             'order' => $parent++,
         ]);
 
@@ -141,7 +141,7 @@ class TabsTableSeeder extends Seeder
             'url' => config('app.Retention_URL') . 'calendar-demo',
             'icon' => 'mdi:calendar-star',
             'parent_id' => $demo->id,
-            'permission_required' => 'academy_calendar_index',
+            'permission_required' => 'retention_calendar_index',
             'order' => $demoIndex++,
         ]);
 
@@ -151,7 +151,7 @@ class TabsTableSeeder extends Seeder
             'url' => config('app.Retention_URL') . 'schedule-demo',
             'icon' => 'mdi:calendar-check-outline',
             'parent_id' => $demo->id,
-            'permission_required' => 'academy_schedule_demo_index',
+            'permission_required' => 'retention_schedule_demo_index',
             'order' => $demoIndex++,
         ]);
         Tab::create([
@@ -159,7 +159,7 @@ class TabsTableSeeder extends Seeder
             'url' => config('app.Retention_URL') . 'show-demo',
             'icon' => 'mdi:eye-outline',
             'parent_id' => $demo->id,
-            'permission_required' => 'academy_schedule_demo_show',
+            'permission_required' => 'retention_schedule_demo_show',
             'order' => $demoIndex++,
         ]);
 
@@ -168,7 +168,7 @@ class TabsTableSeeder extends Seeder
             'url' => config('app.Retention_URL') . 'calendar',
             'icon' => 'mdi:calendar-month',
             'parent_id' => $schedule->id,
-            'permission_required' => 'academy_calendar_index',
+            'permission_required' => 'retention_calendar_index',
             'order' => $scheduleIndex++,
         ]);
 
@@ -177,7 +177,7 @@ class TabsTableSeeder extends Seeder
             'url' => config('app.Retention_URL') . 'schedule',
             'icon' => 'mdi:calendar-plus',
             'parent_id' => $schedule->id,
-            'permission_required' => 'academy_schedule_index',
+            'permission_required' => 'retention_schedule_index',
             'order' => $scheduleIndex++
         ]);
         Tab::create([
@@ -185,7 +185,7 @@ class TabsTableSeeder extends Seeder
             'url' => config('app.Retention_URL') . 'live-sessions',
             'icon' => 'mdi:video-outline',
             'parent_id' => $schedule->id,
-            'permission_required' => 'academy_live_sessions_index',
+            'permission_required' => 'retention_live_sessions_index',
             'order' => $scheduleIndex++
         ]);
         Tab::create([
@@ -193,7 +193,7 @@ class TabsTableSeeder extends Seeder
             'url' => config('app.Retention_URL') . 'courses',
             'icon' => 'mdi:book-education-outline',
             'parent_id' => $schedule->id,
-            'permission_required' => 'academy_courses_index',
+            'permission_required' => 'retention_courses_index',
             'order' => $scheduleIndex++
         ]);
         Tab::create([
@@ -201,7 +201,7 @@ class TabsTableSeeder extends Seeder
             'url' => config('app.Retention_URL') . 'sessions',
             'icon' => ' mdi:calendar-multiple',
             'parent_id' => $schedule->id,
-            'permission_required' => 'academy_sessions_index',
+            'permission_required' => 'retention_sessions_index',
             'order' => $scheduleIndex++
         ]);
 
@@ -405,7 +405,7 @@ class TabsTableSeeder extends Seeder
             'url' => config('app.Retention_URL') . 'categories',
             'icon' => 'mdi:shape-outline',
             'parent_id' => $settings->id,
-            'permission_required' => 'academy_categories_index',
+            'permission_required' => 'retention_categories_index',
             'order' => $settingsIndex++,
         ]);
         Tab::create([
@@ -413,7 +413,7 @@ class TabsTableSeeder extends Seeder
             'url' => config('app.Retention_URL') . 'track-types',
             'icon' => 'mdi:road-variant',
             'parent_id' => $settings->id,
-            'permission_required' => 'academy_track_types_index',
+            'permission_required' => 'retention_track_types_index',
             'order' => $settingsIndex++,
         ]);
         Tab::create([
@@ -421,7 +421,7 @@ class TabsTableSeeder extends Seeder
             'url' => config('app.Retention_URL') . 'tracks',
             'icon' => 'mdi:map-marker-path',
             'parent_id' => $settings->id,
-            'permission_required' => 'academy_tracks_index',
+            'permission_required' => 'retention_tracks_index',
             'order' => $settingsIndex++,
         ]);
         Tab::create([
@@ -429,7 +429,7 @@ class TabsTableSeeder extends Seeder
             'url' => config('app.Retention_URL') . 'pricing_plan_types',
             'icon' => 'mdi:cash-100',
             'parent_id' => $settings->id,
-            'permission_required' => 'academy_pricing_plan_types_index',
+            'permission_required' => 'retention_pricing_plan_types_index',
             'order' => $settingsIndex++,
         ]);
         Tab::create([
@@ -437,7 +437,7 @@ class TabsTableSeeder extends Seeder
             'url' => config('app.Retention_URL') . 'discount_plans',
             'icon' => 'mdi:percent-outline',
             'parent_id' => $settings->id,
-            'permission_required' => 'academy_discount_plans_index',
+            'permission_required' => 'retention_discount_plans_index',
             'order' => $settingsIndex++,
         ]);
         Tab::create([
@@ -445,7 +445,7 @@ class TabsTableSeeder extends Seeder
             'url' => config('app.Retention_URL') . 'product_types',
             'icon' => 'mdi:package-variant',
             'parent_id' => $settings->id,
-            'permission_required' => 'academy_product_types_index',
+            'permission_required' => 'retention_product_types_index',
             'order' => $settingsIndex++,
         ]);
         Tab::create([
@@ -453,7 +453,7 @@ class TabsTableSeeder extends Seeder
             'url' => config('app.Retention_URL') . 'products',
             'icon' => 'mdi:cart-outline',
             'parent_id' => $settings->id,
-            'permission_required' => 'academy_products_index',
+            'permission_required' => 'retention_products_index',
             'order' => $settingsIndex++,
         ]);
 
