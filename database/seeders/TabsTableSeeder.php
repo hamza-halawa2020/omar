@@ -151,7 +151,7 @@ class TabsTableSeeder extends Seeder
             'url' => config('app.Retention_URL') . 'schedule-demo',
             'icon' => 'mdi:calendar-check-outline',
             'parent_id' => $demo->id,
-            'permission_required' => 'retention_schedule_demo_index',
+            'permission_required' => 'retention_schedule_product',
             'order' => $demoIndex++,
         ]);
         Tab::create([
@@ -159,7 +159,7 @@ class TabsTableSeeder extends Seeder
             'url' => config('app.Retention_URL') . 'show-demo',
             'icon' => 'mdi:eye-outline',
             'parent_id' => $demo->id,
-            'permission_required' => 'retention_schedule_demo_show',
+            'permission_required' => 'retention_schedule_product_show',
             'order' => $demoIndex++,
         ]);
 
