@@ -38,7 +38,7 @@
                         @php
                             // Group permissions by prefix
                             $groupedPermissions = [];
-                            $prefixes = ['general_', 'hr_', 'academy_', 'crm_'];
+                            $prefixes = ['general_', 'hr_', 'academy_', 'crm_','retention_','finance_',];
                             foreach ($permissions as $permission) {
                                 $prefix = 'other';
                                 foreach ($prefixes as $p) {
