@@ -9,19 +9,10 @@
                 <button type="button" class="sidebar-mobile-toggle">
                     <iconify-icon icon="heroicons:bars-3-solid" class="icon"></iconify-icon>
                 </button>
-                <div id="GENERAL_LINK" class="d-flex align-items-center gap-2 hover-bg-transparent hover-text-primary">
-                    <a href="{{ config('app.general_link') }}" class="btn btn-primary btn-sm radius-8 d-flex align-items-center gap-2 fw-semibold">
-                        <iconify-icon icon="heroicons:arrow-left" class="icon"></iconify-icon>back to general
-                    </a>
-                </div>
             </div>
         </div>
         <div class="col-auto">
             <div class="d-flex flex-wrap align-items-center gap-3">
-                <form class="navbar-search">
-                    <input type="text" name="search" placeholder="Search">
-                    <iconify-icon icon="ion:search-outline" class="icon"></iconify-icon>
-                </form>
 
 
                 <button type="button" data-theme-toggle
@@ -79,10 +70,10 @@
                     </div>
                 </div><!-- Notification dropdown end -->
 
-               
-               
-               
-                    <div class="dropdown">
+
+
+
+                <div class="dropdown">
                     <button class="d-flex justify-content-center align-items-center rounded-circle" type="button"
                         data-bs-toggle="dropdown">
                         @php

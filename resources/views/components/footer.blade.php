@@ -1,10 +1,10 @@
 <footer class="d-footer">
     <div class="row align-items-center justify-content-between">
         <div class="col-auto">
-            <p class="mb-0">© 2025 {{config('app.client_name')}}. All Rights Reserved.</p>
+            <small class="">© {{ date('Y') }}  Hamza Halawa. All Rights Reserved.</small>
         </div>
         <div class="col-auto">
-            <p class="mb-0">Made by <a class="text-primary-600" href="https://thetailorsdev.com" target="_blank">The tailors dev</a></p>
+            <small class="">Developed by <a href="#" target="_blank" class="text-primary fw-semibold text-decoration-none">Hamza Halawa</a></small>
         </div>
     </div>
 </footer>

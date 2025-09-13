@@ -1,13 +1,15 @@
 <!-- meta tags and other links -->
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
 <x-head />
 
-
 <body>
+
+
+    <div class="position-fixed bottom-0 top-0 p-3" style="z-index: 11">
+        <div id="toastContainer"></div>
+    </div>
 
 
     @if (!Route::is('auth.login'))
@@ -16,17 +18,12 @@
 
     <main class="{{ Route::is('auth.login') ? '' : 'dashboard-main' }}">
 
-
         @if (!Route::is('auth.login'))
             <x-navbar />
         @endif
 
-
-
         <div class="{{ Route::is('auth.login') ? '' : 'dashboard-main-body' }}">
             <x-breadcrumb title='{{ $title ?? '' }}' subTitle='{{ $subTitle ?? '' }}' />
-
-
 
             @yield('content')
 
@@ -37,24 +34,10 @@
 
     </main>
 
-    <!-- ..::  scripts  start ::.. -->
-    <x-script script='{!! isset($script) ? $script : '' !!}' />
-    <!-- ..::  scripts  end ::.. -->
-
-
-    {{-- <!-- Bootstrap js -->
-    <script src="{{ asset('assets/js/lib/bootstrap.bundle.min.js') }}"></script> --}}
-
-    {{-- <!-- Iconify Font js -->
-    <script src="{{ asset('assets/js/lib/iconify-icon.min.js') }}"></script> --}}
 
 
     <!-- jQuery library js -->
     <script src="{{ asset('assets/js/lib/jquery-3.7.1.min.js') }}"></script>
-    <!-- jQuery UI js -->
-    <script src="{{ asset('assets/js/lib/jquery-ui.min.js') }}"></script>
-    <!-- Sweet Alert js -->
-    <script src="{{ asset('assets/js/lib/sweetalert2.js') }}"></script>
     <!-- Bootstrap js -->
     <script src="{{ asset('assets/js/lib/bootstrap.bundle.min.js') }}"></script>
     <!-- Apex Chart js -->
@@ -63,6 +46,8 @@
     <script src="{{ asset('assets/js/lib/dataTables.min.js') }}"></script>
     <!-- Iconify Font js -->
     <script src="{{ asset('assets/js/lib/iconify-icon.min.js') }}"></script>
+    <!-- jQuery UI js -->
+    <script src="{{ asset('assets/js/lib/jquery-ui.min.js') }}"></script>
     <!-- Vector Map js -->
     <script src="{{ asset('assets/js/lib/jquery-jvectormap-2.0.5.min.js') }}"></script>
     <script src="{{ asset('assets/js/lib/jquery-jvectormap-world-mill-en.js') }}"></script>
@@ -76,19 +61,15 @@
     <script src="{{ asset('assets/js/lib/file-upload.js') }}"></script>
     <!-- audioplayer -->
     <script src="{{ asset('assets/js/lib/audioplayer.js') }}"></script>
-
     <!-- multi select -->
-    {{-- <script src="{{ asset('assets/js/lib/multi-select.js') }}"></script> --}}
-
+    <script src="{{ asset('assets/js/lib/multi-select.js') }}"></script>
     <!-- main js -->
     <script src="{{ asset('assets/js/app.js') }}"></script>
-
     <!-- Select2 JS -->
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
-
-
+    <script src="{{ asset('assets/js/lib/select2.min.js') }}"></script>
+    <!-- toaster JS -->
     <script src="{{ asset('assets/js/lib/toaster.js') }}"></script>
+
 
     <script>
         $(document).ready(function() {
@@ -102,10 +83,26 @@
 
 
         });
+
+        function showToast(message, type = 'success') {
+            let toastId = 'toast-' + Date.now();
+            let bgClass = type === 'success' ? 'bg-success' : type === 'error' ? 'bg-danger' : 'bg-primary';
+
+            let toastHtml = `
+                <div id="${toastId}" class="toast align-items-center text-white ${bgClass} border-0 mb-3" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3000">
+                    <div class="d-flex">
+                        <div class="toast-body">${message}</div>
+                        <button type="button" class="btn-close btn-close-white me-3 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>`
+            ;
+
+            $('#toastContainer').append(toastHtml);
+            let toastEl = new bootstrap.Toast(document.getElementById(toastId));
+            toastEl.show();
+            setTimeout(() => {$('#' + toastId).remove();}, 3500);
+        }
     </script>
-
-
-    <?php echo isset($script) ? $script : ''; ?>
 
 
     @stack('scripts')

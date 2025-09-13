@@ -1,10 +1,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>upedia</title>
+    <title>omar</title>
     <link rel="icon" type="image/png" href="{{ asset('assets/images/logo-icon.png') }}" sizes="16x16">
     <!-- remix icon font css  -->
     <link rel="stylesheet" href="{{ asset('assets/css/remixicon.css') }}">
+
+    <link href="{{ asset('assets/css/lib/select2.min.css') }}" rel="stylesheet" />
+    <link href="{{ asset('assets/css/lib/font-awesome/6.4.2.css') }}" rel="stylesheet" />
+
     <!-- BootStrap css -->
     <link rel="stylesheet" href="{{ asset('assets/css/lib/bootstrap.min.css') }}">
     <!-- Apex Chart css -->
@@ -32,15 +36,11 @@
 
     <link rel="stylesheet" href="{{ asset('assets/css/lib/audioplayer.css') }}">
     <!-- main css -->
-       
-        @if(config('app.client_name') == "Alkarim");
-          <link rel="stylesheet" href="{{ asset('assets/css/alkarim-style.css') }}">
-       @elseif(config('app.client_name') == "Upedia")
-           <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
-       @else
-          <link rel="stylesheet" href="{{ asset('assets/css/tailors-style.css') }}">
-    @endif
-            
+
+
+    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+
+
     <!-- Sweet Alert css -->
     <link rel="stylesheet" href="{{ asset('assets/css/lib/sweetalert2.css') }}">
 

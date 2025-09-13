@@ -1,35 +1,44 @@
 <?php
 
-use App\Http\Controllers\Dashboard\LoginController;
-use App\Http\Controllers\Dashboard\PermissionController;
-use App\Http\Controllers\Dashboard\ProjectController;
-use App\Http\Controllers\Dashboard\RoleController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Dashboard\UserRolePermissionController;
-use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\Dashboard\DepartmentController;
-use App\Http\Controllers\Dashboard\TabController;
+use App\Http\Controllers\Dashboard\LoginController;
+use App\Http\Controllers\Dashboard\CategoryController;
+use App\Http\Controllers\Dashboard\PaymentWayController;
+use App\Http\Controllers\Dashboard\TransactionController;
 
-// Login routes (accessible only by guests)
-Route::middleware('guest')->group(function () {
-    Route::get('login', [LoginController::class, 'showLoginForm'])->name('auth.login');
-    Route::post('/login', [LoginController::class, 'login'])->name('login');
-});
+Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [LoginController::class, 'login'])->name('login.attempt');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 
-Route::middleware('auth')->group(function () {
-    Route::get('/systems', [ProjectController::class, 'settings'])->name('settings');
-    Route::get('/', [ProjectController::class, 'index'])->name('dashboard');
-    Route::post('fcm-token', [LoginController::class, 'fcmToken'])->name('fcm.token');
-});
 
 
-Route::middleware('CheckProjectAccess')->group(function () {
-    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-    Route::resource('roles', RoleController::class);
-    Route::resource('user-role-permissions', UserRolePermissionController::class);
+Route::prefix('dashboard')->group(function () {
+    Route::get('categories', [CategoryController::class, 'index'])->name('categories.index');
+    Route::get('categories/list', [CategoryController::class, 'list'])->name('categories.list');
+    Route::post('categories', [CategoryController::class, 'store'])->name('categories.store');
+    Route::put('categories/{id}', [CategoryController::class, 'update'])->name('categories.update');
+    Route::delete('categories/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+
+
+    Route::get('payment-ways', [PaymentWayController::class, 'index'])->name('payment_ways.index');
     
-    Route::resource('departments', DepartmentController::class);
-    Route::resource('tabs', TabController::class);
+    Route::get('sub-categories/{id}', [PaymentWayController::class, 'getSubCategoryOnCategory'])->name('getSubCategoryOnCategory');
+    
+    Route::get('payment-ways/list', [PaymentWayController::class, 'list'])->name('payment_ways.list');
+    Route::post('payment-ways', [PaymentWayController::class, 'store'])->name('payment_ways.store');
+    Route::put('payment-ways/{id}', [PaymentWayController::class, 'update'])->name('payment_ways.update');
+    Route::delete('payment-ways/{id}', [PaymentWayController::class, 'destroy'])->name('payment_ways.destroy');
 
+
+    Route::get('/payment-ways/show/{id}', [PaymentWayController::class, 'show'])->name('payment_ways.show');
+    Route::get('/payment-ways/show-list/{id}', [PaymentWayController::class, 'showList'])->name('payment_ways.showList');
+
+
+    Route::get('transactions', [TransactionController::class, 'index'])->name('transactions.index');
+    Route::get('transactions/list', [TransactionController::class, 'list'])->name('transactions.list');
+    Route::post('transactions', [TransactionController::class, 'store'])->name('transactions.store');
+    Route::get('transactions/{id}', [TransactionController::class, 'show'])->name('transactions.show');
+    Route::put('transactions/{id}', [TransactionController::class, 'update'])->name('transactions.update');
+    Route::delete('transactions/{id}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
 });
