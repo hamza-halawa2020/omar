@@ -43,11 +43,6 @@
                 toggleFields($(this).val(), '.phone_limit_group_edit');
             });
 
-            $(document).on('click', '.editBtn', function() {
-                let type = $(this).data('type');
-                toggleFields(type, '.phone_limit_group_edit');
-            });
-
             $(document).on('click', '.receiveBtn, .sendBtn', function() {
                 $('#receiveForm input[name="payment_way_id"], #receiveForm input[name="type"]').remove();
                 let type = $(this).hasClass('receiveBtn') ? 'receive' : 'send';
@@ -64,19 +59,20 @@
                 $('#transactionModal').modal('show');
             });
 
-            $('#categorySelect').on('change', function() {
+            $('#createCategorySelect').on('change', function() {
                 let categoryId = $(this).val();
                 if (categoryId) {
                     $.ajax({
                         url: "{{ url('dashboard/sub-categories') }}/" + categoryId,
                         type: 'GET',
                         success: function(res) {
-                            $('#subCategorySelect').html(
-                                '<option value="">Select Sub Category</option>');
+                            $('#createSubCategorySelect').html(
+                                '<option value="">Select Sub Category</option>'
+                                ); 
                             res.forEach(function(sub) {
-                                $('#subCategorySelect').append(
+                                $('#createSubCategorySelect').append(
                                     `<option value="${sub.id}">${sub.name}</option>`
-                                );
+                                    );
                             });
                         },
                         error: function(err) {
@@ -84,9 +80,9 @@
                         }
                     });
                 } else {
-                    $('#subCategorySelect').html('<option value="">Select Sub Category</option>');
+                    $('#createSubCategorySelect').html('<option value="">Select Sub Category</option>');
                 }
-            });
+            })
 
             $('#editCategorySelect').on('change', function() {
                 let categoryId = $(this).val();
@@ -102,13 +98,15 @@
                                     `<option value="${sub.id}">${sub.name}</option>`
                                 );
                             });
+                        },
+                        error: function(err) {
+                            console.error(err);
                         }
                     });
                 } else {
                     $('#editSubCategorySelect').html('<option value="">Select Sub Category</option>');
                 }
             });
-
 
             $('#receiveForm').submit(function(e) {
                 e.preventDefault();
@@ -135,36 +133,51 @@
 
             loadPaymentWays();
 
+
             function loadPaymentWays() {
                 $.get("{{ route('payment_ways.list') }}", function(res) {
                     if (res.status) {
                         let cards = '';
                         res.data.forEach((way, i) => {
+                            let categoryId = way.category_id || (way.category ? way.category.id :
+                                '');
+                            let subCategoryId = way.sub_category_id || (way.sub_category ? way
+                                .sub_category.id : '');
+
                             cards += `
-                    <div class="col-md-3">
-                        <div class="card shadow-sm h-100 rounded-3">
-                            <div class="d-flex justify-content-center gap-3 m-3">
-                                <button class="btn btn-outline-success btn-sm radius-8 receiveBtn" data-id="${way.id}" data-name="${way.name}">Receive</button>
-                                <button class="btn btn-outline-primary btn-sm radius-8 sendBtn" data-id="${way.id}" data-name="${way.name}">Send</button>
-                            </div>
-                            <div class="card-body">
-                                <div class="card-title fw-bold fs-5">${way.name}</div>
-                                <p class="card-text mb-1"><strong>Type:</strong> ${way.type}</p>
-                                <p class="card-text mb-1"><strong>Phone:</strong> ${way.phone_number ?? ''}</p>
-                                <p class="card-text mb-1"><strong>Send Limit:</strong> ${way.send_limit ?? 0}</p>
-                                <p class="card-text mb-1"><strong>Send Limit Alert:</strong>${way.send_limit_alert ?? 0}</p>
-                                <p class="card-text mb-1"><strong>Receive Limit:</strong> ${way.receive_limit ?? 0}</p>
-                                <p class="card-text mb-1"><strong>Receive Limit Alert:</strong>${way.receive_limit_alert ?? 0}</p>
-                                <p class="card-text mb-1"><strong>Balance:</strong> ${way.balance ?? 0}</p>
-                                <p class="card-text"><small class="">Created by: ${way.creator ? way.creator.name : ''}</small></p>
-                            </div>
-                            <div class="card-footer d-flex justify-content-between">
-                                <a href="payment-ways/show/${way.id}" class="btn btn-outline-success btn-sm radius-8 text-center">Details</a>
-                                <button class="btn btn-outline-primary btn-sm radius-8 editBtn" data-id="${way.id}" data-name="${way.name}" data-type="${way.type}" data-phone="${way.phone_number ?? ''}" data-receive-limit="${way.receive_limit ?? 0}" data-send-limit="${way.send_limit ?? 0}" data-balance="${way.balance ?? 0}">Edit</button>
-                                <button class="btn btn-outline-danger btn-sm radius-8 deleteBtn" data-id="${way.id}" data-name="${way.name}">Delete</button>
-                            </div>
+                <div class="col-md-3">
+                    <div class="card shadow-sm h-100 rounded-3">
+                        <div class="d-flex justify-content-center gap-3 m-3">
+                            <button class="btn btn-outline-success btn-sm radius-8 receiveBtn" data-id="${way.id}" data-name="${way.name}">Receive</button>
+                            <button class="btn btn-outline-primary btn-sm radius-8 sendBtn" data-id="${way.id}" data-name="${way.name}">Send</button>
                         </div>
-                    </div>`;
+                        <div class="card-body">
+                            <div class="card-title fw-bold fs-5">${way.name}</div>
+                            <p class="card-text mb-1"><strong>Type:</strong> ${way.type}</p>
+                            <p class="card-text mb-1"><strong>Phone:</strong> ${way.phone_number ?? ''}</p>
+                            <p class="card-text mb-1"><strong>Send Limit:</strong> ${way.send_limit ?? 0}</p>
+                            <p class="card-text mb-1"><strong>Send Limit Alert:</strong>${way.send_limit_alert ?? 0}</p>
+                            <p class="card-text mb-1"><strong>Receive Limit:</strong> ${way.receive_limit ?? 0}</p>
+                            <p class="card-text mb-1"><strong>Receive Limit Alert:</strong>${way.receive_limit_alert ?? 0}</p>
+                            <p class="card-text mb-1"><strong>Balance:</strong> ${way.balance ?? 0}</p>
+                            <p class="card-text"><small class="">Created by: ${way.creator ? way.creator.name : ''}</small></p>
+                        </div>
+                        <div class="card-footer d-flex justify-content-between">
+                            <a href="payment-ways/show/${way.id}" class="btn btn-outline-success btn-sm radius-8 text-center">Details</a>
+                            <button class="btn btn-outline-primary btn-sm radius-8 editBtn" 
+                                data-id="${way.id}" 
+                                data-name="${way.name}" 
+                                data-type="${way.type}" 
+                                data-phone="${way.phone_number ?? ''}" 
+                                data-receive-limit="${way.receive_limit ?? 0}" 
+                                data-send-limit="${way.send_limit ?? 0}" 
+                                data-balance="${way.balance ?? 0}" 
+                                data-category-id="${categoryId}" 
+                                data-sub-category-id="${subCategoryId}">Edit</button>
+                            <button class="btn btn-outline-danger btn-sm radius-8 deleteBtn" data-id="${way.id}" data-name="${way.name}">Delete</button>
+                        </div>
+                    </div>
+                </div>`;
                         });
                         $('#paymentWaysContainer').html(cards);
                     }
@@ -183,6 +196,8 @@
             });
 
             // Edit
+
+            // Edit
             $(document).on('click', '.editBtn', function() {
                 $('#editId').val($(this).data('id'));
                 $('#editName').val($(this).data('name'));
@@ -191,6 +206,32 @@
                 $('#editReceiveLimit').val($(this).data('receive-limit'));
                 $('#editSendLimit').val($(this).data('send-limit'));
                 $('#editBalance').val($(this).data('balance'));
+                $('#editCategorySelect').val($(this).data('categoryId')); 
+
+                let categoryId = $(this).data('categoryId'); 
+                let subCategoryId = $(this).data('subCategoryId'); 
+                if (categoryId) {
+                    $.ajax({
+                        url: "{{ url('dashboard/sub-categories') }}/" + categoryId,
+                        type: 'GET',
+                        success: function(res) {
+                            $('#editSubCategorySelect').html(
+                                '<option value="">Select Sub Category</option>');
+                            res.forEach(function(sub) {
+                                $('#editSubCategorySelect').append(
+                                    `<option value="${sub.id}" ${sub.id == subCategoryId ? 'selected' : ''}>${sub.name}</option>`
+                                );
+                            });
+                        },
+                        error: function(err) {
+                            console.error(err);
+                        }
+                    });
+                } else {
+                    $('#editSubCategorySelect').html('<option value="">Select Sub Category</option>');
+                }
+
+                toggleFields($(this).data('type'), '.phone_limit_group_edit');
                 $('#editModal').modal('show');
             });
 
