@@ -3,17 +3,24 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Dashboard\LoginController;
 use App\Http\Controllers\Dashboard\CategoryController;
+use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Dashboard\PaymentWayController;
+use App\Http\Controllers\Dashboard\ProfileController;
 use App\Http\Controllers\Dashboard\TransactionController;
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->name('login.attempt');
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 
 
+Route::prefix('dashboard')->middleware('auth')->group(function () {
 
-Route::prefix('dashboard')->group(function () {
+    Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+    Route::get('/profile', [ProfileController::class, 'index'])->name('dashboard.profile.index');
+    Route::post('/profile', [ProfileController::class, 'update'])->name('dashboard.profile.update');
+
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard.index');
     Route::get('categories', [CategoryController::class, 'index'])->name('categories.index');
     Route::get('categories/list', [CategoryController::class, 'list'])->name('categories.list');
     Route::post('categories', [CategoryController::class, 'store'])->name('categories.store');
@@ -22,9 +29,9 @@ Route::prefix('dashboard')->group(function () {
 
 
     Route::get('payment-ways', [PaymentWayController::class, 'index'])->name('payment_ways.index');
-    
+
     Route::get('sub-categories/{id}', [PaymentWayController::class, 'getSubCategoryOnCategory'])->name('getSubCategoryOnCategory');
-    
+
     Route::get('payment-ways/list', [PaymentWayController::class, 'list'])->name('payment_ways.list');
     Route::post('payment-ways', [PaymentWayController::class, 'store'])->name('payment_ways.store');
     Route::put('payment-ways/{id}', [PaymentWayController::class, 'update'])->name('payment_ways.update');

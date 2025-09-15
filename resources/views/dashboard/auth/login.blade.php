@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>omar</title>
-    <link rel="icon" type="image/png" href="{{ asset('assets/images/logo-icon.png') }}" sizes="16x16">
+    <link rel="icon" type="image/png" href="{{ asset('assets/images/1.jpg') }}" sizes="16x16">
     <link rel="stylesheet" href="{{ asset('assets/css/remixicon.css') }}">
     <link href="{{ asset('assets/css/lib/select2.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('assets/css/lib/font-awesome/6.4.2.css') }}" rel="stylesheet" />
@@ -17,9 +17,8 @@
 
     <div class="d-flex align-items-center justify-content-center min-vh-100">
         <div class="max-w-464-px mx-auto w-100 p-3">
-            <div>
-                <a href="" class="mb-3 max-w-290-px"><img src="{{ asset('assets/images/1.jpg') }}"
-                        alt=""></a>
+            <div class="text-center">
+                <a class="mb-3 max-w-290-px"><img src="{{ asset('assets/images/1.jpg') }}"alt=""></a>
                 <div class="">Sign In to your Account</div>
                 <p class="mb-3 text-secondary-light text-lg">Welcome back! please enter your detail</p>
             </div>
@@ -90,6 +89,24 @@
     <script src="{{ asset('assets/js/lib/toaster.js') }}"></script>
     <script>
         $(document).ready(function() {
+
+            $('.toggle-password').click(function() {
+                const passwordField = $('#your-password');
+                const showIcon = $('.show-icon');
+                const hideIcon = $('.hide-icon');
+
+                if (passwordField.attr('type') === 'password') {
+                    passwordField.attr('type', 'text');
+                    showIcon.hide();
+                    hideIcon.show();
+                } else {
+                    passwordField.attr('type', 'password');
+                    showIcon.show();
+                    hideIcon.hide();
+                }
+            });
+
+
             @if (session('success'))
                 toastr.success("{{ session('success') }}");
             @endif
@@ -97,7 +114,6 @@
             @if (session('error'))
                 toastr.error("{{ session('error') }}");
             @endif
-
 
         });
 
@@ -120,27 +136,6 @@
                 $('#' + toastId).remove();
             }, 3500);
         }
-    </script>
-
-
-    <script>
-        $(document).ready(function() {
-            $('.toggle-password').click(function() {
-                const passwordField = $('#your-password');
-                const showIcon = $('.show-icon');
-                const hideIcon = $('.hide-icon');
-
-                if (passwordField.attr('type') === 'password') {
-                    passwordField.attr('type', 'text');
-                    showIcon.hide();
-                    hideIcon.show();
-                } else {
-                    passwordField.attr('type', 'password');
-                    showIcon.show();
-                    hideIcon.hide();
-                }
-            });
-        });
     </script>
 </body>
 

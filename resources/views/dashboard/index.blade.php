@@ -7,7 +7,7 @@
 
             <div>
                 <a href="" class="mb-40 max-w-290-px">
-                    <img src="{{ asset('assets/images/logo.png') }}" alt="">
+                    <img src="{{ asset('assets/images/1.jpg') }}" alt="">
 
                 </a>
             </div>

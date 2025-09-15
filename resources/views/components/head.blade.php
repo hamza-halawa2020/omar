@@ -2,7 +2,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>omar</title>
-    <link rel="icon" type="image/png" href="{{ asset('assets/images/logo-icon.png') }}" sizes="16x16">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <link rel="icon" type="image/png" href="{{ asset('assets/images/1.jpg') }}" sizes="16x16">
     <!-- remix icon font css  -->
     <link rel="stylesheet" href="{{ asset('assets/css/remixicon.css') }}">
 
@@ -11,14 +13,6 @@
 
     <!-- BootStrap css -->
     <link rel="stylesheet" href="{{ asset('assets/css/lib/bootstrap.min.css') }}">
-    <!-- Apex Chart css -->
-    <link rel="stylesheet" href="{{ asset('assets/css/lib/apexcharts.css') }}">
-    <!-- Data Table css -->
-    <link rel="stylesheet" href="{{ asset('assets/css/lib/dataTables.min.css') }}">
-    <!-- Text Editor css -->
-    <link rel="stylesheet" href="{{ asset('assets/css/lib/editor-katex.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/lib/editor.atom-one-dark.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/lib/editor.quill.snow.css') }}">
     <!-- Date picker css -->
     <link rel="stylesheet" href="{{ asset('assets/css/lib/flatpickr.min.css') }}">
     <!-- Calendar css -->

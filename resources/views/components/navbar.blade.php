@@ -12,15 +12,14 @@
             </div>
         </div>
         <div class="col-auto">
+
             <div class="d-flex flex-wrap align-items-center gap-3">
-
-
                 <button type="button" data-theme-toggle
                     class="w-40-px h-40-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center"></button>
 
 
 
-                <div class="dropdown">
+                {{-- <div class="dropdown">
                     <button
                         class="position-relative w-40-px h-40-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center"
                         type="button" data-bs-toggle="dropdown">
@@ -68,9 +67,7 @@
                         </div>
 
                     </div>
-                </div><!-- Notification dropdown end -->
-
-
+                </div><!-- Notification dropdown end --> --}}
 
 
                 <div class="dropdown">
@@ -78,11 +75,13 @@
                         data-bs-toggle="dropdown">
                         @php
                             $user = Auth::user();
-                            $profileImage = $user->staff->staff_photo ?? asset('assets/images/logo-icon.png');
+                            $profileImage = $user->staff->staff_photo ?? asset('assets/images/1.jpg');
                         @endphp
 
-                        <img src="{{ $profileImage }}" alt="image"
-                            class="w-40-px h-40-px object-fit-cover rounded-circle">
+                        <img src="{{ auth()->user()->profile_image ? asset('storage/' . auth()->user()->profile_image) : asset('images/default-profile.png') }}"
+                            alt="image" class="w-40-px h-40-px object-fit-cover rounded-circle">
+
+
 
 
                     </button>
@@ -90,9 +89,12 @@
                         <div
                             class="py-12 px-16 radius-8 bg-primary-50 mb-16 d-flex align-items-center justify-content-between gap-2">
                             <div>
-                                <h6 class="text-lg text-primary-light fw-semibold mb-2">
-                                    {{ Auth::user()?->full_name ?? (Auth::user()?->first_name ?? 'Guest') }}
-                                </h6>
+                                <a href="{{ route('dashboard.profile.index') }}">
+
+                                    <div class="text-lg text-primary-light fw-semibold mb-2">
+                                        {{ Auth::user()?->name ?? 'Guest' }}
+                                    </div>
+                                </a>
                             </div>
                         </div>
                         <ul class="to-top-list">
