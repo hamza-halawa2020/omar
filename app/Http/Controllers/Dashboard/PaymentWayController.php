@@ -69,20 +69,29 @@ class PaymentWayController extends Controller
         $endDate = request('end_date');
         $transactions = $paymentWay->transactions();
 
-        if ($timeFilter === 'custom' && $startDate && $endDate) {
-            try {
+        try {
+            if ($timeFilter === 'custom' && $startDate && $endDate) {
                 $start = Carbon::parse($startDate)->startOfDay();
                 $end = Carbon::parse($endDate)->endOfDay();
                 $transactions->whereBetween('created_at', [$start, $end]);
-            } catch (Exception $e) {
-                return response()->json(['status' => false, 'message' => 'Invalid date format'], 400);
+            } elseif ($timeFilter === 'today') {
+                $start = Carbon::today()->startOfDay();
+                $end = Carbon::today()->endOfDay();
+                $transactions->whereBetween('created_at', [$start, $end]);
             }
+        } catch (Exception $e) {
+            return response()->json(['status' => false, 'message' => 'Invalid date format'], 400);
         }
 
         $paymentWay->transactions = $transactions->get();
 
-        return response()->json(['status' => true, 'message' => 'Payment way fetched successfully', 'data' => new PaymentWayResource($paymentWay)]);
+        return response()->json([
+            'status' => true,
+            'message' => 'Payment way fetched successfully',
+            'data' => new PaymentWayResource($paymentWay)
+        ]);
     }
+
 
 
     public function update(UpdatePaymentWayRequest $request, $id)

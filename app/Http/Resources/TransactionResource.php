@@ -17,10 +17,8 @@ class TransactionResource extends JsonResource
             'notes'       => $this->notes,
             'attachment'  => $this->attachment,
             'paymentWay'  => new PaymentWayResource($this->whenLoaded('paymentWay')),
-            'creator'     => new UserResource($this->whenLoaded('creator')),
-
+            'creator'     => new UserResource($this->creator),
             'logs'        => TransactionLogResource::collection($this->whenLoaded('logs')),
-
             'created_at'  => $this->created_at?->format('Y-m-d H:i:s'),
             'updated_at'  => $this->updated_at?->format('Y-m-d H:i:s'),
         ];

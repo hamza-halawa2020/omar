@@ -45,10 +45,10 @@
         <!-- Tabs -->
         <ul class="nav nav-tabs mb-3" id="paymentTabs">
             <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="tab" href="#details">Details</a>
+                <a class="nav-link " data-bs-toggle="tab" href="#details">Details</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="tab" href="#transactions">Transactions</a>
+                <a class="nav-link active" data-bs-toggle="tab" href="#transactions">Transactions</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" data-bs-toggle="tab" href="#logs">Logs</a>
@@ -57,7 +57,7 @@
 
         <div class="tab-content">
             <!-- Details Tab -->
-            <div class="tab-pane fade show active" id="details">
+            <div class="tab-pane fade" id="details">
                 <div class="card shadow-sm p-3 border-0">
                     <div class="card-title mb-3 text-primary">Payment Way Information</div>
                     <div class="row">
@@ -78,7 +78,7 @@
             </div>
 
             <!-- Transactions Tab -->
-            <div class="tab-pane fade" id="transactions">
+            <div class="tab-pane fade show active" id="transactions">
                 <div class="d-flex justify-content-between align-items-center mb-3 gap-3">
                     <input type="text" id="searchTransactions" class="form-control w-50"
                         placeholder="Search transactions by notes or amount...">
@@ -88,7 +88,14 @@
                         <option value="send">Send</option>
                     </select>
 
-                    <input type="text" id="dateRange" class="form-control w-auto" placeholder="Select date range">
+
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <button id="prevDay" class="btn btn-outline-primary">&larr;</button>
+                        <input type="text" id="dateRange" class="form-control w-auto" placeholder="Select date range">
+
+                        <button id="nextDay" class="btn btn-outline-primary">&rarr;</button>
+                    </div>
+
 
                 </div>
 
@@ -132,8 +139,8 @@
 @endsection
 
 
-
 @push('scripts')
+
     <script>
         $(document).ready(function() {
             let id = "{{ request()->id ?? '' }}";
@@ -142,7 +149,50 @@
                 return;
             }
 
-            // Filter Transactions
+            let currentDate = new Date();
+            let dateRangePicker = $("#dateRange").flatpickr({
+                mode: "range",
+                dateFormat: "Y-m-d",
+                defaultDate: [new Date()],
+                onReady: function() {
+                    let today = formatDate(new Date());
+                    fetchPaymentWay(today, today);
+                },
+                onChange: function(selectedDates) {
+                    if (selectedDates.length === 2) {
+                        currentDate = selectedDates[0];
+                        let start = formatDate(selectedDates[0]);
+                        let end = formatDate(selectedDates[1]);
+                        fetchPaymentWay(start, end);
+                    } else if (selectedDates.length === 1) {
+                        currentDate = selectedDates[0];
+                        let day = formatDate(selectedDates[0]);
+                        fetchPaymentWay(day, day);
+                    }
+                }
+            });
+
+            // التعامل مع زرار اليوم السابق
+            $("#prevDay").on("click", function() {
+                currentDate.setDate(currentDate.getDate() - 1);
+                fetchDay(currentDate);
+            });
+
+            // التعامل مع زرار اليوم التالي
+            $("#nextDay").on("click", function() {
+                currentDate.setDate(currentDate.getDate() + 1);
+                fetchDay(currentDate);
+            });
+
+            // دالة لجلب بيانات اليوم وتحديث الحقل
+            function fetchDay(date) {
+                let formatted = formatDate(date);
+                // تحديث حقل Flatpickr باستخدام الـ instance المحفوظ
+                dateRangePicker.setDate([formatted, formatted], true);
+                fetchPaymentWay(formatted, formatted); // جلب معاملات اليوم
+            }
+
+            // فلترة المعاملات في الجدول
             function filterTransactions() {
                 let searchText = $("#searchTransactions").val().toLowerCase();
                 let filterType = $("#filterType").val();
@@ -162,47 +212,36 @@
             $("#searchTransactions").on("keyup", filterTransactions);
             $("#filterType").on("change", filterTransactions);
 
+            // عرض بيانات طريقة الدفع
             function renderPaymentWay(data) {
-                // Summary Cards
                 $("#paymentWayName").text(data.name || '');
-                $("#paymentWayType").text(data.type ? data.type.charAt(0).toUpperCase() + data.type.slice(1) :
-                    '');
+                $("#paymentWayType").text(data.type ? data.type.charAt(0).toUpperCase() + data.type.slice(1) : '');
                 $("#paymentWayPhone").text(data.phone_number || '');
                 $("#paymentWayCategory").text(data.category?.name || '');
                 $("#paymentWaySubCategory").text(data.subCategory?.name || '');
-                $("#paymentWaySendLimitAlert").text(data.send_limit_alert ?
-                    ` ${parseFloat(data.send_limit_alert).toFixed(2)}` : '');
-                $("#paymentWayReceiveLimitAlert").text(data.receive_limit_alert ?
-                    ` ${parseFloat(data.receive_limit_alert).toFixed(2)}` : '');
+                $("#paymentWaySendLimitAlert").text(data.send_limit_alert ? ` ${parseFloat(data.send_limit_alert).toFixed(2)}` : '');
+                $("#paymentWayReceiveLimitAlert").text(data.receive_limit_alert ? ` ${parseFloat(data.receive_limit_alert).toFixed(2)}` : '');
                 $("#paymentWayBalance").text(data.balance ? ` ${parseFloat(data.balance).toFixed(2)}` : '0.00');
                 $("#paymentWayCreator").text(data.creator?.name || '');
                 $("#paymentWayCreatedAt").text(data.created_at || '');
-                $("#paymentWayReceiveLimit").text(data.receive_limit ?
-                    ` ${parseFloat(data.receive_limit).toFixed(2)}` : '0.00');
-                $("#paymentWaySendLimit").text(data.send_limit ? ` ${parseFloat(data.send_limit).toFixed(2)}` :
-                    '0.00');
+                $("#paymentWayReceiveLimit").text(data.receive_limit ? ` ${parseFloat(data.receive_limit).toFixed(2)}` : '0.00');
+                $("#paymentWaySendLimit").text(data.send_limit ? ` ${parseFloat(data.send_limit).toFixed(2)}` : '0.00');
                 $("#paymentWayTransactions").text(data.transactions?.length || 0);
-                $("#paymentWayReceiveLimitAlert").html(data.receive_limit_alert ?
-                    `<span class="badge bg-danger">Alert:  ${parseFloat(data.receive_limit_alert).toFixed(2)}</span>` :
-                    '');
-                $("#paymentWaySendLimitAlert").html(data.send_limit_alert ?
-                    `<span class="badge bg-danger">Alert:  ${parseFloat(data.send_limit_alert).toFixed(2)}</span>` :
-                    '');
+                $("#paymentWayReceiveLimitAlert").html(data.receive_limit_alert ? `<span class="badge bg-danger">Alert: ${parseFloat(data.receive_limit_alert).toFixed(2)}</span>` : '');
+                $("#paymentWaySendLimitAlert").html(data.send_limit_alert ? `<span class="badge bg-danger">Alert: ${parseFloat(data.send_limit_alert).toFixed(2)}</span>` : '');
 
-                // Transactions Table
+                // عرض المعاملات في الجدول
                 let txHtml = "";
                 data.transactions.forEach(tx => {
-                    let attachmentHtml = tx.attachment ?
-                        `<a href="${tx.attachment}" target="_blank" class="text-primary">View</a>` : '';
+                    let attachmentHtml = tx.attachment ? `<a href="${tx.attachment}" target="_blank" class="text-primary">View</a>` : '';
                     if (tx.attachment && /\.(jpg|jpeg|png|gif)$/i.test(tx.attachment)) {
-                        attachmentHtml =
-                            `<a href="${tx.attachment}" target="_blank"><img src="${tx.attachment}" alt="Attachment" class="img-thumbnail" style="max-width: 50px; max-height: 50px;"></a>`;
+                        attachmentHtml = `<a href="${tx.attachment}" target="_blank"><img src="${tx.attachment}" alt="Attachment" class="img-thumbnail" style="max-width: 50px; max-height: 50px;"></a>`;
                     }
                     txHtml += `
                         <tr>
                             <td><span class="badge bg-${tx.type === 'receive' ? 'success' : 'danger'}">${tx.type.charAt(0).toUpperCase() + tx.type.slice(1)}</span></td>
-                            <td> ${parseFloat(tx.amount).toFixed(2)}</td>
-                            <td> ${parseFloat(tx.commission).toFixed(2)}</td>
+                            <td>${parseFloat(tx.amount).toFixed(2)}</td>
+                            <td>${parseFloat(tx.commission).toFixed(2)}</td>
                             <td>${tx.notes || ''}</td>
                             <td>${tx.creator?.name || ''}</td>
                             <td>${attachmentHtml}</td>
@@ -212,7 +251,7 @@
                 });
                 $("#transactionsTableBody").html(txHtml);
 
-                // Logs Timeline
+                // عرض السجلات (Logs)
                 let logsHtml = "";
                 data.logs.forEach(log => {
                     let dataDetails = "";
@@ -246,16 +285,17 @@
                 $("#logsTimeline").html(logsHtml);
             }
 
-
+            // جلب بيانات طريقة الدفع
             function fetchPaymentWay(startDate = null, endDate = null) {
                 $("#loader").show();
-                let data = {
-                    time: "custom"
-                };
+                let data = {};
 
                 if (startDate && endDate) {
+                    data.time = "custom";
                     data.start_date = startDate;
                     data.end_date = endDate;
+                } else {
+                    data.time = "today";
                 }
 
                 $.ajax({
@@ -265,25 +305,19 @@
                     success: function(res) {
                         $("#loader").hide();
                         if (!res.status) {
-                            $("#errorMessage").text(res.message || "Error fetching payment way details")
-                                .show().fadeOut(5000);
+                            $("#errorMessage").text(res.message || "Error fetching payment way details").show().fadeOut(5000);
                             return;
                         }
                         renderPaymentWay(res.data);
                     },
                     error: function(xhr) {
                         $("#loader").hide();
-                        $("#errorMessage").text(xhr.responseJSON?.message ||
-                            "Error fetching payment way details").show().fadeOut(5000);
+                        $("#errorMessage").text(xhr.responseJSON?.message || "Error fetching payment way details").show().fadeOut(5000);
                     }
                 });
             }
 
-
-            // Initial fetch
-            fetchPaymentWay('today');
-
-
+            // تنسيق التاريخ
             function formatDate(date) {
                 let year = date.getFullYear();
                 let month = String(date.getMonth() + 1).padStart(2, "0");
@@ -291,29 +325,8 @@
                 return `${year}-${month}-${day}`;
             }
 
-            $("#dateRange").flatpickr({
-                mode: "range",
-                dateFormat: "Y-m-d",
-                defaultDate: [new Date()],
-                onReady: function() {
-                    let today = formatDate(new Date());
-                    fetchPaymentWay(today, today);
-                },
-                onChange: function(selectedDates) {
-                    if (selectedDates.length === 2) {
-                        let start = formatDate(selectedDates[0]);
-                        let end = formatDate(selectedDates[1]);
-                        fetchPaymentWay(start, end);
-                    } else if (selectedDates.length === 1) {
-                        let day = formatDate(selectedDates[0]);
-                        fetchPaymentWay(day, day);
-                    }
-                }
-            });
-
-
-
-
+            // جلب بيانات اليوم الحالي عند التحميل
+            fetchDay(currentDate);
         });
     </script>
 @endpush
