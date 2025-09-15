@@ -62,7 +62,7 @@ class PaymentWayController extends Controller
     {
         $paymentWay = PaymentWay::with(['category', 'subCategory', 'creator', 'transactions', 'logs'])->findOrFail($id);
 
-        $timeFilter = request('time', 'week');
+        $timeFilter = request('time', 'today');
         $transactions = $paymentWay->transactions();
 
         switch ($timeFilter) {
