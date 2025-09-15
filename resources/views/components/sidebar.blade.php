@@ -3,7 +3,7 @@
         <iconify-icon icon="radix-icons:cross-2"></iconify-icon>
     </button>
     <div>
-        <a class="sidebar-logo">
+        <a href="{{ route('dashboard.index') }}" class="sidebar-logo">
 
             <img src="{{ asset('assets/images/1.jpg') }}" alt="site logo" class="light-logo">
             <img src="{{ asset('assets/images/1.jpg') }}" alt="site logo" class="dark-logo">

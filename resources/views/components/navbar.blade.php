@@ -77,12 +77,8 @@
                             $user = Auth::user();
                             $profileImage = $user->staff->staff_photo ?? asset('assets/images/1.jpg');
                         @endphp
-
                         <img src="{{ auth()->user()->profile_image ? asset('storage/' . auth()->user()->profile_image) : asset('images/default-profile.png') }}"
                             alt="image" class="w-40-px h-40-px object-fit-cover rounded-circle">
-
-
-
 
                     </button>
                     <div class="dropdown-menu to-top dropdown-menu-sm">
