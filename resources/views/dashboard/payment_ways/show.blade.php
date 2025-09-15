@@ -9,7 +9,7 @@
             <div class="col-md-3 col-sm-6">
                 <div class="card shadow-sm text-center border-0">
                     <div class="card-body">
-                        <div class="fw-bold ">Current Balance</div>
+                        <div class="fw-bold">Current Balance</div>
                         <div id="paymentWayBalance" class="fw-bold badge bg-danger">0</div>
                     </div>
                 </div>
@@ -17,7 +17,7 @@
             <div class="col-md-3 col-sm-6">
                 <div class="card shadow-sm text-center border-0">
                     <div class="card-body">
-                        <div class="fw-bold ">Total Transactions</div>
+                        <div class="fw-bold">Total Transactions</div>
                         <div id="paymentWayTransactions" class="fw-bold badge bg-danger">0</div>
                     </div>
                 </div>
@@ -35,17 +35,69 @@
                 <div class="card shadow-sm text-center border-0">
                     <div class="card-body">
                         <div id="paymentWaySendLimitAlert" class="text-danger"></div>
-                        <span class="fw-bold ">Send Limit</span>
+                        <span class="fw-bold">Send Limit</span>
                         <span id="paymentWaySendLimit" class="fw-bold badge bg-danger">0</span>
                     </div>
                 </div>
             </div>
+            <!-- New Summary Cards for Statistics -->
+            <div class="col-md-3 col-sm-6">
+                <div class="card shadow-sm text-center border-0">
+                    <div class="card-body">
+                        <div>
+                            <div>
+                                <span class="fw-bold">Received</span>
+                                <span id="receive_amount" class="fw-bold badge bg-success">0.00</span>
+                            </div>
+                            <div>
+                                <span class="fw-bold">Commission</span>
+                                <span id="receive_commission" class="fw-bold badge bg-warning">0.00</span>
+                            </div>
+
+                            <div>
+                                <span class="fw-bold">Total</span>
+                                <span id="receive_total" class="fw-bold badge bg-primary">0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="card shadow-sm text-center border-0">
+                    <div class="card-body">
+                        <div>
+                            <div>
+                                <span class="fw-bold">sent</span>
+                                <span id="send_amount" class="fw-bold badge bg-danger">0.00</span>
+                            </div>
+                            <div>
+                                <span class="fw-bold">Commission</span>
+                                <span id="send_commission" class="fw-bold badge bg-warning">0.00</span>
+                            </div>
+
+                            <div>
+                                <span class="fw-bold">Total</span>
+                                <span id="send_total" class="fw-bold badge bg-primary">0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="card shadow-sm text-center border-0">
+                    <div class="card-body">
+                        <div class="fw-bold">Grand Net</div>
+                        <div id="grandNet" class="fw-bold badge bg-primary">0.00</div>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <!-- Tabs -->
         <ul class="nav nav-tabs mb-3" id="paymentTabs">
             <li class="nav-item">
-                <a class="nav-link " data-bs-toggle="tab" href="#details">Details</a>
+                <a class="nav-link" data-bs-toggle="tab" href="#details">Details</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link active" data-bs-toggle="tab" href="#transactions">Transactions</a>
@@ -65,8 +117,7 @@
                             <p><strong>Name:</strong> <span id="paymentWayName" class=""></span></p>
                             <p><strong>Phone Number:</strong> <span id="paymentWayPhone" class=""></span></p>
                             <p><strong>Category:</strong> <span id="paymentWayCategory" class=""></span></p>
-                            <p><strong>Sub Category:</strong> <span id="paymentWaySubCategory" class=""></span>
-                            </p>
+                            <p><strong>Sub Category:</strong> <span id="paymentWaySubCategory" class=""></span></p>
                         </div>
                         <div class="col-md-6">
                             <p><strong>Type:</strong> <span id="paymentWayType" class=""></span></p>
@@ -87,18 +138,13 @@
                         <option value="receive">Receive</option>
                         <option value="send">Send</option>
                     </select>
-
-
                     <div class="d-flex align-items-center gap-2 mb-3">
                         <button id="prevDay" class="btn btn-outline-primary">&larr;</button>
-                        <input type="text" id="dateRange" class="form-control w-auto" placeholder="Select date range">
-
+                        <input type="text" id="dateRange" class="form-control w-auto"
+                            placeholder="Select date range">
                         <button id="nextDay" class="btn btn-outline-primary">&rarr;</button>
                     </div>
-
-
                 </div>
-
                 <div class="">
                     <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
                         <thead class="">
@@ -140,7 +186,6 @@
 
 
 @push('scripts')
-
     <script>
         $(document).ready(function() {
             let id = "{{ request()->id ?? '' }}";
@@ -172,27 +217,22 @@
                 }
             });
 
-            // التعامل مع زرار اليوم السابق
             $("#prevDay").on("click", function() {
                 currentDate.setDate(currentDate.getDate() - 1);
                 fetchDay(currentDate);
             });
 
-            // التعامل مع زرار اليوم التالي
             $("#nextDay").on("click", function() {
                 currentDate.setDate(currentDate.getDate() + 1);
                 fetchDay(currentDate);
             });
 
-            // دالة لجلب بيانات اليوم وتحديث الحقل
             function fetchDay(date) {
                 let formatted = formatDate(date);
-                // تحديث حقل Flatpickr باستخدام الـ instance المحفوظ
                 dateRangePicker.setDate([formatted, formatted], true);
-                fetchPaymentWay(formatted, formatted); // جلب معاملات اليوم
+                fetchPaymentWay(formatted, formatted);
             }
 
-            // فلترة المعاملات في الجدول
             function filterTransactions() {
                 let searchText = $("#searchTransactions").val().toLowerCase();
                 let filterType = $("#filterType").val();
@@ -212,30 +252,53 @@
             $("#searchTransactions").on("keyup", filterTransactions);
             $("#filterType").on("change", filterTransactions);
 
-            // عرض بيانات طريقة الدفع
-            function renderPaymentWay(data) {
+            function renderPaymentWay(res) {
+                let data = res.data;
+                let statistics = res.statistics || {};
+
                 $("#paymentWayName").text(data.name || '');
                 $("#paymentWayType").text(data.type ? data.type.charAt(0).toUpperCase() + data.type.slice(1) : '');
                 $("#paymentWayPhone").text(data.phone_number || '');
                 $("#paymentWayCategory").text(data.category?.name || '');
                 $("#paymentWaySubCategory").text(data.subCategory?.name || '');
-                $("#paymentWaySendLimitAlert").text(data.send_limit_alert ? ` ${parseFloat(data.send_limit_alert).toFixed(2)}` : '');
-                $("#paymentWayReceiveLimitAlert").text(data.receive_limit_alert ? ` ${parseFloat(data.receive_limit_alert).toFixed(2)}` : '');
+                $("#paymentWaySendLimitAlert").text(data.send_limit_alert ?
+                    ` ${parseFloat(data.send_limit_alert).toFixed(2)}` : '');
+                $("#paymentWayReceiveLimitAlert").text(data.receive_limit_alert ?
+                    ` ${parseFloat(data.receive_limit_alert).toFixed(2)}` : '');
                 $("#paymentWayBalance").text(data.balance ? ` ${parseFloat(data.balance).toFixed(2)}` : '0.00');
                 $("#paymentWayCreator").text(data.creator?.name || '');
                 $("#paymentWayCreatedAt").text(data.created_at || '');
-                $("#paymentWayReceiveLimit").text(data.receive_limit ? ` ${parseFloat(data.receive_limit).toFixed(2)}` : '0.00');
-                $("#paymentWaySendLimit").text(data.send_limit ? ` ${parseFloat(data.send_limit).toFixed(2)}` : '0.00');
+                $("#paymentWayReceiveLimit").text(data.receive_limit ?
+                    ` ${parseFloat(data.receive_limit).toFixed(2)}` : '0.00');
+                $("#paymentWaySendLimit").text(data.send_limit ? ` ${parseFloat(data.send_limit).toFixed(2)}` :
+                    '0.00');
                 $("#paymentWayTransactions").text(data.transactions?.length || 0);
-                $("#paymentWayReceiveLimitAlert").html(data.receive_limit_alert ? `<span class="badge bg-danger">Alert: ${parseFloat(data.receive_limit_alert).toFixed(2)}</span>` : '');
-                $("#paymentWaySendLimitAlert").html(data.send_limit_alert ? `<span class="badge bg-danger">Alert: ${parseFloat(data.send_limit_alert).toFixed(2)}</span>` : '');
+                $("#paymentWayReceiveLimitAlert").html(data.receive_limit_alert ?
+                    `<span class="badge bg-danger">Alert: ${parseFloat(data.receive_limit_alert).toFixed(2)}</span>` :
+                    '');
+                $("#paymentWaySendLimitAlert").html(data.send_limit_alert ?
+                    `<span class="badge bg-danger">Alert: ${parseFloat(data.send_limit_alert).toFixed(2)}</span>` :
+                    '');
 
-                // عرض المعاملات في الجدول
+                $("#receive_amount").text(statistics.receive?.receive_amount || '0.00');
+                $("#receive_commission").text(statistics.receive?.receive_commission || '0.00');
+                $("#receive_total").text(statistics.receive?.receive_total || '0.00');
+               
+                $("#send_amount").text(statistics.send?.send_amount || '0.00');
+                $("#send_commission").text(statistics.send?.send_commission || '0.00');
+                $("#send_total").text(statistics.send?.send_total || '0.00');
+
+
+                $("#grandNet").text(statistics.grand_net || '0.00');
+
+
                 let txHtml = "";
                 data.transactions.forEach(tx => {
-                    let attachmentHtml = tx.attachment ? `<a href="${tx.attachment}" target="_blank" class="text-primary">View</a>` : '';
+                    let attachmentHtml = tx.attachment ?
+                        `<a href="${tx.attachment}" target="_blank" class="text-primary">View</a>` : '';
                     if (tx.attachment && /\.(jpg|jpeg|png|gif)$/i.test(tx.attachment)) {
-                        attachmentHtml = `<a href="${tx.attachment}" target="_blank"><img src="${tx.attachment}" alt="Attachment" class="img-thumbnail" style="max-width: 50px; max-height: 50px;"></a>`;
+                        attachmentHtml =
+                            `<a href="${tx.attachment}" target="_blank"><img src="${tx.attachment}" alt="Attachment" class="img-thumbnail" style="max-width: 50px; max-height: 50px;"></a>`;
                     }
                     txHtml += `
                         <tr>
@@ -251,7 +314,6 @@
                 });
                 $("#transactionsTableBody").html(txHtml);
 
-                // عرض السجلات (Logs)
                 let logsHtml = "";
                 data.logs.forEach(log => {
                     let dataDetails = "";
@@ -285,7 +347,6 @@
                 $("#logsTimeline").html(logsHtml);
             }
 
-            // جلب بيانات طريقة الدفع
             function fetchPaymentWay(startDate = null, endDate = null) {
                 $("#loader").show();
                 let data = {};
@@ -305,19 +366,20 @@
                     success: function(res) {
                         $("#loader").hide();
                         if (!res.status) {
-                            $("#errorMessage").text(res.message || "Error fetching payment way details").show().fadeOut(5000);
+                            $("#errorMessage").text(res.message || "Error fetching payment way details")
+                                .show().fadeOut(5000);
                             return;
                         }
-                        renderPaymentWay(res.data);
+                        renderPaymentWay(res);
                     },
                     error: function(xhr) {
                         $("#loader").hide();
-                        $("#errorMessage").text(xhr.responseJSON?.message || "Error fetching payment way details").show().fadeOut(5000);
+                        $("#errorMessage").text(xhr.responseJSON?.message ||
+                            "Error fetching payment way details").show().fadeOut(5000);
                     }
                 });
             }
 
-            // تنسيق التاريخ
             function formatDate(date) {
                 let year = date.getFullYear();
                 let month = String(date.getMonth() + 1).padStart(2, "0");
@@ -325,7 +387,6 @@
                 return `${year}-${month}-${day}`;
             }
 
-            // جلب بيانات اليوم الحالي عند التحميل
             fetchDay(currentDate);
         });
     </script>
