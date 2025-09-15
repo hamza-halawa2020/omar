@@ -8,14 +8,20 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                 
 
-                    <label>Amount</label>
-                    <input type="number" name="amount" class="form-control" required>
-                    <label>Commission</label>
-                    <input type="number" name="commission" class="form-control" required>
+
+                    <div class="d-flex gap-3">
+                        <div>
+                            <label>Amount</label>
+                            <input type="number" name="amount" class="form-control" required>
+                        </div>
+                        <div>
+                            <label>Commission</label>
+                            <input type="number" name="commission" class="form-control" required>
+                        </div>
+                    </div>
                     <label>Attachment</label>
-                    <input type="file" name="attachment" class="form-control" required>
+                    <input type="file" name="attachment" class="form-control">
                     <label>Notes</label>
                     <textarea name="notes" class="form-control"></textarea>
                 </div>
@@ -27,4 +33,3 @@
         </form>
     </div>
 </div>
-

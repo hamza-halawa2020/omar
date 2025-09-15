@@ -68,11 +68,11 @@
                         success: function(res) {
                             $('#createSubCategorySelect').html(
                                 '<option value="">Select Sub Category</option>'
-                                ); 
+                            );
                             res.forEach(function(sub) {
                                 $('#createSubCategorySelect').append(
                                     `<option value="${sub.id}">${sub.name}</option>`
-                                    );
+                                );
                             });
                         },
                         error: function(err) {
@@ -121,12 +121,14 @@
                     success: function(res) {
                         if (res.status) {
                             $('#transactionModal').modal('hide');
-                            alert('Transaction saved successfully!');
+                            showToast('Transaction saved successfully!');
+                            loadPaymentWays();
+
                         }
                     },
                     error: function(err) {
                         console.error(err.responseText);
-                        alert('Something went wrong!');
+                        showToast(`Something went wrong!, ${err.responseText}`,'error');
                     }
                 });
             });
@@ -205,11 +207,10 @@
                 $('#editPhone').val($(this).data('phone'));
                 $('#editReceiveLimit').val($(this).data('receive-limit'));
                 $('#editSendLimit').val($(this).data('send-limit'));
-                $('#editBalance').val($(this).data('balance'));
-                $('#editCategorySelect').val($(this).data('categoryId')); 
+                $('#editCategorySelect').val($(this).data('categoryId'));
 
-                let categoryId = $(this).data('categoryId'); 
-                let subCategoryId = $(this).data('subCategoryId'); 
+                let categoryId = $(this).data('categoryId');
+                let subCategoryId = $(this).data('subCategoryId');
                 if (categoryId) {
                     $.ajax({
                         url: "{{ url('dashboard/sub-categories') }}/" + categoryId,

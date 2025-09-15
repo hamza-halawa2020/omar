@@ -52,12 +52,6 @@
                         <label>Receive Limit</label>
                         <input type="number" name="receive_limit" id="editReceiveLimit" class="form-control">
                     </div>
-
-                    <div class="mb-3">
-                        <label>Balance</label>
-                        <input type="number" name="balance" id="editBalance" class="form-control">
-                    </div>
-
                 </div>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-outline-primary btn-sm radius-8">Update</button>

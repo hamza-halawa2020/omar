@@ -20,10 +20,7 @@ class UpdatePaymentWayRequest extends FormRequest
             'type'         => 'sometimes|required|in:cash,wallet,balance_machine',
             'phone_number' => 'nullable|string|max:20',
             'send_limit' => 'nullable|numeric|min:0',
-            'send_limit_alert' => 'nullable|numeric|min:0',
             'receive_limit' => 'nullable|numeric|min:0',
-            'receive_limit_alert' => 'nullable|numeric|min:0',
-            'balance' => 'nullable|numeric|min:0',
         ];
     }
 }
