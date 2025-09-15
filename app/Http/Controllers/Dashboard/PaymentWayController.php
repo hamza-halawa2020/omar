@@ -8,6 +8,8 @@ use App\Http\Requests\PaymentWay\UpdatePaymentWayRequest;
 use App\Http\Resources\PaymentWayResource;
 use App\Models\Category;
 use App\Models\PaymentWay;
+use Carbon\Carbon;
+use Exception;
 use Illuminate\Support\Facades\Auth;
 
 class PaymentWayController extends Controller
@@ -63,24 +65,18 @@ class PaymentWayController extends Controller
         $paymentWay = PaymentWay::with(['category', 'subCategory', 'creator', 'transactions', 'logs'])->findOrFail($id);
 
         $timeFilter = request('time', 'today');
+        $startDate = request('start_date');
+        $endDate = request('end_date');
         $transactions = $paymentWay->transactions();
 
-        switch ($timeFilter) {
-            case 'today':
-                $transactions->whereDate('created_at', now()->toDateString());
-                break;
-            case 'week':
-                $transactions->whereBetween('created_at', [now()->startOfWeek(), now()->endOfWeek()]);
-                break;
-            case 'month':
-                $transactions->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year);
-                break;
-            case 'year':
-                $transactions->whereYear('created_at', now()->year);
-                break;
-            case 'all':
-            default:
-                break;
+        if ($timeFilter === 'custom' && $startDate && $endDate) {
+            try {
+                $start = Carbon::parse($startDate)->startOfDay();
+                $end = Carbon::parse($endDate)->endOfDay();
+                $transactions->whereBetween('created_at', [$start, $end]);
+            } catch (Exception $e) {
+                return response()->json(['status' => false, 'message' => 'Invalid date format'], 400);
+            }
         }
 
         $paymentWay->transactions = $transactions->get();

@@ -87,13 +87,9 @@
                         <option value="receive">Receive</option>
                         <option value="send">Send</option>
                     </select>
-                    <select id="timeFilter" class="form-control w-auto">
-                        <option value="today" selected>Today</option>
-                        <option value="week" >Week</option>
-                        <option value="month">Month</option>
-                        <option value="year">Year</option>
-                        <option value="all">All Time</option>
-                    </select>
+
+                    <input type="text" id="dateRange" class="form-control w-auto" placeholder="Select date range">
+
                 </div>
 
                 <div class="">
@@ -135,8 +131,9 @@
     </div>
 @endsection
 
+
+
 @push('scripts')
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
             let id = "{{ request()->id ?? '' }}";
@@ -223,28 +220,21 @@
                         dataDetails = `
                             <div class="mt-2">
                                 <strong class="">Changes:</strong>
-                                <table class="table table-sm table-bordered ">
+                                <table class="table table-bordered table-sm table bordered-table sm-table mb-0">
                                     <tbody>
-                                        ${Object.entries(log.data).map(([key, value]) => `
-                                                            <tr>
-                                                                <td class="">${key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</td>
-                                                                <td>${value || ''}</td>
-                                                            </tr>
-                                                        `).join('')}
+                                        ${Object.entries(log.data).map(([key, value]) => `<tr><td class="">${key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</td><td>${value || ''}</td></tr>`).join('')}
                                     </tbody>
                                 </table>
                             </div>
                         `;
                     }
                     logsHtml += `
-                        <li class="list-group-item border-0 py-3">
+                        <li class="border-0 py-3">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <span class="badge bg-${log.action === 'create' ? 'success' : log.action === 'update' ? 'warning' : 'danger'} me-2">
-                                        <i class="bi bi-${log.action === 'create' ? 'plus-circle' : log.action === 'update' ? 'pencil' : 'trash'} me-1"></i>
                                         ${log.action.toUpperCase()}
                                     </span>
-                                    by ${log.creator?.name || ''}
                                     <div class="small ">Created: ${log.created_at || ''}</div>
                                 </div>
                                 <span class="badge bg-secondary">Log #${log.id}</span>
@@ -256,14 +246,22 @@
                 $("#logsTimeline").html(logsHtml);
             }
 
-            function fetchPaymentWay(time = 'today') {
+
+            function fetchPaymentWay(startDate = null, endDate = null) {
                 $("#loader").show();
+                let data = {
+                    time: "custom"
+                };
+
+                if (startDate && endDate) {
+                    data.start_date = startDate;
+                    data.end_date = endDate;
+                }
+
                 $.ajax({
                     url: `/dashboard/payment-ways/show-list/${id}`,
                     type: "GET",
-                    data: {
-                        time: time
-                    },
+                    data: data,
                     success: function(res) {
                         $("#loader").hide();
                         if (!res.status) {
@@ -281,13 +279,41 @@
                 });
             }
 
+
             // Initial fetch
             fetchPaymentWay('today');
 
-            // Time filter change
-            $("#timeFilter").on('change', function() {
-                fetchPaymentWay($(this).val());
+
+            function formatDate(date) {
+                let year = date.getFullYear();
+                let month = String(date.getMonth() + 1).padStart(2, "0");
+                let day = String(date.getDate()).padStart(2, "0");
+                return `${year}-${month}-${day}`;
+            }
+
+            $("#dateRange").flatpickr({
+                mode: "range",
+                dateFormat: "Y-m-d",
+                defaultDate: [new Date()],
+                onReady: function() {
+                    let today = formatDate(new Date());
+                    fetchPaymentWay(today, today);
+                },
+                onChange: function(selectedDates) {
+                    if (selectedDates.length === 2) {
+                        let start = formatDate(selectedDates[0]);
+                        let end = formatDate(selectedDates[1]);
+                        fetchPaymentWay(start, end);
+                    } else if (selectedDates.length === 1) {
+                        let day = formatDate(selectedDates[0]);
+                        fetchPaymentWay(day, day);
+                    }
+                }
             });
+
+
+
+
         });
     </script>
 @endpush

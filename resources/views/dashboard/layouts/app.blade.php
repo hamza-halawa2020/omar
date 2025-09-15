@@ -45,6 +45,7 @@
     <script src="{{ asset('assets/js/lib/select2.min.js') }}"></script>
     <!-- toaster JS -->
     <script src="{{ asset('assets/js/lib/toaster.js') }}"></script>
+    <script src="{{ asset('assets/js/flatpickr.js') }}"></script>
 
 
     <script>

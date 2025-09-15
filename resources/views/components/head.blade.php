@@ -25,19 +25,11 @@
     <link rel="stylesheet" href="{{ asset('assets/css/lib/slick.css') }}">
     <!-- prism css -->
     <link rel="stylesheet" href="{{ asset('assets/css/lib/prism.css') }}">
-    <!-- file upload css -->
-    <link rel="stylesheet" href="{{ asset('assets/css/lib/file-upload.css') }}">
-
-    <link rel="stylesheet" href="{{ asset('assets/css/lib/audioplayer.css') }}">
     <!-- main css -->
-
-
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
-
-
-    <!-- Sweet Alert css -->
-    <link rel="stylesheet" href="{{ asset('assets/css/lib/sweetalert2.css') }}">
-
     <!-- Multi Select css -->
     <link rel="stylesheet" href="{{ asset('assets/css/lib/multi-select.css') }}">
+
+    <link rel="stylesheet" href="{{ asset('assets/css/lib/flatpickr.min.css') }}">
+
 </head>
