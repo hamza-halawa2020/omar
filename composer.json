@@ -8,12 +8,15 @@
     ],
     "license": "MIT",
     "require": {
-        "php": "^8.2",
+        "php": "^8.3",
         "backpack/basset": "*",
         "laravel/framework": "^11.0",
         "laravel/passport": "*",
         "laravel/sanctum": "^4.1",
         "laravel/tinker": "^2.9",
+        "masbug/flysystem-google-drive-ext": "^2.4",
+        "nativephp/electron": "*",
+        "spatie/laravel-backup": "^9.3",
         "spatie/laravel-permission": "^6.21",
         "symfony/asset": "^7.1",
         "symfony/asset-mapper": "^7.1"
