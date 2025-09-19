@@ -94,7 +94,7 @@ return [
     'update_profile' => 'تحديث الملف الشخصي',
     'profile_updated_successfully' => 'تم تحديث الملف الشخصي بنجاح!',
     'error_updating_profile' => 'حدث خطأ أثناء تحديث الملف الشخصي.',
-    'title' => 'العنوان',
+    'title' => 'الخزنة',
     'categories_fetched_successfully' => 'تم جلب الأقسام بنجاح',
     'category_created_successfully' => 'تم إنشاء القسم بنجاح',
     'category_fetched_successfully' => 'تم جلب القسم بنجاح',

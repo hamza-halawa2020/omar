@@ -2,12 +2,12 @@
 
 @section('content')
 
-    <div class="d-flex align-items-center justify-content-center min-vh-100">
-        <div class="max-w-464-px mx-auto w-100 p-4">
+    <div class="d-flex align-items-center justify-content-center">
+        <div class="max-w-464-px mx-auto w-100 p-3">
 
             <div>
-                <a href="" class="mb-40 max-w-290-px">
-                    <img src="{{ asset('assets/images/1.jpg') }}" alt="">
+                <a href="" class="mt-5">
+                    <img src="{{ asset('assets/images/1.png') }}" alt="">
 
                 </a>
             </div>

@@ -75,7 +75,7 @@
                         data-bs-toggle="dropdown">
                         @php
                             $user = Auth::user();
-                            $profileImage = $user->staff->staff_photo ?? asset('assets/images/1.jpg');
+                            $profileImage = $user->staff->staff_photo ?? asset('assets/images/1.png');
                         @endphp
                         <img src="{{ auth()->user()->profile_image ? asset('storage/' . auth()->user()->profile_image) : asset('images/default-profile.png') }}"
                             alt="image" class="w-40-px h-40-px object-fit-cover rounded-circle">

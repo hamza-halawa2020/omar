@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ __('messages.login_title') }}</title>
-    <link rel="icon" type="image/png" href="{{ asset('assets/images/1.jpg') }}" sizes="16x16">
+    <link rel="icon" type="image/png" href="{{ asset('assets/images/1.png') }}" sizes="16x16">
     <link rel="stylesheet" href="{{ asset('assets/css/remixicon.css') }}">
     <link href="{{ asset('assets/css/lib/select2.min.css') }}" rel="stylesheet" />
     <link href="{{ asset('assets/css/lib/font-awesome/6.4.2.css') }}" rel="stylesheet" />
@@ -18,7 +18,7 @@
     <div class="d-flex align-items-center justify-content-center min-vh-100">
         <div class="max-w-464-px mx-auto w-100 p-3">
             <div class="text-center">
-                <a class="mb-3 max-w-290-px"><img src="{{ asset('assets/images/1.jpg') }}" alt=""></a>
+                <a class="mb-3 max-w-290-px"><img src="{{ asset('assets/images/1.png') }}" alt=""></a>
                 <div class="">{{ __('messages.sign_in_title') }}</div>
                 <p class="mb-3 text-secondary-light text-lg">{{ __('messages.sign_in_subtitle') }}</p>
             </div>
