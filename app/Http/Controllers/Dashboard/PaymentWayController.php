@@ -33,7 +33,7 @@ class PaymentWayController extends Controller
 
         $paymentWays = PaymentWay::with(['category', 'subCategory', 'creator', 'transactions', 'logs'])->get();
 
-        return response()->json(['status'  => true, 'message' => 'Payment ways fetched successfully', 'data' => PaymentWayResource::collection($paymentWays)]);
+        return response()->json(['status'  => true,     'message' => __('messages.payment_ways_fetched_successfully'), 'data' => PaymentWayResource::collection($paymentWays)]);
     }
 
     public function store(StorePaymentWayRequest $request)
@@ -46,10 +46,25 @@ class PaymentWayController extends Controller
         $paymentWay->logs()->create([
             'created_by' => Auth::id(),
             'action' => 'create',
-            'data' => $paymentWay->toArray(),
+            'data' => [
+                'id' => $paymentWay->id,
+                'name' => $paymentWay->name,
+                'category' => optional($paymentWay->category)->name,
+                'category_id' => $paymentWay->category_id,
+                'sub_category' => optional($paymentWay->subCategory)->name,
+                'sub_category_id' => $paymentWay->sub_category_id,
+                'type' => $paymentWay->type,     // cash, wallet, balance_machine
+                'phone_number' => $paymentWay->phone_number,
+                'send_limit' => $paymentWay->send_limit,
+                'receive_limit' => $paymentWay->receive_limit,
+                'balance' => $paymentWay->balance,
+                'creator' => optional($paymentWay->creator)->name,
+                'created_by' => $paymentWay->created_by,
+            ],
+
         ]);
 
-        return response()->json(['status'  => true, 'message' => 'Payment way created successfully', 'data' => new PaymentWayResource($paymentWay->load(['creator']))], 201);
+        return response()->json(['status'  => true,     'message' => __('messages.payment_way_created_successfully'), 'data' => new PaymentWayResource($paymentWay->load(['creator']))], 201);
     }
 
 
@@ -58,42 +73,6 @@ class PaymentWayController extends Controller
 
         return view('dashboard.payment_ways.show');
     }
-
-
-    // public function showList($id)
-    // {
-    //     $paymentWay = PaymentWay::with(['category', 'subCategory', 'creator', 'transactions', 'logs'])->findOrFail($id);
-
-    //     $timeFilter = request('time', 'today');
-    //     $startDate = request('start_date');
-    //     $endDate = request('end_date');
-    //     $transactions = $paymentWay->transactions();
-
-    //     try {
-    //         if ($timeFilter === 'custom' && $startDate && $endDate) {
-    //             $start = Carbon::parse($startDate)->startOfDay();
-    //             $end = Carbon::parse($endDate)->endOfDay();
-    //             $transactions->whereBetween('created_at', [$start, $end]);
-    //         } elseif ($timeFilter === 'today') {
-    //             $start = Carbon::today()->startOfDay();
-    //             $end = Carbon::today()->endOfDay();
-    //             $transactions->whereBetween('created_at', [$start, $end]);
-    //         }
-    //     } catch (Exception $e) {
-    //         return response()->json(['status' => false, 'message' => 'Invalid date format'], 400);
-    //     }
-
-    //     $paymentWay->transactions = $transactions->get();
-
-    //     return response()->json([
-    //         'status' => true,
-    //         'message' => 'Payment way fetched successfully',
-    //         'data' => new PaymentWayResource($paymentWay)
-    //     ]);
-    // }
-
-
-
 
 
     public function showList($id)
@@ -116,7 +95,7 @@ class PaymentWayController extends Controller
                 $transactions->whereBetween('created_at', [$start, $end]);
             }
         } catch (Exception $e) {
-            return response()->json(['status' => false, 'message' => 'Invalid date format'], 400);
+            return response()->json(['status' => false,     'message' => __('messages.invalid_date_format')], 400);
         }
 
         $paymentWay->transactions = $transactions->get();
@@ -137,7 +116,7 @@ class PaymentWayController extends Controller
 
         return response()->json([
             'status' => true,
-            'message' => 'Payment way fetched successfully',
+            'message' => __('messages.payment_way_fetched_successfully'),
             'data' => new PaymentWayResource($paymentWay),
             'statistics' => [
                 'receive' => [
@@ -162,12 +141,25 @@ class PaymentWayController extends Controller
         $paymentWay->logs()->create([
             'created_by' => Auth::id(),
             'action' => 'update',
-            'data' => $paymentWay->toArray(),
+            'data' => [
+                'id' => $paymentWay->id,
+                'name' => $paymentWay->name,
+                'category' => optional($paymentWay->category)->name,
+                'category_id' => $paymentWay->category_id,
+                'sub_category' => optional($paymentWay->subCategory)->name,
+                'sub_category_id' => $paymentWay->sub_category_id,
+                'type' => $paymentWay->type,     // cash, wallet, balance_machine
+                'phone_number' => $paymentWay->phone_number,
+                'send_limit' => $paymentWay->send_limit,
+                'receive_limit' => $paymentWay->receive_limit,
+                'balance' => $paymentWay->balance,
+                'creator' => optional($paymentWay->creator)->name,
+                'created_by' => $paymentWay->created_by,
+            ],
+
         ]);
 
-
-
-        return response()->json(['status'  => true, 'message' => 'Payment way updated successfully', 'data' => new PaymentWayResource($paymentWay->load(['creator']))]);
+        return response()->json(['status'  => true,    'message' => __('messages.payment_way_updated_successfully'), 'data' => new PaymentWayResource($paymentWay->load(['creator']))]);
     }
 
     public function destroy($id)
@@ -175,17 +167,32 @@ class PaymentWayController extends Controller
         $paymentWay = PaymentWay::findOrFail($id);
 
         if ($paymentWay->transactions()->exists()) {
-            return response()->json(['status' => false, 'message' => 'Cannot delete this PAwment Way because it has transactions.'], 400);
+            return response()->json(['status' => false,     'message' => __('messages.cannot_delete_payment_way_has_transactions')], 400);
         }
 
         $paymentWay->logs()->create([
             'created_by' => Auth::id(),
             'action' => 'delete',
-            'data' => $paymentWay->toArray(),
+            'data' => [
+                'id' => $paymentWay->id,
+                'name' => $paymentWay->name,
+                'category' => optional($paymentWay->category)->name,
+                'category_id' => $paymentWay->category_id,
+                'sub_category' => optional($paymentWay->subCategory)->name,
+                'sub_category_id' => $paymentWay->sub_category_id,
+                'type' => $paymentWay->type,     // cash, wallet, balance_machine
+                'phone_number' => $paymentWay->phone_number,
+                'send_limit' => $paymentWay->send_limit,
+                'receive_limit' => $paymentWay->receive_limit,
+                'balance' => $paymentWay->balance,
+                'creator' => optional($paymentWay->creator)->name,
+                'created_by' => $paymentWay->created_by,
+            ],
+
         ]);
 
         $paymentWay->delete();
 
-        return response()->json(['status'  => true, 'message' => 'Payment way deleted successfully']);
+        return response()->json(['status'  => true,     'message' => __('messages.payment_way_deleted_successfully')]);
     }
 }

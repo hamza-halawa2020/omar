@@ -28,7 +28,7 @@ class CategoryController extends BaseController
     {
         $categories = Category::with(['parent', 'children', 'creator'])->get();
 
-        return response()->json(['status' => true, 'message' => 'Categories fetched successfully', 'data' => CategoryResource::collection($categories)]);
+        return response()->json(['status' => true, 'message' => __('messages.categories_fetched_successfully'), 'data' => CategoryResource::collection($categories)]);
     }
 
 
@@ -40,14 +40,14 @@ class CategoryController extends BaseController
 
         $category = Category::create($data);
 
-        return response()->json(['status' => true, 'message' => 'Category created successfully', 'data' => new CategoryResource($category),], 201);
+        return response()->json(['status' => true,  'message' => __('messages.category_created_successfully'), 'data' => new CategoryResource($category),], 201);
     }
 
     public function show($id)
     {
         $category = Category::with(['parent', 'children', 'creator'])->findOrFail($id);
 
-        return response()->json(['status' => true, 'message' => 'Category fetched successfully', 'data' => new CategoryResource($category),]);
+        return response()->json(['status' => true, 'message' => __('messages.category_fetched_successfully'), 'data' => new CategoryResource($category),]);
     }
 
 
@@ -58,7 +58,7 @@ class CategoryController extends BaseController
 
         $category->update($data);
 
-        return response()->json(['status' => true, 'message' => 'Category updated successfully', 'data' => new CategoryResource($category),]);
+        return response()->json(['status' => true, 'message' => __('messages.category_updated_successfully'), 'data' => new CategoryResource($category),]);
     }
 
     public function destroy($id)
@@ -66,11 +66,11 @@ class CategoryController extends BaseController
         $category = Category::findOrFail($id);
 
         if ($category->categoryPaymentWay()->exists() || $category->subCategoryPaymentWay()->exists()) {
-            return response()->json(['status' => false, 'message' => 'Cannot delete this category because it has Payment Way.'], 400);
+            return response()->json(['status' => false, 'message' => __('messages.cannot_delete_category_with_payment_way')], 400);
         }
 
         $category->delete();
 
-        return response()->json(['status' => true,'message' => 'Category deleted successfully',]);
+        return response()->json(['status' => true, 'message' => __('messages.category_deleted_successfully')]);
     }
 }

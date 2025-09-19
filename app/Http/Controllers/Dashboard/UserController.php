@@ -15,7 +15,7 @@ class UserController extends Controller
     {
         $users = User::with('roles')->latest()->get();
 
-        return response()->json(['status'  => true, 'message' => 'Users fetched successfully', 'data' => UserResource::collection($users)]);
+        return response()->json(['status'  => true, 'message' => __('messages.users_fetched_successfully'), 'data' => UserResource::collection($users)]);
     }
 
     public function store(StoreUserRequest $request)
@@ -29,14 +29,14 @@ class UserController extends Controller
             $user->syncRoles($data['roles']);
         }
 
-        return response()->json(['status'  => true, 'message' => 'User created successfully', 'data' => new UserResource($user->load('roles'))], 201);
+        return response()->json(['status'  => true, 'message' => __('messages.user_created_successfully'), 'data' => new UserResource($user->load('roles'))], 201);
     }
 
     public function show(User $user)
     {
         $user->load('roles', 'permissions');
 
-        return response()->json(['status'  => true, 'message' => 'User fetched successfully', 'data' => new UserResource($user)]);
+        return response()->json(['status'  => true, 'message' => __('messages.user_fetched_successfully'), 'data' => new UserResource($user)]);
     }
 
     public function update(UpdateUserRequest $request, User $user)
@@ -55,13 +55,13 @@ class UserController extends Controller
             $user->syncRoles($data['roles']);
         }
 
-        return response()->json(['status'  => true, 'message' => 'User updated successfully', 'data' => new UserResource($user->load('roles'))]);
+        return response()->json(['status'  => true, 'message' => __('messages.user_updated_successfully'), 'data' => new UserResource($user->load('roles'))]);
     }
 
     public function destroy(User $user)
     {
         $user->delete();
 
-        return response()->json(['status'  => true, 'message' => 'User deleted successfully']);
+        return response()->json(['status'  => true, 'message' => __('messages.user_deleted_successfully'),]);
     }
 }

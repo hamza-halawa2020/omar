@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Dashboard;
 
-use App\Models\User;
 use Exception;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
@@ -47,12 +46,13 @@ class ProfileController extends BaseController
             $user->update($validated);
 
             return response()->json([
-                'message' => 'Profile updated successfully',
+                'message' => __('messages.profile_updated_successfully'),
+
                 'profile_image' => $user->profile_image ?? null,
             ]);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Failed to update profile: ' . $e->getMessage()
+                'message' => __('messages.failed_to_update_profile') . ': ' . $e->getMessage(),
             ], 500);
         }
     }

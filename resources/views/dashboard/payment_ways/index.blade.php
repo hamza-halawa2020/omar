@@ -5,9 +5,9 @@
 
     <div class="container">
         <div class="d-flex justify-content-between mb-3">
-            <div class="fw-bold fs-5">Payment Ways</div>
-            <button class="btn btn-outline-primary btn-sm radius-8" data-bs-toggle="modal" data-bs-target="#createModal">+ Add
-                Payment Way</button>
+            <div class="fw-bold fs-5">{{ __('messages.payment_ways') }}</div>
+            <button class="btn btn-outline-primary btn-sm radius-8" data-bs-toggle="modal" data-bs-target="#createModal">+
+                {{ __('messages.create_payment_way') }}</button>
         </div>
 
         <div id="paymentWaysContainer" class="row g-3">
@@ -25,7 +25,6 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
-
             function toggleFields(type, groupClass) {
                 if (type === 'wallet') {
                     $(groupClass).show();
@@ -53,8 +52,10 @@
                     <input type="hidden" name="type" value="${type}">
                 `);
 
-                $('#transactionModal .modal-title').text(type.charAt(0).toUpperCase() + type.slice(1) +
-                    ' Transaction');
+                // ترجمة عنوان المودال بناءً على نوع المعاملة
+                $('#transactionModal .modal-title').text(type === 'receive' ?
+                    '{{ __('messages.create_receive_transaction') }}' :
+                    '{{ __('messages.create_send_transaction') }}');
 
                 $('#transactionModal').modal('show');
             });
@@ -67,7 +68,7 @@
                         type: 'GET',
                         success: function(res) {
                             $('#createSubCategorySelect').html(
-                                '<option value="">Select Sub Category</option>'
+                                '<option value="">{{ __('messages.select_sub_category') }}</option>'
                             );
                             res.forEach(function(sub) {
                                 $('#createSubCategorySelect').append(
@@ -77,12 +78,14 @@
                         },
                         error: function(err) {
                             console.error(err);
+                            showToast('{{ __('messages.something_went_wrong') }}', 'error');
                         }
                     });
                 } else {
-                    $('#createSubCategorySelect').html('<option value="">Select Sub Category</option>');
+                    $('#createSubCategorySelect').html(
+                        '<option value="">{{ __('messages.select_sub_category') }}</option>');
                 }
-            })
+            });
 
             $('#editCategorySelect').on('change', function() {
                 let categoryId = $(this).val();
@@ -92,7 +95,8 @@
                         type: 'GET',
                         success: function(res) {
                             $('#editSubCategorySelect').html(
-                                '<option value="">Select Sub Category</option>');
+                                '<option value="">{{ __('messages.select_sub_category') }}</option>'
+                                );
                             res.forEach(function(sub) {
                                 $('#editSubCategorySelect').append(
                                     `<option value="${sub.id}">${sub.name}</option>`
@@ -101,10 +105,12 @@
                         },
                         error: function(err) {
                             console.error(err);
+                            showToast('{{ __('messages.something_went_wrong') }}', 'error');
                         }
                     });
                 } else {
-                    $('#editSubCategorySelect').html('<option value="">Select Sub Category</option>');
+                    $('#editSubCategorySelect').html(
+                        '<option value="">{{ __('messages.select_sub_category') }}</option>');
                 }
             });
 
@@ -121,20 +127,21 @@
                     success: function(res) {
                         if (res.status) {
                             $('#transactionModal').modal('hide');
-                            showToast('Transaction saved successfully!');
+                            showToast('{{ __('messages.transaction_created_successfully') }}',
+                                'success');
                             loadPaymentWays();
-
                         }
                     },
                     error: function(err) {
                         console.error(err.responseText);
-                        showToast(`Something went wrong!, ${err.responseText}`,'error');
+                        showToast(
+                            `{{ __('messages.something_went_wrong') }}: ${err.responseText}`,
+                            'error');
                     }
                 });
             });
 
             loadPaymentWays();
-
 
             function loadPaymentWays() {
                 $.get("{{ route('payment_ways.list') }}", function(res) {
@@ -147,39 +154,40 @@
                                 .sub_category.id : '');
 
                             cards += `
-                <div class="col-md-3">
-                    <div class="card shadow-sm h-100 rounded-3">
-                        <div class="d-flex justify-content-center gap-3 m-3">
-                            <button class="btn btn-outline-success btn-sm radius-8 receiveBtn" data-id="${way.id}" data-name="${way.name}">Receive</button>
-                            <button class="btn btn-outline-primary btn-sm radius-8 sendBtn" data-id="${way.id}" data-name="${way.name}">Send</button>
-                        </div>
-                        <div class="card-body">
-                            <div class="card-title fw-bold fs-5">${way.name}</div>
-                            <p class="card-text mb-1"><strong>Type:</strong> ${way.type}</p>
-                            <p class="card-text mb-1"><strong>Phone:</strong> ${way.phone_number ?? ''}</p>
-                            <p class="card-text mb-1"><strong>Send Limit:</strong> ${way.send_limit ?? 0}</p>
-                            <p class="card-text mb-1"><strong>Send Limit Alert:</strong>${way.send_limit_alert ?? 0}</p>
-                            <p class="card-text mb-1"><strong>Receive Limit:</strong> ${way.receive_limit ?? 0}</p>
-                            <p class="card-text mb-1"><strong>Receive Limit Alert:</strong>${way.receive_limit_alert ?? 0}</p>
-                            <p class="card-text mb-1"><strong>Balance:</strong> ${way.balance ?? 0}</p>
-                            <p class="card-text"><small class="">Created by: ${way.creator ? way.creator.name : ''}</small></p>
-                        </div>
-                        <div class="card-footer d-flex justify-content-between">
-                            <a href="payment-ways/show/${way.id}" class="btn btn-outline-success btn-sm radius-8 text-center">Details</a>
-                            <button class="btn btn-outline-primary btn-sm radius-8 editBtn" 
-                                data-id="${way.id}" 
-                                data-name="${way.name}" 
-                                data-type="${way.type}" 
-                                data-phone="${way.phone_number ?? ''}" 
-                                data-receive-limit="${way.receive_limit ?? 0}" 
-                                data-send-limit="${way.send_limit ?? 0}" 
-                                data-balance="${way.balance ?? 0}" 
-                                data-category-id="${categoryId}" 
-                                data-sub-category-id="${subCategoryId}">Edit</button>
-                            <button class="btn btn-outline-danger btn-sm radius-8 deleteBtn" data-id="${way.id}" data-name="${way.name}">Delete</button>
-                        </div>
-                    </div>
-                </div>`;
+                                <div class="col-md-3">
+                                    <div class="card shadow-sm h-100 rounded-3">
+                                        <div class="d-flex justify-content-center gap-3 m-3">
+                                            <button class="btn btn-outline-success btn-sm radius-8 receiveBtn" data-id="${way.id}" data-name="${way.name}">{{ __('messages.receive') }}</button>
+                                            <button class="btn btn-outline-primary btn-sm radius-8 sendBtn" data-id="${way.id}" data-name="${way.name}">{{ __('messages.send') }}</button>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="card-title fw-bold fs-5">${way.name}</div>
+                                            <p class="card-text mb-1"><strong>{{ __('messages.type') }}:</strong> ${way.type ?? ''}</p>
+                                            
+                                            <p class="card-text mb-1"><strong>{{ __('messages.phone_number') }}:</strong> ${way.phone_number ?? ''}</p>
+                                            <p class="card-text mb-1"><strong>{{ __('messages.send_limit') }}:</strong> ${way.send_limit ?? 0}</p>
+                                            <p class="card-text mb-1"><strong>{{ __('messages.send_limit_alert') }}:</strong> ${way.send_limit_alert ?? 0}</p>
+                                            <p class="card-text mb-1"><strong>{{ __('messages.receive_limit') }}:</strong> ${way.receive_limit ?? 0}</p>
+                                            <p class="card-text mb-1"><strong>{{ __('messages.receive_limit_alert') }}:</strong> ${way.receive_limit_alert ?? 0}</p>
+                                            <p class="card-text mb-1"><strong>{{ __('messages.balance') }}:</strong> ${way.balance ?? 0}</p>
+                                            <p class="card-text"><small class="">{{ __('messages.created_by') }}: ${way.creator ? way.creator.name : ''}</small></p>
+                                        </div>
+                                        <div class="card-footer d-flex justify-content-between">
+                                            <a href="payment-ways/show/${way.id}" class="btn btn-outline-success btn-sm radius-8 text-center">{{ __('messages.details') }}</a>
+                                            <button class="btn btn-outline-primary btn-sm radius-8 editBtn" 
+                                                data-id="${way.id}" 
+                                                data-name="${way.name}" 
+                                                data-type="${way.type}" 
+                                                data-phone="${way.phone_number ?? ''}" 
+                                                data-receive-limit="${way.receive_limit ?? 0}" 
+                                                data-send-limit="${way.send_limit ?? 0}" 
+                                                data-balance="${way.balance ?? 0}" 
+                                                data-category-id="${categoryId}" 
+                                                data-sub-category-id="${subCategoryId}">{{ __('messages.edit') }}</button>
+                                            <button class="btn btn-outline-danger btn-sm radius-8 deleteBtn" data-id="${way.id}" data-name="${way.name}">{{ __('messages.delete') }}</button>
+                                        </div>
+                                    </div>
+                                </div>`;
                         });
                         $('#paymentWaysContainer').html(cards);
                     }
@@ -193,11 +201,14 @@
                     if (res.status) {
                         $('#createModal').modal('hide');
                         loadPaymentWays();
+                        showToast('{{ __('messages.payment_way_created_successfully') }}',
+                            'success');
+                    } else {
+                        showToast(res.message || '{{ __('messages.something_went_wrong') }}',
+                            'error');
                     }
                 });
             });
-
-            // Edit
 
             // Edit
             $(document).on('click', '.editBtn', function() {
@@ -217,7 +228,8 @@
                         type: 'GET',
                         success: function(res) {
                             $('#editSubCategorySelect').html(
-                                '<option value="">Select Sub Category</option>');
+                                '<option value="">{{ __('messages.select_sub_category') }}</option>'
+                                );
                             res.forEach(function(sub) {
                                 $('#editSubCategorySelect').append(
                                     `<option value="${sub.id}" ${sub.id == subCategoryId ? 'selected' : ''}>${sub.name}</option>`
@@ -226,10 +238,12 @@
                         },
                         error: function(err) {
                             console.error(err);
+                            showToast('{{ __('messages.something_went_wrong') }}', 'error');
                         }
                     });
                 } else {
-                    $('#editSubCategorySelect').html('<option value="">Select Sub Category</option>');
+                    $('#editSubCategorySelect').html(
+                        '<option value="">{{ __('messages.select_sub_category') }}</option>');
                 }
 
                 toggleFields($(this).data('type'), '.phone_limit_group_edit');
@@ -252,7 +266,15 @@
                         if (res.status) {
                             $('#editModal').modal('hide');
                             loadPaymentWays();
+                            showToast('{{ __('messages.payment_way_updated_successfully') }}',
+                                'success');
+                        } else {
+                            showToast(res.message ||
+                                '{{ __('messages.something_went_wrong') }}', 'error');
                         }
+                    },
+                    error: function(err) {
+                        showToast('{{ __('messages.something_went_wrong') }}', 'error');
                     }
                 });
             });
@@ -277,11 +299,18 @@
                         if (res.status) {
                             $('#deleteModal').modal('hide');
                             loadPaymentWays();
+                            showToast('{{ __('messages.payment_way_deleted_successfully') }}',
+                                'success');
+                        } else {
+                            showToast(res.message ||
+                                '{{ __('messages.something_went_wrong') }}', 'error');
                         }
+                    },
+                    error: function(err) {
+                        showToast('{{ __('messages.something_went_wrong') }}', 'error');
                     }
                 });
             });
-
         });
     </script>
 @endpush

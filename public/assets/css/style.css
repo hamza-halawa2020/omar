@@ -8256,7 +8256,7 @@ h6, .h6 {
 
 [dir=rtl] .end-0 {
   right: auto !important;
-  left: 0;
+  left: 4px;
 }
 
 /* === position css end === */

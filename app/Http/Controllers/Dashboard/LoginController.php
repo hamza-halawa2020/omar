@@ -40,7 +40,7 @@ class LoginController extends Controller
 
         if (! $authed) {
             if ($request->wantsJson()) {
-                return response()->json(['status' => false, 'message' => 'Invalid credentials'], 401);
+                return response()->json(['status' => false, 'message' => __('messages.invalid_credentials')], 401);
             }
             return back()->withErrors(['login' => 'Invalid credentials.'])->withInput();
         }
@@ -49,7 +49,7 @@ class LoginController extends Controller
         $user = Auth::user();
 
         if ($request->wantsJson()) {
-            return response()->json(['status'  => true, 'message' => 'Login successful', 'data'    => new UserResource($user),]);
+            return response()->json(['status'  => true, 'message' => __('messages.login_successful'), 'data'    => new UserResource($user),]);
         }
 
         return redirect()->intended('/dashboard');
@@ -62,7 +62,7 @@ class LoginController extends Controller
         $request->session()->regenerateToken();
 
         if ($request->wantsJson()) {
-            return response()->json(['status' => true, 'message' => 'Logged out successfully']);
+            return response()->json(['status' => true, 'message' => __('messages.logged_out_successfully')]);
         }
 
         return redirect()->route('login');

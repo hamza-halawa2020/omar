@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Transaction\StoreTransactionRequest;
-use App\Http\Requests\Transaction\UpdateTransactionRequest;
 use App\Http\Resources\TransactionResource;
 use App\Models\PaymentWay;
 use App\Models\Transaction;
@@ -22,7 +21,7 @@ class TransactionController extends Controller
     {
         $transactions = Transaction::with(['paymentWay', 'creator', 'logs'])->latest()->get();
 
-        return response()->json(['status'  => true, 'message' => 'Transactions fetched successfully', 'data' => TransactionResource::collection($transactions)]);
+        return response()->json(['status'  => true, 'message' => __('messages.transactions_fetched_successfully'), 'data' => TransactionResource::collection($transactions)]);
     }
 
 
@@ -46,7 +45,7 @@ class TransactionController extends Controller
         $total = $data['amount'] +  $data['commission'];
 
         if ($data['type'] === 'send' && $total > $paymentWay->balance) {
-            return response()->json(['status' => false, 'message' => 'Not enough balance.'], 400);
+            return response()->json(['status' => false, 'message' => __('messages.not_enough_balance')], 400);
         }
 
 
@@ -71,12 +70,29 @@ class TransactionController extends Controller
         $transaction->logs()->create([
             'created_by' => Auth::id(),
             'action' => 'create',
-            'data' => $transaction->toArray(),
+            'data' => [
+                'transaction' => [
+                    'id' => $transaction->id,
+                    'type' => $transaction->type,
+                    'amount' => $transaction->amount,
+                    'commission' => $transaction->commission,
+                    'notes' => $transaction->notes,
+                    'attachment' => $transaction->attachment,
+                ],
+                'payment_way' => [
+                    'id' => $paymentWay->id,
+                    'name' => $paymentWay->name,
+                    'category' => optional($paymentWay->category)->name,
+                    'sub_category' => optional($paymentWay->subCategory)->name,
+                    'creator' => optional($paymentWay->creator)->name,
+                ],
+            ],
         ]);
+
 
         return response()->json([
             'status' => true,
-            'message' => 'Transaction created successfully',
+            'message' => __('messages.transaction_created_successfully'),
             'data' => new TransactionResource($transaction->load(['paymentWay', 'creator']))
         ], 201);
     }
@@ -85,6 +101,6 @@ class TransactionController extends Controller
     {
         $transaction = Transaction::with(['paymentWay', 'creator', 'logs'])->findOrFail($id);
 
-        return response()->json(['status'  => true, 'message' => 'Transaction fetched successfully', 'data' => new TransactionResource($transaction)]);
+        return response()->json(['status'  => true, 'message' => __('messages.transaction_fetched_successfully'), 'data' => new TransactionResource($transaction)]);
     }
 }

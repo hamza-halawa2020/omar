@@ -99,7 +99,7 @@
                                     @csrf
                                     <button type="submit"
                                         class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-danger d-flex align-items-center gap-3 bg-transparent border-0">
-                                        <iconify-icon icon="lucide:power" class="icon text-xl"></iconify-icon> Log Out
+                                        <iconify-icon icon="lucide:power" class="icon text-xl"></iconify-icon> {{ __('messages.logout') }}
                                     </button>
                                 </form>
                             </li>

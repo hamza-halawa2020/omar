@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="ar" dir="rtl" data-theme="light">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>omar</title>
+    <title>{{ __('messages.login_title') }}</title>
     <link rel="icon" type="image/png" href="{{ asset('assets/images/1.jpg') }}" sizes="16x16">
     <link rel="stylesheet" href="{{ asset('assets/css/remixicon.css') }}">
     <link href="{{ asset('assets/css/lib/select2.min.css') }}" rel="stylesheet" />
@@ -18,9 +18,9 @@
     <div class="d-flex align-items-center justify-content-center min-vh-100">
         <div class="max-w-464-px mx-auto w-100 p-3">
             <div class="text-center">
-                <a class="mb-3 max-w-290-px"><img src="{{ asset('assets/images/1.jpg') }}"alt=""></a>
-                <div class="">Sign In to your Account</div>
-                <p class="mb-3 text-secondary-light text-lg">Welcome back! please enter your detail</p>
+                <a class="mb-3 max-w-290-px"><img src="{{ asset('assets/images/1.jpg') }}" alt=""></a>
+                <div class="">{{ __('messages.sign_in_title') }}</div>
+                <p class="mb-3 text-secondary-light text-lg">{{ __('messages.sign_in_subtitle') }}</p>
             </div>
 
             @if ($errors->any())
@@ -46,7 +46,7 @@
                         <iconify-icon icon="mage:email"></iconify-icon>
                     </span>
                     <input type="text" name="email" class="form-control h-56-px bg-neutral-50 radius-12"
-                        placeholder="Email or Username" value="{{ old('login') }}" required>
+                        placeholder="{{ __('messages.email_or_username') }}" value="{{ old('login') }}" required>
                 </div>
 
                 <div class="position-relative mb-20">
@@ -56,7 +56,7 @@
                         </span>
                         <input type="password" name="password"
                             class="form-control h-56-px bg-neutral-50 radius-12 pe-50" id="your-password"
-                            placeholder="Password" required>
+                            placeholder="{{ __('messages.password') }}" required>
 
                         <span class="toggle-password position-absolute top-50 end-0 translate-middle-y me-3"
                             style="cursor: pointer;">
@@ -72,12 +72,12 @@
                         <div class="form-check style-check d-flex align-items-center">
                             <input class="form-check-input border border-neutral-300" type="checkbox" name="remember"
                                 id="remember" {{ old('remember') ? 'checked' : '' }}>
-                            <label class="form-check-label" for="remember">Remember me</label>
+                            <label class="form-check-label" for="remember">{{ __('messages.remember_me') }}</label>
                         </div>
                     </div>
                 </div>
                 <button type="submit"
-                    class="btn btn-primary text-sm btn-sm px-12 py-16 w-100 radius-12">SignIn</button>
+                    class="btn btn-primary text-sm btn-sm px-12 py-16 w-100 radius-12">{{ __('messages.sign_in_button') }}</button>
             </form>
         </div>
     </div>
@@ -89,7 +89,6 @@
     <script src="{{ asset('assets/js/lib/toaster.js') }}"></script>
     <script>
         $(document).ready(function() {
-
             $('.toggle-password').click(function() {
                 const passwordField = $('#your-password');
                 const showIcon = $('.show-icon');
@@ -106,7 +105,6 @@
                 }
             });
 
-
             @if (session('success'))
                 toastr.success("{{ session('success') }}");
             @endif
@@ -114,7 +112,6 @@
             @if (session('error'))
                 toastr.error("{{ session('error') }}");
             @endif
-
         });
 
         function showToast(message, type = 'success') {

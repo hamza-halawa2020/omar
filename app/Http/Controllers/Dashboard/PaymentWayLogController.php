@@ -3,10 +3,8 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\PaymentWayLog\StorePaymentWayLogRequest;
 use App\Http\Resources\PaymentWayLogResource;
 use App\Models\PaymentWayLog;
-use Illuminate\Support\Facades\Auth;
 
 class PaymentWayLogController extends Controller
 {
@@ -14,7 +12,6 @@ class PaymentWayLogController extends Controller
     {
         $logs = PaymentWayLog::with(['paymentWay', 'creator'])->latest()->get();
 
-        return response()->json(['status'  => true, 'message' => 'Payment way logs fetched successfully', 'data'    => PaymentWayLogResource::collection($logs),]);
+        return response()->json(['status'  => true, 'message' => __('messages.payment_way_logs_fetched_successfully'), 'data'    => PaymentWayLogResource::collection($logs),]);
     }
-
 }

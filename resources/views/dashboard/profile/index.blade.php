@@ -8,23 +8,23 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header">
-                        <div class="card-title">User Profile</div>
+                        <div class="card-title">{{ __('messages.user_profile') }}</div>
                     </div>
                     <div class="card-body">
                         <div class="text-center mb-4">
                             <img src="{{ auth()->user()->profile_image ? asset('storage/' . auth()->user()->profile_image) : asset('images/default-profile.png') }}"
-                                class="profile-image" alt="Profile Image">
+                                class="profile-image" alt="{{ __('messages.profile_image') }}">
                         </div>
                         <form id="profileForm" enctype="multipart/form-data">
                             <div class="mb-3">
-                                <label for="name" class="form-label">Name</label>
+                                <label for="name" class="form-label">{{ __('messages.name') }}</label>
                                 <input type="text" class="form-control" id="name" name="name"
-                                    value="{{ auth()->user()->name }}" required>
+                                    value="{{ auth()->user()->name }}">
                             </div>
                             <div class="mb-3">
-                                <label for="email" class="form-label">Email</label>
+                                <label for="email" class="form-label">{{ __('messages.email') }}</label>
                                 <input type="email" class="form-control" id="email" name="email"
-                                    value="{{ auth()->user()->email }}" required>
+                                    value="{{ auth()->user()->email }}">
                             </div>
 
                             <div class="position-relative mb-20">
@@ -34,7 +34,7 @@
                                     </span>
                                     <input type="password" name="password"
                                         class="form-control h-56-px bg-neutral-50 radius-12 pe-50" id="your-password"
-                                        placeholder="Password" required>
+                                        placeholder="{{ __('messages.password') }}">
 
                                     <span class="toggle-password position-absolute top-50 end-0 translate-middle-y me-3"
                                         style="cursor: pointer;">
@@ -45,18 +45,18 @@
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label for="profile_image" class="form-label">Profile Image</label>
+                                <label for="profile_image" class="form-label">{{ __('messages.profile_image') }}</label>
                                 <input type="file" class="form-control" id="profile_image" name="profile_image"
                                     accept="image/*">
-                                <img id="imagePreview" class="preview-image" alt="Image Preview">
+                                <img id="imagePreview" class="preview-image" alt="{{ __('messages.image_preview') }}">
                             </div>
-                            <button type="submit" class="btn btn-primary">Update Profile</button>
+                            <button type="submit" class="btn btn-primary">{{ __('messages.update_profile') }}</button>
                         </form>
                         <div id="successMessage" class="alert alert-success mt-3" style="display: none;">
-                            Profile updated successfully!
+                            {{ __('messages.profile_updated_successfully') }}
                         </div>
                         <div id="errorMessage" class="alert alert-danger mt-3" style="display: none;">
-                            An error occurred while updating the profile.
+                            {{ __('messages.error_updating_profile') }}
                         </div>
                     </div>
                 </div>

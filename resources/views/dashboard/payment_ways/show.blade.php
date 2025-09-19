@@ -2,14 +2,14 @@
 
 @section('content')
     <div class="container py-3">
-        <div class="fw-bold fs-3 mb-3 text-primary">Payment Way Dashboard</div>
+        <div class="fw-bold fs-4 mb-3 text-primary">{{ __('messages.payment_ay_ashboard') }}</div>
 
         <!-- Summary Cards -->
         <div class="row mb-3 g-3 fs-5">
             <div class="col-md-3 col-sm-6">
                 <div class="card shadow-sm text-center border-0">
                     <div class="card-body">
-                        <div class="fw-bold">Current Balance</div>
+                        <div class="fw-bold">{{ __('messages.current_balance') }}</div>
                         <div id="paymentWayBalance" class="fw-bold badge bg-danger">0</div>
                     </div>
                 </div>
@@ -17,7 +17,7 @@
             <div class="col-md-3 col-sm-6">
                 <div class="card shadow-sm text-center border-0">
                     <div class="card-body">
-                        <div class="fw-bold">Total Transactions</div>
+                        <div class="fw-bold">{{ __('messages.total_transactions') }}</div>
                         <div id="paymentWayTransactions" class="fw-bold badge bg-danger">0</div>
                     </div>
                 </div>
@@ -26,7 +26,7 @@
                 <div class="card shadow-sm text-center border-0">
                     <div class="card-body">
                         <div id="paymentWayReceiveLimitAlert" class="text-danger"></div>
-                        <span class="fw-bold">Receive Limit</span>
+                        <span class="fw-bold">{{ __('messages.receive_limit') }}</span>
                         <span id="paymentWayReceiveLimit" class="fw-bold badge bg-danger">0</span>
                     </div>
                 </div>
@@ -35,7 +35,7 @@
                 <div class="card shadow-sm text-center border-0">
                     <div class="card-body">
                         <div id="paymentWaySendLimitAlert" class="text-danger"></div>
-                        <span class="fw-bold">Send Limit</span>
+                        <span class="fw-bold">{{ __('messages.send_limit') }}</span>
                         <span id="paymentWaySendLimit" class="fw-bold badge bg-danger">0</span>
                     </div>
                 </div>
@@ -46,16 +46,16 @@
                     <div class="card-body">
                         <div>
                             <div>
-                                <span class="fw-bold">Received</span>
+                                <span class="fw-bold">{{ __('messages.received') }}</span>
                                 <span id="receive_amount" class="fw-bold badge bg-success">0.00</span>
                             </div>
                             <div>
-                                <span class="fw-bold">Commission</span>
+                                <span class="fw-bold">{{ __('messages.commission') }}</span>
                                 <span id="receive_commission" class="fw-bold badge bg-warning">0.00</span>
                             </div>
 
                             <div>
-                                <span class="fw-bold">Total</span>
+                                <span class="fw-bold">{{ __('messages.total') }}</span>
                                 <span id="receive_total" class="fw-bold badge bg-primary">0.00</span>
                             </div>
                         </div>
@@ -67,16 +67,16 @@
                     <div class="card-body">
                         <div>
                             <div>
-                                <span class="fw-bold">sent</span>
+                                <span class="fw-bold">{{ __('messages.sent') }}</span>
                                 <span id="send_amount" class="fw-bold badge bg-danger">0.00</span>
                             </div>
                             <div>
-                                <span class="fw-bold">Commission</span>
+                                <span class="fw-bold">{{ __('messages.commission') }}</span>
                                 <span id="send_commission" class="fw-bold badge bg-warning">0.00</span>
                             </div>
 
                             <div>
-                                <span class="fw-bold">Total</span>
+                                <span class="fw-bold">{{ __('messages.total') }}</span>
                                 <span id="send_total" class="fw-bold badge bg-primary">0.00</span>
                             </div>
                         </div>
@@ -86,7 +86,7 @@
             <div class="col-md-3 col-sm-6">
                 <div class="card shadow-sm text-center border-0">
                     <div class="card-body">
-                        <div class="fw-bold">Grand Net</div>
+                        <div class="fw-bold">{{ __('messages.grand_net') }}</div>
                         <div id="grandNet" class="fw-bold badge bg-primary">0.00</div>
                     </div>
                 </div>
@@ -97,13 +97,13 @@
         <!-- Tabs -->
         <ul class="nav nav-tabs mb-3" id="paymentTabs">
             <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="tab" href="#details">Details</a>
+                <a class="nav-link" data-bs-toggle="tab" href="#details">{{ __('messages.details') }}</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="tab" href="#transactions">Transactions</a>
+                <a class="nav-link active" data-bs-toggle="tab" href="#transactions">{{ __('messages.transactions') }}</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="tab" href="#logs">Logs</a>
+                <a class="nav-link" data-bs-toggle="tab" href="#logs">{{ __('messages.changes') }}</a>
             </li>
         </ul>
 
@@ -111,18 +111,25 @@
             <!-- Details Tab -->
             <div class="tab-pane fade" id="details">
                 <div class="card shadow-sm p-3 border-0">
-                    <div class="card-title mb-3 text-primary">Payment Way Information</div>
+                    <div class="card-title mb-3 text-primary">{{ __('messages.payment_way_information') }}</div>
                     <div class="row">
                         <div class="col-md-6">
-                            <p><strong>Name:</strong> <span id="paymentWayName" class=""></span></p>
-                            <p><strong>Phone Number:</strong> <span id="paymentWayPhone" class=""></span></p>
-                            <p><strong>Category:</strong> <span id="paymentWayCategory" class=""></span></p>
-                            <p><strong>Sub Category:</strong> <span id="paymentWaySubCategory" class=""></span></p>
+                            <p><strong>{{ __('messages.name') }}: </strong> <span id="paymentWayName"
+                                    class=""></span></p>
+                            <p><strong> {{ __('messages.phone_number') }}: </strong> <span id="paymentWayPhone"
+                                    class=""></span></p>
+                            <p><strong>{{ __('messages.category') }}: </strong> <span id="paymentWayCategory"
+                                    class=""></span></p>
+                            <p><strong>{{ __('messages.sub_category') }}: </strong> <span id="paymentWaySubCategory"
+                                    class=""></span></p>
                         </div>
                         <div class="col-md-6">
-                            <p><strong>Type:</strong> <span id="paymentWayType" class=""></span></p>
-                            <p><strong>Created By:</strong> <span id="paymentWayCreator" class=""></span></p>
-                            <p><strong>Created At:</strong> <span id="paymentWayCreatedAt" class=""></span></p>
+                            <p><strong>{{ __('messages.type') }}: </strong> <span id="paymentWayType"
+                                    class=""></span></p>
+                            <p><strong>{{ __('messages.created_by') }}: </strong> <span id="paymentWayCreator"
+                                    class=""></span></p>
+                            <p><strong>{{ __('messages.created_at') }}: </strong> <span id="paymentWayCreatedAt"
+                                    class=""></span></p>
                         </div>
                     </div>
                 </div>
@@ -132,30 +139,30 @@
             <div class="tab-pane fade show active" id="transactions">
                 <div class="d-flex justify-content-between align-items-center mb-3 gap-3">
                     <input type="text" id="searchTransactions" class="form-control w-50"
-                        placeholder="Search transactions by notes or amount...">
+                        placeholder="{{ __('messages.search_transactions_by_notes_or_amount...') }}">
                     <select id="filterType" class="form-control w-25">
-                        <option value="">All Types</option>
-                        <option value="receive">Receive</option>
-                        <option value="send">Send</option>
+                        <option value="">{{ __('messages.all_types') }}</option>
+                        <option value="receive">{{ __('messages.receive') }}</option>
+                        <option value="send">{{ __('messages.send') }}</option>
                     </select>
                     <div class="d-flex align-items-center gap-2 mb-3">
-                        <button id="prevDay" class="btn btn-outline-primary">&larr;</button>
+                        <button id="nextDay" class="btn btn-outline-primary">&rarr;</button>
                         <input type="text" id="dateRange" class="form-control w-auto"
                             placeholder="Select date range">
-                        <button id="nextDay" class="btn btn-outline-primary">&rarr;</button>
+                        <button id="prevDay" class="btn btn-outline-primary">&larr;</button>
                     </div>
                 </div>
                 <div class="">
                     <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
                         <thead class="">
                             <tr>
-                                <th class="text-center">Type</th>
-                                <th class="text-center">Amount</th>
-                                <th class="text-center">Commission</th>
-                                <th class="text-center">Notes</th>
-                                <th class="text-center">Creator</th>
-                                <th class="text-center">Attachment</th>
-                                <th class="text-center">Created At</th>
+                                <th class="text-center">{{ __('messages.type') }}</th>
+                                <th class="text-center">{{ __('messages.amount') }}</th>
+                                <th class="text-center">{{ __('messages.commission') }}</th>
+                                <th class="text-center">{{ __('messages.notes') }}</th>
+                                <th class="text-center">{{ __('messages.creator') }}</th>
+                                <th class="text-center">{{ __('messages.attachment') }}</th>
+                                <th class="text-center">{{ __('messages.created_at') }}</th>
                             </tr>
                         </thead>
                         <tbody id="transactionsTableBody"></tbody>
@@ -166,7 +173,7 @@
             <!-- Logs Tab -->
             <div class="tab-pane fade" id="logs">
                 <div class="card shadow-sm p-3 border-0">
-                    <div class="card-title mb-3 text-primary">Activity Logs</div>
+                    <div class="card-title mb-3 text-primary">{{ __('messages.activity_logs') }}</div>
                     <ul class="list-group list-group-flush" id="logsTimeline"></ul>
                 </div>
             </div>
@@ -175,7 +182,7 @@
         <!-- Loader -->
         <div id="loader" class="text-center my-5" style="display: none;">
             <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
+                <span class="visually-hidden">{{ __('messages.loading...') }}</span>
             </div>
         </div>
 
@@ -190,7 +197,7 @@
         $(document).ready(function() {
             let id = "{{ request()->id ?? '' }}";
             if (!id) {
-                $("#errorMessage").text("No Payment Way ID provided").show().fadeOut(5000);
+                $("#errorMessage").text("{{ __('messages.no_payment_way_id_provided') }}").show().fadeOut(5000);
                 return;
             }
 
@@ -274,16 +281,16 @@
                     '0.00');
                 $("#paymentWayTransactions").text(data.transactions?.length || 0);
                 $("#paymentWayReceiveLimitAlert").html(data.receive_limit_alert ?
-                    `<span class="badge bg-danger">Alert: ${parseFloat(data.receive_limit_alert).toFixed(2)}</span>` :
+                    `<span class="badge bg-danger">{{ __('messages.alert') }}: ${parseFloat(data.receive_limit_alert).toFixed(2)}</span>` :
                     '');
                 $("#paymentWaySendLimitAlert").html(data.send_limit_alert ?
-                    `<span class="badge bg-danger">Alert: ${parseFloat(data.send_limit_alert).toFixed(2)}</span>` :
+                    `<span class="badge bg-danger">{{ __('messages.alert') }}: ${parseFloat(data.send_limit_alert).toFixed(2)}</span>` :
                     '');
 
                 $("#receive_amount").text(statistics.receive?.receive_amount || '0.00');
                 $("#receive_commission").text(statistics.receive?.receive_commission || '0.00');
                 $("#receive_total").text(statistics.receive?.receive_total || '0.00');
-               
+
                 $("#send_amount").text(statistics.send?.send_amount || '0.00');
                 $("#send_commission").text(statistics.send?.send_commission || '0.00');
                 $("#send_total").text(statistics.send?.send_total || '0.00');
@@ -315,15 +322,41 @@
                 $("#transactionsTableBody").html(txHtml);
 
                 let logsHtml = "";
+
+                let actionLabels = {
+                    create: "{{ __('messages.create') }}",
+                    update: "{{ __('messages.update') }}",
+                    delete: "{{ __('messages.delete') }}"
+                };
+
+                let fieldLabels = {
+                    id: "{{ __('messages.id') }}",
+                    name: "{{ __('messages.name') }}",
+                    type: "{{ __('messages.type') }}",
+                    balance: "{{ __('messages.balance') }}",
+                    created_at: "{{ __('messages.created_at') }}",
+                    created_by: "{{ __('messages.created_by') }}",
+                    send_limit: "{{ __('messages.send_limit') }}",
+                    updated_at: "{{ __('messages.updated_at') }}",
+                    category_id: "{{ __('messages.category_id') }}",
+                    phone_number: "{{ __('messages.phone_number') }}",
+                    receive_limit: "{{ __('messages.receive_limit') }}",
+                    sub_category_id: "{{ __('messages.sub_category_id') }}",
+                    creator: "{{ __('messages.creator') }}",
+                    category: "{{ __('messages.category') }}",
+                    sub_category: "{{ __('messages.sub_category') }}",
+                };
+
+
                 data.logs.forEach(log => {
                     let dataDetails = "";
                     if (log.data) {
                         dataDetails = `
                             <div class="mt-2">
-                                <strong class="">Changes:</strong>
+                                <strong class="">{{ __('messages.changes') }}:</strong>
                                 <table class="table table-bordered table-sm table bordered-table sm-table mb-0">
-                                    <tbody>
-                                        ${Object.entries(log.data).map(([key, value]) => `<tr><td class="">${key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</td><td>${value || ''}</td></tr>`).join('')}
+                                    <tbody>                                      
+                                        ${Object.entries(log.data).map(([key, value]) => `<tr><td class="">${fieldLabels[key] || key}</td><td>${value || ''}</td></tr>`).join('')}
                                     </tbody>
                                 </table>
                             </div>
@@ -334,11 +367,11 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <span class="badge bg-${log.action === 'create' ? 'success' : log.action === 'update' ? 'warning' : 'danger'} me-2">
-                                        ${log.action.toUpperCase()}
+                                        ${actionLabels[log.action] || log.action}
                                     </span>
-                                    <div class="small ">Created: ${log.created_at || ''}</div>
+                                    <div class="small ">{{ __('messages.created_at') }}: ${log.created_at || ''}</div>
                                 </div>
-                                <span class="badge bg-secondary">Log #${log.id}</span>
+                                <span class="badge bg-secondary">{{ __('messages.logs') }} #${log.id}</span>
                             </div>
                             ${dataDetails}
                         </li>
