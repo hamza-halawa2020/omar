@@ -165,11 +165,11 @@
                                             <p class="card-text mb-1"><strong>{{ __('messages.type') }}:</strong> ${way.type ?? ''}</p>
                                             
                                             <p class="card-text mb-1"><strong>{{ __('messages.phone_number') }}:</strong> ${way.phone_number ?? ''}</p>
-                                            <p class="card-text mb-1"><strong>{{ __('messages.send_limit') }}:</strong> ${way.send_limit ?? 0}</p>
-                                            <p class="card-text mb-1"><strong>{{ __('messages.send_limit_alert') }}:</strong> ${way.send_limit_alert ?? 0}</p>
-                                            <p class="card-text mb-1"><strong>{{ __('messages.receive_limit') }}:</strong> ${way.receive_limit ?? 0}</p>
-                                            <p class="card-text mb-1"><strong>{{ __('messages.receive_limit_alert') }}:</strong> ${way.receive_limit_alert ?? 0}</p>
-                                            <p class="card-text mb-1"><strong>{{ __('messages.balance') }}:</strong> ${way.balance ?? 0}</p>
+                                            <p class="card-text mb-1 fw-bold bg-danger p-1 rounded"><strong>{{ __('messages.send_limit_alert') }}:</strong> ${way.send_limit_alert ?? 0}</p>
+                                            <p class="card-text mb-1 fw-bold bg-success p-1 rounded"><strong>{{ __('messages.send_limit') }}:</strong> ${way.send_limit ?? 0}</p>
+                                            <p class="card-text mb-1 fw-bold bg-danger p-1 rounded"><strong>{{ __('messages.receive_limit_alert') }}:</strong> ${way.receive_limit_alert ?? 0}</p>
+                                            <p class="card-text mb-1 fw-bold bg-success p-1 rounded"><strong>{{ __('messages.receive_limit') }}:</strong> ${way.receive_limit ?? 0}</p>
+                                            <p class="card-text mb-1 fw-bold bg-primary p-1 rounded"><strong>{{ __('messages.balance') }}:</strong> ${way.balance ?? 0}</p>
                                             <p class="card-text"><small class="">{{ __('messages.created_by') }}: ${way.creator ? way.creator.name : ''}</small></p>
                                         </div>
                                         <div class="card-footer d-flex justify-content-between">

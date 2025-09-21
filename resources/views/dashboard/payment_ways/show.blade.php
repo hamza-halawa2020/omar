@@ -10,7 +10,7 @@
                 <div class="card shadow-sm text-center border-0">
                     <div class="card-body">
                         <div class="fw-bold">{{ __('messages.current_balance') }}</div>
-                        <div id="paymentWayBalance" class="fw-bold badge bg-danger">0</div>
+                        <div id="paymentWayBalance" class="fw-bold badge bg-success">0</div>
                     </div>
                 </div>
             </div>
@@ -18,7 +18,7 @@
                 <div class="card shadow-sm text-center border-0">
                     <div class="card-body">
                         <div class="fw-bold">{{ __('messages.total_transactions') }}</div>
-                        <div id="paymentWayTransactions" class="fw-bold badge bg-danger">0</div>
+                        <div id="paymentWayTransactions" class="fw-bold badge bg-success">0</div>
                     </div>
                 </div>
             </div>
@@ -27,7 +27,7 @@
                     <div class="card-body">
                         <div id="paymentWayReceiveLimitAlert" class="text-danger"></div>
                         <span class="fw-bold">{{ __('messages.receive_limit') }}</span>
-                        <span id="paymentWayReceiveLimit" class="fw-bold badge bg-danger">0</span>
+                        <span id="paymentWayReceiveLimit" class="fw-bold badge bg-primary">0</span>
                     </div>
                 </div>
             </div>
@@ -36,7 +36,7 @@
                     <div class="card-body">
                         <div id="paymentWaySendLimitAlert" class="text-danger"></div>
                         <span class="fw-bold">{{ __('messages.send_limit') }}</span>
-                        <span id="paymentWaySendLimit" class="fw-bold badge bg-danger">0</span>
+                        <span id="paymentWaySendLimit" class="fw-bold badge bg-primary">0</span>
                     </div>
                 </div>
             </div>
@@ -68,7 +68,7 @@
                         <div>
                             <div>
                                 <span class="fw-bold">{{ __('messages.sent') }}</span>
-                                <span id="send_amount" class="fw-bold badge bg-danger">0.00</span>
+                                <span id="send_amount" class="fw-bold badge bg-success">0.00</span>
                             </div>
                             <div>
                                 <span class="fw-bold">{{ __('messages.commission') }}</span>
@@ -298,6 +298,10 @@
 
                 $("#grandNet").text(statistics.grand_net || '0.00');
 
+                const translations = {
+                    receive: "{{ __('messages.receive') }}",
+                    send: "{{ __('messages.send') }}",
+                };
 
                 let txHtml = "";
                 data.transactions.forEach(tx => {
@@ -309,7 +313,9 @@
                     }
                     txHtml += `
                         <tr>
-                            <td><span class="badge bg-${tx.type === 'receive' ? 'success' : 'danger'}">${tx.type.charAt(0).toUpperCase() + tx.type.slice(1)}</span></td>
+                            <td><span class="badge bg-${tx.type === 'receive' ? 'success' : 'danger'}">${translations[tx.type] ?? tx.type}</span></td>
+
+
                             <td>${parseFloat(tx.amount).toFixed(2)}</td>
                             <td>${parseFloat(tx.commission).toFixed(2)}</td>
                             <td>${tx.notes || ''}</td>
@@ -322,6 +328,8 @@
                 $("#transactionsTableBody").html(txHtml);
 
                 let logsHtml = "";
+
+                
 
                 let actionLabels = {
                     create: "{{ __('messages.create') }}",
