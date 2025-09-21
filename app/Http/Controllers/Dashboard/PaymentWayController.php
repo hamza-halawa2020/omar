@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Dashboard;
 
+use App\Events\CreateBackup;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PaymentWay\StorePaymentWayRequest;
 use App\Http\Requests\PaymentWay\UpdatePaymentWayRequest;
@@ -63,6 +64,9 @@ class PaymentWayController extends Controller
             ],
 
         ]);
+
+        event(new CreateBackup());
+
 
         return response()->json(['status'  => true,     'message' => __('messages.payment_way_created_successfully'), 'data' => new PaymentWayResource($paymentWay->load(['creator']))], 201);
     }
@@ -159,6 +163,9 @@ class PaymentWayController extends Controller
 
         ]);
 
+        event(new CreateBackup());
+
+
         return response()->json(['status'  => true,    'message' => __('messages.payment_way_updated_successfully'), 'data' => new PaymentWayResource($paymentWay->load(['creator']))]);
     }
 
@@ -192,6 +199,10 @@ class PaymentWayController extends Controller
         ]);
 
         $paymentWay->delete();
+
+
+        event(new CreateBackup());
+
 
         return response()->json(['status'  => true,     'message' => __('messages.payment_way_deleted_successfully')]);
     }

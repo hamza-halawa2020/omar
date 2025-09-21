@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Dashboard;
 
+use App\Events\CreateBackup;
 use App\Http\Requests\Category\StoreCategoryRequest;
 use App\Http\Requests\Category\UpdateCategoryRequest;
 use App\Http\Resources\CategoryResource;
@@ -39,6 +40,8 @@ class CategoryController extends BaseController
         $data['created_by'] = Auth::id();
 
         $category = Category::create($data);
+        
+        event(new CreateBackup());
 
         return response()->json(['status' => true,  'message' => __('messages.category_created_successfully'), 'data' => new CategoryResource($category),], 201);
     }
@@ -58,6 +61,9 @@ class CategoryController extends BaseController
 
         $category->update($data);
 
+        event(new CreateBackup());
+
+
         return response()->json(['status' => true, 'message' => __('messages.category_updated_successfully'), 'data' => new CategoryResource($category),]);
     }
 
@@ -70,6 +76,9 @@ class CategoryController extends BaseController
         }
 
         $category->delete();
+
+        event(new CreateBackup());
+
 
         return response()->json(['status' => true, 'message' => __('messages.category_deleted_successfully')]);
     }

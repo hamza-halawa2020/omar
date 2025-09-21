@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Dashboard;
 
+use App\Events\CreateBackup;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Transaction\StoreTransactionRequest;
 use App\Http\Resources\TransactionResource;
@@ -90,6 +91,9 @@ class TransactionController extends Controller
         ]);
 
 
+        event(new CreateBackup());
+
+        
         return response()->json([
             'status' => true,
             'message' => __('messages.transaction_created_successfully'),

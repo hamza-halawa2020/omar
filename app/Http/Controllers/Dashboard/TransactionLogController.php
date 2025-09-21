@@ -3,10 +3,8 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\TransactionLog\StoreTransactionLogRequest;
 use App\Http\Resources\TransactionLogResource;
 use App\Models\TransactionLog;
-use Illuminate\Support\Facades\Auth;
 
 class TransactionLogController extends Controller
 {

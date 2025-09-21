@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Dashboard;
 
+use App\Events\CreateBackup;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
@@ -29,6 +30,9 @@ class UserController extends Controller
             $user->syncRoles($data['roles']);
         }
 
+        event(new CreateBackup());
+
+
         return response()->json(['status'  => true, 'message' => __('messages.user_created_successfully'), 'data' => new UserResource($user->load('roles'))], 201);
     }
 
@@ -50,6 +54,9 @@ class UserController extends Controller
         }
 
         $user->update($data);
+        
+        event(new CreateBackup());
+
 
         if (isset($data['roles'])) {
             $user->syncRoles($data['roles']);
@@ -61,6 +68,9 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         $user->delete();
+
+        event(new CreateBackup());
+
 
         return response()->json(['status'  => true, 'message' => __('messages.user_deleted_successfully'),]);
     }
