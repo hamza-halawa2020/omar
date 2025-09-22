@@ -1,38 +1,53 @@
-<div class="modal fade" id="transactionModal" tabindex="-1">
+<div class="modal fade" id="transactionModal" tabindex="-1" aria-labelledby="transactionModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <form id="receiveForm">
-            @csrf
-            <div class="modal-content">
-                <div class="modal-header">
-                    <div class="modal-title fw-bold fs-5">{{ __('messages.create_transaction') }}</div>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="d-flex gap-3">
-                        <div>
-                            <label>{{ __('messages.amount') }}</label>
-                            <input type="number" name="amount" class="form-control" required>
-                        </div>
-                        <div>
-                            <label>{{ __('messages.commission') }}</label>
-                            <input type="number" name="commission" class="form-control" required>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label>{{ __('messages.attachment') }}</label>
-                        <input type="file" name="attachment" class="form-control">
-                    </div>
-                    <div class="mb-3">
-                        <label>{{ __('messages.notes') }}</label>
-                        <textarea name="notes" class="form-control"></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-success btn-sm">{{ __('messages.save') }}</button>
-                    <button type="button" class="btn btn-secondary btn-sm"
-                        data-bs-dismiss="modal">{{ __('messages.close') }}</button>
-                </div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="transactionModalLabel">{{ __('messages.create_transaction') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-        </form>
+            <div class="modal-body">
+                <form id="receiveForm" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" name="payment_way_id">
+                    <input type="hidden" name="type">
+
+                    <div class="mb-3">
+                        <label for="client_id" class="form-label">{{ __('messages.client') }}</label>
+                        <select name="client_id" id="client_id" class="form-select">
+                            <option value="">{{ __('messages.select_client') }}</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">{{ __('messages.amount') }}</label>
+                        <input type="number" name="amount" id="amount" class="form-control" step="0.01"
+                            min="0.01" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="commission" class="form-label">{{ __('messages.commission') }}</label>
+                        <input required type="number" name="commission" id="commission" class="form-control" step="0.01"
+                            min="0">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">{{ __('messages.notes') }}</label>
+                        <textarea name="notes" id="notes" class="form-control"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="attachment" class="form-label">{{ __('messages.attachment') }}</label>
+                        <input type="file" name="attachment" id="attachment" class="form-control">
+                    </div>
+
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-outline-success btn-sm">{{ __('messages.save') }}</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm"
+                            data-bs-dismiss="modal">{{ __('messages.close') }}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </div>

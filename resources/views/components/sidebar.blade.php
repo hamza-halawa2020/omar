@@ -27,6 +27,14 @@
                     <span>{{ __('messages.payment_way') }}</span>
                 </a>
             </li>
+
+            <li>
+                <a href="{{ route('clients.index') }}"
+                    class="d-flex align-items-center gap-2 {{ request()->is('clients/*') ? 'active-page' : '' }}">
+                    <iconify-icon icon="mdi:users-outline" class="menu-icon"></iconify-icon>
+                    <span>{{ __('messages.clients') }}</span>
+                </a>
+            </li>
         </ul>
     </div>
 </aside>

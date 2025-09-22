@@ -1,4 +1,5 @@
 <?php
+
 return [
     'create_category' => 'انشاء تصنيف',
     'name' => 'الاسم',
@@ -124,9 +125,21 @@ return [
     'send_progress' => 'تقدم الارسال',
     'receive_progress' => 'تقدم الاستلام',
     'limit' => 'الحد',
+    'clients' => 'العملاء',
+    'client' => 'العميل',
+    'select_client' => 'اختيار عميل',
+    'debt' => 'المديونية',
+    'create_client' => 'انشاء عميل',
+    'delete_client' => 'حذف عميل',
+    'edit_client' => 'تعديل عميل',
+    'add_client' => 'اضافة عميل',
     'receive_limit_exceeded' => 'تم تجاوز حد الاستقبال',
-    'send_limit_exceeded'   => 'تم تجاوز حد الارسال',
-
-
+    'send_limit_exceeded' => 'تم تجاوز حد الارسال',
+    'clients_fetched_successfully' => 'تم جلب العملاء بنجاح',
+    'client_created_successfully' => 'تم إنشاء العميل بنجاح',
+    'client_fetched_successfully' => 'تم جلب بيانات العميل بنجاح',
+    'client_updated_successfully' => 'تم تعديل العميل بنجاح',
+    'client_deleted_successfully' => 'تم حذف العميل بنجاح',
+    'cannot_delete_client_with_transactions' => 'لا يمكن حذف العميل لأنه مرتبط بعمليات',
 
 ];

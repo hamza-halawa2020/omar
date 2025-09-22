@@ -22,7 +22,6 @@
     @include('dashboard.payment_ways.transactionModal')
 @endsection
 
-
 @push('scripts')
     <script>
         $(document).ready(function() {
@@ -43,6 +42,21 @@
                 toggleFields($(this).val(), '.phone_limit_group_edit');
             });
 
+            function loadClients() {
+                $.get("{{ route('clients.list') }}", function(res) {
+                    if (res.status) {
+                        let clientOptions = '<option value="">{{ __('messages.select_client') }}</option>';
+                        res.data.forEach(function(client) {
+                            clientOptions +=
+                                `<option value="${client.id}">${client.name} (مديونية: ${parseFloat(client.debt || 0).toFixed(2)})</option>`;
+                        });
+                        $('#client_id').html(clientOptions);
+                    } else {
+                        showToast('{{ __('messages.something_went_wrong') }}', 'error');
+                    }
+                });
+            }
+
             $(document).on('click', '.receiveBtn, .sendBtn', function() {
                 $('#receiveForm input[name="payment_way_id"], #receiveForm input[name="type"]').remove();
                 let type = $(this).hasClass('receiveBtn') ? 'receive' : 'send';
@@ -56,6 +70,8 @@
                 $('#transactionModal .modal-title').text(type === 'receive' ?
                     '{{ __('messages.create_receive_transaction') }}' :
                     '{{ __('messages.create_send_transaction') }}');
+
+                loadClients();
 
                 $('#transactionModal').modal('show');
             });
@@ -96,7 +112,7 @@
                         success: function(res) {
                             $('#editSubCategorySelect').html(
                                 '<option value="">{{ __('messages.select_sub_category') }}</option>'
-                                );
+                            );
                             res.forEach(function(sub) {
                                 $('#editSubCategorySelect').append(
                                     `<option value="${sub.id}">${sub.name}</option>`
@@ -128,15 +144,16 @@
                         if (res.status) {
                             $('#transactionModal').modal('hide');
                             showToast('{{ __('messages.transaction_created_successfully') }}','success');
-
                             $('#receiveForm')[0].reset();
                             loadPaymentWays();
+                        } else {
+                            showToast(res.message ||'{{ __('messages.something_went_wrong') }}', 'error');
                         }
                     },
                     error: function(err) {
                         console.error(err.responseText);
                         showToast(
-                            `{{ __('messages.something_went_wrong') }}: ${err.responseText}`,
+                            `{{ __('messages.something_went_wrong') }}: ${err.responseJSON?.message || err.responseText}`,
                             'error');
                     }
                 });
@@ -151,7 +168,6 @@
                         res.data.forEach((way, i) => {
                             let categoryId = way.category_id || (way.category ? way.category.id :'');
                             let subCategoryId = way.sub_category_id || (way.sub_category ? way.sub_category.id : '');
-                            
                             let limits = way.monthly_limits || {};
                             let monthName = limits.month_name || '';
                             const typeTranslations = {
@@ -160,34 +176,28 @@
                                 balance_machine: "{{ __('messages.balance_machine') }}"
                             };
 
-
                             cards += `
                                 <div class="col-md-auto">
                                     <div class="card shadow-sm h-100 rounded-3 border-0">
                                         <!-- Header -->
-
                                         <div class="card-header text-center">
                                             <button class="btn btn-outline-success btn-sm receiveBtn" data-id="${way.id}" data-name="${way.name}">{{ __('messages.receive') }}</button>
                                             <button class="btn btn-outline-primary btn-sm sendBtn" data-id="${way.id}" data-name="${way.name}">{{ __('messages.send') }}</button>
-
                                             <div class="mb-0 fw-bold">${way.name}</div>
                                             <small>${way.type ? (typeTranslations[way.type] || way.type) : ''}</small>
                                         </div>
 
-
-                                            <!-- Body -->
-                                            <div class="card-body p-3">
-                                                <!-- Balance -->
-                                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                                    <span class="fw-bold text-secondary">{{ __('messages.balance') }}</span>
-                                                    <span class="fw-bold text-success fs-5">${parseFloat(way.balance ?? 0).toFixed(2)}</span>
-                                                </div>
-                                        ${way.type === 'wallet' ? `
-
-
+                                        <!-- Body -->
+                                        <div class="card-body p-3">
+                                            <!-- Balance -->
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <span class="fw-bold text-secondary">{{ __('messages.balance') }}</span>
+                                                <span class="fw-bold text-success fs-5">${parseFloat(way.balance ?? 0).toFixed(2)}</span>
+                                            </div>
+                                            ${way.type === 'wallet' ? `
                                                     <!-- Limits Table -->
                                                     <table class="text-center table table-bordered table-sm table bordered-table sm-table">
-                                                        <thead class="">
+                                                        <thead>
                                                             <tr>
                                                                 <th class="text-center">{{ __('messages.type') }}</th>
                                                                 <th class="text-center">{{ __('messages.used') }}</th>
@@ -220,7 +230,6 @@
                                                             </div>
                                                         </div>
                                                     </div>
-
                                                     <div class="mb-3">
                                                         <small class="fw-bold">{{ __('messages.receive_progress') }}</small>
                                                         <div class="progress" style="height: 8px;">
@@ -230,15 +239,12 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                        ` : ''}
-
-
-                                                <p class="small mb-0">{{ __('messages.created_by') }}: ${way.creator ? way.creator.name : ''}</p>
-                                            </div>
+                                                ` : ''}
+                                            <p class="small mb-0">{{ __('messages.created_by') }}: ${way.creator ? way.creator.name : ''}</p>
+                                        </div>
 
                                         <!-- Footer -->
                                         <div class="card-footer d-flex justify-content-between gap-3">
-                                            
                                             <a href="payment-ways/show/${way.id}" class="btn btn-outline-info btn-sm">{{ __('messages.details') }}</a>
                                             <button class="btn btn-outline-warning btn-sm editBtn"
                                                     data-id="${way.id}"
@@ -254,8 +260,6 @@
                                         </div>
                                     </div>
                                 </div>
-
-                               
                             `;
                         });
                         $('#paymentWaysContainer').html(cards);
@@ -272,8 +276,6 @@
                         loadPaymentWays();
                         showToast('{{ __('messages.payment_way_created_successfully') }}','success');
                         $('#createForm')[0].reset();
-
-                        
                     } else {
                         showToast(res.message || '{{ __('messages.something_went_wrong') }}',
                             'error');
@@ -300,7 +302,7 @@
                         success: function(res) {
                             $('#editSubCategorySelect').html(
                                 '<option value="">{{ __('messages.select_sub_category') }}</option>'
-                                );
+                            );
                             res.forEach(function(sub) {
                                 $('#editSubCategorySelect').append(
                                     `<option value="${sub.id}" ${sub.id == subCategoryId ? 'selected' : ''}>${sub.name}</option>`

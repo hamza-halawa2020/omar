@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Dashboard\LoginController;
 use App\Http\Controllers\Dashboard\CategoryController;
+use App\Http\Controllers\Dashboard\ClientController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Dashboard\PaymentWayController;
 use App\Http\Controllers\Dashboard\ProfileController;
@@ -48,4 +49,11 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
     Route::get('transactions/{id}', [TransactionController::class, 'show'])->name('transactions.show');
     Route::put('transactions/{id}', [TransactionController::class, 'update'])->name('transactions.update');
     Route::delete('transactions/{id}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
+
+
+     Route::get('clients', [ClientController::class, 'index'])->name('clients.index');
+    Route::get('clients/list', [ClientController::class, 'list'])->name('clients.list');
+    Route::post('clients', [ClientController::class, 'store'])->name('clients.store');
+    Route::put('clients/{id}', [ClientController::class, 'update'])->name('clients.update');
+    Route::delete('clients/{id}', [ClientController::class, 'destroy'])->name('categories.destroy');
 });

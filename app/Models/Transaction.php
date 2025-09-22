@@ -18,6 +18,7 @@ class Transaction extends Model
         'commission',
         'notes',
         'attachment',
+        'client_id',
     ];
 
    
@@ -32,9 +33,13 @@ class Transaction extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
-
     public function logs()
     {
         return $this->hasMany(TransactionLog::class, 'transaction_id')->latest();
+    }
+    
+    public function client()
+    {
+        return $this->belongsTo(Client::class, 'client_id');
     }
 }

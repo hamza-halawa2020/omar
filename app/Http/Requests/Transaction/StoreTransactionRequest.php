@@ -14,6 +14,7 @@ class StoreTransactionRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'client_id' => 'nullable',
             'payment_way_id'  => 'required|exists:payment_ways,id',
             'type'            => 'required|in:send,receive',
             'amount'          => 'required|numeric|min:0',
