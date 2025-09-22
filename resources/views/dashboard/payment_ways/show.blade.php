@@ -25,38 +25,50 @@
             <div class="col-md-3 col-sm-6">
                 <div class="card shadow-sm text-center border-0">
                     <div class="card-body">
-                        <div id="paymentWayReceiveLimitAlert" class="text-danger"></div>
-                        <span class="fw-bold">{{ __('messages.receive_limit') }}</span>
-                        <span id="paymentWayReceiveLimit" class="fw-bold badge bg-primary">0</span>
+                        <div class="fw-bold">{{ __('messages.receive_limit') }}</div>
+                        <div id="paymentWayReceiveLimit" class="fw-bold badge bg-primary">0</div>
+                        <div class="mt-2">
+                            <span class="fw-bold">{{ __('messages.used') }}: </span>
+                            <span id="paymentWayReceiveUsed" class="badge bg-danger">0</span>
+                        </div>
+                        <div>
+                            <span class="fw-bold">{{ __('messages.remaining') }}: </span>
+                            <span id="paymentWayReceiveRemaining" class="badge bg-success">0</span>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-md-3 col-sm-6">
                 <div class="card shadow-sm text-center border-0">
                     <div class="card-body">
-                        <div id="paymentWaySendLimitAlert" class="text-danger"></div>
-                        <span class="fw-bold">{{ __('messages.send_limit') }}</span>
-                        <span id="paymentWaySendLimit" class="fw-bold badge bg-primary">0</span>
+                        <div class="fw-bold">{{ __('messages.send_limit') }}</div>
+                        <div id="paymentWaySendLimit" class="fw-bold badge bg-primary">0</div>
+                        <div class="mt-2">
+                            <span class="fw-bold">{{ __('messages.used') }}: </span>
+                            <span id="paymentWaySendUsed" class="badge bg-danger">0</span>
+                        </div>
+                        <div>
+                            <span class="fw-bold">{{ __('messages.remaining') }}: </span>
+                            <span id="paymentWaySendRemaining" class="badge bg-success">0</span>
+                        </div>
                     </div>
                 </div>
             </div>
-            <!-- New Summary Cards for Statistics -->
             <div class="col-md-3 col-sm-6">
                 <div class="card shadow-sm text-center border-0">
                     <div class="card-body">
                         <div>
                             <div>
                                 <span class="fw-bold">{{ __('messages.received') }}</span>
-                                <span id="receive_amount" class="fw-bold badge bg-success">0.00</span>
+                                <span id="receive_amount" class="fw-bold badge bg-success">0</span>
                             </div>
                             <div>
                                 <span class="fw-bold">{{ __('messages.commission') }}</span>
-                                <span id="receive_commission" class="fw-bold badge bg-warning">0.00</span>
+                                <span id="receive_commission" class="fw-bold badge bg-warning">0</span>
                             </div>
-
                             <div>
                                 <span class="fw-bold">{{ __('messages.total') }}</span>
-                                <span id="receive_total" class="fw-bold badge bg-primary">0.00</span>
+                                <span id="receive_total" class="fw-bold badge bg-primary">0</span>
                             </div>
                         </div>
                     </div>
@@ -68,16 +80,15 @@
                         <div>
                             <div>
                                 <span class="fw-bold">{{ __('messages.sent') }}</span>
-                                <span id="send_amount" class="fw-bold badge bg-success">0.00</span>
+                                <span id="send_amount" class="fw-bold badge bg-success">0</span>
                             </div>
                             <div>
                                 <span class="fw-bold">{{ __('messages.commission') }}</span>
-                                <span id="send_commission" class="fw-bold badge bg-warning">0.00</span>
+                                <span id="send_commission" class="fw-bold badge bg-warning">0</span>
                             </div>
-
                             <div>
                                 <span class="fw-bold">{{ __('messages.total') }}</span>
-                                <span id="send_total" class="fw-bold badge bg-primary">0.00</span>
+                                <span id="send_total" class="fw-bold badge bg-primary">0</span>
                             </div>
                         </div>
                     </div>
@@ -87,11 +98,10 @@
                 <div class="card shadow-sm text-center border-0">
                     <div class="card-body">
                         <div class="fw-bold">{{ __('messages.grand_net') }}</div>
-                        <div id="grandNet" class="fw-bold badge bg-primary">0.00</div>
+                        <div id="grandNet" class="fw-bold badge bg-primary">0</div>
                     </div>
                 </div>
             </div>
-
         </div>
 
         <!-- Tabs -->
@@ -268,35 +278,25 @@
                 $("#paymentWayPhone").text(data.phone_number || '');
                 $("#paymentWayCategory").text(data.category?.name || '');
                 $("#paymentWaySubCategory").text(data.subCategory?.name || '');
-                $("#paymentWaySendLimitAlert").text(data.send_limit_alert ?
-                    ` ${parseFloat(data.send_limit_alert).toFixed(2)}` : '');
-                $("#paymentWayReceiveLimitAlert").text(data.receive_limit_alert ?
-                    ` ${parseFloat(data.receive_limit_alert).toFixed(2)}` : '');
-                $("#paymentWayBalance").text(data.balance ? ` ${parseFloat(data.balance).toFixed(2)}` : '0.00');
+                $("#paymentWayBalance").text(data.balance ? ` ${parseFloat(data.balance).toFixed(2)}` : '0');
                 $("#paymentWayCreator").text(data.creator?.name || '');
                 $("#paymentWayCreatedAt").text(data.created_at || '');
-                $("#paymentWayReceiveLimit").text(data.receive_limit ?
-                    ` ${parseFloat(data.receive_limit).toFixed(2)}` : '0.00');
-                $("#paymentWaySendLimit").text(data.send_limit ? ` ${parseFloat(data.send_limit).toFixed(2)}` :
-                    '0.00');
                 $("#paymentWayTransactions").text(data.transactions?.length || 0);
-                $("#paymentWayReceiveLimitAlert").html(data.receive_limit_alert ?
-                    `<span class="badge bg-danger">{{ __('messages.alert') }}: ${parseFloat(data.receive_limit_alert).toFixed(2)}</span>` :
-                    '');
-                $("#paymentWaySendLimitAlert").html(data.send_limit_alert ?
-                    `<span class="badge bg-danger">{{ __('messages.alert') }}: ${parseFloat(data.send_limit_alert).toFixed(2)}</span>` :
-                    '');
 
-                $("#receive_amount").text(statistics.receive?.receive_amount || '0.00');
-                $("#receive_commission").text(statistics.receive?.receive_commission || '0.00');
-                $("#receive_total").text(statistics.receive?.receive_total || '0.00');
+                $("#paymentWayReceiveLimit").text(statistics.limits?.receive_limit || '0');
+                $("#paymentWayReceiveUsed").text(statistics.limits?.receive_used || '0');
+                $("#paymentWayReceiveRemaining").text(statistics.limits?.receive_remaining || '0');
+                $("#paymentWaySendLimit").text(statistics.limits?.send_limit || '0');
+                $("#paymentWaySendUsed").text(statistics.limits?.send_used || '0');
+                $("#paymentWaySendRemaining").text(statistics.limits?.send_remaining || '0');
 
-                $("#send_amount").text(statistics.send?.send_amount || '0.00');
-                $("#send_commission").text(statistics.send?.send_commission || '0.00');
-                $("#send_total").text(statistics.send?.send_total || '0.00');
-
-
-                $("#grandNet").text(statistics.grand_net || '0.00');
+                $("#receive_amount").text(statistics.receive?.receive_amount || '0');
+                $("#receive_commission").text(statistics.receive?.receive_commission || '0');
+                $("#receive_total").text(statistics.receive?.receive_total || '0');
+                $("#send_amount").text(statistics.send?.send_amount || '0');
+                $("#send_commission").text(statistics.send?.send_commission || '0');
+                $("#send_total").text(statistics.send?.send_total || '0');
+                $("#grandNet").text(statistics.grand_net || '0');
 
                 const translations = {
                     receive: "{{ __('messages.receive') }}",
@@ -314,8 +314,6 @@
                     txHtml += `
                         <tr>
                             <td><span class="badge bg-${tx.type === 'receive' ? 'success' : 'danger'}">${translations[tx.type] ?? tx.type}</span></td>
-
-
                             <td>${parseFloat(tx.amount).toFixed(2)}</td>
                             <td>${parseFloat(tx.commission).toFixed(2)}</td>
                             <td>${tx.notes || ''}</td>
@@ -328,15 +326,11 @@
                 $("#transactionsTableBody").html(txHtml);
 
                 let logsHtml = "";
-
-                
-
                 let actionLabels = {
                     create: "{{ __('messages.create') }}",
                     update: "{{ __('messages.update') }}",
                     delete: "{{ __('messages.delete') }}"
                 };
-
                 let fieldLabels = {
                     id: "{{ __('messages.id') }}",
                     name: "{{ __('messages.name') }}",
@@ -354,7 +348,6 @@
                     category: "{{ __('messages.category') }}",
                     sub_category: "{{ __('messages.sub_category') }}",
                 };
-
 
                 data.logs.forEach(log => {
                     let dataDetails = "";

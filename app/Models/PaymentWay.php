@@ -6,14 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class PaymentWay extends Model
 {
-
-    protected $table = "payment_ways";
+    protected $table = 'payment_ways';
 
     protected $fillable = [
         'category_id',
         'sub_category_id',
         'name',
-        'type',     //cash, wallet, balance_machine
+        'type',     // cash, wallet, balance_machine
         'phone_number',
         'send_limit',
         'send_limit_alert',
@@ -28,7 +27,7 @@ class PaymentWay extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
-     public function category()
+    public function category()
     {
         return $this->belongsTo(Category::class, 'category_id');
     }
@@ -46,5 +45,10 @@ class PaymentWay extends Model
     public function logs()
     {
         return $this->hasMany(PaymentWayLog::class, 'payment_way_id')->latest();
+    }
+
+    public function monthlyLimits()
+    {
+        return $this->hasMany(PaymentWayLimit::class, 'payment_way_id');
     }
 }

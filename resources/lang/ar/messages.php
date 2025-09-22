@@ -119,4 +119,14 @@ return [
     'user_fetched_successfully' => 'تم جلب المستخدم بنجاح',
     'user_updated_successfully' => 'تم تحديث المستخدم بنجاح',
     'user_deleted_successfully' => 'تم حذف المستخدم بنجاح',
+    'used' => 'المستخدم',
+    'remaining' => 'المتبقي',
+    'send_progress' => 'تقدم الإرسال',
+    'receive_progress' => 'تقدم الاستلام',
+    'limit' => 'الحد',
+    'receive_limit_exceeded' => 'تم تجاوز حد الاستقبال',
+    'send_limit_exceeded'   => 'تم تجاوز حد الإرسال',
+
+
+
 ];

@@ -22,6 +22,7 @@
     @include('dashboard.payment_ways.transactionModal')
 @endsection
 
+
 @push('scripts')
     <script>
         $(document).ready(function() {
@@ -52,7 +53,6 @@
                     <input type="hidden" name="type" value="${type}">
                 `);
 
-                // ترجمة عنوان المودال بناءً على نوع المعاملة
                 $('#transactionModal .modal-title').text(type === 'receive' ?
                     '{{ __('messages.create_receive_transaction') }}' :
                     '{{ __('messages.create_send_transaction') }}');
@@ -148,46 +148,114 @@
                     if (res.status) {
                         let cards = '';
                         res.data.forEach((way, i) => {
-                            let categoryId = way.category_id || (way.category ? way.category.id :
-                                '');
-                            let subCategoryId = way.sub_category_id || (way.sub_category ? way
-                                .sub_category.id : '');
+                            let categoryId = way.category_id || (way.category ? way.category.id :'');
+                            let subCategoryId = way.sub_category_id || (way.sub_category ? way.sub_category.id : '');
+                            
+                            let limits = way.monthly_limits || {};
+                            let monthName = limits.month_name || '';
+                            const typeTranslations = {
+                                wallet: "{{ __('messages.wallet') }}",
+                                cash: "{{ __('messages.cash') }}",
+                                balance_machine: "{{ __('messages.balance_machine') }}"
+                            };
+
 
                             cards += `
-                                <div class="col-md-3">
-                                    <div class="card shadow-sm h-100 rounded-3">
-                                        <div class="d-flex justify-content-center gap-3 m-3">
-                                            <button class="btn btn-outline-success btn-sm radius-8 receiveBtn" data-id="${way.id}" data-name="${way.name}">{{ __('messages.receive') }}</button>
-                                            <button class="btn btn-outline-primary btn-sm radius-8 sendBtn" data-id="${way.id}" data-name="${way.name}">{{ __('messages.send') }}</button>
+                                <div class="col-md-auto">
+                                    <div class="card shadow-sm h-100 rounded-3 border-0">
+                                        <!-- Header -->
+
+                                        <div class="card-header text-center">
+                                            <button class="btn btn-outline-success btn-sm receiveBtn" data-id="${way.id}" data-name="${way.name}">{{ __('messages.receive') }}</button>
+                                            <button class="btn btn-outline-primary btn-sm sendBtn" data-id="${way.id}" data-name="${way.name}">{{ __('messages.send') }}</button>
+
+                                            <div class="mb-0 fw-bold">${way.name}</div>
+                                            <small>${way.type ? (typeTranslations[way.type] || way.type) : ''}</small>
                                         </div>
-                                        <div class="card-body">
-                                            <div class="card-title fw-bold fs-5">${way.name}</div>
-                                            <p class="card-text mb-1"><strong>{{ __('messages.type') }}:</strong> ${way.type ?? ''}</p>
+
+
+                                            <!-- Body -->
+                                            <div class="card-body p-3">
+                                                <!-- Balance -->
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <span class="fw-bold text-secondary">{{ __('messages.balance') }}</span>
+                                                    <span class="fw-bold text-success fs-5">${parseFloat(way.balance ?? 0).toFixed(2)}</span>
+                                                </div>
+                                        ${way.type === 'wallet' ? `
+
+
+                                                    <!-- Limits Table -->
+                                                    <table class="text-center table table-bordered table-sm table bordered-table sm-table">
+                                                        <thead class="">
+                                                            <tr>
+                                                                <th class="text-center">{{ __('messages.type') }}</th>
+                                                                <th class="text-center">{{ __('messages.used') }}</th>
+                                                                <th class="text-center">{{ __('messages.limit') }}</th>
+                                                                <th class="text-center">{{ __('messages.remaining') }}</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td class="fw-bold text-primary">{{ __('messages.send') }}</td>
+                                                                <td>${parseFloat(limits.send_used || 0).toFixed(2)}</td>
+                                                                <td>${parseFloat(limits.send_limit || (way.send_limit ?? 0)).toFixed(2)}</td>
+                                                                <td>${parseFloat(limits.send_remaining || (way.send_limit ?? 0)).toFixed(2)}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td class="fw-bold text-success">{{ __('messages.receive') }}</td>
+                                                                <td>${parseFloat(limits.receive_used || 0).toFixed(2)}</td>
+                                                                <td>${parseFloat(limits.receive_limit || (way.receive_limit ?? 0)).toFixed(2)}</td>
+                                                                <td>${parseFloat(limits.receive_remaining || (way.receive_limit ?? 0)).toFixed(2)}</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                    <!-- Progress Bars -->
+                                                    <div class="mb-2">
+                                                        <small class="fw-bold">{{ __('messages.send_progress') }}</small>
+                                                        <div class="progress" style="height: 8px;">
+                                                            <div class="progress-bar ${((limits.send_used || 0) / (limits.send_limit || 1) * 100) >= 80 ? 'bg-danger' : 'bg-success'}"
+                                                                role="progressbar"
+                                                                style="width: ${((limits.send_used || 0) / (limits.send_limit || 1) * 100).toFixed(0)}%">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="mb-3">
+                                                        <small class="fw-bold">{{ __('messages.receive_progress') }}</small>
+                                                        <div class="progress" style="height: 8px;">
+                                                            <div class="progress-bar ${((limits.receive_used || 0) / (limits.receive_limit || 1) * 100) >= 80 ? 'bg-danger' : 'bg-success'}"
+                                                                role="progressbar"
+                                                                style="width: ${((limits.receive_used || 0) / (limits.receive_limit || 1) * 100).toFixed(0)}%">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                        ` : ''}
+
+
+                                                <p class="small mb-0">{{ __('messages.created_by') }}: ${way.creator ? way.creator.name : ''}</p>
+                                            </div>
+
+                                        <!-- Footer -->
+                                        <div class="card-footer d-flex justify-content-between gap-3">
                                             
-                                            <p class="card-text mb-1"><strong>{{ __('messages.phone_number') }}:</strong> ${way.phone_number ?? ''}</p>
-                                            <p class="card-text mb-1 fw-bold bg-danger p-1 rounded"><strong>{{ __('messages.send_limit_alert') }}:</strong> ${way.send_limit_alert ?? 0}</p>
-                                            <p class="card-text mb-1 fw-bold bg-success p-1 rounded"><strong>{{ __('messages.send_limit') }}:</strong> ${way.send_limit ?? 0}</p>
-                                            <p class="card-text mb-1 fw-bold bg-danger p-1 rounded"><strong>{{ __('messages.receive_limit_alert') }}:</strong> ${way.receive_limit_alert ?? 0}</p>
-                                            <p class="card-text mb-1 fw-bold bg-success p-1 rounded"><strong>{{ __('messages.receive_limit') }}:</strong> ${way.receive_limit ?? 0}</p>
-                                            <p class="card-text mb-1 fw-bold bg-primary p-1 rounded"><strong>{{ __('messages.balance') }}:</strong> ${way.balance ?? 0}</p>
-                                            <p class="card-text"><small class="">{{ __('messages.created_by') }}: ${way.creator ? way.creator.name : ''}</small></p>
-                                        </div>
-                                        <div class="card-footer d-flex justify-content-between">
-                                            <a href="payment-ways/show/${way.id}" class="btn btn-outline-success btn-sm radius-8 text-center">{{ __('messages.details') }}</a>
-                                            <button class="btn btn-outline-primary btn-sm radius-8 editBtn" 
-                                                data-id="${way.id}" 
-                                                data-name="${way.name}" 
-                                                data-type="${way.type}" 
-                                                data-phone="${way.phone_number ?? ''}" 
-                                                data-receive-limit="${way.receive_limit ?? 0}" 
-                                                data-send-limit="${way.send_limit ?? 0}" 
-                                                data-balance="${way.balance ?? 0}" 
-                                                data-category-id="${categoryId}" 
-                                                data-sub-category-id="${subCategoryId}">{{ __('messages.edit') }}</button>
-                                            <button class="btn btn-outline-danger btn-sm radius-8 deleteBtn" data-id="${way.id}" data-name="${way.name}">{{ __('messages.delete') }}</button>
+                                            <a href="payment-ways/show/${way.id}" class="btn btn-outline-info btn-sm">{{ __('messages.details') }}</a>
+                                            <button class="btn btn-outline-warning btn-sm editBtn"
+                                                    data-id="${way.id}"
+                                                    data-name="${way.name}"
+                                                    data-type="${way.type}"
+                                                    data-phone="${way.phone_number ?? ''}"
+                                                    data-receive-limit="${way.receive_limit ?? 0}"
+                                                    data-send-limit="${way.send_limit ?? 0}"
+                                                    data-balance="${way.balance ?? 0}"
+                                                    data-category-id="${categoryId}"
+                                                    data-sub-category-id="${subCategoryId}">{{ __('messages.edit') }}</button>
+                                            <button class="btn btn-outline-danger btn-sm deleteBtn" data-id="${way.id}" data-name="${way.name}">{{ __('messages.delete') }}</button>
                                         </div>
                                     </div>
-                                </div>`;
+                                </div>
+
+                               
+                            `;
                         });
                         $('#paymentWaysContainer').html(cards);
                     }

@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Auth;
 
 class TransactionController extends Controller
 {
-
     //     public function index()
     // {
     //     return view('dashboard.transactions.index');
@@ -22,10 +21,11 @@ class TransactionController extends Controller
     {
         $transactions = Transaction::with(['paymentWay', 'creator', 'logs'])->latest()->get();
 
-        return response()->json(['status'  => true, 'message' => __('messages.transactions_fetched_successfully'), 'data' => TransactionResource::collection($transactions)]);
+        return response()->json(['status' => true, 'message' => __('messages.transactions_fetched_successfully'), 'data' => TransactionResource::collection($transactions)]);
     }
 
 
+    
     public function store(StoreTransactionRequest $request)
     {
         $data = $request->validated();
@@ -38,34 +38,46 @@ class TransactionController extends Controller
             $data['attachment'] = 'uploads/transactions/' . $filename;
         }
 
-
-        $total = $data['amount'] +  $data['commission'];
-
-
+        $total = $data['amount'] + $data['commission'];
         $paymentWay = PaymentWay::findOrFail($data['payment_way_id']);
-        $total = $data['amount'] +  $data['commission'];
 
         if ($data['type'] === 'send' && $total > $paymentWay->balance) {
             return response()->json(['status' => false, 'message' => __('messages.not_enough_balance')], 400);
         }
 
+        $currentMonth = now()->month;
+        $currentYear = now()->year;
+
+        $monthlyLimit = $paymentWay->monthlyLimits()
+            ->where('month', $currentMonth)
+            ->where('year', $currentYear)
+            ->first();
+
+        if (!$monthlyLimit) {
+            $monthlyLimit = $paymentWay->monthlyLimits()->create([
+                'month' => $currentMonth,
+                'year' => $currentYear,
+                'send_limit' => $paymentWay->send_limit,
+                'receive_limit' => $paymentWay->receive_limit,
+                'send_used' => 0,
+                'receive_used' => 0,
+            ]);
+        }
+
+        if ($data['type'] === 'send' && ($monthlyLimit->send_used + $data['amount']) > $monthlyLimit->send_limit) {
+            return response()->json(['status' => false, 'message' => __('messages.send_limit_exceeded')], 400);
+        } elseif ($data['type'] === 'receive' && ($monthlyLimit->receive_used + $total) > $monthlyLimit->receive_limit) {
+            return response()->json(['status' => false, 'message' => __('messages.receive_limit_exceeded')], 400);
+        }
 
         $transaction = Transaction::create($data);
 
-        $paymentWay = $transaction->paymentWay;
-
-
         if ($data['type'] === 'receive') {
-            $paymentWay->update([
-                'balance' => $paymentWay->balance + $total,
-                'receive_limit_alert' => $paymentWay->receive_limit_alert + $total,
-            ]);
+            $paymentWay->increment('balance', $total);
+            $monthlyLimit->increment('receive_used', $total);
         } elseif ($data['type'] === 'send') {
-            $paymentWay->update([
-                'balance' => $paymentWay->balance - $total,
-                'send_limit_alert' => $paymentWay->send_limit_alert +  $data['amount'],
-
-            ]);
+            $paymentWay->decrement('balance', $total);
+            $monthlyLimit->increment('send_used', $data['amount']);
         }
 
         $transaction->logs()->create([
@@ -90,10 +102,7 @@ class TransactionController extends Controller
             ],
         ]);
 
-
         event(new CreateBackup());
-
-        
         return response()->json([
             'status' => true,
             'message' => __('messages.transaction_created_successfully'),
@@ -105,6 +114,6 @@ class TransactionController extends Controller
     {
         $transaction = Transaction::with(['paymentWay', 'creator', 'logs'])->findOrFail($id);
 
-        return response()->json(['status'  => true, 'message' => __('messages.transaction_fetched_successfully'), 'data' => new TransactionResource($transaction)]);
+        return response()->json(['status' => true, 'message' => __('messages.transaction_fetched_successfully'), 'data' => new TransactionResource($transaction)]);
     }
 }

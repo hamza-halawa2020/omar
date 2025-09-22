@@ -15,10 +15,10 @@ use Illuminate\Support\Facades\Auth;
 
 class PaymentWayController extends Controller
 {
-
     public function index()
     {
         $categories = Category::where('parent_id', null)->get();
+
         return view('dashboard.payment_ways.index', compact('categories'));
     }
 
@@ -31,10 +31,9 @@ class PaymentWayController extends Controller
 
     public function list()
     {
+        $paymentWays = PaymentWay::with(['category', 'subCategory', 'creator', 'transactions', 'logs', 'monthlyLimits'])->get();
 
-        $paymentWays = PaymentWay::with(['category', 'subCategory', 'creator', 'transactions', 'logs'])->get();
-
-        return response()->json(['status'  => true,     'message' => __('messages.payment_ways_fetched_successfully'), 'data' => PaymentWayResource::collection($paymentWays)]);
+        return response()->json(['status' => true, 'message' => __('messages.payment_ways_fetched_successfully'), 'data' => PaymentWayResource::collection($paymentWays)]);
     }
 
     public function store(StorePaymentWayRequest $request)
@@ -43,6 +42,18 @@ class PaymentWayController extends Controller
         $data['created_by'] = Auth::id();
 
         $paymentWay = PaymentWay::create($data);
+
+        if ($data['type'] == 'wallet') {
+
+            $paymentWay->monthlyLimits()->create([
+                'month' => now()->month,
+                'year' => now()->year,
+                'send_limit' => $paymentWay->send_limit,
+                'receive_limit' => $paymentWay->receive_limit,
+                'send_used' => 0,
+                'receive_used' => 0,
+            ]);
+        }
 
         $paymentWay->logs()->create([
             'created_by' => Auth::id(),
@@ -65,12 +76,10 @@ class PaymentWayController extends Controller
 
         ]);
 
-        event(new CreateBackup());
+        event(new CreateBackup);
 
-
-        return response()->json(['status'  => true,     'message' => __('messages.payment_way_created_successfully'), 'data' => new PaymentWayResource($paymentWay->load(['creator']))], 201);
+        return response()->json(['status' => true,     'message' => __('messages.payment_way_created_successfully'), 'data' => new PaymentWayResource($paymentWay->load(['creator']))], 201);
     }
-
 
     public function show()
     {
@@ -78,10 +87,9 @@ class PaymentWayController extends Controller
         return view('dashboard.payment_ways.show');
     }
 
-
     public function showList($id)
     {
-        $paymentWay = PaymentWay::with(['category', 'subCategory', 'creator', 'transactions', 'logs'])->findOrFail($id);
+        $paymentWay = PaymentWay::with(['category', 'subCategory', 'creator', 'transactions', 'logs', 'monthlyLimits'])->findOrFail($id);
 
         $timeFilter = request('time', 'today');
         $startDate = request('start_date');
@@ -118,6 +126,20 @@ class PaymentWayController extends Controller
 
         $grand_net = $receive_total - $send_total; // الصافي الكلي (ربح/خسارة)
 
+        $currentLimit = $paymentWay->monthlyLimits()
+            ->where('month', now()->month)
+            ->where('year', now()->year)
+            ->first();
+
+        $limitStats = [
+            'send_limit' => $currentLimit ? number_format($currentLimit->send_limit, 2, '.', '') : 0,
+            'send_used' => $currentLimit ? number_format($currentLimit->send_used, 2, '.', '') : 0,
+            'send_remaining' => $currentLimit ? number_format($currentLimit->send_limit - $currentLimit->send_used, 2, '.', '') : 0,
+            'receive_limit' => $currentLimit ? number_format($currentLimit->receive_limit, 2, '.', '') : 0,
+            'receive_used' => $currentLimit ? number_format($currentLimit->receive_used, 2, '.', '') : 0,
+            'receive_remaining' => $currentLimit ? number_format($currentLimit->receive_limit - $currentLimit->receive_used, 2, '.', '') : 0,
+        ];
+
         return response()->json([
             'status' => true,
             'message' => __('messages.payment_way_fetched_successfully'),
@@ -134,13 +156,42 @@ class PaymentWayController extends Controller
                     'send_total' => number_format($send_total, 2, '.', ''), // التكلفة الكلية
                 ],
                 'grand_net' => number_format($grand_net, 2, '.', ''), // الصافي الكلي
-            ]
+                'limits' => $limitStats,
+            ],
         ]);
     }
+
     public function update(UpdatePaymentWayRequest $request, $id)
     {
         $paymentWay = PaymentWay::findOrFail($id);
+
+        $oldSendLimit = $paymentWay->send_limit;
+        $oldReceiveLimit = $paymentWay->receive_limit;
+
         $paymentWay->update($request->validated());
+
+        if ($oldSendLimit != $paymentWay->send_limit || $oldReceiveLimit != $paymentWay->receive_limit) {
+            $currentLimit = $paymentWay->monthlyLimits()
+                ->where('month', now()->month)
+                ->where('year', now()->year)
+                ->first();
+
+            if ($currentLimit) {
+                $currentLimit->update([
+                    'send_limit' => $paymentWay->send_limit,
+                    'receive_limit' => $paymentWay->receive_limit,
+                ]);
+            } else {
+                $paymentWay->monthlyLimits()->create([
+                    'month' => now()->month,
+                    'year' => now()->year,
+                    'send_limit' => $paymentWay->send_limit,
+                    'receive_limit' => $paymentWay->receive_limit,
+                    'send_used' => 0,
+                    'receive_used' => 0,
+                ]);
+            }
+        }
 
         $paymentWay->logs()->create([
             'created_by' => Auth::id(),
@@ -163,10 +214,9 @@ class PaymentWayController extends Controller
 
         ]);
 
-        event(new CreateBackup());
+        event(new CreateBackup);
 
-
-        return response()->json(['status'  => true,    'message' => __('messages.payment_way_updated_successfully'), 'data' => new PaymentWayResource($paymentWay->load(['creator']))]);
+        return response()->json(['status' => true,    'message' => __('messages.payment_way_updated_successfully'), 'data' => new PaymentWayResource($paymentWay->load(['creator']))]);
     }
 
     public function destroy($id)
@@ -200,10 +250,8 @@ class PaymentWayController extends Controller
 
         $paymentWay->delete();
 
+        event(new CreateBackup);
 
-        event(new CreateBackup());
-
-
-        return response()->json(['status'  => true,     'message' => __('messages.payment_way_deleted_successfully')]);
+        return response()->json(['status' => true,     'message' => __('messages.payment_way_deleted_successfully')]);
     }
 }
