@@ -22,7 +22,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6">
+            <div class="col-md-3 col-sm-6 wallet-only" style="display: none;">
                 <div class="card shadow-sm text-center border-0">
                     <div class="card-body">
                         <div class="fw-bold">{{ __('messages.receive_limit') }}</div>
@@ -38,7 +38,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6">
+            <div class="col-md-3 col-sm-6 wallet-only" style="display: none;">
                 <div class="card shadow-sm text-center border-0">
                     <div class="card-body">
                         <div class="fw-bold">{{ __('messages.send_limit') }}</div>
@@ -124,22 +124,15 @@
                     <div class="card-title mb-3 text-primary">{{ __('messages.payment_way_information') }}</div>
                     <div class="row">
                         <div class="col-md-6">
-                            <p><strong>{{ __('messages.name') }}: </strong> <span id="paymentWayName"
-                                    class=""></span></p>
-                            <p><strong> {{ __('messages.phone_number') }}: </strong> <span id="paymentWayPhone"
-                                    class=""></span></p>
-                            <p><strong>{{ __('messages.category') }}: </strong> <span id="paymentWayCategory"
-                                    class=""></span></p>
-                            <p><strong>{{ __('messages.sub_category') }}: </strong> <span id="paymentWaySubCategory"
-                                    class=""></span></p>
+                            <p><strong>{{ __('messages.name') }}: </strong> <span id="paymentWayName" class=""></span></p>
+                            <p><strong>{{ __('messages.phone_number') }}: </strong> <span id="paymentWayPhone" class=""></span></p>
+                            <p><strong>{{ __('messages.category') }}: </strong> <span id="paymentWayCategory" class=""></span></p>
+                            <p><strong>{{ __('messages.sub_category') }}: </strong> <span id="paymentWaySubCategory" class=""></span></p>
                         </div>
                         <div class="col-md-6">
-                            <p><strong>{{ __('messages.type') }}: </strong> <span id="paymentWayType"
-                                    class=""></span></p>
-                            <p><strong>{{ __('messages.created_by') }}: </strong> <span id="paymentWayCreator"
-                                    class=""></span></p>
-                            <p><strong>{{ __('messages.created_at') }}: </strong> <span id="paymentWayCreatedAt"
-                                    class=""></span></p>
+                            <p><strong>{{ __('messages.type') }}: </strong> <span id="paymentWayType" class=""></span></p>
+                            <p><strong>{{ __('messages.created_by') }}: </strong> <span id="paymentWayCreator" class=""></span></p>
+                            <p><strong>{{ __('messages.created_at') }}: </strong> <span id="paymentWayCreatedAt" class=""></span></p>
                         </div>
                     </div>
                 </div>
@@ -148,8 +141,7 @@
             <!-- Transactions Tab -->
             <div class="tab-pane fade show active" id="transactions">
                 <div class="d-flex justify-content-between align-items-center mb-3 gap-3">
-                    <input type="text" id="searchTransactions" class="form-control w-50"
-                        placeholder="{{ __('messages.search_transactions_by_notes_or_amount...') }}">
+                    <input type="text" id="searchTransactions" class="form-control w-50" placeholder="{{ __('messages.search_transactions_by_notes_or_amount...') }}">
                     <select id="filterType" class="form-control w-25">
                         <option value="">{{ __('messages.all_types') }}</option>
                         <option value="receive">{{ __('messages.receive') }}</option>
@@ -157,8 +149,7 @@
                     </select>
                     <div class="d-flex align-items-center gap-2 mb-3">
                         <button id="nextDay" class="btn btn-outline-primary">&rarr;</button>
-                        <input type="text" id="dateRange" class="form-control w-auto"
-                            placeholder="Select date range">
+                        <input type="text" id="dateRange" class="form-control w-auto" placeholder="Select date range">
                         <button id="prevDay" class="btn btn-outline-primary">&larr;</button>
                     </div>
                 </div>
@@ -200,7 +191,6 @@
         <div id="errorMessage" class="alert alert-danger mt-3" style="display: none;"></div>
     </div>
 @endsection
-
 
 @push('scripts')
     <script>
@@ -273,6 +263,12 @@
                 let data = res.data;
                 let statistics = res.statistics || {};
 
+                if (data.type === 'wallet') {
+                    $('.wallet-only').show();
+                } else {
+                    $('.wallet-only').hide();
+                }
+
                 $("#paymentWayName").text(data.name || '');
                 $("#paymentWayType").text(data.type ? data.type.charAt(0).toUpperCase() + data.type.slice(1) : '');
                 $("#paymentWayPhone").text(data.phone_number || '');
@@ -283,20 +279,20 @@
                 $("#paymentWayCreatedAt").text(data.created_at || '');
                 $("#paymentWayTransactions").text(data.transactions?.length || 0);
 
-                $("#paymentWayReceiveLimit").text(statistics.limits?.receive_limit || '0');
-                $("#paymentWayReceiveUsed").text(statistics.limits?.receive_used || '0');
-                $("#paymentWayReceiveRemaining").text(statistics.limits?.receive_remaining || '0');
-                $("#paymentWaySendLimit").text(statistics.limits?.send_limit || '0');
-                $("#paymentWaySendUsed").text(statistics.limits?.send_used || '0');
-                $("#paymentWaySendRemaining").text(statistics.limits?.send_remaining || '0');
+                $("#paymentWayReceiveLimit").text(statistics.limits?.receive_limit ? parseFloat(statistics.limits.receive_limit).toFixed(2) : '0.00');
+                $("#paymentWayReceiveUsed").text(statistics.limits?.receive_used ? parseFloat(statistics.limits.receive_used).toFixed(2) : '0.00');
+                $("#paymentWayReceiveRemaining").text(statistics.limits?.receive_remaining ? parseFloat(statistics.limits.receive_remaining).toFixed(2) : '0.00');
+                $("#paymentWaySendLimit").text(statistics.limits?.send_limit ? parseFloat(statistics.limits.send_limit).toFixed(2) : '0.00');
+                $("#paymentWaySendUsed").text(statistics.limits?.send_used ? parseFloat(statistics.limits.send_used).toFixed(2) : '0.00');
+                $("#paymentWaySendRemaining").text(statistics.limits?.send_remaining ? parseFloat(statistics.limits.send_remaining).toFixed(2) : '0.00');
 
-                $("#receive_amount").text(statistics.receive?.receive_amount || '0');
-                $("#receive_commission").text(statistics.receive?.receive_commission || '0');
-                $("#receive_total").text(statistics.receive?.receive_total || '0');
-                $("#send_amount").text(statistics.send?.send_amount || '0');
-                $("#send_commission").text(statistics.send?.send_commission || '0');
-                $("#send_total").text(statistics.send?.send_total || '0');
-                $("#grandNet").text(statistics.grand_net || '0');
+                $("#receive_amount").text(statistics.receive?.receive_amount ? parseFloat(statistics.receive.receive_amount).toFixed(2) : '0.00');
+                $("#receive_commission").text(statistics.receive?.receive_commission ? parseFloat(statistics.receive.receive_commission).toFixed(2) : '0.00');
+                $("#receive_total").text(statistics.receive?.receive_total ? parseFloat(statistics.receive.receive_total).toFixed(2) : '0.00');
+                $("#send_amount").text(statistics.send?.send_amount ? parseFloat(statistics.send.send_amount).toFixed(2) : '0.00');
+                $("#send_commission").text(statistics.send?.send_commission ? parseFloat(statistics.send.send_commission).toFixed(2) : '0.00');
+                $("#send_total").text(statistics.send?.send_total ? parseFloat(statistics.send.send_total).toFixed(2) : '0.00');
+                $("#grandNet").text(statistics.grand_net ? parseFloat(statistics.grand_net).toFixed(2) : '0.00');
 
                 const translations = {
                     receive: "{{ __('messages.receive') }}",
