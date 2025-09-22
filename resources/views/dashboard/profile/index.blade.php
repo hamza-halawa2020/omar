@@ -11,7 +11,7 @@
                         <div class="card-title">{{ __('messages.user_profile') }}</div>
                     </div>
                     <div class="card-body">
-                        <div class="text-center mb-4">
+                        <div class="text-center mb-3">
                             <img src="{{ auth()->user()->profile_image ? asset('storage/' . auth()->user()->profile_image) : asset('images/default-profile.png') }}"
                                 class="profile-image" alt="{{ __('messages.profile_image') }}">
                         </div>

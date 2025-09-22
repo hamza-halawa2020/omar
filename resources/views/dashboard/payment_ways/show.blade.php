@@ -2,11 +2,11 @@
 
 @section('content')
     <div class="container py-3">
-        <div class="fw-bold fs-4 mb-3 text-primary">{{ __('messages.payment_ay_ashboard') }}</div>
+        <div class="fw-bold fs-3 mb-3 text-primary">{{ __('messages.payment_ay_ashboard') }}</div>
 
         <!-- Summary Cards -->
-        <div class="row mb-3 g-3 fs-5">
-            <div class="col-md-3 col-sm-6">
+        <div class="d-flex justify-content-between gap-3 fs-5">
+            <div class="">
                 <div class="card shadow-sm text-center border-0">
                     <div class="card-body">
                         <div class="fw-bold">{{ __('messages.current_balance') }}</div>
@@ -14,7 +14,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6">
+            <div class="">
                 <div class="card shadow-sm text-center border-0">
                     <div class="card-body">
                         <div class="fw-bold">{{ __('messages.total_transactions') }}</div>
@@ -22,7 +22,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 wallet-only" style="display: none;">
+            <div class=" wallet-only" style="display: none;">
                 <div class="card shadow-sm text-center border-0">
                     <div class="card-body">
                         <div class="fw-bold">{{ __('messages.receive_limit') }}</div>
@@ -38,7 +38,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 wallet-only" style="display: none;">
+            <div class=" wallet-only" style="display: none;">
                 <div class="card shadow-sm text-center border-0">
                     <div class="card-body">
                         <div class="fw-bold">{{ __('messages.send_limit') }}</div>
@@ -54,7 +54,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6">
+            <div class="">
                 <div class="card shadow-sm text-center border-0">
                     <div class="card-body">
                         <div>
@@ -74,7 +74,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6">
+            <div class="">
                 <div class="card shadow-sm text-center border-0">
                     <div class="card-body">
                         <div>
@@ -94,7 +94,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6">
+            <div class="">
                 <div class="card shadow-sm text-center border-0">
                     <div class="card-body">
                         <div class="fw-bold">{{ __('messages.grand_net') }}</div>
