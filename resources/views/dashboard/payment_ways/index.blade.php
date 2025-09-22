@@ -127,8 +127,9 @@
                     success: function(res) {
                         if (res.status) {
                             $('#transactionModal').modal('hide');
-                            showToast('{{ __('messages.transaction_created_successfully') }}',
-                                'success');
+                            showToast('{{ __('messages.transaction_created_successfully') }}','success');
+
+                            $('#receiveForm')[0].reset();
                             loadPaymentWays();
                         }
                     },
@@ -269,8 +270,10 @@
                     if (res.status) {
                         $('#createModal').modal('hide');
                         loadPaymentWays();
-                        showToast('{{ __('messages.payment_way_created_successfully') }}',
-                            'success');
+                        showToast('{{ __('messages.payment_way_created_successfully') }}','success');
+                        $('#createForm')[0].reset();
+
+                        
                     } else {
                         showToast(res.message || '{{ __('messages.something_went_wrong') }}',
                             'error');

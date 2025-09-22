@@ -73,6 +73,7 @@
                         $('#createModal').modal('hide');
                         loadCategories();
                         showToast(res.message, 'success');
+                         $('#createForm')[0].reset();
                     } else {
                         $('#createModal').modal('hide');
                         showToast(res.message, 'error');
@@ -85,7 +86,7 @@
             $(document).on('click', '.editBtn', function() {
                 let id = $(this).data('id');
                 let name = $(this).data('name');
-                let parent = $(this).data('parent'); // ✅ خدها هنا
+                let parent = $(this).data('parent'); 
 
                 $('#editId').val(id);
                 $('#editName').val(name);
