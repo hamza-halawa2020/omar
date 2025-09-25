@@ -76,7 +76,7 @@ class PaymentWayController extends Controller
 
         ]);
 
-        event(new CreateBackup);
+        //event(new CreateBackup);
 
         return response()->json(['status' => true,     'message' => __('messages.payment_way_created_successfully'), 'data' => new PaymentWayResource($paymentWay->load(['creator']))], 201);
     }
@@ -214,7 +214,7 @@ class PaymentWayController extends Controller
 
         ]);
 
-        event(new CreateBackup);
+        //event(new CreateBackup);
 
         return response()->json(['status' => true,    'message' => __('messages.payment_way_updated_successfully'), 'data' => new PaymentWayResource($paymentWay->load(['creator']))]);
     }
@@ -250,7 +250,7 @@ class PaymentWayController extends Controller
 
         $paymentWay->delete();
 
-        event(new CreateBackup);
+        //event(new CreateBackup);
 
         return response()->json(['status' => true,     'message' => __('messages.payment_way_deleted_successfully')]);
     }

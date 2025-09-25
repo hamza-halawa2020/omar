@@ -30,7 +30,7 @@ class UserController extends Controller
             $user->syncRoles($data['roles']);
         }
 
-        event(new CreateBackup());
+        //event(new CreateBackup());
 
 
         return response()->json(['status'  => true, 'message' => __('messages.user_created_successfully'), 'data' => new UserResource($user->load('roles'))], 201);
@@ -55,7 +55,7 @@ class UserController extends Controller
 
         $user->update($data);
         
-        event(new CreateBackup());
+        //event(new CreateBackup());
 
 
         if (isset($data['roles'])) {
@@ -69,7 +69,7 @@ class UserController extends Controller
     {
         $user->delete();
 
-        event(new CreateBackup());
+        //event(new CreateBackup());
 
 
         return response()->json(['status'  => true, 'message' => __('messages.user_deleted_successfully'),]);

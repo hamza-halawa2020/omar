@@ -45,7 +45,7 @@ class ProfileController extends BaseController
 
             $user->update($validated);
 
-            event(new CreateBackup);
+            //event(new CreateBackup);
 
             return response()->json([
                 'message' => __('messages.profile_updated_successfully'),

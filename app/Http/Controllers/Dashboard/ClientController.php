@@ -40,7 +40,7 @@ class ClientController extends Controller
 
         $client = Client::create($data);
 
-        event(new CreateBackup);
+        //event(new CreateBackup);
 
         return response()->json(['status' => true,'message' => __('messages.client_created_successfully'),'data' => new ClientResource($client),], 201);
     }
@@ -59,7 +59,7 @@ class ClientController extends Controller
 
         $client->update($data);
 
-        event(new CreateBackup);
+        //event(new CreateBackup);
 
         return response()->json(['status' => true,'message' => __('messages.client_updated_successfully'),'data' => new ClientResource($client),]);
     }
@@ -74,7 +74,7 @@ class ClientController extends Controller
 
         $client->delete();
 
-        event(new CreateBackup);
+        //event(new CreateBackup);
 
         return response()->json(['status' => true,'message' => __('messages.client_deleted_successfully'),]);
     }

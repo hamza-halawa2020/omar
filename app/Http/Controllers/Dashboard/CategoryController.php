@@ -41,7 +41,7 @@ class CategoryController extends BaseController
 
         $category = Category::create($data);
         
-        event(new CreateBackup());
+        //event(new CreateBackup());
 
         return response()->json(['status' => true,  'message' => __('messages.category_created_successfully'), 'data' => new CategoryResource($category),], 201);
     }
@@ -61,7 +61,7 @@ class CategoryController extends BaseController
 
         $category->update($data);
 
-        event(new CreateBackup());
+        //event(new CreateBackup);
 
 
         return response()->json(['status' => true, 'message' => __('messages.category_updated_successfully'), 'data' => new CategoryResource($category),]);
@@ -77,7 +77,7 @@ class CategoryController extends BaseController
 
         $category->delete();
 
-        event(new CreateBackup());
+        //event(new CreateBackup);
 
 
         return response()->json(['status' => true, 'message' => __('messages.category_deleted_successfully')]);
