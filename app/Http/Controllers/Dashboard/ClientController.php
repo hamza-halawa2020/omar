@@ -52,6 +52,21 @@ class ClientController extends Controller
         return response()->json(['status' => true,'message' => __('messages.client_fetched_successfully'),'data' => new ClientResource($client),]);
     }
 
+    public function showPage($id)
+{
+    $client = Client::with(['creator', 'transactions'])->findOrFail($id);
+
+    if (request()->expectsJson()) {
+        return response()->json([
+            'status' => true,
+            'message' => __('messages.client_fetched_successfully'),
+            'data' => new ClientResource($client),
+        ]);
+    }
+
+    return view('dashboard.clients.show', compact('client'));
+}
+
     public function update(UpdateClientRequest $request, $id)
     {
         $client = Client::findOrFail($id);

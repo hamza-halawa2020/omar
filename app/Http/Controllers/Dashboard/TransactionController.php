@@ -83,7 +83,7 @@ class TransactionController extends Controller
 
             if ($data['type'] === 'send') {
                 if ($client) {
-                    $client->increment('debt', $total);
+                    $client->increment('debt', $data['amount']);
                 }
 
                 $paymentWay->decrement('balance', $total);
@@ -94,7 +94,7 @@ class TransactionController extends Controller
                 }
             } elseif ($data['type'] === 'receive') {
                 if ($client) {
-                    $client->decrement('debt', $total);
+                    $client->decrement('debt', $data['amount']);
                 }
 
                 $paymentWay->increment('balance', $total);

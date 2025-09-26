@@ -56,6 +56,8 @@
                                     <button class="btn btn-outline-primary btn-sm radius-8 editBtn"data-id="${client.id}"data-name="${client.name}"data-phone_number="${client.phone_number}"data-debt="${client.debt}">{{ __('messages.edit') }}</button>
 
                                     <button class="btn btn-outline-danger btn-sm radius-8 deleteBtn" data-id="${client.id}" data-name="${client.name}">{{ __('messages.delete') }}</button>
+                                    
+                                    <a href="{{ url('dashboard/clients') }}/${client.id}" class="btn btn-outline-info btn-sm">{{ __('messages.details') }}</a>
                                 </td>
                             </tr>`;
                         });

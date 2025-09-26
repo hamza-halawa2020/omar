@@ -141,5 +141,15 @@ return [
     'client_updated_successfully' => 'تم تعديل العميل بنجاح',
     'client_deleted_successfully' => 'تم حذف العميل بنجاح',
     'cannot_delete_client_with_transactions' => 'لا يمكن حذف العميل لأنه مرتبط بعمليات',
+    'client_details' => 'تفاصيل العميل',
+    'client_info' => 'معلومات العميل',
+    'back_to_clients' => 'العودة إلى العملاء',
+    'confirm_delete_client' => 'هل أنت متأكد من حذف العميل',
+    'transactions_distribution' => 'توزيع المعاملات',
+    'statistics' => 'الإحصائيات',
+    'total_sent' => 'إجمالي المرسل',
+    'total_received' => 'إجمالي المستلم',
+    'total_commission' => 'إجمالي العمولة',
+    'all' => 'الكل',
 
 ];
