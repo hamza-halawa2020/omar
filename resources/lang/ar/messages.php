@@ -151,5 +151,6 @@ return [
     'total_received' => 'إجمالي المستلم',
     'total_commission' => 'إجمالي العمولة',
     'all' => 'الكل',
+    'cannot_update_client_with_transactions' => 'لا يمكن تحديث العميل لأنه مرتبط بعمليات',
 
 ];

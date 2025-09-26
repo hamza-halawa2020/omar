@@ -30,7 +30,7 @@ class ClientController extends Controller
     {
         $clients = Client::with(['creator', 'transactions'])->latest()->get();
 
-        return response()->json(['status' => true,'message' => __('messages.clients_fetched_successfully'),'data' => ClientResource::collection($clients),]);
+        return response()->json(['status' => true, 'message' => __('messages.clients_fetched_successfully'), 'data' => ClientResource::collection($clients)]);
     }
 
     public function store(StoreClientRequest $request)
@@ -40,43 +40,47 @@ class ClientController extends Controller
 
         $client = Client::create($data);
 
-        //event(new CreateBackup);
+        // event(new CreateBackup);
 
-        return response()->json(['status' => true,'message' => __('messages.client_created_successfully'),'data' => new ClientResource($client),], 201);
+        return response()->json(['status' => true, 'message' => __('messages.client_created_successfully'), 'data' => new ClientResource($client)], 201);
     }
 
     public function show($id)
     {
         $client = Client::with(['creator', 'transactions'])->findOrFail($id);
 
-        return response()->json(['status' => true,'message' => __('messages.client_fetched_successfully'),'data' => new ClientResource($client),]);
+        return response()->json(['status' => true, 'message' => __('messages.client_fetched_successfully'), 'data' => new ClientResource($client)]);
     }
 
     public function showPage($id)
-{
-    $client = Client::with(['creator', 'transactions'])->findOrFail($id);
+    {
+        $client = Client::with(['creator', 'transactions'])->findOrFail($id);
 
-    if (request()->expectsJson()) {
-        return response()->json([
-            'status' => true,
-            'message' => __('messages.client_fetched_successfully'),
-            'data' => new ClientResource($client),
-        ]);
+        if (request()->expectsJson()) {
+            return response()->json([
+                'status' => true,
+                'message' => __('messages.client_fetched_successfully'),
+                'data' => new ClientResource($client),
+            ]);
+        }
+
+        return view('dashboard.clients.show', compact('client'));
     }
-
-    return view('dashboard.clients.show', compact('client'));
-}
 
     public function update(UpdateClientRequest $request, $id)
     {
         $client = Client::findOrFail($id);
         $data = $request->validated();
 
+        if ($client->transactions()->exists()) {
+            return response()->json(['status' => false, 'message' => __('messages.cannot_update_client_with_transactions')], 400);
+        }
+
         $client->update($data);
 
-        //event(new CreateBackup);
+        // event(new CreateBackup);
 
-        return response()->json(['status' => true,'message' => __('messages.client_updated_successfully'),'data' => new ClientResource($client),]);
+        return response()->json(['status' => true, 'message' => __('messages.client_updated_successfully'), 'data' => new ClientResource($client)]);
     }
 
     public function destroy($id)
@@ -84,13 +88,13 @@ class ClientController extends Controller
         $client = Client::findOrFail($id);
 
         if ($client->transactions()->exists()) {
-            return response()->json(['status' => false,'message' => __('messages.cannot_delete_client_with_transactions'),], 400);
+            return response()->json(['status' => false, 'message' => __('messages.cannot_delete_client_with_transactions')], 400);
         }
 
         $client->delete();
 
-        //event(new CreateBackup);
+        // event(new CreateBackup);
 
-        return response()->json(['status' => true,'message' => __('messages.client_deleted_successfully'),]);
+        return response()->json(['status' => true, 'message' => __('messages.client_deleted_successfully')]);
     }
 }

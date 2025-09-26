@@ -23,11 +23,11 @@
                         <p><strong>{{ __('messages.name') }}:</strong> <span id="clientName" class=""></span></p>
                         <p><strong>{{ __('messages.phone_number') }}:</strong> <span id="clientPhone" class=""></span>
                         </p>
-                        <p><strong>{{ __('messages.debt') }}:</strong> <span id="clientDebt" class="text-danger"></span></p>
+                        <p><strong>{{ __('messages.debt') }}:</strong> <span id="clientDebt" class="text-success"></span></p>
                         <p><strong>{{ __('messages.created_by') }}:</strong> <span id="clientCreator" class=""></span>
                         </p>
-                        <p><strong>{{ __('messages.created_at') }}:</strong> <span id="clientCreatedAt"
-                                class=""></span></p>
+                        <p><strong>{{ __('messages.created_at') }}:</strong> <span id="clientCreatedAt" class=""></span>
+                        </p>
                     </div>
                 </div>
             </div>
@@ -77,13 +77,6 @@
         <div class="card shadow-sm rounded-3 border-0 mt-3">
             <div class="card-header  d-flex justify-content-between align-items-center">
                 <div class="mb-0"><i class="bi bi-table me-2"></i>{{ __('messages.transactions') }}</div>
-                <div>
-                    <select id="transactionFilter" class="form-select form-select-sm">
-                        <option value="all">{{ __('messages.all') }}</option>
-                        <option value="send">{{ __('messages.send') }}</option>
-                        <option value="receive">{{ __('messages.receive') }}</option>
-                    </select>
-                </div>
             </div>
             <div class="card-body">
                 <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
@@ -101,8 +94,6 @@
                         {{-- Data via AJAX --}}
                     </tbody>
                 </table>
-                <!-- Pagination -->
-                <div id="pagination" class="d-flex justify-content-center"></div>
             </div>
         </div>
     </div>
@@ -117,18 +108,15 @@
 </style>
 
 @push('styles')
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.css">
+    {{-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.css"> --}}
 @endpush
 
 @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
         $(document).ready(function() {
             // Load client details
-            function loadClientDetails(page = 1, type = 'all') {
-                $.get("{{ route('clients.showPage', $client->id) }}?page=" + page + "&type=" + type, function(
-                    res) {
+            function loadClientDetails() {
+                $.get("{{ route('clients.showPage', $client->id) }}", function(res) {
                     if (res.status) {
                         let client = res.data;
 
@@ -136,23 +124,15 @@
                         $('#clientName').text(client.name);
                         $('#clientPhone').text(client.phone_number || '{{ __('messages.unknown') }}');
                         $('#clientDebt').text(parseFloat(client.debt || 0).toFixed(2));
-                        $('#clientCreator').text(client.creator ? client.creator.name :
-                            '{{ __('messages.unknown') }}');
+                        $('#clientCreator').text(client.creator ? client.creator.name : '{{ __('messages.unknown') }}');
                         $('#clientCreatedAt').text(client.created_at);
+
 
                         // Update statistics
                         let totalTransactions = client.transactions.length;
-                        let totalSent = client.transactions
-                            .filter(t => t.type === 'send')
-                            .reduce((sum, t) => sum + parseFloat(t.amount || 0), 0)
-                            .toFixed(2);
-                        let totalReceived = client.transactions
-                            .filter(t => t.type === 'receive')
-                            .reduce((sum, t) => sum + parseFloat(t.amount || 0), 0)
-                            .toFixed(2);
-                        let totalCommission = client.transactions
-                            .reduce((sum, t) => sum + parseFloat(t.commission || 0), 0)
-                            .toFixed(2);
+                        let totalSent = client.transactions.filter(t => t.type === 'send').reduce((sum, t) => sum + parseFloat(t.amount || 0), 0).toFixed(2);
+                        let totalReceived = client.transactions.filter(t => t.type === 'receive').reduce((sum, t) => sum + parseFloat(t.amount || 0), 0).toFixed(2);
+                        let totalCommission = client.transactions.reduce((sum, t) => sum + parseFloat(t.commission || 0), 0).toFixed(2);
 
                         $('#totalTransactions').text(totalTransactions);
                         $('#totalSent').text(totalSent);
@@ -161,13 +141,17 @@
 
                         // Update transactions table
                         let transactionsHtml = '';
+                        let status = {
+                            receive: "{{ __('messages.receive') }}",
+                            send: "{{ __('messages.send') }}",
+                        };
                         client.transactions.forEach(function(transaction) {
                             transactionsHtml += `
                                 <tr>
                                     <td>${transaction.id}</td>
                                     <td class="${transaction.type === 'send' ? 'text-danger' : 'text-success'}">
                                         <i class="bi bi-arrow-${transaction.type === 'send' ? 'up' : 'down'} me-1"></i>
-                                        ${transaction.type}
+                                        ${status[transaction.type]}
                                     </td>
                                     <td>${parseFloat(transaction.amount).toFixed(2)}</td>
                                     <td>${parseFloat(transaction.commission || 0).toFixed(2)}</td>
@@ -222,12 +206,6 @@
                     }
                 });
             }
-
-            // Filter transactions
-            $('#transactionFilter').on('change', function() {
-                loadClientDetails(1, $(this).val());
-            });
-
             // Load data on page load
             loadClientDetails();
 

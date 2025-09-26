@@ -35,6 +35,7 @@
     <script src="{{ asset('assets/js/lib/jquery-ui.min.js') }}"></script>
     <!-- Popup js -->
     <script src="{{ asset('assets/js/lib/magnifc-popup.min.js') }}"></script>
+    <script src="{{ asset('assets/js/lib/chart.umd.min.js') }}"></script>
     <!-- Slick Slider js -->
     <script src="{{ asset('assets/js/lib/slick.min.js') }}"></script>
     <!-- multi select -->
