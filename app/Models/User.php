@@ -49,4 +49,39 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'created_by');
+    }
+
+    public function installmentContracts()
+    {
+        return $this->hasMany(InstallmentContract::class, 'created_by');
+    }
+    public function installmentPayments()
+    {
+        return $this->hasMany(InstallmentPayment::class, 'paid_by');
+    }
+    public function categories()
+    {
+        return $this->hasMany(Category::class, 'created_by');
+    }
+    public function paymentWays()
+    {
+        return $this->hasMany(PaymentWay::class, 'created_by');
+    }
+    public function paymentWayLogs()
+    {
+        return $this->hasMany(PaymentWayLog::class, 'created_by');
+    }
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class, 'created_by');
+    }
+    public function transactionLogs()
+    {
+        return $this->hasMany(TransactionLog::class, 'created_by');
+    }
+
 }

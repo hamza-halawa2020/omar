@@ -23,10 +23,12 @@
                         <p><strong>{{ __('messages.name') }}:</strong> <span id="clientName" class=""></span></p>
                         <p><strong>{{ __('messages.phone_number') }}:</strong> <span id="clientPhone" class=""></span>
                         </p>
-                        <p><strong>{{ __('messages.debt') }}:</strong> <span id="clientDebt" class="text-success"></span></p>
+                        <p><strong>{{ __('messages.debt') }}:</strong> <span id="clientDebt" class="text-success"></span>
+                        </p>
                         <p><strong>{{ __('messages.created_by') }}:</strong> <span id="clientCreator" class=""></span>
                         </p>
-                        <p><strong>{{ __('messages.created_at') }}:</strong> <span id="clientCreatedAt" class=""></span>
+                        <p><strong>{{ __('messages.created_at') }}:</strong> <span id="clientCreatedAt"
+                                class=""></span>
                         </p>
                     </div>
                 </div>
@@ -96,6 +98,13 @@
                 </table>
             </div>
         </div>
+
+
+        <!-- Contracts & Installments -->
+        <div class="accordion mt-3" id="contractsAccordion">
+            {{-- dynamic --}}
+        </div>
+
     </div>
 @endsection
 
@@ -124,15 +133,19 @@
                         $('#clientName').text(client.name);
                         $('#clientPhone').text(client.phone_number || '{{ __('messages.unknown') }}');
                         $('#clientDebt').text(parseFloat(client.debt || 0).toFixed(2));
-                        $('#clientCreator').text(client.creator ? client.creator.name : '{{ __('messages.unknown') }}');
+                        $('#clientCreator').text(client.creator ? client.creator.name :
+                            '{{ __('messages.unknown') }}');
                         $('#clientCreatedAt').text(client.created_at);
 
 
                         // Update statistics
                         let totalTransactions = client.transactions.length;
-                        let totalSent = client.transactions.filter(t => t.type === 'send').reduce((sum, t) => sum + parseFloat(t.amount || 0), 0).toFixed(2);
-                        let totalReceived = client.transactions.filter(t => t.type === 'receive').reduce((sum, t) => sum + parseFloat(t.amount || 0), 0).toFixed(2);
-                        let totalCommission = client.transactions.reduce((sum, t) => sum + parseFloat(t.commission || 0), 0).toFixed(2);
+                        let totalSent = client.transactions.filter(t => t.type === 'send').reduce((sum,
+                            t) => sum + parseFloat(t.amount || 0), 0).toFixed(2);
+                        let totalReceived = client.transactions.filter(t => t.type === 'receive').reduce((
+                            sum, t) => sum + parseFloat(t.amount || 0), 0).toFixed(2);
+                        let totalCommission = client.transactions.reduce((sum, t) => sum + parseFloat(t
+                            .commission || 0), 0).toFixed(2);
 
                         $('#totalTransactions').text(totalTransactions);
                         $('#totalSent').text(totalSent);
@@ -164,6 +177,63 @@
 
                         // Update chart
                         updateChart(client.transactions);
+
+
+                        // العقود
+                        let contractsAccordion = '';
+                        client.installment_contracts.forEach(function(contract, index) {
+                            let installmentsHtml = '';
+                            if (contract.installments) {
+                                contract.installments.forEach(function(installment) {
+                                    installmentsHtml += `
+                                <tr>
+                                    <td>${installment.id}</td>
+                                    <td>${installment.due_date}</td>
+                                    <td>${parseFloat(installment.required_amount).toFixed(2)}</td>
+                                    <td>${parseFloat(installment.paid_amount).toFixed(2)}</td>
+                                    <td class="${installment.status === 'paid' ? 'text-success' : installment.status === 'late' ? 'text-danger' : 'text-warning'}">
+                                        ${installment.status}
+                                    </td>
+                                </tr>
+                            `;
+                                });
+                            }
+
+                            contractsAccordion += `
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="heading${index}">
+                                <button class="accordion-button ${index > 0 ? 'collapsed' : ''}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${index}">
+                                    عقد #${contract.id} - إجمالي ${parseFloat(contract.total_amount).toFixed(2)}
+                                </button>
+                            </h2>
+                            <div id="collapse${index}" class="accordion-collapse collapse ${index === 0 ? 'show' : ''}" data-bs-parent="#contractsAccordion">
+                                <div class="accordion-body">
+                                    <p><strong>عدد الأقساط:</strong> ${contract.installment_count}</p>
+                                    <p><strong>قيمة القسط:</strong> ${parseFloat(contract.installment_amount).toFixed(2)}</p>
+                                    <hr>
+                                    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>تاريخ الاستحقاق</th>
+                                                <th>المطلوب</th>
+                                                <th>المدفوع</th>
+                                                <th>الحالة</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${installmentsHtml || `<tr><td colspan="5">لا يوجد أقساط</td></tr>`}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                        });
+
+                        $('#contractsAccordion').html(contractsAccordion);
+
+
                     } else {
                         showToast('{{ __('messages.something_went_wrong') }}', 'error');
                     }
@@ -208,6 +278,56 @@
             }
             // Load data on page load
             loadClientDetails();
+
+            let contractsAccordion = '';
+            client.installment_contracts.forEach(function(contract, index) {
+                let installmentsHtml = '';
+                if (contract.installments) {
+                    contract.installments.forEach(function(installment) {
+                        installmentsHtml += `
+                <tr>
+                    <td>${installment.id}</td>
+                    <td>${installment.due_date}</td>
+                    <td>${parseFloat(installment.required_amount).toFixed(2)}</td>
+                    <td>${parseFloat(installment.paid_amount).toFixed(2)}</td>
+                    <td class="${installment.status === 'paid' ? 'text-success' : installment.status === 'late' ? 'text-danger' : 'text-warning'}">
+                        ${installment.status}
+                    </td>
+                </tr>
+            `;
+                    });
+                }
+
+                contractsAccordion += `
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading${index}">
+                            <button class="accordion-button ${index > 0 ? 'collapsed' : ''}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${index}">
+                                عقد #${contract.id} - ${parseFloat(contract.total_amount).toFixed(2)}
+                            </button>
+                        </h2>
+                        <div id="collapse${index}" class="accordion-collapse collapse ${index === 0 ? 'show' : ''}" data-bs-parent="#contractsAccordion">
+                            <div class="accordion-body">
+                                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>القسط</th>
+                                            <th>تاريخ الاستحقاق</th>
+                                            <th>المبلغ المطلوب</th>
+                                            <th>المبلغ المدفوع</th>
+                                            <th>الحالة</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${installmentsHtml || `<tr><td colspan="5">لا يوجد أقساط</td></tr>`}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            $('#contractsAccordion').html(contractsAccordion);
 
         });
     </script>

@@ -54,7 +54,7 @@ class ClientController extends Controller
 
     public function showPage($id)
     {
-        $client = Client::with(['creator', 'transactions'])->findOrFail($id);
+        $client = Client::with(['creator', 'transactions','installmentContracts.installments.payments',])->findOrFail($id);
 
         if (request()->expectsJson()) {
             return response()->json([

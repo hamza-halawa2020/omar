@@ -35,6 +35,23 @@
                     <span>{{ __('messages.clients') }}</span>
                 </a>
             </li>
+
+            
+            <li>
+                <a href="{{ route('products.index') }}"
+                    class="d-flex align-items-center gap-2 {{ request()->is('products/*') ? 'active-page' : '' }}">
+                    <iconify-icon icon="mdi:shopping-outline" class="menu-icon"></iconify-icon>
+                    <span>{{ __('messages.products') }}</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="{{ route('installment_contracts.index') }}"
+                    class="d-flex align-items-center gap-2 {{ request()->is('installment_contracts/*') ? 'active-page' : '' }}">
+                    <iconify-icon icon="mdi:calendar-month-outline" class="menu-icon"></iconify-icon>
+                    <span>{{ __('messages.installments') }}</span>
+                </a>
+            </li>
         </ul>
     </div>
 </aside>

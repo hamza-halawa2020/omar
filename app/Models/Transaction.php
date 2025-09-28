@@ -42,4 +42,8 @@ class Transaction extends Model
     {
         return $this->belongsTo(Client::class, 'client_id');
     }
+    public function installmentPayment()
+    {
+        return $this->hasMany(InstallmentPayment::class, 'transaction_id');
+    }
 }

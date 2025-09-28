@@ -5,18 +5,20 @@
 
     <div class="container">
         <div class="d-flex justify-content-between mb-3">
-            <div class="fw-bold fs-5">{{ __('messages.clients') }}</div>
+            <div class="fw-bold fs-5">{{ __('messages.products') }}</div>
             <button class="btn btn-outline-primary btn-sm radius-8" data-bs-toggle="modal"
-                data-bs-target="#createModal">{{ __('messages.add_client') }}</button>
+                data-bs-target="#createModal">{{ __('messages.add_product') }}</button>
         </div>
 
-        <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0" id="clientsTable">
+        <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0" id="productsTable">
             <thead>
                 <tr>
                     <th class="text-center">{{ __('messages.id') }}</th>
                     <th class="text-center">{{ __('messages.name') }}</th>
-                    <th class="text-center">{{ __('messages.phone_number') }}</th>
-                    <th class="text-center">{{ __('messages.debt') }}</th>
+                    <th class="text-center">{{ __('messages.description') }}</th>
+                    <th class="text-center">{{ __('messages.purchase_price') }}</th>
+                    <th class="text-center">{{ __('messages.sale_price') }}</th>
+                    <th class="text-center">{{ __('messages.stock') }}</th>
                     <th class="text-center">{{ __('messages.created_by') }}</th>
                     <th class="text-center">{{ __('messages.actions') }}</th>
                 </tr>
@@ -28,39 +30,54 @@
     </div>
 
     <!-- Create Modal -->
-    @include('dashboard.clients.create')
+    @include('dashboard.products.create')
     <!-- Edit Modal -->
-    @include('dashboard.clients.edit')
+    @include('dashboard.products.edit')
     <!-- Delete Modal -->
-    @include('dashboard.clients.delete')
+    @include('dashboard.products.delete')
 @endsection
 
 @push('scripts')
     <script>
         $(document).ready(function() {
-            loadclients();
+            loadproducts();
 
-            function loadclients() {
-                $.get("{{ route('clients.list') }}", function(res) {
+            function loadproducts() {
+                $.get("{{ route('products.list') }}", function(res) {
                     if (res.status) {
                         let rows = '';
-                        res.data.forEach((client, i) => {
+                        let parentOptions = '<option value="">{{ __('messages.none') }}</option>';
+                        res.data.forEach((cat, i) => {
                             rows += `
-                            <tr>
-                                <td>${i+1}</td>
-                                <td>${client.name}</td>
-                                <td>${client.phone_number}</td>
-                                <td>${client.debt}</td>
-                                <td>${client.creator ? client.creator.name : ''}</td>
-                                <td>
-                                    <a href="{{ url('dashboard/clients') }}/${client.id}" class="btn btn-outline-success btn-sm radius-8 btn-sm">{{ __('messages.details') }}</a>
-                                    <button class="btn btn-outline-primary btn-sm radius-8 editBtn"data-id="${client.id}"data-name="${client.name}"data-phone_number="${client.phone_number}"data-debt="${client.debt}">{{ __('messages.edit') }}</button>
-                                    <button class="btn btn-outline-danger btn-sm radius-8 deleteBtn" data-id="${client.id}" data-name="${client.name}">{{ __('messages.delete') }}</button>
-                                    
-                                </td>
-                            </tr>`;
+                <tr>
+                    <td>${i+1}</td>
+                    <td>${cat.name}</td>
+                    <td>${cat.description}</td>
+                    <td class="purchase-price" 
+                        data-real="${cat.purchase_price}" 
+                        data-fake="${cat.sale_price - 100}" 
+                        data-state="fake">
+                        ${cat.sale_price - 100}
+                    </td>
+                                    <td>${cat.sale_price}</td>
+                    <td>${cat.stock}</td>
+                    <td>${cat.creator ? cat.creator.name : ''}</td>
+                    <td>
+                        <button class="btn btn-outline-primary btn-sm radius-8 editBtn" 
+                        data-id="${cat.id}" 
+                        data-name="${cat.name}" 
+                        data-description="${cat.description}" 
+                        data-purchase_price="${cat.purchase_price}" 
+                        data-sale_price="${cat.sale_price}" 
+                        data-stock="${cat.stock}">{{ __('messages.edit') }}</button>
+                        <button class="btn btn-outline-danger btn-sm radius-8 deleteBtn" data-id="${cat.id}" data-name="${cat.name}">{{ __('messages.delete') }}</button>
+                    </td>
+                </tr>`;
+                            parentOptions += `<option value="${cat.id}">${cat.name}</option>`;
                         });
-                        $('#clientsTable tbody').html(rows);
+                        $('#productsTable tbody').html(rows);
+                        $('#parentSelect').html(parentOptions);
+                        $('#editParent').html(parentOptions);
                     }
                 });
             }
@@ -68,10 +85,10 @@
             // Create
             $('#createForm').submit(function(e) {
                 e.preventDefault();
-                $.post("{{ route('clients.store') }}", $(this).serialize(), function(res) {
+                $.post("{{ route('products.store') }}", $(this).serialize(), function(res) {
                     if (res.status) {
                         $('#createModal').modal('hide');
-                        loadclients();
+                        loadproducts();
                         showToast(res.message, 'success');
                         $('#createForm')[0].reset();
                     } else {
@@ -81,21 +98,43 @@
                 });
             });
 
+            $(document).on('click', '.purchase-price', function() {
+                let state = $(this).data('state');
+                let realPrice = $(this).data('real');
+                let fakePrice = $(this).data('fake');
+
+                if (state === 'fake') {
+                    $(this).text(realPrice).data('state', 'real');
+                } else {
+                    $(this).text(fakePrice).data('state', 'fake');
+                }
+            });
+
+
+
 
             // Edit (open modal)
             $(document).on('click', '.editBtn', function() {
                 let id = $(this).data('id');
                 let name = $(this).data('name');
-                let phone_number = $(this).data('phone_number');
-                let debt = $(this).data('debt');
+                let description = $(this).data('description');
+                let purchase_price = $(this).data('purchase_price');
+                let sale_price = $(this).data('sale_price');
+                let stock = $(this).data('stock');
+
 
                 $('#editId').val(id);
                 $('#editName').val(name);
-                $('#editPhoneNumber').val(phone_number);
-                $('#editDebt').val(debt);
+                $('#editDescription').val(description);
+                $('#editPurchasePrice').val(purchase_price);
+                $('#editSalePrice').val(sale_price);
+                $('#editStock').val(stock);
 
-                $('#editModal').modal('show');
-
+                $.get("{{ route('products.list') }}", function(res) {
+                    if (res.status) {
+                        $('#editModal').modal('show');
+                    }
+                });
             });
 
 
@@ -105,13 +144,13 @@
                 e.preventDefault();
                 let id = $('#editId').val();
                 $.ajax({
-                    url: "/dashboard/clients/" + id,
+                    url: "/dashboard/products/" + id,
                     type: "PUT",
                     data: $(this).serialize(),
                     success: function(res) {
                         if (res.status) {
                             $('#editModal').modal('hide');
-                            loadclients();
+                            loadproducts();
                             showToast(res.message, 'success');
                         } else {
                             $('#editModal').modal('hide');
@@ -138,13 +177,13 @@
                 e.preventDefault();
                 let id = $('#deleteId').val();
                 $.ajax({
-                    url: "/dashboard/clients/" + id,
+                    url: "/dashboard/products/" + id,
                     type: "DELETE",
                     data: $(this).serialize(),
                     success: function(res) {
                         if (res.status) {
                             $('#deleteModal').modal('hide');
-                            loadclients();
+                            loadproducts();
                             showToast(res.message, 'success');
                         } else {
                             $('#deleteModal').modal('hide');

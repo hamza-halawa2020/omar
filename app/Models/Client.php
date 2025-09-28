@@ -28,4 +28,9 @@ class Client extends Model
     {
         return $this->hasMany(Transaction::class, 'client_id')->latest();
     }
+
+    public function installmentContracts()
+    {
+        return $this->hasMany(InstallmentContract::class, 'client_id');
+    }
 }

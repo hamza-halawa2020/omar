@@ -13,25 +13,11 @@ class ClientResource extends JsonResource
             'name' => $this->name,
             'phone_number' => $this->phone_number,
             'debt' => $this->debt,
-            'creator' => [
-                'id' => $this->creator?->id,
-                'name' => $this->creator?->name,
-            ],
-            'transactions' => $this->transactions->map(function ($transaction) {
-                return [
-                    'id' => $transaction->id,
-                    'type' => $transaction->type,
-                    'amount' => $transaction->amount,
-                    'commission' => $transaction->commission,
-                    'payment_way' => [
-                        'id' => $transaction->paymentWay?->id,
-                        'name' => $transaction->paymentWay?->name,
-                    ],
-                    'created_at' => $transaction->created_at,
-                ];
-            }),
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'creator' => new UserResource($this->whenLoaded('creator')),
+            'transactions' => TransactionResource::collection($this->whenLoaded('transactions')),
+            'installment_contracts' => InstallmentContractResource::collection($this->whenLoaded('installmentContracts')),
+            'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
+            'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
         ];
     }
 }

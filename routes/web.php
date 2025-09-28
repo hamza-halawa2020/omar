@@ -3,8 +3,10 @@
 use App\Http\Controllers\Dashboard\CategoryController;
 use App\Http\Controllers\Dashboard\ClientController;
 use App\Http\Controllers\Dashboard\DashboardController;
+use App\Http\Controllers\Dashboard\InstallmentContractController;
 use App\Http\Controllers\Dashboard\LoginController;
 use App\Http\Controllers\Dashboard\PaymentWayController;
+use App\Http\Controllers\Dashboard\ProductController;
 use App\Http\Controllers\Dashboard\ProfileController;
 use App\Http\Controllers\Dashboard\TransactionController;
 use Illuminate\Support\Facades\Route;
@@ -25,6 +27,23 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
     Route::post('categories', [CategoryController::class, 'store'])->name('categories.store');
     Route::put('categories/{id}', [CategoryController::class, 'update'])->name('categories.update');
     Route::delete('categories/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+
+    Route::get('products', [ProductController::class, 'index'])->name('products.index');
+    Route::get('products/list', [ProductController::class, 'list'])->name('products.list');
+    Route::post('products', [ProductController::class, 'store'])->name('products.store');
+    Route::put('products/{id}', [ProductController::class, 'update'])->name('products.update');
+    Route::delete('products/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
+
+    Route::get('installment_contracts', [InstallmentContractController::class, 'index'])->name('installment_contracts.index');
+    Route::get('installment_contracts/list', [InstallmentContractController::class, 'list'])->name('installment_contracts.list');
+    Route::post('installment_contracts', [InstallmentContractController::class, 'store'])->name('installment_contracts.store');
+    Route::put('installment_contracts/{id}', [InstallmentContractController::class, 'update'])->name('installment_contracts.update');
+    Route::delete('installment_contracts/{id}', [InstallmentContractController::class, 'destroy'])->name('installment_contracts.destroy');
+    Route::post('installments/pay', [InstallmentContractController::class, 'pay'])->name('installments.pay');
+
+    Route::get('installment_contracts/{id}', [InstallmentContractController::class, 'showPage'])->name('installment_contracts.show');
+
+
 
     Route::get('payment-ways', [PaymentWayController::class, 'index'])->name('payment_ways.index');
 

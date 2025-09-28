@@ -1,0 +1,71 @@
+<?php
+
+namespace App\Http\Controllers\Dashboard;
+
+use App\Http\Requests\Product\StoreProductRequest;
+use App\Http\Requests\Product\UpdateProductRequest;
+use App\Http\Resources\ProductResource;
+use App\Models\Product;
+use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\Auth;
+
+class ProductController extends BaseController
+{
+    public function __construct()
+    {
+        // $this->middleware('check.permission:products_index')->only('index');
+        // $this->middleware('check.permission:products_update')->only(['edit', 'update']);
+    }
+
+    public function index()
+    {
+        return view('dashboard.products.index');
+    }
+
+    public function list()
+    {
+        $products = Product::with(['creator'])->get();
+
+        return response()->json(['status' => true, 'message' => __('messages.products_fetched_successfully'), 'data' => ProductResource::collection($products)]);
+    }
+
+    public function store(StoreProductRequest $request)
+    {
+        $data = $request->validated();
+        $data['created_by'] = Auth::id();
+
+        $product = Product::create($data);
+
+        return response()->json(['status' => true,  'message' => __('messages.Product_created_successfully'), 'data' => new ProductResource($product)], 201);
+    }
+
+    public function show($id)
+    {
+        $product = Product::with(['creator'])->findOrFail($id);
+
+        return response()->json(['status' => true, 'message' => __('messages.Product_fetched_successfully'), 'data' => new ProductResource($product)]);
+    }
+
+    public function update(UpdateProductRequest $request, $id)
+    {
+        $product = Product::findOrFail($id);
+        $data = $request->validated();
+
+        $product->update($data);
+
+        return response()->json(['status' => true, 'message' => __('messages.Product_updated_successfully'), 'data' => new ProductResource($product)]);
+    }
+
+    public function destroy($id)
+    {
+        $product = Product::findOrFail($id);
+
+        if ($product->installmentContracts()->exists()) {
+            return response()->json(['status' => false, 'message' => __('messages.cannot_delete_Product_with_installments')], 400);
+        }
+
+        $product->delete();
+
+        return response()->json(['status' => true, 'message' => __('messages.Product_deleted_successfully')]);
+    }
+}
