@@ -160,7 +160,7 @@
                                     <td class="${transaction.type === 'send' ? 'text-danger' : 'text-success'}">${status[transaction.type]}</td>
                                     <td>${parseFloat(transaction.amount).toFixed(2)}</td>
                                     <td>${parseFloat(transaction.commission || 0).toFixed(2)}</td>
-                                    <td>${transaction.payment_way ? transaction.payment_way.name : '{{ __('messages.unknown') }}'}</td>
+                                    <td>${transaction.paymentWay ? transaction.paymentWay.name : '{{ __('messages.unknown') }}'}</td>
                                     <td>${transaction.created_at}</td>
                                 </tr>
                             `;

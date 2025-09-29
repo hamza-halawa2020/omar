@@ -48,13 +48,12 @@ class ClientController extends Controller
     public function show($id)
     {
         $client = Client::with(['creator', 'transactions'])->findOrFail($id);
-
         return response()->json(['status' => true, 'message' => __('messages.client_fetched_successfully'), 'data' => new ClientResource($client)]);
     }
 
     public function showPage($id)
     {
-        $client = Client::with(['creator', 'transactions','installmentContracts.installments.payments',])->findOrFail($id);
+        $client = Client::with(['creator', 'transactions.paymentWay','installmentContracts.installments.payments',])->findOrFail($id);
 
         if (request()->expectsJson()) {
             return response()->json([
@@ -64,6 +63,7 @@ class ClientController extends Controller
             ]);
         }
 
+        // dd($client);
         return view('dashboard.clients.show', compact('client'));
     }
 
