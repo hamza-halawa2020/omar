@@ -13,11 +13,11 @@ class UserController extends BaseController
 {
     public function __construct()
     {
-        $this->middleware('check.permission:products_index')->only('index');
-        $this->middleware('check.permission:products_store')->only('store');
-        $this->middleware('check.permission:products_show')->only('show');
-        $this->middleware('check.permission:products_update')->only('update');
-        $this->middleware('check.permission:products_destroy')->only('destroy');
+        $this->middleware('check.permission:users_index')->only('index');
+        $this->middleware('check.permission:users_store')->only('store');
+        $this->middleware('check.permission:users_show')->only('show');
+        $this->middleware('check.permission:users_update')->only('update');
+        $this->middleware('check.permission:users_destroy')->only('destroy');
     }
 
     public function index()

@@ -8,6 +8,7 @@ use App\Http\Controllers\Dashboard\LoginController;
 use App\Http\Controllers\Dashboard\PaymentWayController;
 use App\Http\Controllers\Dashboard\ProductController;
 use App\Http\Controllers\Dashboard\ProfileController;
+use App\Http\Controllers\Dashboard\RoleController;
 use App\Http\Controllers\Dashboard\TransactionController;
 use Illuminate\Support\Facades\Route;
 
@@ -72,4 +73,7 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
     Route::put('clients/{id}', [ClientController::class, 'update'])->name('clients.update');
     Route::delete('clients/{id}', [ClientController::class, 'destroy'])->name('categories.destroy');
     Route::get('/clients/{id}', [ClientController::class, 'showPage'])->name('clients.showPage');
+
+    Route::resource('roles', RoleController::class);
+
 });

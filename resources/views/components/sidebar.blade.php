@@ -60,6 +60,13 @@
                     <span>{{ __('messages.installments') }}</span>
                 </a>
             </li>
+            <li>
+                <a href="{{ route('roles.index') }}"
+                    class="d-flex align-items-center gap-2 {{ Route::is('roles.*') ? 'active-page' : '' }}">
+                    <iconify-icon icon="mdi:account-group-outline" class="menu-icon"></iconify-icon>
+                    <span>{{ __('messages.roles') }}</span>
+                </a>
+            </li>
         </ul>
     </div>
 </aside>

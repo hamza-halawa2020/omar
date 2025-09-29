@@ -29,6 +29,7 @@
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
     <!-- Multi Select css -->
     <link rel="stylesheet" href="{{ asset('assets/css/lib/multi-select.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/lib/bootstrap-select.min.css') }}">
 
     <link rel="stylesheet" href="{{ asset('assets/css/lib/flatpickr.min.css') }}">
 

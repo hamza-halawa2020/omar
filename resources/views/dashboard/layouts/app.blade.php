@@ -40,6 +40,7 @@
     <script src="{{ asset('assets/js/lib/slick.min.js') }}"></script>
     <!-- multi select -->
     <script src="{{ asset('assets/js/lib/multi-select.js') }}"></script>
+    <script src="{{ asset('assets/js/lib/bootstrap-select.min.js') }}"></script>
     <!-- main js -->
     <script src="{{ asset('assets/js/app.js') }}"></script>
     <!-- Select2 JS -->
