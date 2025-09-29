@@ -26,10 +26,21 @@ class ClientController extends Controller
     {
         return view('dashboard.clients.index');
     }
+    public function debts()
+    {
+        return view('dashboard.clients.debts');
+    }
 
     public function list()
     {
         $clients = Client::with(['creator', 'transactions'])->latest()->get();
+
+        return response()->json(['status' => true, 'message' => __('messages.clients_fetched_successfully'), 'data' => ClientResource::collection($clients)]);
+    }
+    public function listDebts()
+    {
+        $clients = Client::whereDoesntHave('installmentContracts')->with(['creator', 'transactions','installmentContracts'])->latest()->get();
+        
 
         return response()->json(['status' => true, 'message' => __('messages.clients_fetched_successfully'), 'data' => ClientResource::collection($clients)]);
     }

@@ -255,4 +255,5 @@ return [
     'installment_contract_fetched_successfully' => 'تم جلب عقد التقسيط بنجاح',
     'installment_count_left' => 'عدد الأقساط المتبقية',
     'next_installment_date' => 'تاريخ القسط التالي',
+    'debts' => 'المديونيات',
 ];

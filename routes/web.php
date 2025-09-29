@@ -65,7 +65,9 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
     Route::delete('transactions/{id}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
 
     Route::get('clients', [ClientController::class, 'index'])->name('clients.index');
+    Route::get('debts', [ClientController::class, 'debts'])->name('debts.index');
     Route::get('clients/list', [ClientController::class, 'list'])->name('clients.list');
+    Route::get('clients/listDebts', [ClientController::class, 'listDebts'])->name('clients.listDebts');
     Route::post('clients', [ClientController::class, 'store'])->name('clients.store');
     Route::put('clients/{id}', [ClientController::class, 'update'])->name('clients.update');
     Route::delete('clients/{id}', [ClientController::class, 'destroy'])->name('categories.destroy');
