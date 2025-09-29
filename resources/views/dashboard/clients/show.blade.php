@@ -126,6 +126,20 @@
             $('#payModal').modal('show');
         });
 
+        $('#payForm').submit(function(e) {
+            e.preventDefault();
+            $.post("{{ route('installments.pay') }}", $(this).serialize(), function(res) {
+                if (res.status) {
+                    location.reload();
+                } else {
+                    showToast(res.message, 'error');
+                }
+            }).fail(function(xhr) {
+                showToast(xhr.responseJSON?.message || 'Something went wrong', 'error');
+            });
+        });
+
+
         $(document).ready(function() {
             // Load client details
             function loadClientDetails() {
@@ -137,15 +151,19 @@
                         $('#clientName').text(client.name);
                         $('#clientPhone').text(client.phone_number || '{{ __('messages.unknown') }}');
                         $('#clientDebt').text(parseFloat(client.debt || 0).toFixed(2));
-                        $('#clientCreator').text(client.creator ? client.creator.name :'{{ __('messages.unknown') }}');
+                        $('#clientCreator').text(client.creator ? client.creator.name :
+                            '{{ __('messages.unknown') }}');
                         $('#clientCreatedAt').text(client.created_at);
 
 
                         // Update statistics
                         let totalTransactions = client.transactions.length;
-                        let totalSent = client.transactions.filter(t => t.type === 'send').reduce((sum,t) => sum + parseFloat(t.amount || 0), 0).toFixed(2);
-                        let totalReceived = client.transactions.filter(t => t.type === 'receive').reduce((sum, t) => sum + parseFloat(t.amount || 0), 0).toFixed(2);
-                        let totalCommission = client.transactions.reduce((sum, t) => sum + parseFloat(t.commission || 0), 0).toFixed(2);
+                        let totalSent = client.transactions.filter(t => t.type === 'send').reduce((sum,
+                            t) => sum + parseFloat(t.amount || 0), 0).toFixed(2);
+                        let totalReceived = client.transactions.filter(t => t.type === 'receive').reduce((
+                            sum, t) => sum + parseFloat(t.amount || 0), 0).toFixed(2);
+                        let totalCommission = client.transactions.reduce((sum, t) => sum + parseFloat(t
+                            .commission || 0), 0).toFixed(2);
 
                         $('#totalTransactions').text(totalTransactions);
                         $('#totalSent').text(totalSent);
@@ -200,12 +218,12 @@
                                         ${
                                             installment.status !== 'paid'
                                                 ? `<button class="btn btn-outline-success btn-sm radius-8 payBtn"
-                                                                    data-id="${installment.id}"
-                                                                    data-amount="${(installment.required_amount - installment.paid_amount)}"
-                                                                    data-bs-toggle="modal"
-                                                                    data-bs-target="#payModal">
-                                                                    {{ __('messages.pay') }}
-                                                            </button>`
+                                                                        data-id="${installment.id}"
+                                                                        data-amount="${(installment.required_amount - installment.paid_amount)}"
+                                                                        data-bs-toggle="modal"
+                                                                        data-bs-target="#payModal">
+                                                                        {{ __('messages.pay') }}
+                                                                </button>`
 
                                                 : ''
                                         }
