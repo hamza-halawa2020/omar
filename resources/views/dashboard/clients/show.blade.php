@@ -44,25 +44,25 @@
                 <div class="row text-center">
                     <div class="col-md-3">
                         <div class="p-3 rounded">
-                            <h6>{{ __('messages.total_transactions') }}</h6>
+                            <div>{{ __('messages.total_transactions') }}</div>
                             <p id="totalTransactions" class="fw-bold">0</p>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="p-3 rounded">
-                            <h6>{{ __('messages.total_sent') }}</h6>
+                            <div>{{ __('messages.total_sent') }}</div>
                             <p id="totalSent" class="fw-bold text-danger">0.00</p>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="p-3 rounded">
-                            <h6>{{ __('messages.total_received') }}</h6>
+                            <div>{{ __('messages.total_received') }}</div>
                             <p id="totalReceived" class="fw-bold text-success">0.00</p>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="p-3 rounded">
-                            <h6>{{ __('messages.total_commission') }}</h6>
+                            <div>{{ __('messages.total_commission') }}</div>
                             <p id="totalCommission" class="fw-bold text-warning">0.00</p>
                         </div>
                     </div>
@@ -253,14 +253,14 @@
 
                             contractsAccordion += `
                         <div class="accordion-item">
-                            <h2 class="accordion-header" id="heading${index}">
+                            <div class="accordion-header" id="heading${index}">
                                 <button class="accordion-button ${index > 0 ? 'collapsed' : ''}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${index}">
                                     <span class="px-3 py-1 bg-primary m-2 rounded">{{ __('messages.installments') }} #${contract.id} </span>
                                     <span class="px-3 py-1 bg-primary m-2 rounded">{{ __('messages.total') }} ${parseFloat(contract.total_amount).toFixed(2)} </span>
                                     <span class="px-3 py-1 bg-primary m-2 rounded">{{ __('messages.remaining_installments') }} ${contract.remaining_installments} </span>
                                     <span class="px-3 py-1 bg-primary m-2 rounded">{{ __('messages.remaining_amount') }} ${contract.remaining_amount}</span>
                                 </button>
-                            </h2>
+                            </div>
                             <div id="collapse${index}" class="accordion-collapse collapse ${index === 0 ? 'show' : ''}" data-bs-parent="#contractsAccordion">
                                 <div class="accordion-body">
                                     <p><strong>{{ __('messages.installment_count') }}:</strong> ${contract.installment_count}</p>

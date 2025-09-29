@@ -34,7 +34,7 @@
                         <div
                             class="m-16 py-12 px-16 radius-8 bg-primary-50 mb-16 d-flex align-items-center justify-content-between gap-2">
                             <div>
-                                <h6 class="text-lg text-primary-light fw-semibold mb-0">Notifications</h6>
+                                <div class="text-lg text-primary-light fw-semibold mb-0">Notifications</div>
                             </div>
                             <span
                                 class="text-primary-600 fw-semibold text-lg w-40-px h-40-px rounded-circle bg-base d-flex justify-content-center align-items-center">05</span>
@@ -51,7 +51,7 @@
                                             class="icon text-xxl"></iconify-icon>
                                     </span>
                                     <div>
-                                        <h6 class="text-md fw-semibold mb-4">Congratulations</h6>
+                                        <div class="text-md fw-semibold mb-4">Congratulations</div>
                                         <p class="mb-0 text-sm text-secondary-light text-w-200-px">Your profile has been
                                             Verified. Your profile has been Verified</p>
                                     </div>

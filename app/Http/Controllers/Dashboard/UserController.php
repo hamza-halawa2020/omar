@@ -8,19 +8,30 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class UserController extends BaseController
 {
     public function __construct()
     {
-        $this->middleware('check.permission:users_index')->only('index');
+        $this->middleware('check.permission:users_index')->only('index', 'list');
         $this->middleware('check.permission:users_store')->only('store');
         $this->middleware('check.permission:users_show')->only('show');
         $this->middleware('check.permission:users_update')->only('update');
         $this->middleware('check.permission:users_destroy')->only('destroy');
     }
 
+
+    
     public function index()
+    {
+        $users = User::with('roles')->latest()->get();
+        $roles = Role::all();
+
+
+        return view('dashboard.users.index',compact('users','roles'));
+    }
+    public function list()
     {
         $users = User::with('roles')->latest()->get();
 

@@ -60,13 +60,33 @@
                     <span>{{ __('messages.installments') }}</span>
                 </a>
             </li>
-            <li>
-                <a href="{{ route('roles.index') }}"
-                    class="d-flex align-items-center gap-2 {{ Route::is('roles.*') ? 'active-page' : '' }}">
+
+            <li class="dropdown">
+                <a href="javascript:void(0)">
                     <iconify-icon icon="mdi:account-group-outline" class="menu-icon"></iconify-icon>
-                    <span>{{ __('messages.roles') }}</span>
+                    <span>{{ __('messages.settings') }}</span>
+
                 </a>
+
+
+                <ul class="sidebar-submenu">
+                    <li>
+                        <a href="{{ route('roles.index') }}"
+                            class="d-flex align-items-center gap-2 {{ Route::is('roles.*') ? 'active-page' : '' }}">
+                            <iconify-icon icon="mdi:account-group-outline" class="menu-icon"></iconify-icon>
+                            <span>{{ __('messages.roles') }}</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('users.index') }}"
+                            class="d-flex align-items-center gap-2 {{ Route::is('users.*') ? 'active-page' : '' }}">
+                            <iconify-icon icon="mdi:account-group-outline" class="menu-icon"></iconify-icon>
+                            <span>{{ __('messages.users') }}</span>
+                        </a>
+                    </li>
+                </ul>
             </li>
+
         </ul>
     </div>
 </aside>

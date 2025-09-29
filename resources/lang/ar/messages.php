@@ -301,4 +301,7 @@ return [
     'roles_store' => 'إضافة دور',
     'roles_update' => 'تعديل دور',
     'roles_destroy' => 'حذف دور',
+    'users' => 'الموظفين',
+    'create_user' => 'اضافة موظف',
+    'settings' => 'الاعدادات',
 ];
