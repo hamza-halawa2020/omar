@@ -55,9 +55,9 @@
                     <td>${cat.description}</td>
                     <td class="purchase-price" 
                         data-real="${cat.purchase_price}" 
-                        data-fake="${cat.sale_price - 100}" 
+                        data-fake="${cat.sale_price}" 
                         data-state="fake">
-                        ${cat.sale_price - 100}
+                        ${cat.sale_price}
                     </td>
                                     <td>${cat.sale_price}</td>
                     <td>${cat.stock}</td>

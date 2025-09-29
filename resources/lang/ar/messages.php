@@ -239,5 +239,9 @@ return [
     'paid' => 'مدفوع',
     'pay' => 'ادفع',
     'pay_installment' => 'ادفع القسط',
+    'contract' => 'العقد',
+    'required' => 'المطلوب',
+    'no_installments' => 'لا يوجد أقساط',
+    'unknown' => 'غير معروف',
     
     ];

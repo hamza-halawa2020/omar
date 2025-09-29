@@ -7,7 +7,7 @@
         <!-- Header -->
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="fw-bold fs-5">
-                <i class="bi bi-person-circle me-2"></i>{{ __('messages.client_details') }}
+                {{ __('messages.client_details') }}
             </div>
 
         </div>
@@ -15,7 +15,7 @@
         <!-- Client Info Card -->
         <div class="card shadow-sm rounded-3 border-0 mb-3">
             <div class="card-header">
-                <div class="mb-0"><i class="bi bi-info-circle me-2"></i>{{ __('messages.client_info') }}</div>
+                <div class="mb-0">{{ __('messages.client_info') }}</div>
             </div>
             <div class="card-body">
                 <div class="row">
@@ -38,7 +38,7 @@
         <!-- Statistics Card -->
         <div class="card shadow-sm rounded-3 border-0 mb-3">
             <div class="card-header bg-success ">
-                <div class="mb-0"><i class="bi bi-bar-chart me-2"></i>{{ __('messages.statistics') }}</div>
+                <div class="mb-0">{{ __('messages.statistics') }}</div>
             </div>
             <div class="card-body">
                 <div class="row text-center">
@@ -78,7 +78,7 @@
         <!-- Transactions Card -->
         <div class="card shadow-sm rounded-3 border-0 mt-3">
             <div class="card-header  d-flex justify-content-between align-items-center">
-                <div class="mb-0"><i class="bi bi-table me-2"></i>{{ __('messages.transactions') }}</div>
+                <div class="mb-0">{{ __('messages.transactions') }}</div>
             </div>
             <div class="card-body">
                 <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
@@ -116,10 +116,6 @@
     }
 </style>
 
-@push('styles')
-    {{-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.css"> --}}
-@endpush
-
 @push('scripts')
     <script>
         $(document).ready(function() {
@@ -133,8 +129,7 @@
                         $('#clientName').text(client.name);
                         $('#clientPhone').text(client.phone_number || '{{ __('messages.unknown') }}');
                         $('#clientDebt').text(parseFloat(client.debt || 0).toFixed(2));
-                        $('#clientCreator').text(client.creator ? client.creator.name :
-                            '{{ __('messages.unknown') }}');
+                        $('#clientCreator').text(client.creator ? client.creator.name : '{{ __('messages.unknown') }}');
                         $('#clientCreatedAt').text(client.created_at);
 
 
@@ -162,10 +157,7 @@
                             transactionsHtml += `
                                 <tr>
                                     <td>${transaction.id}</td>
-                                    <td class="${transaction.type === 'send' ? 'text-danger' : 'text-success'}">
-                                        <i class="bi bi-arrow-${transaction.type === 'send' ? 'up' : 'down'} me-1"></i>
-                                        ${status[transaction.type]}
-                                    </td>
+                                    <td class="${transaction.type === 'send' ? 'text-danger' : 'text-success'}">${status[transaction.type]}</td>
                                     <td>${parseFloat(transaction.amount).toFixed(2)}</td>
                                     <td>${parseFloat(transaction.commission || 0).toFixed(2)}</td>
                                     <td>${transaction.payment_way ? transaction.payment_way.name : '{{ __('messages.unknown') }}'}</td>
@@ -202,27 +194,27 @@
                             contractsAccordion += `
                         <div class="accordion-item">
                             <h2 class="accordion-header" id="heading${index}">
-                                <button class="accordion-button ${index > 0 ? 'collapsed' : ''}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${index}">
-                                    عقد #${contract.id} - إجمالي ${parseFloat(contract.total_amount).toFixed(2)}
+                                <button class=" text-primary accordion-button ${index > 0 ? 'collapsed' : ''}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${index}">
+                                    {{ __('messages.installments') }} #${contract.id} - {{ __('messages.total') }} ${parseFloat(contract.total_amount).toFixed(2)}
                                 </button>
                             </h2>
                             <div id="collapse${index}" class="accordion-collapse collapse ${index === 0 ? 'show' : ''}" data-bs-parent="#contractsAccordion">
                                 <div class="accordion-body">
-                                    <p><strong>عدد الأقساط:</strong> ${contract.installment_count}</p>
-                                    <p><strong>قيمة القسط:</strong> ${parseFloat(contract.installment_amount).toFixed(2)}</p>
+                                    <p><strong>{{ __('messages.installment_count') }}:</strong> ${contract.installment_count}</p>
+                                    <p><strong>{{ __('messages.installment_amount') }}:</strong> ${parseFloat(contract.installment_amount).toFixed(2)}</p>
                                     <hr>
                                     <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
                                         <thead>
                                             <tr>
-                                                <th>#</th>
-                                                <th>تاريخ الاستحقاق</th>
-                                                <th>المطلوب</th>
-                                                <th>المدفوع</th>
-                                                <th>الحالة</th>
+                                                <th class="text-center">{{ __('messages.id') }}</th>
+                                                <th class="text-center">{{ __('messages.due_date') }}</th>
+                                                <th class="text-center">{{ __('messages.required') }}</th>
+                                                <th class="text-center">{{ __('messages.paid') }}</th>
+                                                <th class="text-center">{{ __('messages.status') }}</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            ${installmentsHtml || `<tr><td colspan="5">لا يوجد أقساط</td></tr>`}
+                                            ${installmentsHtml || `<tr><td colspan="5">{{ __('messages.no_installments') }}</td></tr>`}
                                         </tbody>
                                     </table>
                                 </div>
@@ -278,57 +270,6 @@
             }
             // Load data on page load
             loadClientDetails();
-
-            let contractsAccordion = '';
-            client.installment_contracts.forEach(function(contract, index) {
-                let installmentsHtml = '';
-                if (contract.installments) {
-                    contract.installments.forEach(function(installment) {
-                        installmentsHtml += `
-                <tr>
-                    <td>${installment.id}</td>
-                    <td>${installment.due_date}</td>
-                    <td>${parseFloat(installment.required_amount).toFixed(2)}</td>
-                    <td>${parseFloat(installment.paid_amount).toFixed(2)}</td>
-                    <td class="${installment.status === 'paid' ? 'text-success' : installment.status === 'late' ? 'text-danger' : 'text-warning'}">
-                        ${installment.status}
-                    </td>
-                </tr>
-            `;
-                    });
-                }
-
-                contractsAccordion += `
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="heading${index}">
-                            <button class="accordion-button ${index > 0 ? 'collapsed' : ''}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${index}">
-                                عقد #${contract.id} - ${parseFloat(contract.total_amount).toFixed(2)}
-                            </button>
-                        </h2>
-                        <div id="collapse${index}" class="accordion-collapse collapse ${index === 0 ? 'show' : ''}" data-bs-parent="#contractsAccordion">
-                            <div class="accordion-body">
-                                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th>القسط</th>
-                                            <th>تاريخ الاستحقاق</th>
-                                            <th>المبلغ المطلوب</th>
-                                            <th>المبلغ المدفوع</th>
-                                            <th>الحالة</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        ${installmentsHtml || `<tr><td colspan="5">لا يوجد أقساط</td></tr>`}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-
-            $('#contractsAccordion').html(contractsAccordion);
-
         });
     </script>
 @endpush
