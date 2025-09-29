@@ -20,8 +20,12 @@ class InstallmentContractController extends BaseController
 {
     public function __construct()
     {
-        // $this->middleware('check.permission:installments_index')->only('index');
-        // $this->middleware('check.permission:installments_update')->only(['edit', 'update']);
+        $this->middleware('check.permission:installments_index')->only('index', 'list');
+        $this->middleware('check.permission:installments_store')->only('store');
+        $this->middleware('check.permission:installments_show')->only('show', 'showPage');
+        $this->middleware('check.permission:installments_update')->only('update');
+        $this->middleware('check.permission:installments_pay')->only('pay');
+        $this->middleware('check.permission:installments_destroy')->only('destroy');
     }
 
     public function index()
@@ -105,7 +109,7 @@ class InstallmentContractController extends BaseController
 
     public function showPage($id)
     {
-        $contract = InstallmentContract::with(['client','product','creator','installments.payments'])->findOrFail($id);
+        $contract = InstallmentContract::with(['client', 'product', 'creator', 'installments.payments'])->findOrFail($id);
 
         $paymentWays = PaymentWay::all();
 
@@ -119,7 +123,7 @@ class InstallmentContractController extends BaseController
 
         $hasPaidInstallments = $contract->installments()->where('status', 'paid')->exists();
 
-        $recalculate = isset($data['product_price']) ||isset($data['down_payment']) ||isset($data['interest_rate']) ||isset($data['installment_count']) ||isset($data['start_date']);
+        $recalculate = isset($data['product_price']) || isset($data['down_payment']) || isset($data['interest_rate']) || isset($data['installment_count']) || isset($data['start_date']);
 
         if ($recalculate) {
             if ($hasPaidInstallments) {

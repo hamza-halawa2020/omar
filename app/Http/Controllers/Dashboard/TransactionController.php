@@ -2,22 +2,24 @@
 
 namespace App\Http\Controllers\Dashboard;
 
-use App\Events\CreateBackup;
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Transaction\StoreTransactionRequest;
 use App\Http\Resources\TransactionResource;
 use App\Models\Client;
 use App\Models\PaymentWay;
 use App\Models\Transaction;
+use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class TransactionController extends Controller
+class TransactionController extends BaseController
 {
-    //     public function index()
-    // {
-    //     return view('dashboard.transactions.index');
-    // }
+    public function __construct()
+    {
+        $this->middleware('check.permission:transactions_index')->only('list');
+        $this->middleware('check.permission:transactions_store')->only('store');
+        $this->middleware('check.permission:transactions_show')->only('show');
+    }
+
     public function list()
     {
         $transactions = Transaction::with(['paymentWay', 'client', 'creator', 'logs'])->latest()->get();
@@ -88,7 +90,6 @@ class TransactionController extends Controller
 
                 $paymentWay->decrement('balance', $total);
 
-
                 if ($monthlyLimit) {
                     $monthlyLimit->increment('send_used', $data['amount']);
                 }
@@ -98,7 +99,6 @@ class TransactionController extends Controller
                 }
 
                 $paymentWay->increment('balance', $total);
-
 
                 if ($monthlyLimit) {
                     $monthlyLimit->increment('receive_used', $total);
@@ -132,9 +132,7 @@ class TransactionController extends Controller
                 ],
             ]);
 
-        
-
-            return response()->json(['status' => true,'message' => __('messages.transaction_created_successfully'),'data' => new TransactionResource($transaction->load(['paymentWay', 'client', 'creator'])),], 201);
+            return response()->json(['status' => true, 'message' => __('messages.transaction_created_successfully'), 'data' => new TransactionResource($transaction->load(['paymentWay', 'client', 'creator']))], 201);
         });
     }
 

@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Dashboard;
 
-use App\Events\CreateBackup;
-use App\Http\Controllers\Controller;
 use App\Http\Requests\PaymentWay\StorePaymentWayRequest;
 use App\Http\Requests\PaymentWay\UpdatePaymentWayRequest;
 use App\Http\Resources\PaymentWayResource;
@@ -11,10 +9,20 @@ use App\Models\Category;
 use App\Models\PaymentWay;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 
-class PaymentWayController extends Controller
+class PaymentWayController extends BaseController
 {
+    public function __construct()
+    {
+        $this->middleware('check.permission:payment_ways_index')->only('index', 'list');
+        $this->middleware('check.permission:payment_ways_store')->only('store');
+        $this->middleware('check.permission:payment_ways_show')->only('show', 'showList');
+        $this->middleware('check.permission:payment_ways_update')->only('update');
+        $this->middleware('check.permission:payment_ways_destroy')->only('destroy');
+    }
+
     public function index()
     {
         $categories = Category::where('parent_id', null)->get();
@@ -90,8 +98,6 @@ class PaymentWayController extends Controller
     public function showList($id)
     {
         $paymentWay = PaymentWay::with(['category', 'subCategory', 'creator', 'transactions.client',  'transactions.installmentPayment', 'logs', 'monthlyLimits'])->findOrFail($id);
-
-        
 
         $timeFilter = request('time', 'today');
         $startDate = request('start_date');

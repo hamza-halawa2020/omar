@@ -2,21 +2,29 @@
 
 namespace App\Http\Controllers\Dashboard;
 
-use App\Events\CreateBackup;
-use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Hash;
 
-class UserController extends Controller
+class UserController extends BaseController
 {
+    public function __construct()
+    {
+        $this->middleware('check.permission:products_index')->only('index');
+        $this->middleware('check.permission:products_store')->only('store');
+        $this->middleware('check.permission:products_show')->only('show');
+        $this->middleware('check.permission:products_update')->only('update');
+        $this->middleware('check.permission:products_destroy')->only('destroy');
+    }
+
     public function index()
     {
         $users = User::with('roles')->latest()->get();
 
-        return response()->json(['status'  => true, 'message' => __('messages.users_fetched_successfully'), 'data' => UserResource::collection($users)]);
+        return response()->json(['status' => true, 'message' => __('messages.users_fetched_successfully'), 'data' => UserResource::collection($users)]);
     }
 
     public function store(StoreUserRequest $request)
@@ -30,17 +38,16 @@ class UserController extends Controller
             $user->syncRoles($data['roles']);
         }
 
-        //event(new CreateBackup());
+        // event(new CreateBackup());
 
-
-        return response()->json(['status'  => true, 'message' => __('messages.user_created_successfully'), 'data' => new UserResource($user->load('roles'))], 201);
+        return response()->json(['status' => true, 'message' => __('messages.user_created_successfully'), 'data' => new UserResource($user->load('roles'))], 201);
     }
 
     public function show(User $user)
     {
         $user->load('roles', 'permissions');
 
-        return response()->json(['status'  => true, 'message' => __('messages.user_fetched_successfully'), 'data' => new UserResource($user)]);
+        return response()->json(['status' => true, 'message' => __('messages.user_fetched_successfully'), 'data' => new UserResource($user)]);
     }
 
     public function update(UpdateUserRequest $request, User $user)
@@ -54,24 +61,22 @@ class UserController extends Controller
         }
 
         $user->update($data);
-        
-        //event(new CreateBackup());
 
+        // event(new CreateBackup());
 
         if (isset($data['roles'])) {
             $user->syncRoles($data['roles']);
         }
 
-        return response()->json(['status'  => true, 'message' => __('messages.user_updated_successfully'), 'data' => new UserResource($user->load('roles'))]);
+        return response()->json(['status' => true, 'message' => __('messages.user_updated_successfully'), 'data' => new UserResource($user->load('roles'))]);
     }
 
     public function destroy(User $user)
     {
         $user->delete();
 
-        //event(new CreateBackup());
+        // event(new CreateBackup());
 
-
-        return response()->json(['status'  => true, 'message' => __('messages.user_deleted_successfully'),]);
+        return response()->json(['status' => true, 'message' => __('messages.user_deleted_successfully')]);
     }
 }

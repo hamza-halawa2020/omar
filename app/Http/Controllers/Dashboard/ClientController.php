@@ -2,24 +2,25 @@
 
 namespace App\Http\Controllers\Dashboard;
 
-use App\Events\CreateBackup;
-use App\Http\Controllers\Controller;
 use App\Http\Requests\Client\StoreClientRequest;
 use App\Http\Requests\Client\UpdateClientRequest;
 use App\Http\Resources\ClientResource;
 use App\Models\Client;
 use App\Models\PaymentWay;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Routing\Controller as BaseController;
 
-class ClientController extends Controller
+
+class ClientController extends BaseController
 {
     public function __construct()
     {
-        // $this->middleware('check.permission:clients_index')->only('index', 'list');
-        // $this->middleware('check.permission:clients_create')->only('store');
-        // $this->middleware('check.permission:clients_show')->only('show');
-        // $this->middleware('check.permission:clients_update')->only('update');
-        // $this->middleware('check.permission:clients_delete')->only('destroy');
+        $this->middleware('check.permission:clients_index')->only('index', 'list');
+        $this->middleware('check.permission:clients_debts')->only('debts', 'listDebts');
+        $this->middleware('check.permission:clients_store')->only('store');
+        $this->middleware('check.permission:clients_show')->only('show','showPage');
+        $this->middleware('check.permission:clients_update')->only('update');
+        $this->middleware('check.permission:clients_destroy')->only('destroy');
     }
 
     public function index()

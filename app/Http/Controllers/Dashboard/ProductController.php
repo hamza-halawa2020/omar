@@ -13,10 +13,12 @@ class ProductController extends BaseController
 {
     public function __construct()
     {
-        // $this->middleware('check.permission:products_index')->only('index');
-        // $this->middleware('check.permission:products_update')->only(['edit', 'update']);
+        $this->middleware('check.permission:products_index')->only('index', 'list');
+        $this->middleware('check.permission:products_store')->only('store');
+        $this->middleware('check.permission:products_show')->only('show');
+        $this->middleware('check.permission:products_update')->only('update');
+        $this->middleware('check.permission:products_destroy')->only('destroy');
     }
-
     public function index()
     {
         return view('dashboard.products.index');

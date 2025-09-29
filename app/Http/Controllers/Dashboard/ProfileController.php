@@ -11,14 +11,6 @@ use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends BaseController
 {
-    public function __construct()
-    {
-        // $this->middleware('check.permission:categories_index')->only('index');
-        // $this->middleware('check.permission:categories_update')->only(['edit', 'update']);
-
-        $this->middleware('auth');
-    }
-
     public function index()
     {
         return view('dashboard.profile.index');

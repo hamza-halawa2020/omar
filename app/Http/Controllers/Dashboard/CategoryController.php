@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Dashboard;
 
-use App\Events\CreateBackup;
 use App\Http\Requests\Category\StoreCategoryRequest;
 use App\Http\Requests\Category\UpdateCategoryRequest;
 use App\Http\Resources\CategoryResource;
@@ -14,11 +13,11 @@ class CategoryController extends BaseController
 {
     public function __construct()
     {
-        // $this->middleware('check.permission:categories_index')->only('index');
-        // $this->middleware('check.permission:categories_update')->only(['edit', 'update']);
+        $this->middleware('check.permission:categories_index')->only('index', 'list');
+        $this->middleware('check.permission:categories_store')->only('store');
+        $this->middleware('check.permission:categories_update')->only('update');
+        $this->middleware('check.permission:categories_destroy')->only('destroy');
     }
-
-
 
     public function index()
     {
@@ -32,27 +31,22 @@ class CategoryController extends BaseController
         return response()->json(['status' => true, 'message' => __('messages.categories_fetched_successfully'), 'data' => CategoryResource::collection($categories)]);
     }
 
-
-
     public function store(StoreCategoryRequest $request)
     {
         $data = $request->validated();
         $data['created_by'] = Auth::id();
 
         $category = Category::create($data);
-        
-        //event(new CreateBackup());
 
-        return response()->json(['status' => true,  'message' => __('messages.category_created_successfully'), 'data' => new CategoryResource($category),], 201);
+        return response()->json(['status' => true,  'message' => __('messages.category_created_successfully'), 'data' => new CategoryResource($category)], 201);
     }
 
     public function show($id)
     {
         $category = Category::with(['parent', 'children', 'creator'])->findOrFail($id);
 
-        return response()->json(['status' => true, 'message' => __('messages.category_fetched_successfully'), 'data' => new CategoryResource($category),]);
+        return response()->json(['status' => true, 'message' => __('messages.category_fetched_successfully'), 'data' => new CategoryResource($category)]);
     }
-
 
     public function update(UpdateCategoryRequest $request, $id)
     {
@@ -61,10 +55,7 @@ class CategoryController extends BaseController
 
         $category->update($data);
 
-        //event(new CreateBackup);
-
-
-        return response()->json(['status' => true, 'message' => __('messages.category_updated_successfully'), 'data' => new CategoryResource($category),]);
+        return response()->json(['status' => true, 'message' => __('messages.category_updated_successfully'), 'data' => new CategoryResource($category)]);
     }
 
     public function destroy($id)
@@ -76,9 +67,6 @@ class CategoryController extends BaseController
         }
 
         $category->delete();
-
-        //event(new CreateBackup);
-
 
         return response()->json(['status' => true, 'message' => __('messages.category_deleted_successfully')]);
     }
