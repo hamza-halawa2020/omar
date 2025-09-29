@@ -7,6 +7,7 @@ use App\Http\Requests\User\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 
@@ -52,8 +53,9 @@ class UserController extends BaseController
         return response()->json(['status' => true, 'message' => __('messages.user_created_successfully'), 'data' => new UserResource($user->load('roles'))], 201);
     }
 
-    public function show(User $user)
+    public function show($id)
     {
+        $user = User::findOrFail($id);
         $user->load('roles', 'permissions');
 
         return response()->json(['status' => true, 'message' => __('messages.user_fetched_successfully'), 'data' => new UserResource($user)]);
@@ -78,10 +80,23 @@ class UserController extends BaseController
         return response()->json(['status' => true, 'message' => __('messages.user_updated_successfully'), 'data' => new UserResource($user->load('roles'))]);
     }
 
-    public function destroy(User $user)
-    {
-        $user->delete();
+  public function destroy($id)
+{
+    $user = User::findOrFail($id);
 
-        return response()->json(['status' => true, 'message' => __('messages.user_deleted_successfully')]);
+    if (Auth::id() == $user->id) {
+        return response()->json([
+            'status' => false,
+            'message' => __('messages.cannot_delete_yourself')
+        ], 403);
     }
+
+    $user->delete();
+
+    return response()->json([
+        'status' => true,
+        'message' => __('messages.user_deleted_successfully')
+    ]);
+}
+
 }

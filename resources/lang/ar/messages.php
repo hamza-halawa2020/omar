@@ -304,4 +304,6 @@ return [
     'users' => 'الموظفين',
     'create_user' => 'اضافة موظف',
     'settings' => 'الاعدادات',
+    'optional' => 'اختياري',
+    'cannot_delete_yourself' => 'لا يمكنك حذف نفسك',
 ];

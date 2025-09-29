@@ -49,6 +49,10 @@
     @include('dashboard.users.edit')
     @include('dashboard.users.delete')
 
+
+
+
+
 @endsection
 
 @push('scripts')
@@ -85,5 +89,51 @@
                 $('#deleteUserModal').modal('show');
             });
         });
-    </script>
+ 
+ 
+$(document).ready(function () {
+    $('#saveUserBtn').click(function () {
+        let formData = $('#createUserForm').serialize();
+
+        $.ajax({
+            url: "{{ route('users.store') }}",
+            method: "POST",
+            data: formData,
+            beforeSend: function () {
+                $('.error-text').text('');
+                $('#saveUserBtn').prop('disabled', true).text("{{ __('messages.saving') }}...");
+            },
+            success: function (response) {
+                if (response.status) {
+                    $('#alertMsg').html(
+                        `<div class="alert alert-success">${response.message}</div>`
+                    );
+                    $('#createUserForm')[0].reset();
+                    $('#createUserModal').modal('hide');
+                } else {
+                    $('#alertMsg').html(
+                        `<div class="alert alert-danger">${response.message}</div>`
+                    );
+                }
+            },
+            error: function (xhr) {
+                if (xhr.status === 422) {
+                    let errors = xhr.responseJSON.errors;
+                    $.each(errors, function (key, val) {
+                        $(`.${key}_error`).text(val[0]);
+                    });
+                } else {
+                    $('#alertMsg').html(
+                        `<div class="alert alert-danger">Something went wrong!</div>`
+                    );
+                }
+            },
+            complete: function () {
+                $('#saveUserBtn').prop('disabled', false).text("{{ __('messages.save') }}");
+            }
+        });
+    });
+});
+</script>
+
 @endpush
