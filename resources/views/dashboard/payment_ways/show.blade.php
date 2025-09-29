@@ -322,7 +322,6 @@
                 };
 
                 let txHtml = "";
-                console.log(data.transactions);
                 data.transactions.forEach(tx => {
                     let attachmentHtml = tx.attachment ?
                         `<a href="${tx.attachment}" target="_blank" class="text-primary">View</a>` : '';
@@ -338,7 +337,7 @@
                             <td>${tx.notes || ''}</td>
                             <td>${tx.creator?.name || ''}</td>
                             <td>${attachmentHtml}</td>
-                            <td>${tx.client.name || ''}</td>
+                            <td>${ tx.client_id}</td>
                             <td>${tx.created_at || ''}</td>
                         </tr>
                     `;

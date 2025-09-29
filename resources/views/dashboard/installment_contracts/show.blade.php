@@ -27,24 +27,14 @@
         <div class="card mb-3">
             <div class="card-header fw-bold">{{ __('messages.contract_details') }}</div>
             <div class="card-body row">
-                <div class="col-md-3"><strong>{{ __('messages.product_price') }}:</strong> {{ $contract->product_price }}
-                </div>
-                <div class="col-md-3"><strong>{{ __('messages.down_payment') }}:</strong> {{ $contract->down_payment }}
-                </div>
-                <div class="col-md-3"><strong>{{ __('messages.remaining_amount') }}:</strong>
-                    {{ $contract->remaining_amount }}</div>
-
-                <div class="col-md-3"><strong>{{ __('messages.interest_rate') }}:</strong> {{ $contract->interest_rate }}%
-                </div>
-                <div class="col-md-3"><strong>{{ __('messages.interest_amount') }}:</strong>
-                    {{ $contract->interest_amount }}</div>
-                <div class="col-md-3"><strong>{{ __('messages.total_amount') }}:</strong> {{ $contract->total_amount }}
-                </div>
-
-                <div class="col-md-6"><strong>{{ __('messages.installment_count') }}:</strong>
-                    {{ $contract->installment_count }}</div>
-                <div class="col-md-6"><strong>{{ __('messages.installment_amount') }}:</strong>
-                    {{ $contract->installment_amount }}</div>
+                <div class="col-md-3"><strong>{{ __('messages.product_price') }}:</strong> {{ $contract->product_price }}</div>
+                <div class="col-md-3"><strong>{{ __('messages.down_payment') }}:</strong> {{ $contract->down_payment }}</div>
+                <div class="col-md-3"><strong>{{ __('messages.remaining_amount') }}:</strong>{{ $contract->remaining_amount }}</div>
+                <div class="col-md-3"><strong>{{ __('messages.interest_rate') }}:</strong> {{ $contract->interest_rate }}%</div>
+                <div class="col-md-3"><strong>{{ __('messages.interest_amount') }}:</strong>{{ $contract->interest_amount }}</div>
+                <div class="col-md-3"><strong>{{ __('messages.total_amount') }}:</strong> {{ $contract->total_amount }}</div>
+                <div class="col-md-6"><strong>{{ __('messages.installment_count_left') }}:</strong>{{ $contract->remaining_installments }}</div>
+                <div class="col-md-6"><strong>{{ __('messages.installment_amount') }}:</strong>{{ $contract->installment_amount }}</div>
             </div>
         </div>
 
@@ -76,7 +66,7 @@
                                     @elseif($inst->status == 'late')
                                         <span class="badge bg-danger">{{ __('messages.late') }}</span>
                                     @else
-                                        <span class="badge bg-warning">{{ __('messages.pending') }}</span>
+                                        <span class="badge bg-warning text-dark">{{ __('messages.pending') }}</span>
                                     @endif
                                 </td>
                                 <td>
@@ -110,7 +100,7 @@
 
     </div>
 
-    @include('dashboard.installment_contracts.pay') <!-- مودال الدفع -->
+    @include('dashboard.installment_contracts.pay')
 @endsection
 
 @push('scripts')

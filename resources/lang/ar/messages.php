@@ -152,7 +152,7 @@ return [
     'total_commission' => 'إجمالي العمولة',
     'all' => 'الكل',
     'cannot_update_client_with_transactions' => 'لا يمكن تحديث العميل لأنه مرتبط بعمليات',
-    'products' => 'المنتجات',   
+    'products' => 'المنتجات',
     'products_fetched_successfully' => 'تم جلب المنتجات بنجاح',
     'Product_created_successfully' => 'تم انشاء المنتج بنجاح',
     'Product_fetched_successfully' => 'تم جلب المنتج بنجاح',
@@ -243,5 +243,16 @@ return [
     'required' => 'المطلوب',
     'no_installments' => 'لا يوجد أقساط',
     'unknown' => 'غير معروف',
-    
-    ];
+    'remaining_installments' => 'الأقساط المتبقية',
+    'select_payment_way' => 'اختر طريقة الدفع',
+    'installment_paid_successfully' => 'تم دفع القسط بنجاح',
+    'cannot_delete_contract_with_paid_installments' => 'لا يمكن حذف العقد لأنه مرتبط بأقساط مدفوعة',
+    'installment_contract_deleted_successfully' => 'تم حذف عقد التقسيط بنجاح',
+    'payment_for_installment' => 'دفعة عن قسط - ',
+    'late' => 'متأخر',
+    'cannot_update_contract_with_paid_installments' => 'لا يمكن تحديث العقد لأنه مرتبط بأقساط مدفوعة',
+    'installment_contract_updated_successfully' => 'تم تحديث عقد التقسيط بنجاح',
+    'installment_contract_fetched_successfully' => 'تم جلب عقد التقسيط بنجاح',
+    'installment_count_left' => 'عدد الأقساط المتبقية',
+    'next_installment_date' => 'تاريخ القسط التالي',
+];

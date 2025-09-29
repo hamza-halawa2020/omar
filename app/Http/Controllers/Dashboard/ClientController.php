@@ -8,6 +8,7 @@ use App\Http\Requests\Client\StoreClientRequest;
 use App\Http\Requests\Client\UpdateClientRequest;
 use App\Http\Resources\ClientResource;
 use App\Models\Client;
+use App\Models\PaymentWay;
 use Illuminate\Support\Facades\Auth;
 
 class ClientController extends Controller
@@ -48,12 +49,14 @@ class ClientController extends Controller
     public function show($id)
     {
         $client = Client::with(['creator', 'transactions'])->findOrFail($id);
+
         return response()->json(['status' => true, 'message' => __('messages.client_fetched_successfully'), 'data' => new ClientResource($client)]);
     }
 
     public function showPage($id)
     {
-        $client = Client::with(['creator', 'transactions.paymentWay','installmentContracts.installments.payments',])->findOrFail($id);
+        $client = Client::with(['creator', 'transactions.paymentWay', 'installmentContracts.installments.payments'])->findOrFail($id);
+        $paymentWays = PaymentWay::all();
 
         if (request()->expectsJson()) {
             return response()->json([
@@ -63,8 +66,13 @@ class ClientController extends Controller
             ]);
         }
 
-        // dd($client);
-        return view('dashboard.clients.show', compact('client'));
+        return view('dashboard.clients.show', [
+            'client' => $client,
+            'remaining_amount' => $client->total_remaining_amount,
+            'remaining_installments' => $client->total_remaining_installments,
+            'paymentWays' => $paymentWays,
+        ]);
+
     }
 
     public function update(UpdateClientRequest $request, $id)

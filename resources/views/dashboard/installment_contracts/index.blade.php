@@ -19,12 +19,12 @@
                         <th class="text-center">#</th>
                         <th class="text-center">{{ __('messages.client') }}</th>
                         <th class="text-center">{{ __('messages.product') }}</th>
-                        <th class="text-center">{{ __('messages.installment_date') }}</th>
+                        <th class="text-center">{{ __('messages.next_installment_date') }}</th>
                         <th class="text-center">{{ __('messages.total_amount') }}</th>
                         <th class="text-center">{{ __('messages.installment_amount') }}</th>
                         <th class="text-center">{{ __('messages.down_payment') }}</th>
                         <th class="text-center">{{ __('messages.remaining_amount') }}</th>
-                        <th class="text-center">{{ __('messages.installment_count') }}</th>
+                        <th class="text-center">{{ __('messages.installment_count_left') }}</th>
                         <th class="text-center">{{ __('messages.actions') }}</th>
                     </tr>
                 </thead>
@@ -41,7 +41,7 @@
     <!-- Edit Modal -->
     @include('dashboard.installment_contracts.edit')
     <!-- Pay Modal -->
-    @include('dashboard.installment_contracts.pay')
+    {{-- @include('dashboard.installment_contracts.pay') --}}
     <!-- Delete Modal -->
     @include('dashboard.installment_contracts.delete')
 @endsection
@@ -69,12 +69,12 @@
                             <small>${clientPhone}</small>
                         </td>
                         <td>${productName}</td>
-                        <td>${contract.start_date}</td>
+                        <td>${contract.next_due_date}</td>
                         <td>${contract.total_amount}</td>
                         <td>${contract.installment_amount}</td>
                         <td>${contract.down_payment}</td>
-                        <td>${contract.total_amount - contract.down_payment}</td>
-                        <td>${contract.installment_count}</td>
+                        <td>${contract.remaining_amount}</td>
+                        <td>${contract.remaining_installments}</td>
                         <td>
                             <a href="{{ url('dashboard/installment_contracts') }}/${contract.id}"  class="btn btn-outline-success btn-sm radius-8">{{ __('messages.details') }}</a>
                             <button 

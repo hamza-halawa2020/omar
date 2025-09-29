@@ -9,6 +9,16 @@ class InstallmentContractResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        // حساب باقي الفلوس = مجموع (required_amount - paid_amount) لكل الأقساط
+        $remainingAmount = $this->installments->sum(function ($installment) {
+            return ($installment->required_amount - $installment->paid_amount);
+        });
+
+        // حساب باقي الأقساط = عدد الأقساط اللي مش status = paid
+        $remainingInstallments = $this->installments->where('status', '!=', 'paid')->count();
+
+         $nextInstallment = $this->installments->where('status', '!=', 'paid')->sortBy('due_date')->first();
+
         return [
             'id' => $this->id,
             'total_amount' => $this->total_amount,
@@ -17,10 +27,16 @@ class InstallmentContractResource extends JsonResource
             'down_payment' => $this->down_payment,
             'down_payment_percentage' => $this->down_payment_percentage,
             'start_date' => $this->start_date,
+            
+            'remaining_amount' => number_format($remainingAmount, 2, '.', ''), 
+            'remaining_installments' => $remainingInstallments,
+            'next_due_date' => $nextInstallment?->due_date,  
+
             'client' => new ClientResource($this->whenLoaded('client')),
             'product' => new ProductResource($this->whenLoaded('product')),
             'creator' => new UserResource($this->whenLoaded('creator')),
             'installments' => InstallmentResource::collection($this->whenLoaded('installments')),
+
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
         ];

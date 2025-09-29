@@ -76,7 +76,7 @@ class PaymentWayController extends Controller
 
         ]);
 
-        //event(new CreateBackup);
+        // event(new CreateBackup);
 
         return response()->json(['status' => true,     'message' => __('messages.payment_way_created_successfully'), 'data' => new PaymentWayResource($paymentWay->load(['creator']))], 201);
     }
@@ -89,7 +89,9 @@ class PaymentWayController extends Controller
 
     public function showList($id)
     {
-        $paymentWay = PaymentWay::with(['category', 'subCategory', 'creator', 'transactions', 'logs', 'monthlyLimits'])->findOrFail($id);
+        $paymentWay = PaymentWay::with(['category', 'subCategory', 'creator', 'transactions.client',  'transactions.installmentPayment', 'logs', 'monthlyLimits'])->findOrFail($id);
+
+        
 
         $timeFilter = request('time', 'today');
         $startDate = request('start_date');
@@ -214,7 +216,7 @@ class PaymentWayController extends Controller
 
         ]);
 
-        //event(new CreateBackup);
+        // event(new CreateBackup);
 
         return response()->json(['status' => true,    'message' => __('messages.payment_way_updated_successfully'), 'data' => new PaymentWayResource($paymentWay->load(['creator']))]);
     }
@@ -250,7 +252,7 @@ class PaymentWayController extends Controller
 
         $paymentWay->delete();
 
-        //event(new CreateBackup);
+        // event(new CreateBackup);
 
         return response()->json(['status' => true,     'message' => __('messages.payment_way_deleted_successfully')]);
     }

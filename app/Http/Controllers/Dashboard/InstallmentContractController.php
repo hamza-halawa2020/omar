@@ -2,15 +2,17 @@
 
 namespace App\Http\Controllers\Dashboard;
 
+use App\Http\Requests\InstallmentContract\PayRequest;
 use App\Http\Requests\InstallmentContract\StoreInstallmentContractRequest;
 use App\Http\Requests\InstallmentContract\UpdateInstallmentContractRequest;
 use App\Http\Resources\InstallmentContractResource;
 use App\Models\Client;
 use App\Models\Installment;
 use App\Models\InstallmentContract;
+use App\Models\PaymentWay;
 use App\Models\Product;
+use App\Models\Transaction;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 
@@ -48,14 +50,11 @@ class InstallmentContractController extends BaseController
         $interestRate = $data['interest_rate'] ?? 0;
         $interestAmount = ($remainingAmount * $interestRate) / 100;
 
-        // المبلغ الكلي
         $totalAmount = $remainingAmount + $interestAmount;
 
-        // قيمة القسط الشهري
         $installmentCount = $data['installment_count'];
         $installmentAmount = $totalAmount / $installmentCount;
 
-        // إنشاء العقد
         $contract = InstallmentContract::create([
             'product_price' => $productPrice,
             'down_payment' => $downPayment,
@@ -74,7 +73,6 @@ class InstallmentContractController extends BaseController
         $client = Client::find($data['client_id']);
         $client->increment('debt', $totalAmount);
 
-        // إنشاء الأقساط
         $startDate = Carbon::parse($data['start_date']);
         for ($i = 1; $i <= $installmentCount; $i++) {
             Installment::create([
@@ -107,14 +105,11 @@ class InstallmentContractController extends BaseController
 
     public function showPage($id)
     {
-        $contract = InstallmentContract::with([
-            'client',
-            'product',
-            'creator',
-            'installments.payments',
-        ])->findOrFail($id);
+        $contract = InstallmentContract::with(['client','product','creator','installments.payments'])->findOrFail($id);
 
-        return view('dashboard.installment_contracts.show', compact('contract'));
+        $paymentWays = PaymentWay::all();
+
+        return view('dashboard.installment_contracts.show', compact('contract', 'paymentWays'));
     }
 
     public function update(UpdateInstallmentContractRequest $request, $id)
@@ -122,15 +117,9 @@ class InstallmentContractController extends BaseController
         $contract = InstallmentContract::with('installments')->findOrFail($id);
         $data = $request->validated();
 
-        // check لو فيه أقساط مدفوعة
         $hasPaidInstallments = $contract->installments()->where('status', 'paid')->exists();
 
-        // لو المستخدم عدل أي حاجة مؤثرة على الحسابات
-        $recalculate = isset($data['product_price']) ||
-                       isset($data['down_payment']) ||
-                       isset($data['interest_rate']) ||
-                       isset($data['installment_count']) ||
-                       isset($data['start_date']);
+        $recalculate = isset($data['product_price']) ||isset($data['down_payment']) ||isset($data['interest_rate']) ||isset($data['installment_count']) ||isset($data['start_date']);
 
         if ($recalculate) {
             if ($hasPaidInstallments) {
@@ -153,7 +142,6 @@ class InstallmentContractController extends BaseController
 
             $startDate = Carbon::parse($data['start_date'] ?? $contract->start_date);
 
-            // تحديث بيانات العقد
             $contract->update([
                 'product_price' => $productPrice,
                 'down_payment' => $downPayment,
@@ -168,10 +156,8 @@ class InstallmentContractController extends BaseController
                 'product_id' => $data['product_id'] ?? $contract->product_id,
             ]);
 
-            // مسح الأقساط القديمة (pending) فقط
             $contract->installments()->delete();
 
-            // إنشاء الأقساط الجديدة
             for ($i = 1; $i <= $installmentCount; $i++) {
                 Installment::create([
                     'due_date' => $startDate->copy()->addMonths($i),
@@ -182,7 +168,6 @@ class InstallmentContractController extends BaseController
                 ]);
             }
         } else {
-            // تعديل بيانات بسيطة (مثلا client_id او product_id بس)
             $contract->update($data);
         }
 
@@ -193,32 +178,40 @@ class InstallmentContractController extends BaseController
         ]);
     }
 
-    public function pay(Request $request)
+    public function pay(PayRequest $request)
     {
-        $request->validate([
-            'installment_id' => 'required|exists:installments,id',
-            'amount' => 'required|numeric|min:0.01',
-            'payment_date' => 'required|date',
+
+        $data = $request->validated();
+
+        $installment = Installment::findOrFail($data['installment_id']);
+
+        $transactions = Transaction::create([
+            'payment_way_id' => $data['payment_way_id'],
+            'created_by' => Auth::id(),
+            'type' => 'receive',
+            'amount' => $data['amount'],
+            'commission' => $data['commission'],
+            'notes' => __('messages.payment_for_installment').$installment->contract->client->name.' - '.$installment->contract->product->name,
+            'attachment' => null,
+            'client_id' => $installment->contract->client_id,
         ]);
 
-        $installment = Installment::findOrFail($request->installment_id);
+        $total = $data['amount'] + $data['commission'];
+        $transactions->paymentWay->increment('balance', $total);
 
-        // سجل الدفع
         $payment = $installment->payments()->create([
-            'transaction_id' => null, // ممكن تربطه بـ Transaction
-            'amount' => $request->amount,
-            'payment_date' => $request->payment_date,
+            'transaction_id' => $transactions->id,
+            'amount' => $data['amount'],
+            'payment_date' => $data['payment_date'],
             'paid_by' => Auth::id(),
         ]);
 
-        // حدث المبلغ المدفوع وحالة القسط
-        $installment->paid_amount += $request->amount;
+        $installment->paid_amount += $data['amount'];
         $installment->status = $installment->paid_amount >= $installment->required_amount ? 'paid' : 'pending';
         $installment->save();
-        
-        // إنقاص مديونية العميل
+
         $client = $installment->contract->client;
-    $client->decrement('debt', $request->amount);
+        $client->decrement('debt', $data['amount']);
 
         return response()->json([
             'status' => true,
@@ -238,7 +231,6 @@ class InstallmentContractController extends BaseController
             ], 400);
         }
 
-        // امسح الأقساط الأول
         $contract->installments()->delete();
         $contract->delete();
 

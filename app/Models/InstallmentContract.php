@@ -23,7 +23,6 @@ class InstallmentContract extends Model
         'created_by',
     ];
 
-
     public function client()
     {
         return $this->belongsTo(Client::class, 'client_id');
@@ -42,5 +41,17 @@ class InstallmentContract extends Model
     public function installments()
     {
         return $this->hasMany(Installment::class, 'installment_contract_id')->orderBy('due_date');
+    }
+
+    public function getRemainingInstallmentsAttribute()
+    {
+        return $this->installments()->where('status', '!=', 'paid')->count();
+    }
+
+    public function getRemainingAmountAttribute()
+    {
+        return $this->installments->sum(function ($installment) {
+            return $installment->required_amount - $installment->paid_amount;
+        });
     }
 }

@@ -106,6 +106,8 @@
         </div>
 
     </div>
+
+    @include('dashboard.installment_contracts.pay')
 @endsection
 
 <style>
@@ -118,6 +120,12 @@
 
 @push('scripts')
     <script>
+        $(document).on('click', '.payBtn', function() {
+            $('#payInstallmentId').val($(this).data('id'));
+            $('#payAmount').val($(this).data('amount'));
+            $('#payModal').modal('show');
+        });
+
         $(document).ready(function() {
             // Load client details
             function loadClientDetails() {
@@ -129,18 +137,15 @@
                         $('#clientName').text(client.name);
                         $('#clientPhone').text(client.phone_number || '{{ __('messages.unknown') }}');
                         $('#clientDebt').text(parseFloat(client.debt || 0).toFixed(2));
-                        $('#clientCreator').text(client.creator ? client.creator.name : '{{ __('messages.unknown') }}');
+                        $('#clientCreator').text(client.creator ? client.creator.name :'{{ __('messages.unknown') }}');
                         $('#clientCreatedAt').text(client.created_at);
 
 
                         // Update statistics
                         let totalTransactions = client.transactions.length;
-                        let totalSent = client.transactions.filter(t => t.type === 'send').reduce((sum,
-                            t) => sum + parseFloat(t.amount || 0), 0).toFixed(2);
-                        let totalReceived = client.transactions.filter(t => t.type === 'receive').reduce((
-                            sum, t) => sum + parseFloat(t.amount || 0), 0).toFixed(2);
-                        let totalCommission = client.transactions.reduce((sum, t) => sum + parseFloat(t
-                            .commission || 0), 0).toFixed(2);
+                        let totalSent = client.transactions.filter(t => t.type === 'send').reduce((sum,t) => sum + parseFloat(t.amount || 0), 0).toFixed(2);
+                        let totalReceived = client.transactions.filter(t => t.type === 'receive').reduce((sum, t) => sum + parseFloat(t.amount || 0), 0).toFixed(2);
+                        let totalCommission = client.transactions.reduce((sum, t) => sum + parseFloat(t.commission || 0), 0).toFixed(2);
 
                         $('#totalTransactions').text(totalTransactions);
                         $('#totalSent').text(totalSent);
@@ -170,10 +175,15 @@
                         // Update chart
                         updateChart(client.transactions);
 
-
-                        // العقود
                         let contractsAccordion = '';
+
+                        const installmentStatus = {
+                            paid: "{{ __('messages.paid') }}",
+                            late: "{{ __('messages.late') }}",
+                            pending: "{{ __('messages.pending') }}",
+                        };
                         client.installment_contracts.forEach(function(contract, index) {
+
                             let installmentsHtml = '';
                             if (contract.installments) {
                                 contract.installments.forEach(function(installment) {
@@ -183,19 +193,54 @@
                                     <td>${installment.due_date}</td>
                                     <td>${parseFloat(installment.required_amount).toFixed(2)}</td>
                                     <td>${parseFloat(installment.paid_amount).toFixed(2)}</td>
-                                    <td class="${installment.status === 'paid' ? 'text-success' : installment.status === 'late' ? 'text-danger' : 'text-warning'}">
-                                        ${installment.status}
+                                    <td class="${installment.status === 'paid' ? 'badge bg-success' : installment.status === 'late' ? 'badge bg-danger' : 'badge bg-warning text-dark'}">
+                                        ${installmentStatus[installment.status] || '{{ __('messages.unknown') }}'}
+                                    </td>
+                                    <td>
+                                        ${
+                                            installment.status !== 'paid'
+                                                ? `<button class="btn btn-outline-success btn-sm radius-8 payBtn"
+                                                                    data-id="${installment.id}"
+                                                                    data-amount="${(installment.required_amount - installment.paid_amount)}"
+                                                                    data-bs-toggle="modal"
+                                                                    data-bs-target="#payModal">
+                                                                    {{ __('messages.pay') }}
+                                                            </button>`
+
+                                                : ''
+                                        }
                                     </td>
                                 </tr>
                             `;
+
+                                    if (installment.payments && installment.payments
+                                        .length > 0) {
+                                        installmentsHtml += `
+                                    <tr>
+                                        <td colspan="6" class="text-start">
+                                            <strong>{{ __('messages.payments') }}:</strong>
+                                            <ul>
+                                                ${installment.payments.map(pay =>
+                                                    `<li>${pay.payment_date} - ${parseFloat(pay.amount).toFixed(2)} (${pay.payer?.name || ''})</li>`
+                                                ).join('')}
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                `;
+                                    }
+
+
                                 });
                             }
 
                             contractsAccordion += `
                         <div class="accordion-item">
                             <h2 class="accordion-header" id="heading${index}">
-                                <button class=" text-primary accordion-button ${index > 0 ? 'collapsed' : ''}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${index}">
-                                    {{ __('messages.installments') }} #${contract.id} - {{ __('messages.total') }} ${parseFloat(contract.total_amount).toFixed(2)}
+                                <button class="accordion-button ${index > 0 ? 'collapsed' : ''}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${index}">
+                                    <span class="px-3 py-1 bg-primary m-2 rounded">{{ __('messages.installments') }} #${contract.id} </span>
+                                    <span class="px-3 py-1 bg-primary m-2 rounded">{{ __('messages.total') }} ${parseFloat(contract.total_amount).toFixed(2)} </span>
+                                    <span class="px-3 py-1 bg-primary m-2 rounded">{{ __('messages.remaining_installments') }} ${contract.remaining_installments} </span>
+                                    <span class="px-3 py-1 bg-primary m-2 rounded">{{ __('messages.remaining_amount') }} ${contract.remaining_amount}</span>
                                 </button>
                             </h2>
                             <div id="collapse${index}" class="accordion-collapse collapse ${index === 0 ? 'show' : ''}" data-bs-parent="#contractsAccordion">
@@ -211,6 +256,7 @@
                                                 <th class="text-center">{{ __('messages.required') }}</th>
                                                 <th class="text-center">{{ __('messages.paid') }}</th>
                                                 <th class="text-center">{{ __('messages.status') }}</th>
+                                                <th class="text-center">{{ __('messages.actions') }}</th>
                                             </tr>
                                         </thead>
                                         <tbody>

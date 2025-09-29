@@ -33,4 +33,20 @@ class Client extends Model
     {
         return $this->hasMany(InstallmentContract::class, 'client_id');
     }
+
+    public function getTotalRemainingAmountAttribute()
+    {
+        return $this->installmentContracts->sum(function ($contract) {
+            return $contract->installments->sum(function ($installment) {
+                return $installment->required_amount - $installment->paid_amount;
+            });
+        });
+    }
+
+    public function getTotalRemainingInstallmentsAttribute()
+    {
+        return $this->installmentContracts->sum(function ($contract) {
+            return $contract->installments->where('status', '!=', 'paid')->count();
+        });
+    }
 }
