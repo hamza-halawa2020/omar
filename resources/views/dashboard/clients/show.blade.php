@@ -220,33 +220,33 @@
                                         ${
                                             installment.status !== 'paid'
                                                 ? `<button class="btn btn-outline-success btn-sm radius-8 payBtn"
-                                                                            data-id="${installment.id}"
-                                                                            data-amount="${(installment.required_amount - installment.paid_amount)}"
-                                                                            data-bs-toggle="modal"
-                                                                            data-bs-target="#payModal">
-                                                                            {{ __('messages.pay') }}
-                                                                    </button>`
-
+                                                            data-id="${installment.id}"
+                                                            data-amount="${(installment.required_amount - installment.paid_amount)}"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#payModal">
+                                                            {{ __('messages.pay') }}
+                                                    </button>`
                                                 : ''
                                         }
                                     </td>
                                 </tr>
                             `;
 
-                                    if (installment.payments && installment.payments
-                                        .length > 0) {
+                                    if (installment.payments && installment.payments.length > 0) {
+
+                                        console.log( installment.payments);
                                         installmentsHtml += `
-                                    <tr>
-                                        <td colspan="6" class="text-start">
-                                            <strong>{{ __('messages.payments') }}:</strong>
-                                            <ul>
-                                                ${installment.payments.map(pay =>
-                                                    `<li>${pay.payment_date} - ${parseFloat(pay.amount).toFixed(2)} (${pay.payer?.name || ''})</li>`
-                                                ).join('')}
-                                            </ul>
-                                        </td>
-                                    </tr>
-                                `;
+                                            <tr>
+                                                <td colspan="6" class="text-start">
+                                                    <strong>{{ __('messages.payments') }}:</strong>
+                                                    <ul>
+                                                        ${installment.payments.map(pay =>
+                                                            `<li>${pay.payment_date} - ${parseFloat(pay.amount).toFixed(2)} (${pay.paid_by?.name || ''})</li>`
+                                                        ).join('')}
+                                                    </ul>
+                                                </td>
+                                            </tr>
+                                        `;
                                     }
 
 

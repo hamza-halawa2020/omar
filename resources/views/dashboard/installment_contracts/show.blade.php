@@ -85,7 +85,7 @@
                                         <ul>
                                             @foreach ($inst->payments as $pay)
                                                 <li>{{ $pay->payment_date->format('Y-m-d') }} - {{ $pay->amount }}
-                                                    ({{ $pay->payer->name ?? '' }})</li>
+                                                    ({{ $pay->paid_by->name ?? '' }})</li>
                                             @endforeach
                                         </ul>
                                     </td>

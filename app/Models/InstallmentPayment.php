@@ -31,7 +31,7 @@ class InstallmentPayment extends Model
         return $this->belongsTo(Transaction::class, 'transaction_id');
     }
 
-    public function payer()
+    public function paid_by()
     {
         return $this->belongsTo(User::class, 'paid_by');
     }

@@ -11,7 +11,7 @@ class InstallmentResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'due_date' => $this->due_date,
+            'due_date' => $this->due_date->format('Y-m-d'),
             'required_amount' => $this->required_amount,
             'paid_amount' => $this->paid_amount,
             'status' => $this->status,

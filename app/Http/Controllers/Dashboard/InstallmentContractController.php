@@ -97,7 +97,7 @@ class InstallmentContractController extends BaseController
 
     public function show($id)
     {
-        $contract = InstallmentContract::with(['client', 'product', 'creator', 'installments.payments'])
+        $contract = InstallmentContract::with(['client', 'product', 'creator', 'installments.payments.paid_by'])
             ->findOrFail($id);
 
         return response()->json([

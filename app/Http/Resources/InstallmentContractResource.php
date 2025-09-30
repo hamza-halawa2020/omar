@@ -30,7 +30,7 @@ class InstallmentContractResource extends JsonResource
             
             'remaining_amount' => number_format($remainingAmount, 2, '.', ''), 
             'remaining_installments' => $remainingInstallments,
-            'next_due_date' => $nextInstallment?->due_date,  
+            'next_due_date' => $nextInstallment?->due_date->format('Y-m-d'),  
 
             'client' => new ClientResource($this->whenLoaded('client')),
             'product' => new ProductResource($this->whenLoaded('product')),
