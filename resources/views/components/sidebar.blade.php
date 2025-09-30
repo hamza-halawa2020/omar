@@ -102,7 +102,6 @@
                     </ul>
                 </li>
             @endcan
-
         </ul>
     </div>
 </aside>
