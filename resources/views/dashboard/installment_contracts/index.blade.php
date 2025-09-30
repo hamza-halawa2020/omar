@@ -80,11 +80,13 @@
                             <button 
                                 class="btn btn-outline-primary btn-sm radius-8 editBtn"
                                 data-id="${contract.id}"
-                                data-name="${contract.name ?? ''}"
-                                data-description="${contract.description ?? ''}"
-                                data-purchase_price="${contract.product?.purchase_price ?? ''}"
-                                data-sale_price="${contract.product?.sale_price ?? ''}"
-                                data-stock="${contract.product?.stock ?? ''}"
+                                data-client_id="${contract.client_id}"
+                                data-product_id="${contract.product_id}"
+                                data-product_price="${contract.product_price}"
+                                data-down_payment="${contract.down_payment}"
+                                data-interest_rate="${contract.interest_rate}"
+                                data-installment_count="${contract.installment_count}"
+                                data-start_date="${contract.start_date}"
                             >{{ __('messages.edit') }}</button>
                             <button class="btn btn-outline-danger btn-sm radius-8 deleteBtn" data-id="${contract.id}">{{ __('messages.delete') }}</button>   
                         </td>
@@ -129,21 +131,26 @@
             // Edit (open modal)
             $(document).on('click', '.editBtn', function() {
                 let id = $(this).data('id');
-                let name = $(this).data('name');
-                let description = $(this).data('description');
-                let purchase_price = $(this).data('purchase_price');
-                let sale_price = $(this).data('sale_price');
-                let stock = $(this).data('stock');
+                let clientId = $(this).data('client_id');
+                let productId = $(this).data('product_id');
+                let productPrice = $(this).data('product_price');
+                let downPayment = $(this).data('down_payment');
+                let interestRate = $(this).data('interest_rate');
+                let installmentCount = $(this).data('installment_count');
+                let startDate = $(this).data('start_date');
 
                 $('#editId').val(id);
-                $('#editName').val(name);
-                $('#editDescription').val(description);
-                $('#editPurchasePrice').val(purchase_price);
-                $('#editSalePrice').val(sale_price);
-                $('#editStock').val(stock);
+                $('#editClientId').val(clientId);
+                $('#editProductId').val(productId);
+                $('#editProductPrice').val(productPrice);
+                $('#editDownPayment').val(downPayment);
+                $('#editInterestRate').val(interestRate);
+                $('#editInstallmentCount').val(installmentCount);
+                $('#editStartDate').val(startDate);
 
                 $('#editModal').modal('show');
             });
+
 
 
             // Update
@@ -186,7 +193,7 @@
                 e.preventDefault();
                 let id = $('#deleteId').val();
                 $.ajax({
-                    url: "/dashboard/installments/" + id,
+                    url: "/dashboard/installment_contracts/" + id,
                     type: "DELETE",
                     data: $(this).serialize(),
                     success: function(res) {
@@ -207,14 +214,12 @@
                 });
             });
 
-            // فتح مودال الدفع
             $(document).on('click', '.payBtn', function() {
                 let id = $(this).data('id');
                 $('#payInstallmentId').val(id);
                 $('#payModal').modal('show');
             });
 
-            // تنفيذ الدفع
             $('#payForm').submit(function(e) {
                 e.preventDefault();
                 $.post("{{ route('installments.pay') }}", $(this).serialize(), function(res) {

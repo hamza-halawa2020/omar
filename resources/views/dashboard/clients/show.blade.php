@@ -176,10 +176,10 @@
                             receive: "{{ __('messages.receive') }}",
                             send: "{{ __('messages.send') }}",
                         };
-                        client.transactions.forEach(function(transaction) {
+                        client.transactions.forEach(function(transaction, index) {
                             transactionsHtml += `
                                 <tr>
-                                    <td>${transaction.id}</td>
+                                    <td>${index +1}</td>
                                     <td class="${transaction.type === 'send' ? 'text-danger' : 'text-success'}">${status[transaction.type]}</td>
                                     <td>${parseFloat(transaction.amount).toFixed(2)}</td>
                                     <td>${parseFloat(transaction.commission || 0).toFixed(2)}</td>
@@ -211,19 +211,21 @@
                                     <td>${installment.due_date}</td>
                                     <td>${parseFloat(installment.required_amount).toFixed(2)}</td>
                                     <td>${parseFloat(installment.paid_amount).toFixed(2)}</td>
-                                    <td class="${installment.status === 'paid' ? 'badge bg-success' : installment.status === 'late' ? 'badge bg-danger' : 'badge bg-warning text-dark'}">
+                                    <td>
+                                    <span class="${installment.status === 'paid' ? 'badge bg-success' : installment.status === 'late' ? 'badge bg-danger' : 'badge bg-warning text-dark'}">
                                         ${installmentStatus[installment.status] || '{{ __('messages.unknown') }}'}
+                                        </span>
                                     </td>
                                     <td>
                                         ${
                                             installment.status !== 'paid'
                                                 ? `<button class="btn btn-outline-success btn-sm radius-8 payBtn"
-                                                                        data-id="${installment.id}"
-                                                                        data-amount="${(installment.required_amount - installment.paid_amount)}"
-                                                                        data-bs-toggle="modal"
-                                                                        data-bs-target="#payModal">
-                                                                        {{ __('messages.pay') }}
-                                                                </button>`
+                                                                            data-id="${installment.id}"
+                                                                            data-amount="${(installment.required_amount - installment.paid_amount)}"
+                                                                            data-bs-toggle="modal"
+                                                                            data-bs-target="#payModal">
+                                                                            {{ __('messages.pay') }}
+                                                                    </button>`
 
                                                 : ''
                                         }

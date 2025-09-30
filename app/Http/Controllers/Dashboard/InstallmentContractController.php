@@ -38,7 +38,7 @@ class InstallmentContractController extends BaseController
 
     public function list()
     {
-        $installments = InstallmentContract::with(['client', 'product', 'creator', 'installments'])->get();
+        $installments = InstallmentContract::with(['client', 'product', 'creator', 'installments'])->latest()->get();
 
         return response()->json(['status' => true, 'message' => __('messages.installments_fetched_successfully'), 'data' => InstallmentContractResource::collection($installments)]);
     }
@@ -127,24 +127,23 @@ class InstallmentContractController extends BaseController
 
         if ($recalculate) {
             if ($hasPaidInstallments) {
-                return response()->json([
-                    'status' => false,
-                    'message' => __('messages.cannot_update_contract_with_paid_installments'),
-                ], 400);
+                return response()->json(['status' => false, 'message' => __('messages.cannot_update_contract_with_paid_installments')], 400);
             }
 
-            $productPrice = $data['product_price'] ?? $contract->product_price;
-            $downPayment = $data['down_payment'] ?? $contract->down_payment;
+            $productPrice = $data['product_price'];
+            $downPayment = $data['down_payment'] ?? 0;
             $remainingAmount = $productPrice - $downPayment;
 
-            $interestRate = $data['interest_rate'] ?? $contract->interest_rate;
+            $interestRate = $data['interest_rate'] ?? 0;
             $interestAmount = ($remainingAmount * $interestRate) / 100;
 
-            $installmentCount = $data['installment_count'] ?? $contract->installment_count;
+            $installmentCount = $data['installment_count'];
             $totalAmount = $remainingAmount + $interestAmount;
             $installmentAmount = $totalAmount / $installmentCount;
 
-            $startDate = Carbon::parse($data['start_date'] ?? $contract->start_date);
+            $startDate = Carbon::parse($data['start_date']);
+
+            $oldTotal = $contract->total_amount;
 
             $contract->update([
                 'product_price' => $productPrice,
@@ -156,8 +155,8 @@ class InstallmentContractController extends BaseController
                 'total_amount' => $totalAmount,
                 'installment_amount' => $installmentAmount,
                 'start_date' => $startDate,
-                'client_id' => $data['client_id'] ?? $contract->client_id,
-                'product_id' => $data['product_id'] ?? $contract->product_id,
+                'client_id' => $data['client_id'],
+                'product_id' => $data['product_id'],
             ]);
 
             $contract->installments()->delete();
@@ -171,15 +170,18 @@ class InstallmentContractController extends BaseController
                     'installment_contract_id' => $contract->id,
                 ]);
             }
+
+            $client = Client::find($data['client_id']);
+            $client->decrement('debt', $oldTotal);
+            $client->increment('debt', $totalAmount);
+
+            return response()->json(['status' => true, 'message' => __('messages.installment_contract_updated_successfully'), 'data' => new InstallmentContractResource($contract->load('installments'))]);
         } else {
             $contract->update($data);
-        }
 
-        return response()->json([
-            'status' => true,
-            'message' => __('messages.installment_contract_updated_successfully'),
-            'data' => new InstallmentContractResource($contract->load('installments')),
-        ]);
+            return response()->json(['status' => true,'message' => __('messages.installment_contract_updated_successfully'),'data' => new InstallmentContractResource($contract->load('installments')),
+            ]);
+        }
     }
 
     public function pay(PayRequest $request)
