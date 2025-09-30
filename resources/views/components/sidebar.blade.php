@@ -72,34 +72,37 @@
                 </li>
             @endcan
 
-            <li class="dropdown">
-                <a href="javascript:void(0)">
-                    <iconify-icon icon="mdi:cog-outline" class="menu-icon"></iconify-icon>
-                    <span>{{ __('messages.settings') }}</span>
-                </a>
+            @can('users_index')
+                <li class="dropdown">
+                    <a href="javascript:void(0)">
+                        <iconify-icon icon="mdi:cog-outline" class="menu-icon"></iconify-icon>
+                        <span>{{ __('messages.settings') }}</span>
+                    </a>
 
-                <ul class="sidebar-submenu">
-                    @can('roles_index')
-                        <li>
-                            <a href="{{ route('roles.index') }}"
-                                class="d-flex align-items-center gap-2 {{ Route::is('roles.*') ? 'active-page' : '' }}">
-                                <iconify-icon icon="mdi:shield-account-outline" class="menu-icon"></iconify-icon>
-                                <span>{{ __('messages.roles') }}</span>
-                            </a>
-                        </li>
-                    @endcan
+                    <ul class="sidebar-submenu">
+                        @can('roles_index')
+                            <li>
+                                <a href="{{ route('roles.index') }}"
+                                    class="d-flex align-items-center gap-2 {{ Route::is('roles.*') ? 'active-page' : '' }}">
+                                    <iconify-icon icon="mdi:shield-account-outline" class="menu-icon"></iconify-icon>
+                                    <span>{{ __('messages.roles') }}</span>
+                                </a>
+                            </li>
+                        @endcan
 
-                    @can('users_index')
-                        <li>
-                            <a href="{{ route('users.index') }}"
-                                class="d-flex align-items-center gap-2 {{ Route::is('users.*') ? 'active-page' : '' }}">
-                                <iconify-icon icon="mdi:account-outline" class="menu-icon"></iconify-icon>
-                                <span>{{ __('messages.users') }}</span>
-                            </a>
-                        </li>
-                    @endcan
-                </ul>
-            </li>
+                        @can('users_index')
+                            <li>
+                                <a href="{{ route('users.index') }}"
+                                    class="d-flex align-items-center gap-2 {{ Route::is('users.*') ? 'active-page' : '' }}">
+                                    <iconify-icon icon="mdi:account-outline" class="menu-icon"></iconify-icon>
+                                    <span>{{ __('messages.users') }}</span>
+                                </a>
+                            </li>
+                        @endcan
+                    </ul>
+                </li>
+            @endcan
+
         </ul>
     </div>
 </aside>
