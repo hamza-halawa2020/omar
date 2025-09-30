@@ -26,9 +26,24 @@
                         <span class="text-danger error-text email_error"></span>
                     </div>
 
-                    <div class="mb-3">
-                        <label>{{ __('messages.password') }}</label>
-                        <input type="password" name="password" class="form-control">
+                    <div class="">
+                        <div class="position-relative mb-3">
+                            <div class="icon-field">
+                                <span class="icon top-50 translate-middle-y">
+                                    <iconify-icon icon="solar:lock-password-outline"></iconify-icon>
+                                </span>
+                                <input type="password" name="password"
+                                    class="form-control h-56-px bg-neutral-50 radius-12 pe-50" id="update-your-password"
+                                    placeholder="{{ __('messages.password') }}">
+
+                                <span class="update-toggle-password position-absolute top-50 end-0 translate-middle-y me-3"
+                                    style="cursor: pointer;">
+                                    <iconify-icon icon="mdi:eye-off-outline" class="show-icon"></iconify-icon>
+                                    <iconify-icon icon="mdi:eye-outline" class="hide-icon"
+                                        style="display: none;"></iconify-icon>
+                                </span>
+                            </div>
+                        </div>
                         <span class="text-danger error-text password_error"></span>
                     </div>
 
@@ -55,3 +70,25 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.update-toggle-password').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const passwordField = document.getElementById('update-your-password');
+                const showIcon = btn.querySelector('.show-icon');
+                const hideIcon = btn.querySelector('.hide-icon');
+
+                if (passwordField.type === 'password') {
+                    passwordField.type = 'text';
+                    showIcon.style.display = 'none';
+                    hideIcon.style.display = 'inline';
+                } else {
+                    passwordField.type = 'password';
+                    showIcon.style.display = 'inline';
+                    hideIcon.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
