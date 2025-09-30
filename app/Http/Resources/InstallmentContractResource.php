@@ -27,6 +27,7 @@ class InstallmentContractResource extends JsonResource
             'down_payment' => $this->down_payment,
             'down_payment_percentage' => $this->down_payment_percentage,
             'start_date' => $this->start_date,
+            'interest_rate' => $this->interest_rate,
             
             'remaining_amount' => number_format($remainingAmount, 2, '.', ''), 
             'remaining_installments' => $remainingInstallments,

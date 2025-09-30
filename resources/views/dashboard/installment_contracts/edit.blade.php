@@ -68,6 +68,33 @@
                         <input type="date" name="start_date" id="editStartDate" class="form-control" required>
                     </div>
 
+                    <!-- Total Amount -->
+                    <div class="mb-3 col-md-6">
+                        <label>{{ __('messages.total_amount') }}</label>
+                        <input type="number" name="total_amount" id="editTotalAmount" class="form-control"
+                            step="0.01" readonly>
+                    </div>
+
+                    <!-- Remaining Amount -->
+                    <div class="mb-3 col-md-6">
+                        <label>{{ __('messages.remaining_amount') }}</label>
+                        <input type="number" name="remaining_amount" id="editRemainingAmount" class="form-control"
+                            step="0.01" readonly>
+                    </div>
+
+                    <!-- Remaining Installments -->
+                    <div class="mb-3 col-md-6">
+                        <label>{{ __('messages.installment_count_left') }}</label>
+                        <input type="number" name="remaining_installments" id="editRemainingInstallments"
+                            class="form-control" readonly>
+                    </div>
+
+                    <!-- Next Due Date -->
+                    <div class="mb-3 col-md-6">
+                        <label>{{ __('messages.next_installment_date') }}</label>
+                        <input type="date" name="next_due_date" id="editNextDueDate" class="form-control" readonly>
+                    </div>
+
                 </div>
                 <div class="modal-footer">
                     <button type="submit"

@@ -53,6 +53,7 @@
 
             function loadinstallments() {
                 $.get("{{ route('installment_contracts.list') }}", function(res) {
+
                     if (res.status) {
                         let rows = '';
                         res.data.forEach((contract, i) => {
@@ -80,14 +81,20 @@
                             <button 
                                 class="btn btn-outline-primary btn-sm radius-8 editBtn"
                                 data-id="${contract.id}"
-                                data-client_id="${contract.client_id}"
-                                data-product_id="${contract.product_id}"
-                                data-product_price="${contract.product_price}"
+                                data-client_id="${contract.client?.id ?? ''}"
+                                data-product_id="${contract.product?.id ?? ''}"
+                                data-product_price="${contract.product?.purchase_price ?? ''}"
                                 data-down_payment="${contract.down_payment}"
-                                data-interest_rate="${contract.interest_rate}"
+                                data-interest_rate="${contract.interest_rate ?? ''}" 
                                 data-installment_count="${contract.installment_count}"
                                 data-start_date="${contract.start_date}"
+                                data-total_amount="${contract.total_amount}"
+                                data-remaining_amount="${contract.remaining_amount}"
+                                data-remaining_installments="${contract.remaining_installments}"
+                                data-next_due_date="${contract.next_due_date}"
                             >{{ __('messages.edit') }}</button>
+
+
                             <button class="btn btn-outline-danger btn-sm radius-8 deleteBtn" data-id="${contract.id}">{{ __('messages.delete') }}</button>   
                         </td>
                     </tr>`;
@@ -139,6 +146,12 @@
                 let installmentCount = $(this).data('installment_count');
                 let startDate = $(this).data('start_date');
 
+                // الجديد
+                let totalAmount = $(this).data('total_amount');
+                let remainingAmount = $(this).data('remaining_amount');
+                let remainingInstallments = $(this).data('remaining_installments');
+                let nextDueDate = $(this).data('next_due_date');
+
                 $('#editId').val(id);
                 $('#editClientId').val(clientId);
                 $('#editProductId').val(productId);
@@ -148,8 +161,15 @@
                 $('#editInstallmentCount').val(installmentCount);
                 $('#editStartDate').val(startDate);
 
+                // الجديد
+                $('#editTotalAmount').val(totalAmount);
+                $('#editRemainingAmount').val(remainingAmount);
+                $('#editRemainingInstallments').val(remainingInstallments);
+                $('#editNextDueDate').val(nextDueDate);
+
                 $('#editModal').modal('show');
             });
+
 
 
 
