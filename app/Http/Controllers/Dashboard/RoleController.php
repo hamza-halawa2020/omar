@@ -9,13 +9,13 @@ use Spatie\Permission\Models\Role;
 
 class RoleController extends BaseController
 {
-    // public function __construct()
-    // {
-    //     $this->middleware('check.permission:roles_index')->only('index');
-    //     $this->middleware('check.permission:roles_store')->only('store', 'create');
-    //     $this->middleware('check.permission:roles_update')->only('update', 'edit');
-    //     $this->middleware('check.permission:roles_destroy')->only('destroy');
-    // }
+    public function __construct()
+    {
+        $this->middleware('check.permission:roles_index')->only('index');
+        $this->middleware('check.permission:roles_store')->only('store', 'create');
+        $this->middleware('check.permission:roles_update')->only('update', 'edit');
+        $this->middleware('check.permission:roles_destroy')->only('destroy');
+    }
 
     public function index()
     {
