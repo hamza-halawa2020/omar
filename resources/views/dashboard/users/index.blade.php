@@ -9,38 +9,19 @@
             </button>
         </div>
 
-        <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+        <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0" id="usersTable">
             <thead>
                 <tr>
+                    <th class="text-center">{{ __('messages.id') }}</th>
                     <th class="text-center">{{ __('messages.name') }}</th>
                     <th class="text-center">{{ __('messages.email') }}</th>
                     <th class="text-center">{{ __('messages.roles') }}</th>
                     <th class="text-center">{{ __('messages.actions') }}</th>
                 </tr>
             </thead>
-            <tbody id="usersTableBody">
-                @foreach ($users as $user)
-                    <tr data-id="{{ $user->id }}">
-                        <td>{{ $user->name }}</td>
-                        <td>{{ $user->email }}</td>
-                        <td>
-                       
-                                <span class="badge bg-primary p-1">{{ $user->roles->first()->name  ?? ''}}</span>
-                      
-                        </td>
-                        <td>
-                            <button class="btn btn-outline-primary btn-sm editUserBtn" data-id="{{ $user->id }}"
-                                data-name="{{ $user->name }}" data-email="{{ $user->email }}"
-                                data-roles="{{ $user->roles->first()->name ?? '' }}">
-                                {{ __('messages.edit') }}
-                            </button>
-                            <button class="btn btn-outline-danger btn-sm deleteUserBtn" data-id="{{ $user->id }}"
-                                data-name="{{ $user->name }}">
-                                {{ __('messages.delete') }}
-                            </button>
-                        </td>
-                    </tr>
-                @endforeach
+            <tbody>
+                {{-- Data will be loaded via AJAX --}}
+
             </tbody>
         </table>
     </div>
@@ -54,11 +35,47 @@
     <script>
         $(document).ready(function() {
 
+            loadUsers();
+
+            function loadUsers() {
+                $.get("{{ route('users.list') }}", function(res) {
+                    if (res.status) {
+                        let rows = '';
+                        res.data.forEach((user, i) => {
+                            rows += `
+                                <tr data-id="${user.id}">
+                                    <td>${i+1}</td>
+                                    <td>${user.name}</td>
+                                    <td>${user.email}</td>
+                                    <td>${user.roles.join(', ')}</td>
+                                    <td>
+                                        <button class="btn btn-outline-primary btn-sm radius-8 editUserBtn" 
+                                            data-id="${user.id}" 
+                                            data-name="${user.name}" 
+                                            data-email="${user.email}" 
+                                            data-roles='${JSON.stringify(user.roles)}'>
+                                            {{ __('messages.edit') }}
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm radius-8 deleteUserBtn" 
+                                            data-id="${user.id}" 
+                                            data-name="${user.name}">
+                                            {{ __('messages.delete') }}
+                                        </button>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                        $('#usersTable tbody').html(rows);
+                    }
+                });
+            }
+
+
             // ============ Create ============
             $('#saveUserBtn').click(function(e) {
                 e.preventDefault();
                 let formData = $('#createUserForm').serialize();
-                
+
 
                 $.ajax({
                     url: "{{ route('users.store') }}",
@@ -75,35 +92,7 @@
 
                             $('#createUserForm')[0].reset();
                             $('#createUserModal').modal('hide');
-
-                            // Append new row
-                            let rolesHtml = '';
-                            response.data.roles.forEach(role => {
-                                rolesHtml +=
-                                    `<span class="badge bg-primary p-1">${role.name}</span> `;
-                            });
-
-                            $('#usersTableBody').prepend(`
-                            <tr data-id="${response.data.id}">
-                                <td>${response.data.name}</td>
-                                <td>${response.data.email}</td>
-                                <td>${rolesHtml}</td>
-                                <td>
-                                    <button class="btn btn-outline-primary btn-sm editUserBtn" 
-                                        data-id="${response.data.id}" 
-                                        data-name="${response.data.name}" 
-                                        data-email="${response.data.email}" 
-                                        data-roles="${response.data.roles.map(r=>r.name).join(',')}">
-                                        {{ __('messages.edit') }}
-                                    </button>
-                                    <button class="btn btn-outline-danger btn-sm deleteUserBtn" 
-                                        data-id="${response.data.id}" 
-                                        data-name="${response.data.name}">
-                                        {{ __('messages.delete') }}
-                                    </button>
-                                </td>
-                            </tr>
-                        `);
+                            loadUsers();
                         } else {
                             showToast(response.message, 'error');
                         }
@@ -144,21 +133,7 @@
                         if (response.status) {
                             showToast(response.message, 'success');
                             $('#editUserModal').modal('hide');
-
-                            let row = $(`#usersTableBody tr[data-id="${id}"]`);
-                            row.find('td:eq(0)').text(response.data.name);
-                            row.find('td:eq(1)').text(response.data.email);
-
-                            let rolesHtml = '';
-                            response.data.roles.forEach(role => {
-                                rolesHtml +=
-                                    `<span class="badge bg-primary p-1">${role.name}</span> `;
-                            });
-                            row.find('td:eq(2)').html(rolesHtml);
-
-                            row.find('.editUserBtn').data('name', response.data.name)
-                                .data('email', response.data.email)
-                                .data('roles', response.data.roles.map(r => r.name).join(','));
+                            loadUsers();
                         }
                     },
                     error: function(xhr) {
@@ -197,7 +172,7 @@
                         if (response.status) {
                             showToast(response.message, 'success');
                             $('#deleteUserModal').modal('hide');
-                            $(`#usersTableBody tr[data-id="${id}"]`).remove();
+                            loadUsers();
                         } else {
                             showToast(response.message, 'error');
                         }
@@ -217,7 +192,7 @@
                 let id = $(this).data('id');
                 let name = $(this).data('name');
                 let email = $(this).data('email');
-                let roles = $(this).data('roles').split(',');
+                let roles = $(this).data('roles');
 
                 $('#editUserId').val(id);
                 $('#editUserName').val(name);

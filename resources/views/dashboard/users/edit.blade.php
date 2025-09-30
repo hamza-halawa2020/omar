@@ -9,29 +9,32 @@
             </div>
 
             <div class="modal-body">
-                <form id="editUserId">
+                <form id="editUserForm">
                     @csrf
+                    @method('PUT')
+                    <input type="hidden" id="editUserId" name="id">
+
                     <div class="mb-3">
                         <label>{{ __('messages.name') }}</label>
-                        <input type="text" name="name" class="form-control" required>
+                        <input type="text" id="editUserName" name="name" class="form-control" required>
                         <span class="text-danger error-text name_error"></span>
                     </div>
 
                     <div class="mb-3">
                         <label>{{ __('messages.email') }}</label>
-                        <input type="email" name="email" class="form-control" required>
+                        <input type="email" id="editUserEmail" name="email" class="form-control" required>
                         <span class="text-danger error-text email_error"></span>
                     </div>
 
                     <div class="mb-3">
                         <label>{{ __('messages.password') }}</label>
-                        <input type="password" name="password" class="form-control" required>
+                        <input type="password" name="password" class="form-control">
                         <span class="text-danger error-text password_error"></span>
                     </div>
 
                     <div class="mb-3">
                         <label>{{ __('messages.roles') }}</label>
-                        <select name="roles[]" id="editUserRoles"  class="form-select" required>
+                        <select name="role" id="editUserRoles" class="form-select" required>
                             <option value="">{{ __('messages.select_role') }}</option>
                             @foreach ($roles as $role)
                                 <option value="{{ $role->name }}">{{ $role->name }}</option>
@@ -45,11 +48,10 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary btn-sm"
                     data-bs-dismiss="modal">{{ __('messages.close') }}</button>
-                <button type="button" id="saveUserBtn" class="btn btn-outline-primary btn-sm">{{ __('messages.update') }}</button>
+                <button type="button" id="updateUserBtn" class="btn btn-outline-primary btn-sm">
+                    {{ __('messages.update') }}
+                </button>
             </div>
         </div>
     </div>
 </div>
-
-<!-- Alert place -->
-<div id="alertMsg" class="mt-3"></div>

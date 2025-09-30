@@ -24,10 +24,10 @@ class UserController extends BaseController
 
     public function index()
     {
-        $users = User::with('roles')->latest()->get();
+        // $users = User::with('roles')->latest()->get();
         $roles = Role::all();
 
-        return view('dashboard.users.index', compact('users', 'roles'));
+        return view('dashboard.users.index', compact( 'roles'));
     }
 
     public function list()
@@ -62,10 +62,13 @@ class UserController extends BaseController
         return response()->json(['status' => true, 'message' => __('messages.user_fetched_successfully'), 'data' => new UserResource($user)]);
     }
 
-    public function update(UpdateUserRequest $request, User $user)
+    public function update(UpdateUserRequest $request, $id)
     {
         $data = $request->validated();
 
+        // dd( $data);
+
+        $user = User::findOrFail($id);
         if (isset($data['password'])) {
             $data['password'] = Hash::make($data['password']);
         } else {
@@ -74,8 +77,8 @@ class UserController extends BaseController
 
         $user->update($data);
 
-        if (isset($data['roles'])) {
-            $user->syncRoles($data['roles']);
+        if (isset($data['role'])) {
+            $user->syncRoles($data['role']);
         }
 
         return response()->json(['status' => true, 'message' => __('messages.user_updated_successfully'), 'data' => new UserResource($user->load('roles'))]);

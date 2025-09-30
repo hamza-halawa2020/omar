@@ -309,5 +309,8 @@ return [
     'edit_user' => 'تعديل الموظف',
     'delete_user' => 'حذف الموظف',
     'saving' => 'جاري الحفظ',
-    'select_role' => 'اختار صلاحية'
+    'select_role' => 'اختار صلاحية',
+    'deleting' => 'جاري الحذف',
+    'updating' => 'جاري التعديل',
+    
 ];
