@@ -72,7 +72,7 @@
                 </li>
             @endcan
 
-            @can('users_index')
+            @canany(['users_index', 'roles_index'])
                 <li class="dropdown">
                     <a href="javascript:void(0)">
                         <iconify-icon icon="mdi:cog-outline" class="menu-icon"></iconify-icon>
