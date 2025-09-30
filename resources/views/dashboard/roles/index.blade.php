@@ -2,9 +2,12 @@
 
 @section('content')
     <div class="container">
-        <div class="mb-3">{{ __('messages.roles') }}</div>
-        <a href="{{ route('roles.create') }}" class="btn btn-primary mb-3">{{ __('messages.create_role') }}</a>
-
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>{{ __('messages.roles') }}</div>
+            <a href="{{ route('roles.create') }}" class="btn btn-outline-primary btn-sm radius-8">
+                {{ __('messages.create_role') }}
+            </a>
+        </div>
         @if (session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
         @endif
@@ -26,7 +29,8 @@
                             <td class="" style="max-width: 250px;">
                                 <div class="d-flex flex-wrap gap-1 justify-content-center">
                                     @foreach ($role->permissions as $permission)
-                                        <span class="badge bg-primary px-3 py-1">{{ $permission->name }}</span>
+                                        <span
+                                            class="badge bg-primary px-3 py-1">{{ __('messages.' . $permission->name) }}</span>
                                     @endforeach
                                 </div>
                             </td>

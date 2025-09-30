@@ -71,9 +71,10 @@
                 <div id="${toastId}" class="toast align-items-center text-white ${bgClass} border-0 mb-3" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3000">
                     <div class="d-flex">
                         <div class="toast-body">${message}</div>
-                        <button type="button" class="btn-close btn-close-white me-3 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                        <button type="button" class="btn-close m-auto text-end" data-bs-dismiss="toast" aria-label="Close"><iconify-icon icon="mdi:close"></iconify-icon></button>
                     </div>
-                </div>`;
+                </div>
+            `;
 
             $('#toastContainer').append(toastHtml);
             let toastEl = new bootstrap.Toast(document.getElementById(toastId));

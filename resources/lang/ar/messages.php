@@ -306,4 +306,8 @@ return [
     'settings' => 'الاعدادات',
     'optional' => 'اختياري',
     'cannot_delete_yourself' => 'لا يمكنك حذف نفسك',
+    'edit_user' => 'تعديل الموظف',
+    'delete_user' => 'حذف الموظف',
+    'saving' => 'جاري الحفظ',
+    'select_role' => 'اختار صلاحية'
 ];

@@ -22,16 +22,14 @@ class UserController extends BaseController
         $this->middleware('check.permission:users_destroy')->only('destroy');
     }
 
-
-    
     public function index()
     {
         $users = User::with('roles')->latest()->get();
         $roles = Role::all();
 
-
-        return view('dashboard.users.index',compact('users','roles'));
+        return view('dashboard.users.index', compact('users', 'roles'));
     }
+
     public function list()
     {
         $users = User::with('roles')->latest()->get();
@@ -41,13 +39,16 @@ class UserController extends BaseController
 
     public function store(StoreUserRequest $request)
     {
+
         $data = $request->validated();
+
+        // dd( $data);
 
         $data['password'] = Hash::make($data['password']);
         $user = User::create($data);
 
-        if (isset($data['roles'])) {
-            $user->syncRoles($data['roles']);
+        if (isset($data['role'])) {
+            $user->syncRoles($data['role']);
         }
 
         return response()->json(['status' => true, 'message' => __('messages.user_created_successfully'), 'data' => new UserResource($user->load('roles'))], 201);
@@ -80,23 +81,22 @@ class UserController extends BaseController
         return response()->json(['status' => true, 'message' => __('messages.user_updated_successfully'), 'data' => new UserResource($user->load('roles'))]);
     }
 
-  public function destroy($id)
-{
-    $user = User::findOrFail($id);
+    public function destroy($id)
+    {
+        $user = User::findOrFail($id);
 
-    if (Auth::id() == $user->id) {
+        if (Auth::id() == $user->id) {
+            return response()->json([
+                'status' => false,
+                'message' => __('messages.cannot_delete_yourself'),
+            ], 403);
+        }
+
+        $user->delete();
+
         return response()->json([
-            'status' => false,
-            'message' => __('messages.cannot_delete_yourself')
-        ], 403);
+            'status' => true,
+            'message' => __('messages.user_deleted_successfully'),
+        ]);
     }
-
-    $user->delete();
-
-    return response()->json([
-        'status' => true,
-        'message' => __('messages.user_deleted_successfully')
-    ]);
-}
-
 }

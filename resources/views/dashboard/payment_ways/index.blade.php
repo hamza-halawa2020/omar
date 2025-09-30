@@ -6,7 +6,7 @@
     <div class="container">
         <div class="d-flex justify-content-between mb-3">
             <div class="fw-bold fs-5">{{ __('messages.payment_ways') }}</div>
-            <button class="btn btn-outline-primary btn-sm radius-8" data-bs-toggle="modal" data-bs-target="#createModal">+
+            <button class="btn btn-outline-primary btn-sm radius-8" data-bs-toggle="modal" data-bs-target="#createModal">
                 {{ __('messages.create_payment_way') }}</button>
         </div>
 
@@ -143,11 +143,13 @@
                     success: function(res) {
                         if (res.status) {
                             $('#transactionModal').modal('hide');
-                            showToast('{{ __('messages.transaction_created_successfully') }}','success');
+                            showToast('{{ __('messages.transaction_created_successfully') }}',
+                                'success');
                             $('#receiveForm')[0].reset();
                             loadPaymentWays();
                         } else {
-                            showToast(res.message ||'{{ __('messages.something_went_wrong') }}', 'error');
+                            showToast(res.message ||
+                                '{{ __('messages.something_went_wrong') }}', 'error');
                         }
                     },
                     error: function(err) {
@@ -166,8 +168,10 @@
                     if (res.status) {
                         let cards = '';
                         res.data.forEach((way, i) => {
-                            let categoryId = way.category_id || (way.category ? way.category.id :'');
-                            let subCategoryId = way.sub_category_id || (way.sub_category ? way.sub_category.id : '');
+                            let categoryId = way.category_id || (way.category ? way.category.id :
+                                '');
+                            let subCategoryId = way.sub_category_id || (way.sub_category ? way
+                                .sub_category.id : '');
                             let limits = way.monthly_limits || {};
                             let monthName = limits.month_name || '';
                             const typeTranslations = {
@@ -195,51 +199,51 @@
                                                 <span class="fw-bold text-success fs-5">${parseFloat(way.balance ?? 0).toFixed(2)}</span>
                                             </div>
                                             ${way.type === 'wallet' ? `
-                                                    <!-- Limits Table -->
-                                                    <table class="text-center table table-bordered table-sm table bordered-table sm-table">
-                                                        <thead>
-                                                            <tr>
-                                                                <th class="text-center">{{ __('messages.type') }}</th>
-                                                                <th class="text-center">{{ __('messages.used') }}</th>
-                                                                <th class="text-center">{{ __('messages.limit') }}</th>
-                                                                <th class="text-center">{{ __('messages.remaining') }}</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <tr>
-                                                                <td class="fw-bold text-primary">{{ __('messages.send') }}</td>
-                                                                <td>${parseFloat(limits.send_used || 0).toFixed(2)}</td>
-                                                                <td>${parseFloat(limits.send_limit || (way.send_limit ?? 0)).toFixed(2)}</td>
-                                                                <td>${parseFloat(limits.send_remaining || (way.send_limit ?? 0)).toFixed(2)}</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td class="fw-bold text-success">{{ __('messages.receive') }}</td>
-                                                                <td>${parseFloat(limits.receive_used || 0).toFixed(2)}</td>
-                                                                <td>${parseFloat(limits.receive_limit || (way.receive_limit ?? 0)).toFixed(2)}</td>
-                                                                <td>${parseFloat(limits.receive_remaining || (way.receive_limit ?? 0)).toFixed(2)}</td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                    <!-- Progress Bars -->
-                                                    <div class="mb-2">
-                                                        <small class="fw-bold">{{ __('messages.send_progress') }}</small>
-                                                        <div class="progress" style="height: 8px;">
-                                                            <div class="progress-bar ${((limits.send_used || 0) / (limits.send_limit || 1) * 100) >= 80 ? 'bg-danger' : 'bg-success'}"
-                                                                role="progressbar"
-                                                                style="width: ${((limits.send_used || 0) / (limits.send_limit || 1) * 100).toFixed(0)}%">
+                                                        <!-- Limits Table -->
+                                                        <table class="text-center table table-bordered table-sm table bordered-table sm-table">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th class="text-center">{{ __('messages.type') }}</th>
+                                                                    <th class="text-center">{{ __('messages.used') }}</th>
+                                                                    <th class="text-center">{{ __('messages.limit') }}</th>
+                                                                    <th class="text-center">{{ __('messages.remaining') }}</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td class="fw-bold text-primary">{{ __('messages.send') }}</td>
+                                                                    <td>${parseFloat(limits.send_used || 0).toFixed(2)}</td>
+                                                                    <td>${parseFloat(limits.send_limit || (way.send_limit ?? 0)).toFixed(2)}</td>
+                                                                    <td>${parseFloat(limits.send_remaining || (way.send_limit ?? 0)).toFixed(2)}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td class="fw-bold text-success">{{ __('messages.receive') }}</td>
+                                                                    <td>${parseFloat(limits.receive_used || 0).toFixed(2)}</td>
+                                                                    <td>${parseFloat(limits.receive_limit || (way.receive_limit ?? 0)).toFixed(2)}</td>
+                                                                    <td>${parseFloat(limits.receive_remaining || (way.receive_limit ?? 0)).toFixed(2)}</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                        <!-- Progress Bars -->
+                                                        <div class="mb-2">
+                                                            <small class="fw-bold">{{ __('messages.send_progress') }}</small>
+                                                            <div class="progress" style="height: 8px;">
+                                                                <div class="progress-bar ${((limits.send_used || 0) / (limits.send_limit || 1) * 100) >= 80 ? 'bg-danger' : 'bg-success'}"
+                                                                    role="progressbar"
+                                                                    style="width: ${((limits.send_used || 0) / (limits.send_limit || 1) * 100).toFixed(0)}%">
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <small class="fw-bold">{{ __('messages.receive_progress') }}</small>
-                                                        <div class="progress" style="height: 8px;">
-                                                            <div class="progress-bar ${((limits.receive_used || 0) / (limits.receive_limit || 1) * 100) >= 80 ? 'bg-danger' : 'bg-success'}"
-                                                                role="progressbar"
-                                                                style="width: ${((limits.receive_used || 0) / (limits.receive_limit || 1) * 100).toFixed(0)}%">
+                                                        <div class="mb-3">
+                                                            <small class="fw-bold">{{ __('messages.receive_progress') }}</small>
+                                                            <div class="progress" style="height: 8px;">
+                                                                <div class="progress-bar ${((limits.receive_used || 0) / (limits.receive_limit || 1) * 100) >= 80 ? 'bg-danger' : 'bg-success'}"
+                                                                    role="progressbar"
+                                                                    style="width: ${((limits.receive_used || 0) / (limits.receive_limit || 1) * 100).toFixed(0)}%">
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                ` : ''}
+                                                    ` : ''}
                                             <p class="small mb-0">{{ __('messages.created_by') }}: ${way.creator ? way.creator.name : ''}</p>
                                         </div>
 
@@ -274,7 +278,8 @@
                     if (res.status) {
                         $('#createModal').modal('hide');
                         loadPaymentWays();
-                        showToast('{{ __('messages.payment_way_created_successfully') }}','success');
+                        showToast('{{ __('messages.payment_way_created_successfully') }}',
+                            'success');
                         $('#createForm')[0].reset();
                     } else {
                         showToast(res.message || '{{ __('messages.something_went_wrong') }}',
@@ -375,12 +380,13 @@
                             showToast('{{ __('messages.payment_way_deleted_successfully') }}',
                                 'success');
                         } else {
-                            showToast(res.message ||
-                                '{{ __('messages.something_went_wrong') }}', 'error');
+                            showToast(res.message, 'error');
                         }
                     },
                     error: function(err) {
-                        showToast('{{ __('messages.something_went_wrong') }}', 'error');
+                        console.log(err);
+                        showToast(err.responseJSON.message, 'error');
+
                     }
                 });
             });
