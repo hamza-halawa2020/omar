@@ -256,15 +256,16 @@
 
                 $("#transactionsTableBody tr").each(function() {
                     let row = $(this);
-                    let type = row.find("td:first").text().toLowerCase();
+                    let type = row.find("td:first").data("type"); // بدل النص خد الـ data-type
                     let rowText = row.text().toLowerCase();
 
                     let matchesSearch = rowText.includes(searchText);
-                    let matchesType = !filterType || type.includes(filterType);
+                    let matchesType = !filterType || type === filterType; // لازم يطابق القيمة مش نص
 
                     row.toggle(matchesSearch && matchesType);
                 });
             }
+
 
             $("#searchTransactions").on("keyup", filterTransactions);
             $("#filterType").on("change", filterTransactions);
@@ -331,7 +332,7 @@
                     }
                     txHtml += `
                         <tr>
-                            <td><span class="badge bg-${tx.type === 'receive' ? 'success' : 'danger'}">${translations[tx.type] ?? tx.type}</span></td>
+                            <td data-type="${tx.type}"><span class="badge bg-${tx.type === 'receive' ? 'success' : 'danger'}">${translations[tx.type] ?? tx.type}</span></td>
                             <td>${parseFloat(tx.amount).toFixed(2)}</td>
                             <td>${parseFloat(tx.commission).toFixed(2)}</td>
                             <td>${tx.notes || ''}</td>
