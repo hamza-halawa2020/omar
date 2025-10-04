@@ -38,8 +38,6 @@ class DashboardController extends BaseController
         // Fetch all statistics
         $statistics = [
             'top_clients_by_debt' => $this->getTopClientsByDebt(),
-            'top_clients_by_send_transactions' => $this->getTopClientsBySendTransactions($filterData['startDate'], $filterData['endDate']),
-            'top_clients_by_receive_transactions' => $this->getTopClientsByReceiveTransactions($filterData['startDate'], $filterData['endDate']),
             'top_clients_by_installments' => $this->getTopClientsByInstallments(),
             'top_overdue_installments' => $this->getTopOverdueInstallments(),
             'upcoming_installments' => $this->getUpcomingInstallments(),
@@ -113,58 +111,19 @@ class DashboardController extends BaseController
      */
     private function getTopClientsByDebt()
     {
-        return Client::with('installmentContracts.installments')
+        return Client::whereDoesntHave('installmentContracts')->with('installmentContracts.installments')
             ->get()
-            ->sortByDesc('total_remaining_amount')
+            ->sortByDesc('debt')
             ->take(5)
             ->map(function ($client) {
                 return [
                     'id' => $client->id,
                     'name' => $client->name,
-                    'total_remaining_amount' => $client->total_remaining_amount,
+                    'total_remaining_amount' => $client->debt,
                 ];
             })->values();
     }
 
-    /**
-     * Get top 5 clients by number of send transactions.
-     */
-    private function getTopClientsBySendTransactions($startDate, $endDate)
-    {
-        return Client::withCount(['transactions' => function ($query) use ($startDate, $endDate) {
-            $query->where('type', 'send')->whereBetween('created_at', [$startDate, $endDate]);
-        }])
-            ->orderByDesc('transactions_count')
-            ->take(5)
-            ->get()
-            ->map(function ($client) {
-                return [
-                    'id' => $client->id,
-                    'name' => $client->name,
-                    'transaction_count' => $client->transactions_count,
-                ];
-            });
-    }
-
-    /**
-     * Get top 5 clients by number of receive transactions.
-     */
-    private function getTopClientsByReceiveTransactions($startDate, $endDate)
-    {
-        return Client::withCount(['transactions' => function ($query) use ($startDate, $endDate) {
-            $query->where('type', 'receive')->whereBetween('created_at', [$startDate, $endDate]);
-        }])
-            ->orderByDesc('transactions_count')
-            ->take(5)
-            ->get()
-            ->map(function ($client) {
-                return [
-                    'id' => $client->id,
-                    'name' => $client->name,
-                    'transaction_count' => $client->transactions_count,
-                ];
-            });
-    }
 
     /**
      * Get top 5 clients with the most installments.
@@ -378,8 +337,8 @@ class DashboardController extends BaseController
             ->map(function ($transaction) {
                 return [
                     'id' => $transaction->id,
-                    'client_name' => $transaction->client ? $transaction->client->name : 'N/A',
-                    'payment_way' => $transaction->paymentWay ? $transaction->paymentWay->name : 'N/A',
+                    'client_name' => $transaction->client ? $transaction->client->name : '',
+                    'payment_way' => $transaction->paymentWay ? $transaction->paymentWay->name : '',
                     'amount' => $transaction->amount,
                     'created_at' => $transaction->created_at->format('Y-m-d H:i:s'),
                 ];
@@ -400,8 +359,8 @@ class DashboardController extends BaseController
             ->map(function ($transaction) {
                 return [
                     'id' => $transaction->id,
-                    'client_name' => $transaction->client ? $transaction->client->name : 'N/A',
-                    'payment_way' => $transaction->paymentWay ? $transaction->paymentWay->name : 'N/A',
+                    'client_name' => $transaction->client ? $transaction->client->name : '',
+                    'payment_way' => $transaction->paymentWay ? $transaction->paymentWay->name : '',
                     'amount' => $transaction->amount,
                     'created_at' => $transaction->created_at->format('Y-m-d H:i:s'),
                 ];

@@ -45,14 +45,7 @@
                 </div>
             </div>
         </div>
-        {{-- <div class="col-md-auto">
-            <div class="card">
-                <div class="card-body">
-                    <div class="card-title">{{ __('messages.total_overdue_amount') }}</div>
-                    <p class="card-text display-3" id="total_overdue_amount">0.00</p>
-                </div>
-            </div>
-        </div> --}}
+
         <div class="col-md-auto">
             <div class="card">
                 <div class="card-body">
@@ -64,7 +57,9 @@
     </div>
 
     <!-- Statistics Sections -->
-    <div class="row">
+     <div class="row g-3">
+
+
         <!-- Top Clients by Debt -->
         <div class="col-md-auto mb-3">
             <div class="card">
@@ -87,62 +82,6 @@
                                 </tr>
                             </thead>
                             <tbody id="top_clients_by_debt"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Top Clients by Send Transactions -->
-        <div class="col-md-auto mb-3">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">{{ __('messages.top_clients_by_send_transactions') }}</div>
-                    <button class="btn btn-sm btn-outline-primary toggle-btn" type="button" data-target="sendTransactions">
-                        {{ __('messages.show_table') }}
-                    </button>
-                </div>
-                <div class="card-body">
-                    <div class="chart-container" id="sendTransactionsChartContainer">
-                        <canvas id="sendTransactionsChart" height="200"></canvas>
-                    </div>
-                    <div class="table-container d-none" id="sendTransactionsTableContainer">
-                        <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
-                            <thead>
-                                <tr>
-                                    <th class="text-center">{{ __('messages.name') }}</th>
-                                    <th class="text-center">{{ __('messages.transaction_count') }}</th>
-                                </tr>
-                            </thead>
-                            <tbody id="top_clients_by_send_transactions"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Top Clients by Receive Transactions -->
-        <div class="col-md-auto mb-3">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">{{ __('messages.top_clients_by_receive_transactions') }}</div>
-                    <button class="btn btn-sm btn-outline-primary toggle-btn" type="button" data-target="receiveTransactions">
-                        {{ __('messages.show_table') }}
-                    </button>
-                </div>
-                <div class="card-body">
-                    <div class="chart-container" id="receiveTransactionsChartContainer">
-                        <canvas id="receiveTransactionsChart" height="200"></canvas>
-                    </div>
-                    <div class="table-container d-none" id="receiveTransactionsTableContainer">
-                        <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
-                            <thead>
-                                <tr>
-                                    <th class="text-center">{{ __('messages.name') }}</th>
-                                    <th class="text-center">{{ __('messages.transaction_count') }}</th>
-                                </tr>
-                            </thead>
-                            <tbody id="top_clients_by_receive_transactions"></tbody>
                         </table>
                     </div>
                 </div>
@@ -480,7 +419,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const customDateFields = document.querySelectorAll('.custom-date');
 
     // Chart instances
-    let debtChart, sendTransactionsChart, receiveTransactionsChart, paymentWaysSendChart, paymentWaysReceiveChart, 
+    let debtChart, paymentWaysSendChart, paymentWaysReceiveChart, 
         paymentWaysBalanceChart, productsChart, installmentsChart, overdueChart, upcomingChart, 
         sendLimitChart, receiveLimitChart, lastSendChart, lastReceiveChart;
 
@@ -530,18 +469,6 @@ document.addEventListener('DOMContentLoaded', function () {
             type: 'bar',
             data: { labels: [], datasets: [{ label: '{{ __('messages.debt_amount') }}', data: [], backgroundColor: 'rgba(75, 192, 192, 0.5)' }] },
             options: { ...chartOptions, scales: { y: { beginAtZero: true, title: { display: true, text: '{{ __('messages.debt_amount') }}' } } } }
-        });
-
-        sendTransactionsChart = new Chart(document.getElementById('sendTransactionsChart'), {
-            type: 'bar',
-            data: { labels: [], datasets: [{ label: '{{ __('messages.transaction_count') }}', data: [], backgroundColor: 'rgba(54, 162, 235, 0.5)' }] },
-            options: { ...chartOptions, scales: { y: { beginAtZero: true, title: { display: true, text: '{{ __('messages.transaction_count') }}' } } } }
-        });
-
-        receiveTransactionsChart = new Chart(document.getElementById('receiveTransactionsChart'), {
-            type: 'bar',
-            data: { labels: [], datasets: [{ label: '{{ __('messages.transaction_count') }}', data: [], backgroundColor: 'rgba(255, 99, 132, 0.5)' }] },
-            options: { ...chartOptions, scales: { y: { beginAtZero: true, title: { display: true, text: '{{ __('messages.transaction_count') }}' } } } }
         });
 
         paymentWaysSendChart = new Chart(document.getElementById('paymentWaysSendChart'), {
@@ -628,7 +555,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Update Total Revenue and Overdue Amount
                 document.getElementById('total_revenue').textContent = parseFloat(data.total_revenue).toFixed(2);
-                // document.getElementById('total_overdue_amount').textContent = parseFloat(data.total_overdue_amount).toFixed(2);
                 document.getElementById('total_payment_ways_balance').textContent = parseFloat(data.total_payment_ways_balance).toFixed(2);
 
                 // Update Top Clients by Debt
@@ -641,28 +567,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 debtChart.data.labels = data.top_clients_by_debt.map(item => item.name);
                 debtChart.data.datasets[0].data = data.top_clients_by_debt.map(item => parseFloat(item.total_remaining_amount));
                 debtChart.update();
-
-                // Update Top Clients by Send Transactions
-                document.getElementById('top_clients_by_send_transactions').innerHTML = data.top_clients_by_send_transactions.map(item => `
-                    <tr>
-                        <td>${item.name}</td>
-                        <td>${item.transaction_count}</td>
-                    </tr>
-                `).join('');
-                sendTransactionsChart.data.labels = data.top_clients_by_send_transactions.map(item => item.name);
-                sendTransactionsChart.data.datasets[0].data = data.top_clients_by_send_transactions.map(item => item.transaction_count);
-                sendTransactionsChart.update();
-
-                // Update Top Clients by Receive Transactions
-                document.getElementById('top_clients_by_receive_transactions').innerHTML = data.top_clients_by_receive_transactions.map(item => `
-                    <tr>
-                        <td>${item.name}</td>
-                        <td>${item.transaction_count}</td>
-                    </tr>
-                `).join('');
-                receiveTransactionsChart.data.labels = data.top_clients_by_receive_transactions.map(item => item.name);
-                receiveTransactionsChart.data.datasets[0].data = data.top_clients_by_receive_transactions.map(item => item.transaction_count);
-                receiveTransactionsChart.update();
 
                 // Update Top Clients by Installments
                 document.getElementById('top_clients_by_installments').innerHTML = data.top_clients_by_installments.map(item => `
