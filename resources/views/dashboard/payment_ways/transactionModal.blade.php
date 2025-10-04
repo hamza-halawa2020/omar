@@ -20,14 +20,12 @@
 
                     <div class="mb-3">
                         <label for="amount" class="form-label">{{ __('messages.amount') }}</label>
-                        <input type="number" name="amount" id="amount" class="form-control" step="0.01"
-                            min="0.01" required>
+                        <input type="number" name="amount" id="amount" class="form-control" required>
                     </div>
 
                     <div class="mb-3">
                         <label for="commission" class="form-label">{{ __('messages.commission') }}</label>
-                        <input required type="number" name="commission" id="commission" class="form-control" step="0.01"
-                            min="0">
+                        <input required type="number" name="commission" id="commission" class="form-control">
                     </div>
 
                     <div class="mb-3">

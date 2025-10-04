@@ -19,6 +19,7 @@ class ProductController extends BaseController
         $this->middleware('check.permission:products_update')->only('update');
         $this->middleware('check.permission:products_destroy')->only('destroy');
     }
+
     public function index()
     {
         return view('dashboard.products.index');
@@ -46,6 +47,18 @@ class ProductController extends BaseController
         $product = Product::with(['creator'])->findOrFail($id);
 
         return response()->json(['status' => true, 'message' => __('messages.Product_fetched_successfully'), 'data' => new ProductResource($product)]);
+    }
+
+    public function details($id)
+    {
+        $product = Product::findOrFail($id);
+        $totalCost = $product->stock * $product->purchase_price;
+        $installmentContracts = $product->installmentContracts;
+
+        // dd($installmentContracts);
+
+        return view('dashboard.products.show', compact('product', 'totalCost','installmentContracts'));
+
     }
 
     public function update(UpdateProductRequest $request, $id)

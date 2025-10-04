@@ -7,6 +7,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends BaseController
@@ -24,6 +25,8 @@ class ProfileController extends BaseController
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email,'.$user->id,
             'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'password' => 'nullable|min:8',
+
         ]);
 
         try {
@@ -35,9 +38,15 @@ class ProfileController extends BaseController
                 $validated['profile_image'] = $path;
             }
 
+            if (! empty($validated['password'])) {
+                $validated['password'] = Hash::make($validated['password']);
+            } else {
+                unset($validated['password']);
+            }
+
             $user->update($validated);
 
-            //event(new CreateBackup);
+            // event(new CreateBackup);
 
             return response()->json([
                 'message' => __('messages.profile_updated_successfully'),

@@ -63,6 +63,7 @@
                     <td>${cat.stock}</td>
                     <td>${cat.creator ? cat.creator.name : ''}</td>
                     <td>
+                        <a href="/dashboard/products/${cat.id}/details" class="btn btn-outline-success btn-sm radius-8">{{ __('messages.details') }}</a>
                         <button class="btn btn-outline-primary btn-sm radius-8 editBtn" 
                         data-id="${cat.id}" 
                         data-name="${cat.name}" 
@@ -71,6 +72,7 @@
                         data-sale_price="${cat.sale_price}" 
                         data-stock="${cat.stock}">{{ __('messages.edit') }}</button>
                         <button class="btn btn-outline-danger btn-sm radius-8 deleteBtn" data-id="${cat.id}" data-name="${cat.name}">{{ __('messages.delete') }}</button>
+
                     </td>
                 </tr>`;
                             parentOptions += `<option value="${cat.id}">${cat.name}</option>`;

@@ -88,6 +88,10 @@ class InstallmentContractController extends BaseController
             ]);
         }
 
+        $product = Product::find($data['product_id']);
+
+        $product->decrement('stock', 1);
+
         return response()->json([
             'status' => true,
             'message' => __('messages.Installment_contract_created_successfully'),
@@ -179,7 +183,7 @@ class InstallmentContractController extends BaseController
         } else {
             $contract->update($data);
 
-            return response()->json(['status' => true,'message' => __('messages.installment_contract_updated_successfully'),'data' => new InstallmentContractResource($contract->load('installments')),
+            return response()->json(['status' => true, 'message' => __('messages.installment_contract_updated_successfully'), 'data' => new InstallmentContractResource($contract->load('installments')),
             ]);
         }
     }

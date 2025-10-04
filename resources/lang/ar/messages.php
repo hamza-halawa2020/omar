@@ -400,4 +400,21 @@ return [
     'contract_count' => 'عدد العقود',
     'toggle_chart' => 'تبديل المخطط',
     'error_fetching_statistics' => 'فشل في تحميل الإحصائيات. يرجى المحاولة مرة أخرى.',
+    'product_details' => 'تفاصيل المنتج',
+    'basic_information' => 'المعلومات الأساسية',
+    'sales_summary' => 'ملخص المبيعات',
+    'times_sold' => 'عدد مرات البيع',
+    'total_quantity_sold' => 'إجمالي عدد القطع المباعة',
+    'total_amount_cost' => 'إجمالي تكلفة الشراء',
+    'sales_details' => 'تفاصيل عمليات البيع',
+    'no_sales_found' => 'لا توجد عمليات بيع لهذا المنتج',
+    'no_installment_contracts'=>'',
+    'installment_contracts' => 'عقود الأقساط',
+    'contract_number' => 'رقم العقد',
+    'customer_name' => 'اسم العميل',
+    'remaining_balance' => 'الرصيد المتبقي',
+    'back' => 'رجوع',
+
+
+
 ];
