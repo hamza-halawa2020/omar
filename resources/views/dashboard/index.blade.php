@@ -12,7 +12,7 @@
         <div class="card-body">
             <div class="card-title">{{ __('messages.filter_statistics') }}</div>
             <form id="filterForm" class="row g-3">
-                <div class="col-md-3">
+                <div class="col-md-auto">
                     <label for="filter_type" class="form-label">{{ __('messages.filter_type') }}</label>
                     <select id="filter_type" name="filter_type" class="form-select">
                         <option value="today">{{ __('messages.today') }}</option>
@@ -20,11 +20,11 @@
                         <option value="custom">{{ __('messages.custom_range') }}</option>
                     </select>
                 </div>
-                <div class="col-md-3 custom-date d-none">
+                <div class="col-md-auto custom-date d-none">
                     <label for="start_date" class="form-label">{{ __('messages.start_date') }}</label>
                     <input type="date" id="start_date" name="start_date" class="form-control">
                 </div>
-                <div class="col-md-3 custom-date d-none">
+                <div class="col-md-auto custom-date d-none">
                     <label for="end_date" class="form-label">{{ __('messages.end_date') }}</label>
                     <input type="date" id="end_date" name="end_date" class="form-control">
                 </div>
