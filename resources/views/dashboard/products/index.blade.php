@@ -10,25 +10,27 @@
                 data-bs-target="#createModal">{{ __('messages.add_product') }}</button>
         </div>
 
-        <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0" id="productsTable">
-            <thead>
-                <tr>
-                    <th class="text-center">{{ __('messages.id') }}</th>
-                    <th class="text-center">{{ __('messages.name') }}</th>
-                    <th class="text-center">{{ __('messages.code') }}</th>
-                    <th class="text-center">{{ __('messages.image') }}</th>
-                    <th class="text-center">{{ __('messages.description') }}</th>
-                    <th class="text-center">{{ __('messages.purchase_price') }}</th>
-                    <th class="text-center">{{ __('messages.sale_price') }}</th>
-                    <th class="text-center">{{ __('messages.stock') }}</th>
-                    <th class="text-center">{{ __('messages.created_by') }}</th>
-                    <th class="text-center">{{ __('messages.actions') }}</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{-- Data will be loaded via AJAX --}}
-            </tbody>
-        </table>
+        <div style="overflow: auto">
+            <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0" id="productsTable">
+                <thead>
+                    <tr>
+                        <th class="text-center">{{ __('messages.id') }}</th>
+                        <th class="text-center">{{ __('messages.name') }}</th>
+                        <th class="text-center">{{ __('messages.code') }}</th>
+                        <th class="text-center">{{ __('messages.image') }}</th>
+                        <th class="text-center">{{ __('messages.description') }}</th>
+                        <th class="text-center">{{ __('messages.purchase_price') }}</th>
+                        <th class="text-center">{{ __('messages.sale_price') }}</th>
+                        <th class="text-center">{{ __('messages.stock') }}</th>
+                        <th class="text-center">{{ __('messages.created_by') }}</th>
+                        <th class="text-center">{{ __('messages.actions') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{-- Data will be loaded via AJAX --}}
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- Create Modal -->
@@ -171,7 +173,7 @@
                 e.preventDefault();
                 let id = $('#editId').val();
                 let formData = new FormData(this);
-                    formData.append('_method', 'PUT');
+                formData.append('_method', 'PUT');
 
                 $.ajax({
                     url: "/dashboard/products/" + id,

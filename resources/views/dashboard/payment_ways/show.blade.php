@@ -5,105 +5,106 @@
         <div class="fw-bold fs-3 mb-3 text-primary">{{ __('messages.payment_ay_ashboard') }}</div>
 
         <!-- Summary Cards -->
-        <div class="d-flex justify-content-between gap-3 fs-5">
-            <div class="">
-                <div class="card shadow-sm text-center border-0">
-                    <div class="card-body">
-                        <div class="fw-bold">{{ __('messages.current_balance') }}</div>
-                        <div id="paymentWayBalance" class="fw-bold badge bg-success">0</div>
-                    </div>
-                </div>
-            </div>
-            <div class="">
-                <div class="card shadow-sm text-center border-0">
-                    <div class="card-body">
-                        <div class="fw-bold">{{ __('messages.total_transactions') }}</div>
-                        <div id="paymentWayTransactions" class="fw-bold badge bg-success">0</div>
-                    </div>
-                </div>
-            </div>
-            <div class=" wallet-only" style="display: none;">
-                <div class="card shadow-sm text-center border-0">
-                    <div class="card-body">
-                        <div class="fw-bold">{{ __('messages.receive_limit') }}</div>
-                        <div id="paymentWayReceiveLimit" class="fw-bold badge bg-primary">0</div>
-                        <div class="mt-2">
-                            <span class="fw-bold">{{ __('messages.used') }}: </span>
-                            <span id="paymentWayReceiveUsed" class="badge bg-danger">0</span>
-                        </div>
-                        <div>
-                            <span class="fw-bold">{{ __('messages.remaining') }}: </span>
-                            <span id="paymentWayReceiveRemaining" class="badge bg-success">0</span>
+        <div class="container">
+            <div class="d-flex justify-content-between gap-1 fs-5">
+                <div class="">
+                    <div class="card shadow-sm text-center border-0">
+                        <div class="card-body">
+                            <div class="fw-bold">{{ __('messages.current_balance') }}</div>
+                            <div id="paymentWayBalance" class="fw-bold badge bg-success">0</div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class=" wallet-only" style="display: none;">
-                <div class="card shadow-sm text-center border-0">
-                    <div class="card-body">
-                        <div class="fw-bold">{{ __('messages.send_limit') }}</div>
-                        <div id="paymentWaySendLimit" class="fw-bold badge bg-primary">0</div>
-                        <div class="mt-2">
-                            <span class="fw-bold">{{ __('messages.used') }}: </span>
-                            <span id="paymentWaySendUsed" class="badge bg-danger">0</span>
-                        </div>
-                        <div>
-                            <span class="fw-bold">{{ __('messages.remaining') }}: </span>
-                            <span id="paymentWaySendRemaining" class="badge bg-success">0</span>
+                <div class="">
+                    <div class="card shadow-sm text-center border-0">
+                        <div class="card-body">
+                            <div class="fw-bold">{{ __('messages.total_transactions') }}</div>
+                            <div id="paymentWayTransactions" class="fw-bold badge bg-success">0</div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="">
-                <div class="card shadow-sm text-center border-0">
-                    <div class="card-body">
-                        <div>
-                            <div>
-                                <span class="fw-bold">{{ __('messages.received') }}</span>
-                                <span id="receive_amount" class="fw-bold badge bg-success">0</span>
+                <div class=" wallet-only" style="display: none;">
+                    <div class="card shadow-sm text-center border-0">
+                        <div class="card-body">
+                            <div class="fw-bold">{{ __('messages.receive_limit') }}</div>
+                            <div id="paymentWayReceiveLimit" class="fw-bold badge bg-primary">0</div>
+                            <div class="mt-2">
+                                <span class="fw-bold">{{ __('messages.used') }}: </span>
+                                <span id="paymentWayReceiveUsed" class="badge bg-danger">0</span>
                             </div>
                             <div>
-                                <span class="fw-bold">{{ __('messages.commission') }}</span>
-                                <span id="receive_commission" class="fw-bold badge bg-warning">0</span>
-                            </div>
-                            <div>
-                                <span class="fw-bold">{{ __('messages.total') }}</span>
-                                <span id="receive_total" class="fw-bold badge bg-primary">0</span>
+                                <span class="fw-bold">{{ __('messages.remaining') }}: </span>
+                                <span id="paymentWayReceiveRemaining" class="badge bg-success">0</span>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="">
-                <div class="card shadow-sm text-center border-0">
-                    <div class="card-body">
-                        <div>
-                            <div>
-                                <span class="fw-bold">{{ __('messages.sent') }}</span>
-                                <span id="send_amount" class="fw-bold badge bg-success">0</span>
+                <div class=" wallet-only" style="display: none;">
+                    <div class="card shadow-sm text-center border-0">
+                        <div class="card-body">
+                            <div class="fw-bold">{{ __('messages.send_limit') }}</div>
+                            <div id="paymentWaySendLimit" class="fw-bold badge bg-primary">0</div>
+                            <div class="mt-2">
+                                <span class="fw-bold">{{ __('messages.used') }}: </span>
+                                <span id="paymentWaySendUsed" class="badge bg-danger">0</span>
                             </div>
                             <div>
-                                <span class="fw-bold">{{ __('messages.commission') }}</span>
-                                <span id="send_commission" class="fw-bold badge bg-warning">0</span>
-                            </div>
-                            <div>
-                                <span class="fw-bold">{{ __('messages.total') }}</span>
-                                <span id="send_total" class="fw-bold badge bg-primary">0</span>
+                                <span class="fw-bold">{{ __('messages.remaining') }}: </span>
+                                <span id="paymentWaySendRemaining" class="badge bg-success">0</span>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="">
-                <div class="card shadow-sm text-center border-0">
-                    <div class="card-body">
-                        <div class="fw-bold">{{ __('messages.grand_net') }}</div>
-                        <div id="grandNet" class="fw-bold badge bg-primary">0</div>
+                <div class="">
+                    <div class="card shadow-sm text-center border-0">
+                        <div class="card-body">
+                            <div>
+                                <div>
+                                    <span class="fw-bold">{{ __('messages.received') }}</span>
+                                    <span id="receive_amount" class="fw-bold badge bg-success">0</span>
+                                </div>
+                                <div>
+                                    <span class="fw-bold">{{ __('messages.commission') }}</span>
+                                    <span id="receive_commission" class="fw-bold badge bg-warning">0</span>
+                                </div>
+                                <div>
+                                    <span class="fw-bold">{{ __('messages.total') }}</span>
+                                    <span id="receive_total" class="fw-bold badge bg-primary">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="">
+                    <div class="card shadow-sm text-center border-0">
+                        <div class="card-body">
+                            <div>
+                                <div>
+                                    <span class="fw-bold">{{ __('messages.sent') }}</span>
+                                    <span id="send_amount" class="fw-bold badge bg-success">0</span>
+                                </div>
+                                <div>
+                                    <span class="fw-bold">{{ __('messages.commission') }}</span>
+                                    <span id="send_commission" class="fw-bold badge bg-warning">0</span>
+                                </div>
+                                <div>
+                                    <span class="fw-bold">{{ __('messages.total') }}</span>
+                                    <span id="send_total" class="fw-bold badge bg-primary">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="">
+                    <div class="card shadow-sm text-center border-0">
+                        <div class="card-body">
+                            <div class="fw-bold">{{ __('messages.grand_net') }}</div>
+                            <div id="grandNet" class="fw-bold badge bg-primary">0</div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-
         <!-- Tabs -->
         <ul class="nav nav-tabs mb-3" id="paymentTabs">
             <li class="nav-item">

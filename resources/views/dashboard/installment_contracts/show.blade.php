@@ -13,7 +13,7 @@
             <div class="card-body row">
                 <div class="col-md-6">
                     <p><strong>{{ __('messages.client') }}:</strong> {{ $contract->client->name }}({{ $contract->client->phone_number }})</p>
-                    <p><strong>{{ __('messages.product') }}:</strong> {{ $contract->product->name }}</p>
+                    <p><strong>{{ __('messages.product') }}:</strong> {{ $contract->product->name  ?? ''}}</p>
                 </div>
                 <div class="col-md-6">
                     <p><strong>{{ __('messages.created_by') }}:</strong> {{ $contract->creator->name }}</p>
@@ -26,7 +26,7 @@
         <div class="card mb-3">
             <div class="card-header fw-bold">{{ __('messages.contract_details') }}</div>
             <div class="card-body row">
-                <div class="col-md-3"><strong>{{ __('messages.product_price') }}:</strong> {{ $contract->product_price }}</div>
+                <div class="col-md-3"><strong>{{ __('messages.product_price') }}:</strong> {{ $contract->product_price  ?? ''}}</div>
                 <div class="col-md-3"><strong>{{ __('messages.down_payment') }}:</strong> {{ $contract->down_payment }}</div>
                 <div class="col-md-3"><strong>{{ __('messages.remaining_amount') }}:</strong>{{ $contract->remaining_amount }}</div>
                 <div class="col-md-3"><strong>{{ __('messages.interest_rate') }}:</strong> {{ $contract->interest_rate }}%</div>

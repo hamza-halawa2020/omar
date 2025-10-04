@@ -10,11 +10,14 @@
                     <iconify-icon icon="heroicons:bars-3-solid" class="icon"></iconify-icon>
                 </button>
 
-                <div class="bg-success text-white p-2 rounded text-center">
+                @can('roles_store')
+                    
+                <div class="bg-success text-white px-3 py-2 rounded text-center">
                     <a href="https://web.whatsapp.com/" target="_blank" class="text-white text-decoration-none fw-bold">
                         <i class="ri-whatsapp-line"></i> WhatsApp
                     </a>
                 </div>
+                @endcan
 
             </div>
         </div>

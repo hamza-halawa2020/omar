@@ -37,7 +37,7 @@
 
     <!-- Summary Cards -->
     <div class="row mb-3">
-        <div class="col-md-6">
+        <div class="col-md-auto">
             <div class="card">
                 <div class="card-body">
                     <div class="card-title">{{ __('messages.total_revenue') }}</div>
@@ -45,7 +45,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-auto">
             <div class="card">
                 <div class="card-body">
                     <div class="card-title">{{ __('messages.total_overdue_amount') }}</div>
@@ -58,7 +58,7 @@
     <!-- Statistics Sections -->
     <div class="row">
         <!-- Top Clients by Debt -->
-        <div class="col-md-6 mb-3">
+        <div class="col-md-auto mb-3">
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">{{ __('messages.top_clients_by_debt') }}</div>
@@ -84,7 +84,7 @@
         </div>
 
         <!-- Top Clients by Send Transactions -->
-        <div class="col-md-6 mb-3">
+        <div class="col-md-auto mb-3">
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">{{ __('messages.top_clients_by_send_transactions') }}</div>
@@ -110,7 +110,7 @@
         </div>
 
         <!-- Top Clients by Receive Transactions -->
-        <div class="col-md-6 mb-3">
+        <div class="col-md-auto mb-3">
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">{{ __('messages.top_clients_by_receive_transactions') }}</div>
@@ -136,7 +136,7 @@
         </div>
 
         <!-- Top Clients by Installments -->
-        <div class="col-md-6 mb-3">
+        <div class="col-md-auto mb-3">
             <div class="card">
                 <div class="card-body">
                     <div class="card-title">{{ __('messages.top_clients_by_installments') }}</div>
@@ -154,7 +154,7 @@
         </div>
 
         <!-- Top Overdue Installments -->
-        <div class="col-md-6 mb-3">
+        <div class="col-md-auto mb-3">
             <div class="card">
                 <div class="card-body">
                     <div class="card-title">{{ __('messages.top_overdue_installments') }}</div>
@@ -173,7 +173,7 @@
         </div>
 
         <!-- Upcoming Installments -->
-        <div class="col-md-6 mb-3">
+        <div class="col-md-auto mb-3">
             <div class="card">
                 <div class="card-body">
                     <div class="card-title">{{ __('messages.upcoming_installments') }}</div>
@@ -192,7 +192,7 @@
         </div>
 
         <!-- Top Payment Ways by Send -->
-        <div class="col-md-6 mb-3">
+        <div class="col-md-auto mb-3">
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">{{ __('messages.top_payment_ways_by_send') }}</div>
@@ -218,7 +218,7 @@
         </div>
 
         <!-- Top Payment Ways by Receive -->
-        <div class="col-md-6 mb-3">
+        <div class="col-md-auto mb-3">
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">{{ __('messages.top_payment_ways_by_receive') }}</div>
@@ -244,7 +244,7 @@
         </div>
 
         <!-- Top Payment Ways by Balance -->
-        <div class="col-md-6 mb-3">
+        <div class="col-md-auto mb-3">
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">{{ __('messages.top_payment_ways_by_balance') }}</div>
@@ -270,7 +270,7 @@
         </div>
 
         <!-- Top Payment Ways Nearing Send Limit -->
-        <div class="col-md-6 mb-3">
+        <div class="col-md-auto mb-3">
             <div class="card">
                 <div class="card-body">
                     <div class="card-title">{{ __('messages.top_payment_ways_nearing_send_limit') }}</div>
@@ -290,7 +290,7 @@
         </div>
 
         <!-- Top Payment Ways Nearing Receive Limit -->
-        <div class="col-md-6 mb-3">
+        <div class="col-md-auto mb-3">
             <div class="card">
                 <div class="card-body">
                     <div class="card-title">{{ __('messages.top_payment_ways_nearing_receive_limit') }}</div>
@@ -310,7 +310,7 @@
         </div>
 
         <!-- Top Products by Installments -->
-        <div class="col-md-6 mb-3">
+        <div class="col-md-auto mb-3">
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">{{ __('messages.top_products_by_installments') }}</div>
@@ -336,7 +336,7 @@
         </div>
 
         <!-- Last Send Transactions -->
-        <div class="col-md-6 mb-3">
+        <div class="col-md-auto mb-3">
             <div class="card">
                 <div class="card-body">
                     <div class="card-title">{{ __('messages.last_send_transactions') }}</div>
@@ -356,7 +356,7 @@
         </div>
 
         <!-- Last Receive Transactions -->
-        <div class="col-md-6 mb-3">
+        <div class="col-md-auto mb-3">
             <div class="card">
                 <div class="card-body">
                     <div class="card-title">{{ __('messages.last_receive_transactions') }}</div>
