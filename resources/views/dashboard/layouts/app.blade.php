@@ -18,7 +18,6 @@
             @yield('content')
         </div>
         <x-footer />
-
     </main>
 
 
@@ -27,27 +26,33 @@
     <script src="{{ asset('assets/js/lib/jquery-3.7.1.min.js') }}"></script>
     <!-- Bootstrap js -->
     <script src="{{ asset('assets/js/lib/bootstrap.bundle.min.js') }}"></script>
-    <!-- Data Table js -->
-    <script src="{{ asset('assets/js/lib/dataTables.min.js') }}"></script>
-    <!-- Iconify Font js -->
-    <script src="{{ asset('assets/js/lib/iconify-icon.min.js') }}"></script>
     <!-- jQuery UI js -->
     <script src="{{ asset('assets/js/lib/jquery-ui.min.js') }}"></script>
+    <!-- Data Table js -->
+    <script src="{{ asset('assets/js/lib/dataTables.min.js') }}"></script>
     <!-- Popup js -->
     <script src="{{ asset('assets/js/lib/magnifc-popup.min.js') }}"></script>
-    <script src="{{ asset('assets/js/lib/chart.umd.min.js') }}"></script>
+    <!-- Axios js -->
+    <script src="{{ asset('assets/js/axios.min.js') }}"></script>
+    <!-- Chart.js -->
+    <script src="{{ asset('assets/js/chart.umd.min.js') }}"></script>
     <!-- Slick Slider js -->
-    <script src="{{ asset('assets/js/lib/slick.min.js') }}"></script>
-    <!-- multi select -->
-    <script src="{{ asset('assets/js/lib/multi-select.js') }}"></script>
+    <script src="{{ asset('assets/js/lib/slick.min.js') }}"></script>   
+    <!-- Bootstrap Select js -->
     <script src="{{ asset('assets/js/lib/bootstrap-select.min.js') }}"></script>
-    <!-- main js -->
-    <script src="{{ asset('assets/js/app.js') }}"></script>
+    <!-- Multi Select js -->
+    <script src="{{ asset('assets/js/lib/multi-select.js') }}"></script>
     <!-- Select2 JS -->
     <script src="{{ asset('assets/js/lib/select2.min.js') }}"></script>
-    <!-- toaster JS -->
+    <!-- Iconify Font js -->
+    <script src="{{ asset('assets/js/lib/iconify-icon.min.js') }}"></script>
+    <!-- Toaster JS -->
     <script src="{{ asset('assets/js/lib/toaster.js') }}"></script>
+    <!-- Flatpickr JS -->
     <script src="{{ asset('assets/js/flatpickr.js') }}"></script>
+
+    <!-- Main Application JS -->
+    <script src="{{ asset('assets/js/app.js') }}"></script>
 
 
     <script>

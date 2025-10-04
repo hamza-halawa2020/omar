@@ -24,6 +24,7 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
     Route::post('/profile', [ProfileController::class, 'update'])->name('dashboard.profile.update');
 
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard.index');
+    Route::get('/analytics', [DashboardController::class, 'analytics'])->name('dashboard.analytics');
     Route::get('categories', [CategoryController::class, 'index'])->name('categories.index');
     Route::get('categories/list', [CategoryController::class, 'list'])->name('categories.list');
     Route::post('categories', [CategoryController::class, 'store'])->name('categories.store');
