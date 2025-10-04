@@ -420,5 +420,8 @@ return [
     'image' => 'صورة',
     'all_clients' => 'جميع العملاء',
     'clients_installments' => 'عملاء الاقساط',
+    'show_table' => 'عرض الجدول',
+    'show_chart' => 'عرض الرسم البياني',
+    'total_payment_ways_balance' => 'إجمالي رصيد طرق الدفع',
 
 ];

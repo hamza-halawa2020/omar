@@ -20,7 +20,6 @@ class DashboardController extends BaseController
 {
     public function __construct()
     {
-        // Uncomment middleware if you want to restrict access
         // $this->middleware('check.permission:dashboard_index')->only('index');
     }
 
@@ -28,9 +27,61 @@ class DashboardController extends BaseController
         return view('dashboard.index');
     }
 
+    /**
+     * Handle analytics request and fetch all statistics.
+     */
     public function analytics(Request $request)
     {
         // Handle date filtering
+        $filterData = $this->getDateFilter($request);
+
+        // Fetch all statistics
+        $statistics = [
+            'top_clients_by_debt' => $this->getTopClientsByDebt(),
+            'top_clients_by_send_transactions' => $this->getTopClientsBySendTransactions($filterData['startDate'], $filterData['endDate']),
+            'top_clients_by_receive_transactions' => $this->getTopClientsByReceiveTransactions($filterData['startDate'], $filterData['endDate']),
+            'top_clients_by_installments' => $this->getTopClientsByInstallments(),
+            'top_overdue_installments' => $this->getTopOverdueInstallments(),
+            'upcoming_installments' => $this->getUpcomingInstallments(),
+            'top_payment_ways_by_send' => $this->getTopPaymentWaysBySend($filterData['startDate'], $filterData['endDate']),
+            'top_payment_ways_by_receive' => $this->getTopPaymentWaysByReceive($filterData['startDate'], $filterData['endDate']),
+            'top_payment_ways_by_balance' => $this->getTopPaymentWaysByBalance(),
+            'top_payment_ways_nearing_send_limit' => $this->getTopPaymentWaysNearingSendLimit(),
+            'top_payment_ways_nearing_receive_limit' => $this->getTopPaymentWaysNearingReceiveLimit(),
+            'top_products_by_installments' => $this->getTopProductsByInstallments(),
+            'last_send_transactions' => $this->getLastSendTransactions($filterData['startDate'], $filterData['endDate']),
+            'last_receive_transactions' => $this->getLastReceiveTransactions($filterData['startDate'], $filterData['endDate']),
+            'total_revenue' => $this->getTotalRevenue($filterData['startDate'], $filterData['endDate']),
+            'total_payment_ways_balance' => $this->getTotalPaymentWaysBalance(),
+        ];
+
+        // Return the data as JSON response
+        return response()->json([
+            'filter' => [
+                'type' => $filterData['filterType'],
+                'start_date' => $filterData['startDate']->format('Y-m-d'),
+                'end_date' => $filterData['endDate']->format('Y-m-d'),
+            ],
+            'statistics' => $statistics,
+        ]);
+    }
+
+
+    /**
+     * Get total balance across all payment ways.
+     * @return float
+     */
+    private function getTotalPaymentWaysBalance()
+    {
+        return PaymentWay::sum('balance');
+    }
+
+
+    /**
+     * Get date filter based on request parameters.
+     */
+    private function getDateFilter(Request $request)
+    {
         $filterType = $request->input('filter_type', 'today');
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
@@ -50,8 +101,19 @@ class DashboardController extends BaseController
             $endDate = Carbon::today()->endOfDay();
         }
 
-        // 1. Top 5 clients with the highest debt
-        $topClientsByDebt = Client::with('installmentContracts.installments')
+        return [
+            'filterType' => $filterType,
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+        ];
+    }
+
+    /**
+     * Get top 5 clients with the highest debt.
+     */
+    private function getTopClientsByDebt()
+    {
+        return Client::with('installmentContracts.installments')
             ->get()
             ->sortByDesc('total_remaining_amount')
             ->take(5)
@@ -62,9 +124,14 @@ class DashboardController extends BaseController
                     'total_remaining_amount' => $client->total_remaining_amount,
                 ];
             })->values();
+    }
 
-        // 2. Top 5 clients by number of transactions (send)
-        $topClientsBySendTransactions = Client::withCount(['transactions' => function ($query) use ($startDate, $endDate) {
+    /**
+     * Get top 5 clients by number of send transactions.
+     */
+    private function getTopClientsBySendTransactions($startDate, $endDate)
+    {
+        return Client::withCount(['transactions' => function ($query) use ($startDate, $endDate) {
             $query->where('type', 'send')->whereBetween('created_at', [$startDate, $endDate]);
         }])
             ->orderByDesc('transactions_count')
@@ -77,9 +144,14 @@ class DashboardController extends BaseController
                     'transaction_count' => $client->transactions_count,
                 ];
             });
+    }
 
-        // 3. Top 5 clients by number of transactions (receive)
-        $topClientsByReceiveTransactions = Client::withCount(['transactions' => function ($query) use ($startDate, $endDate) {
+    /**
+     * Get top 5 clients by number of receive transactions.
+     */
+    private function getTopClientsByReceiveTransactions($startDate, $endDate)
+    {
+        return Client::withCount(['transactions' => function ($query) use ($startDate, $endDate) {
             $query->where('type', 'receive')->whereBetween('created_at', [$startDate, $endDate]);
         }])
             ->orderByDesc('transactions_count')
@@ -92,9 +164,14 @@ class DashboardController extends BaseController
                     'transaction_count' => $client->transactions_count,
                 ];
             });
+    }
 
-        // 4. Top 5 clients with the most installments
-        $topClientsByInstallments = Client::withCount('installmentContracts')
+    /**
+     * Get top 5 clients with the most installments.
+     */
+    private function getTopClientsByInstallments()
+    {
+        return Client::withCount('installmentContracts')
             ->orderByDesc('installment_contracts_count')
             ->take(5)
             ->get()
@@ -105,9 +182,14 @@ class DashboardController extends BaseController
                     'installment_count' => $client->installment_contracts_count,
                 ];
             });
+    }
 
-        // 5. Top 5 installments with the highest overdue amount
-        $topOverdueInstallments = Installment::where('status', 'late')
+    /**
+     * Get top 5 overdue installments.
+     */
+    private function getTopOverdueInstallments()
+    {
+        return Installment::where('status', 'late')
             ->with(['contract.client'])
             ->get()
             ->sortByDesc(function ($installment) {
@@ -122,9 +204,14 @@ class DashboardController extends BaseController
                     'overdue_amount' => $installment->required_amount - $installment->paid_amount,
                 ];
             })->values();
+    }
 
-        // 6. Top 5 upcoming installment due dates
-        $upcomingInstallments = Installment::where('status', 'pending')
+    /**
+     * Get top 5 upcoming installments.
+     */
+    private function getUpcomingInstallments()
+    {
+        return Installment::where('status', 'pending')
             ->where('due_date', '>=', Carbon::today())
             ->with(['contract.client'])
             ->orderBy('due_date')
@@ -138,9 +225,14 @@ class DashboardController extends BaseController
                     'required_amount' => $installment->required_amount,
                 ];
             });
+    }
 
-        // 7. Top 5 payment ways by number of transactions (send)
-        $topPaymentWaysBySend = PaymentWay::withCount(['transactions' => function ($query) use ($startDate, $endDate) {
+    /**
+     * Get top 5 payment ways by send transactions.
+     */
+    private function getTopPaymentWaysBySend($startDate, $endDate)
+    {
+        return PaymentWay::withCount(['transactions' => function ($query) use ($startDate, $endDate) {
             $query->where('type', 'send')->whereBetween('created_at', [$startDate, $endDate]);
         }])
             ->orderByDesc('transactions_count')
@@ -153,9 +245,14 @@ class DashboardController extends BaseController
                     'transaction_count' => $paymentWay->transactions_count,
                 ];
             });
+    }
 
-        // 8. Top 5 payment ways by number of transactions (receive)
-        $topPaymentWaysByReceive = PaymentWay::withCount(['transactions' => function ($query) use ($startDate, $endDate) {
+    /**
+     * Get top 5 payment ways by receive transactions.
+     */
+    private function getTopPaymentWaysByReceive($startDate, $endDate)
+    {
+        return PaymentWay::withCount(['transactions' => function ($query) use ($startDate, $endDate) {
             $query->where('type', 'receive')->whereBetween('created_at', [$startDate, $endDate]);
         }])
             ->orderByDesc('transactions_count')
@@ -168,9 +265,14 @@ class DashboardController extends BaseController
                     'transaction_count' => $paymentWay->transactions_count,
                 ];
             });
+    }
 
-        // 9. Top 5 payment ways by balance
-        $topPaymentWaysByBalance = PaymentWay::orderByDesc('balance')
+    /**
+     * Get top 5 payment ways by balance.
+     */
+    private function getTopPaymentWaysByBalance()
+    {
+        return PaymentWay::orderByDesc('balance')
             ->take(5)
             ->get()
             ->map(function ($paymentWay) {
@@ -180,12 +282,20 @@ class DashboardController extends BaseController
                     'balance' => $paymentWay->balance,
                 ];
             });
+    }
 
-        // 10. Top 5 payment ways nearing send limit
-        $topPaymentWaysNearingSendLimit = PaymentWay::whereNotNull('send_limit')
-            ->with(['monthlyLimits' => function ($query) use ($startDate, $endDate) {
-                $query->where('year', Carbon::now()->year)
-                      ->where('month', Carbon::now()->month);
+    /**
+     * Get top 5 payment ways nearing send limit.
+     */
+    private function getTopPaymentWaysNearingSendLimit()
+    {
+        $currentYear = Carbon::now()->year;
+        $currentMonth = Carbon::now()->month;
+
+        return PaymentWay::whereNotNull('send_limit')
+            ->with(['monthlyLimits' => function ($query) use ($currentYear, $currentMonth) {
+                $query->where('year', $currentYear)
+                      ->where('month', $currentMonth);
             }])
             ->get()
             ->sortByDesc(function ($paymentWay) {
@@ -203,12 +313,20 @@ class DashboardController extends BaseController
                     'percentage_used' => $monthlyLimit && $paymentWay->send_limit ? ($monthlyLimit->send_used / $paymentWay->send_limit * 100) : 0,
                 ];
             })->values();
+    }
 
-        // 11. Top 5 payment ways nearing receive limit
-        $topPaymentWaysNearingReceiveLimit = PaymentWay::whereNotNull('receive_limit')
-            ->with(['monthlyLimits' => function ($query) use ($startDate, $endDate) {
-                $query->where('year', Carbon::now()->year)
-                      ->where('month', Carbon::now()->month);
+    /**
+     * Get top 5 payment ways nearing receive limit.
+     */
+    private function getTopPaymentWaysNearingReceiveLimit()
+    {
+        $currentYear = Carbon::now()->year;
+        $currentMonth = Carbon::now()->month;
+
+        return PaymentWay::whereNotNull('receive_limit')
+            ->with(['monthlyLimits' => function ($query) use ($currentYear, $currentMonth) {
+                $query->where('year', $currentYear)
+                      ->where('month', $currentMonth);
             }])
             ->get()
             ->sortByDesc(function ($paymentWay) {
@@ -226,9 +344,14 @@ class DashboardController extends BaseController
                     'percentage_used' => $monthlyLimit && $paymentWay->receive_limit ? ($monthlyLimit->receive_used / $paymentWay->receive_limit * 100) : 0,
                 ];
             })->values();
+    }
 
-        // 12. Top 5 products sold via installment contracts
-        $topProductsByInstallments = Product::withCount('installmentContracts')
+    /**
+     * Get top 5 products by installment contracts.
+     */
+    private function getTopProductsByInstallments()
+    {
+        return Product::withCount('installmentContracts')
             ->orderByDesc('installment_contracts_count')
             ->take(5)
             ->get()
@@ -239,9 +362,14 @@ class DashboardController extends BaseController
                     'installment_contract_count' => $product->installment_contracts_count,
                 ];
             });
+    }
 
-        // 13. Last 5 transactions (send)
-        $lastSendTransactions = Transaction::where('type', 'send')
+    /**
+     * Get last 5 send transactions.
+     */
+    private function getLastSendTransactions($startDate, $endDate)
+    {
+        return Transaction::where('type', 'send')
             ->with(['client', 'paymentWay'])
             ->whereBetween('created_at', [$startDate, $endDate])
             ->orderByDesc('created_at')
@@ -256,9 +384,14 @@ class DashboardController extends BaseController
                     'created_at' => $transaction->created_at->format('Y-m-d H:i:s'),
                 ];
             });
+    }
 
-        // 14. Last 5 transactions (receive)
-        $lastReceiveTransactions = Transaction::where('type', 'receive')
+    /**
+     * Get last 5 receive transactions.
+     */
+    private function getLastReceiveTransactions($startDate, $endDate)
+    {
+        return Transaction::where('type', 'receive')
             ->with(['client', 'paymentWay'])
             ->whereBetween('created_at', [$startDate, $endDate])
             ->orderByDesc('created_at')
@@ -273,44 +406,20 @@ class DashboardController extends BaseController
                     'created_at' => $transaction->created_at->format('Y-m-d H:i:s'),
                 ];
             });
+    }
 
-        // Additional statistic: Total revenue from transactions in the period
-        $totalRevenue = Transaction::where('type', 'receive')
+    /**
+     * Get total revenue from receive transactions.
+     */
+    private function getTotalRevenue($startDate, $endDate)
+    {
+        return Transaction::where('type', 'receive')
             ->whereBetween('created_at', [$startDate, $endDate])
             ->sum('amount');
-
-        // Additional statistic: Total overdue amount across all installments
-        $totalOverdueAmount = Installment::where('status', 'late')
-            ->get()
-            ->sum(function ($installment) {
-                return $installment->required_amount - $installment->paid_amount;
-            });
-
-        // Return the data as JSON response
-        return response()->json([
-            'filter' => [
-                'type' => $filterType,
-                'start_date' => $startDate->format('Y-m-d'),
-                'end_date' => $endDate->format('Y-m-d'),
-            ],
-            'statistics' => [
-                'top_clients_by_debt' => $topClientsByDebt,
-                'top_clients_by_send_transactions' => $topClientsBySendTransactions,
-                'top_clients_by_receive_transactions' => $topClientsByReceiveTransactions,
-                'top_clients_by_installments' => $topClientsByInstallments,
-                'top_overdue_installments' => $topOverdueInstallments,
-                'upcoming_installments' => $upcomingInstallments,
-                'top_payment_ways_by_send' => $topPaymentWaysBySend,
-                'top_payment_ways_by_receive' => $topPaymentWaysByReceive,
-                'top_payment_ways_by_balance' => $topPaymentWaysByBalance,
-                'top_payment_ways_nearing_send_limit' => $topPaymentWaysNearingSendLimit,
-                'top_payment_ways_nearing_receive_limit' => $topPaymentWaysNearingReceiveLimit,
-                'top_products_by_installments' => $topProductsByInstallments,
-                'last_send_transactions' => $lastSendTransactions,
-                'last_receive_transactions' => $lastReceiveTransactions,
-                'total_revenue' => $totalRevenue,
-                'total_overdue_amount' => $totalOverdueAmount,
-            ],
-        ]);
     }
+
+    /**
+     * Get total overdue amount across all installments.
+     */
+
 }

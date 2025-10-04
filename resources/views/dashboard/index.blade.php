@@ -45,11 +45,19 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-auto">
+        {{-- <div class="col-md-auto">
             <div class="card">
                 <div class="card-body">
                     <div class="card-title">{{ __('messages.total_overdue_amount') }}</div>
                     <p class="card-text display-3" id="total_overdue_amount">0.00</p>
+                </div>
+            </div>
+        </div> --}}
+        <div class="col-md-auto">
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-title">{{ __('messages.total_payment_ways_balance') }}</div>
+                    <p class="card-text display-3" id="total_payment_ways_balance">0.00</p>
                 </div>
             </div>
         </div>
@@ -62,23 +70,25 @@
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">{{ __('messages.top_clients_by_debt') }}</div>
-                    <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#debtChartCollapse" aria-expanded="false" aria-controls="debtChartCollapse">
-                        {{ __('messages.toggle_chart') }}
+                    <button class="btn btn-sm btn-outline-primary toggle-btn" type="button" data-target="debt">
+                        {{ __('messages.show_table') }}
                     </button>
                 </div>
                 <div class="card-body">
-                    <div class="collapse" id="debtChartCollapse">
+                    <div class="chart-container" id="debtChartContainer">
                         <canvas id="debtChart" height="200"></canvas>
                     </div>
-                    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
-                        <thead>
-                            <tr>
-                                <th class="text-center">{{ __('messages.name') }}</th>
-                                <th class="text-center">{{ __('messages.debt_amount') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody id="top_clients_by_debt"></tbody>
-                    </table>
+                    <div class="table-container d-none" id="debtTableContainer">
+                        <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">{{ __('messages.name') }}</th>
+                                    <th class="text-center">{{ __('messages.debt_amount') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="top_clients_by_debt"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -88,23 +98,25 @@
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">{{ __('messages.top_clients_by_send_transactions') }}</div>
-                    <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#sendTransactionsChartCollapse" aria-expanded="false" aria-controls="sendTransactionsChartCollapse">
-                        {{ __('messages.toggle_chart') }}
+                    <button class="btn btn-sm btn-outline-primary toggle-btn" type="button" data-target="sendTransactions">
+                        {{ __('messages.show_table') }}
                     </button>
                 </div>
                 <div class="card-body">
-                    <div class="collapse" id="sendTransactionsChartCollapse">
+                    <div class="chart-container" id="sendTransactionsChartContainer">
                         <canvas id="sendTransactionsChart" height="200"></canvas>
                     </div>
-                    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
-                        <thead>
-                            <tr>
-                                <th class="text-center">{{ __('messages.name') }}</th>
-                                <th class="text-center">{{ __('messages.transaction_count') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody id="top_clients_by_send_transactions"></tbody>
-                    </table>
+                    <div class="table-container d-none" id="sendTransactionsTableContainer">
+                        <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">{{ __('messages.name') }}</th>
+                                    <th class="text-center">{{ __('messages.transaction_count') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="top_clients_by_send_transactions"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -114,23 +126,25 @@
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">{{ __('messages.top_clients_by_receive_transactions') }}</div>
-                    <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#receiveTransactionsChartCollapse" aria-expanded="false" aria-controls="receiveTransactionsChartCollapse">
-                        {{ __('messages.toggle_chart') }}
+                    <button class="btn btn-sm btn-outline-primary toggle-btn" type="button" data-target="receiveTransactions">
+                        {{ __('messages.show_table') }}
                     </button>
                 </div>
                 <div class="card-body">
-                    <div class="collapse" id="receiveTransactionsChartCollapse">
+                    <div class="chart-container" id="receiveTransactionsChartContainer">
                         <canvas id="receiveTransactionsChart" height="200"></canvas>
                     </div>
-                    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
-                        <thead>
-                            <tr>
-                                <th class="text-center">{{ __('messages.name') }}</th>
-                                <th class="text-center">{{ __('messages.transaction_count') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody id="top_clients_by_receive_transactions"></tbody>
-                    </table>
+                    <div class="table-container d-none" id="receiveTransactionsTableContainer">
+                        <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">{{ __('messages.name') }}</th>
+                                    <th class="text-center">{{ __('messages.transaction_count') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="top_clients_by_receive_transactions"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -138,17 +152,27 @@
         <!-- Top Clients by Installments -->
         <div class="col-md-auto mb-3">
             <div class="card">
-                <div class="card-body">
+                <div class="card-header">
                     <div class="card-title">{{ __('messages.top_clients_by_installments') }}</div>
-                    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
-                        <thead>
-                            <tr>
-                                <th class="text-center">{{ __('messages.name') }}</th>
-                                <th class="text-center">{{ __('messages.installment_count') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody id="top_clients_by_installments"></tbody>
-                    </table>
+                    <button class="btn btn-sm btn-outline-primary toggle-btn" type="button" data-target="installments">
+                        {{ __('messages.show_table') }}
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" id="installmentsChartContainer">
+                        <canvas id="installmentsChart" height="200"></canvas>
+                    </div>
+                    <div class="table-container d-none" id="installmentsTableContainer">
+                        <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">{{ __('messages.name') }}</th>
+                                    <th class="text-center">{{ __('messages.installment_count') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="top_clients_by_installments"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -156,18 +180,28 @@
         <!-- Top Overdue Installments -->
         <div class="col-md-auto mb-3">
             <div class="card">
-                <div class="card-body">
+                <div class="card-header">
                     <div class="card-title">{{ __('messages.top_overdue_installments') }}</div>
-                    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
-                        <thead>
-                            <tr>
-                                <th class="text-center">{{ __('messages.client') }}</th>
-                                <th class="text-center">{{ __('messages.due_date') }}</th>
-                                <th class="text-center">{{ __('messages.overdue_amount') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody id="top_overdue_installments"></tbody>
-                    </table>
+                    <button class="btn btn-sm btn-outline-primary toggle-btn" type="button" data-target="overdue">
+                        {{ __('messages.show_table') }}
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" id="overdueChartContainer">
+                        <canvas id="overdueChart" height="200"></canvas>
+                    </div>
+                    <div class="table-container d-none" id="overdueTableContainer">
+                        <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">{{ __('messages.client') }}</th>
+                                    <th class="text-center">{{ __('messages.due_date') }}</th>
+                                    <th class="text-center">{{ __('messages.overdue_amount') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="top_overdue_installments"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -175,18 +209,28 @@
         <!-- Upcoming Installments -->
         <div class="col-md-auto mb-3">
             <div class="card">
-                <div class="card-body">
+                <div class="card-header">
                     <div class="card-title">{{ __('messages.upcoming_installments') }}</div>
-                    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
-                        <thead>
-                            <tr>
-                                <th class="text-center">{{ __('messages.client') }}</th>
-                                <th class="text-center">{{ __('messages.due_date') }}</th>
-                                <th class="text-center">{{ __('messages.amount') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody id="upcoming_installments"></tbody>
-                    </table>
+                    <button class="btn btn-sm btn-outline-primary toggle-btn" type="button" data-target="upcoming">
+                        {{ __('messages.show_table') }}
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" id="upcomingChartContainer">
+                        <canvas id="upcomingChart" height="200"></canvas>
+                    </div>
+                    <div class="table-container d-none" id="upcomingTableContainer">
+                        <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">{{ __('messages.client') }}</th>
+                                    <th class="text-center">{{ __('messages.due_date') }}</th>
+                                    <th class="text-center">{{ __('messages.amount') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="upcoming_installments"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -196,23 +240,25 @@
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">{{ __('messages.top_payment_ways_by_send') }}</div>
-                    <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#paymentWaysSendChartCollapse" aria-expanded="false" aria-controls="paymentWaysSendChartCollapse">
-                        {{ __('messages.toggle_chart') }}
+                    <button class="btn btn-sm btn-outline-primary toggle-btn" type="button" data-target="paymentWaysSend">
+                        {{ __('messages.show_table') }}
                     </button>
                 </div>
                 <div class="card-body">
-                    <div class="collapse" id="paymentWaysSendChartCollapse">
+                    <div class="chart-container" id="paymentWaysSendChartContainer">
                         <canvas id="paymentWaysSendChart" height="200"></canvas>
                     </div>
-                    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
-                        <thead>
-                            <tr>
-                                <th class="text-center">{{ __('messages.name') }}</th>
-                                <th class="text-center">{{ __('messages.transaction_count') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody id="top_payment_ways_by_send"></tbody>
-                    </table>
+                    <div class="table-container d-none" id="paymentWaysSendTableContainer">
+                        <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">{{ __('messages.name') }}</th>
+                                    <th class="text-center">{{ __('messages.transaction_count') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="top_payment_ways_by_send"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -222,23 +268,25 @@
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">{{ __('messages.top_payment_ways_by_receive') }}</div>
-                    <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#paymentWaysReceiveChartCollapse" aria-expanded="false" aria-controls="paymentWaysReceiveChartCollapse">
-                        {{ __('messages.toggle_chart') }}
+                    <button class="btn btn-sm btn-outline-primary toggle-btn" type="button" data-target="paymentWaysReceive">
+                        {{ __('messages.show_table') }}
                     </button>
                 </div>
                 <div class="card-body">
-                    <div class="collapse" id="paymentWaysReceiveChartCollapse">
+                    <div class="chart-container" id="paymentWaysReceiveChartContainer">
                         <canvas id="paymentWaysReceiveChart" height="200"></canvas>
                     </div>
-                    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
-                        <thead>
-                            <tr>
-                                <th class="text-center">{{ __('messages.name') }}</th>
-                                <th class="text-center">{{ __('messages.transaction_count') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody id="top_payment_ways_by_receive"></tbody>
-                    </table>
+                    <div class="table-container d-none" id="paymentWaysReceiveTableContainer">
+                        <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">{{ __('messages.name') }}</th>
+                                    <th class="text-center">{{ __('messages.transaction_count') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="top_payment_ways_by_receive"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -248,23 +296,25 @@
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">{{ __('messages.top_payment_ways_by_balance') }}</div>
-                    <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#paymentWaysBalanceChartCollapse" aria-expanded="false" aria-controls="paymentWaysBalanceChartCollapse">
-                        {{ __('messages.toggle_chart') }}
+                    <button class="btn btn-sm btn-outline-primary toggle-btn" type="button" data-target="paymentWaysBalance">
+                        {{ __('messages.show_table') }}
                     </button>
                 </div>
                 <div class="card-body">
-                    <div class="collapse" id="paymentWaysBalanceChartCollapse">
+                    <div class="chart-container" id="paymentWaysBalanceChartContainer">
                         <canvas id="paymentWaysBalanceChart" height="200"></canvas>
                     </div>
-                    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
-                        <thead>
-                            <tr>
-                                <th class="text-center">{{ __('messages.name') }}</th>
-                                <th class="text-center">{{ __('messages.balance') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody id="top_payment_ways_by_balance"></tbody>
-                    </table>
+                    <div class="table-container d-none" id="paymentWaysBalanceTableContainer">
+                        <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">{{ __('messages.name') }}</th>
+                                    <th class="text-center">{{ __('messages.balance') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="top_payment_ways_by_balance"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -272,19 +322,29 @@
         <!-- Top Payment Ways Nearing Send Limit -->
         <div class="col-md-auto mb-3">
             <div class="card">
-                <div class="card-body">
+                <div class="card-header">
                     <div class="card-title">{{ __('messages.top_payment_ways_nearing_send_limit') }}</div>
-                    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
-                        <thead>
-                            <tr>
-                                <th class="text-center">{{ __('messages.name') }}</th>
-                                <th class="text-center">{{ __('messages.send_used') }}</th>
-                                <th class="text-center">{{ __('messages.send_limit') }}</th>
-                                <th class="text-center">{{ __('messages.percentage_used') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody id="top_payment_ways_nearing_send_limit"></tbody>
-                    </table>
+                    <button class="btn btn-sm btn-outline-primary toggle-btn" type="button" data-target="sendLimit">
+                        {{ __('messages.show_table') }}
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" id="sendLimitChartContainer">
+                        <canvas id="sendLimitChart" height="200"></canvas>
+                    </div>
+                    <div class="table-container d-none" id="sendLimitTableContainer">
+                        <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">{{ __('messages.name') }}</th>
+                                    <th class="text-center">{{ __('messages.send_used') }}</th>
+                                    <th class="text-center">{{ __('messages.send_limit') }}</th>
+                                    <th class="text-center">{{ __('messages.percentage_used') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="top_payment_ways_nearing_send_limit"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -292,19 +352,29 @@
         <!-- Top Payment Ways Nearing Receive Limit -->
         <div class="col-md-auto mb-3">
             <div class="card">
-                <div class="card-body">
+                <div class="card-header">
                     <div class="card-title">{{ __('messages.top_payment_ways_nearing_receive_limit') }}</div>
-                    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
-                        <thead>
-                            <tr>
-                                <th class="text-center">{{ __('messages.name') }}</th>
-                                <th class="text-center">{{ __('messages.receive_used') }}</th>
-                                <th class="text-center">{{ __('messages.receive_limit') }}</th>
-                                <th class="text-center">{{ __('messages.percentage_used') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody id="top_payment_ways_nearing_receive_limit"></tbody>
-                    </table>
+                    <button class="btn btn-sm btn-outline-primary toggle-btn" type="button" data-target="receiveLimit">
+                        {{ __('messages.show_table') }}
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" id="receiveLimitChartContainer">
+                        <canvas id="receiveLimitChart" height="200"></canvas>
+                    </div>
+                    <div class="table-container d-none" id="receiveLimitTableContainer">
+                        <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">{{ __('messages.name') }}</th>
+                                    <th class="text-center">{{ __('messages.receive_used') }}</th>
+                                    <th class="text-center">{{ __('messages.receive_limit') }}</th>
+                                    <th class="text-center">{{ __('messages.percentage_used') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="top_payment_ways_nearing_receive_limit"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -314,23 +384,25 @@
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">{{ __('messages.top_products_by_installments') }}</div>
-                    <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#productsChartCollapse" aria-expanded="false" aria-controls="productsChartCollapse">
-                        {{ __('messages.toggle_chart') }}
+                    <button class="btn btn-sm btn-outline-primary toggle-btn" type="button" data-target="products">
+                        {{ __('messages.show_table') }}
                     </button>
                 </div>
                 <div class="card-body">
-                    <div class="collapse" id="productsChartCollapse">
+                    <div class="chart-container" id="productsChartContainer">
                         <canvas id="productsChart" height="200"></canvas>
                     </div>
-                    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
-                        <thead>
-                            <tr>
-                                <th class="text-center">{{ __('messages.name') }}</th>
-                                <th class="text-center">{{ __('messages.contract_count') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody id="top_products_by_installments"></tbody>
-                    </table>
+                    <div class="table-container d-none" id="productsTableContainer">
+                        <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">{{ __('messages.name') }}</th>
+                                    <th class="text-center">{{ __('messages.contract_count') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="top_products_by_installments"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -338,19 +410,29 @@
         <!-- Last Send Transactions -->
         <div class="col-md-auto mb-3">
             <div class="card">
-                <div class="card-body">
+                <div class="card-header">
                     <div class="card-title">{{ __('messages.last_send_transactions') }}</div>
-                    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
-                        <thead>
-                            <tr>
-                                <th class="text-center">{{ __('messages.client') }}</th>
-                                <th class="text-center">{{ __('messages.payment_way') }}</th>
-                                <th class="text-center">{{ __('messages.amount') }}</th>
-                                <th class="text-center">{{ __('messages.date') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody id="last_send_transactions"></tbody>
-                    </table>
+                    <button class="btn btn-sm btn-outline-primary toggle-btn" type="button" data-target="lastSend">
+                        {{ __('messages.show_table') }}
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" id="lastSendChartContainer">
+                        <canvas id="lastSendChart" height="200"></canvas>
+                    </div>
+                    <div class="table-container d-none" id="lastSendTableContainer">
+                        <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">{{ __('messages.client') }}</th>
+                                    <th class="text-center">{{ __('messages.payment_way') }}</th>
+                                    <th class="text-center">{{ __('messages.amount') }}</th>
+                                    <th class="text-center">{{ __('messages.date') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="last_send_transactions"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -358,19 +440,29 @@
         <!-- Last Receive Transactions -->
         <div class="col-md-auto mb-3">
             <div class="card">
-                <div class="card-body">
+                <div class="card-header">
                     <div class="card-title">{{ __('messages.last_receive_transactions') }}</div>
-                    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
-                        <thead>
-                            <tr>
-                                <th class="text-center">{{ __('messages.client') }}</th>
-                                <th class="text-center">{{ __('messages.payment_way') }}</th>
-                                <th class="text-center">{{ __('messages.amount') }}</th>
-                                <th class="text-center">{{ __('messages.date') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody id="last_receive_transactions"></tbody>
-                    </table>
+                    <button class="btn btn-sm btn-outline-primary toggle-btn" type="button" data-target="lastReceive">
+                        {{ __('messages.show_table') }}
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" id="lastReceiveChartContainer">
+                        <canvas id="lastReceiveChart" height="200"></canvas>
+                    </div>
+                    <div class="table-container d-none" id="lastReceiveTableContainer">
+                        <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">{{ __('messages.client') }}</th>
+                                    <th class="text-center">{{ __('messages.payment_way') }}</th>
+                                    <th class="text-center">{{ __('messages.amount') }}</th>
+                                    <th class="text-center">{{ __('messages.date') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="last_receive_transactions"></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -388,7 +480,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const customDateFields = document.querySelectorAll('.custom-date');
 
     // Chart instances
-    let debtChart, sendTransactionsChart, receiveTransactionsChart, paymentWaysSendChart, paymentWaysReceiveChart, paymentWaysBalanceChart, productsChart;
+    let debtChart, sendTransactionsChart, receiveTransactionsChart, paymentWaysSendChart, paymentWaysReceiveChart, 
+        paymentWaysBalanceChart, productsChart, installmentsChart, overdueChart, upcomingChart, 
+        sendLimitChart, receiveLimitChart, lastSendChart, lastReceiveChart;
 
     // Toggle custom date inputs
     filterTypeSelect.addEventListener('change', function () {
@@ -399,6 +493,27 @@ document.addEventListener('DOMContentLoaded', function () {
             startDateInput.value = '';
             endDateInput.value = '';
         }
+    });
+
+    // Toggle button functionality
+    document.querySelectorAll('.toggle-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            const target = this.getAttribute('data-target');
+            const chartContainer = document.getElementById(target + 'ChartContainer');
+            const tableContainer = document.getElementById(target + 'TableContainer');
+            
+            if (chartContainer.classList.contains('d-none')) {
+                // Show chart, hide table
+                chartContainer.classList.remove('d-none');
+                tableContainer.classList.add('d-none');
+                this.textContent = '{{ __('messages.show_table') }}';
+            } else {
+                // Show table, hide chart
+                chartContainer.classList.add('d-none');
+                tableContainer.classList.remove('d-none');
+                this.textContent = '{{ __('messages.show_chart') }}';
+            }
+        });
     });
 
     // Initialize charts
@@ -452,6 +567,49 @@ document.addEventListener('DOMContentLoaded', function () {
             data: { labels: [], datasets: [{ label: '{{ __('messages.contract_count') }}', data: [], backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'] }] },
             options: chartOptions
         });
+
+        // New charts
+        installmentsChart = new Chart(document.getElementById('installmentsChart'), {
+            type: 'bar',
+            data: { labels: [], datasets: [{ label: '{{ __('messages.installment_count') }}', data: [], backgroundColor: 'rgba(75, 192, 192, 0.5)' }] },
+            options: { ...chartOptions, scales: { y: { beginAtZero: true, title: { display: true, text: '{{ __('messages.installment_count') }}' } } } }
+        });
+
+        overdueChart = new Chart(document.getElementById('overdueChart'), {
+            type: 'bar',
+            data: { labels: [], datasets: [{ label: '{{ __('messages.overdue_amount') }}', data: [], backgroundColor: 'rgba(255, 99, 132, 0.5)' }] },
+            options: { ...chartOptions, scales: { y: { beginAtZero: true, title: { display: true, text: '{{ __('messages.overdue_amount') }}' } } } }
+        });
+
+        upcomingChart = new Chart(document.getElementById('upcomingChart'), {
+            type: 'bar',
+            data: { labels: [], datasets: [{ label: '{{ __('messages.amount') }}', data: [], backgroundColor: 'rgba(54, 162, 235, 0.5)' }] },
+            options: { ...chartOptions, scales: { y: { beginAtZero: true, title: { display: true, text: '{{ __('messages.amount') }}' } } } }
+        });
+
+        sendLimitChart = new Chart(document.getElementById('sendLimitChart'), {
+            type: 'pie',
+            data: { labels: [], datasets: [{ label: '{{ __('messages.percentage_used') }}', data: [], backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'] }] },
+            options: chartOptions
+        });
+
+        receiveLimitChart = new Chart(document.getElementById('receiveLimitChart'), {
+            type: 'pie',
+            data: { labels: [], datasets: [{ label: '{{ __('messages.percentage_used') }}', data: [], backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'] }] },
+            options: chartOptions
+        });
+
+        lastSendChart = new Chart(document.getElementById('lastSendChart'), {
+            type: 'line',
+            data: { labels: [], datasets: [{ label: '{{ __('messages.amount') }}', data: [], backgroundColor: 'rgba(75, 192, 192, 0.5)', borderColor: 'rgba(75, 192, 192, 1)', fill: false }] },
+            options: { ...chartOptions, scales: { x: { title: { display: true, text: '{{ __('messages.date') }}' } }, y: { beginAtZero: true, title: { display: true, text: '{{ __('messages.amount') }}' } } } }
+        });
+
+        lastReceiveChart = new Chart(document.getElementById('lastReceiveChart'), {
+            type: 'line',
+            data: { labels: [], datasets: [{ label: '{{ __('messages.amount') }}', data: [], backgroundColor: 'rgba(255, 99, 132, 0.5)', borderColor: 'rgba(255, 99, 132, 1)', fill: false }] },
+            options: { ...chartOptions, scales: { x: { title: { display: true, text: '{{ __('messages.date') }}' } }, y: { beginAtZero: true, title: { display: true, text: '{{ __('messages.amount') }}' } } } }
+        });
     }
 
     // Fetch statistics
@@ -470,7 +628,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Update Total Revenue and Overdue Amount
                 document.getElementById('total_revenue').textContent = parseFloat(data.total_revenue).toFixed(2);
-                document.getElementById('total_overdue_amount').textContent = parseFloat(data.total_overdue_amount).toFixed(2);
+                // document.getElementById('total_overdue_amount').textContent = parseFloat(data.total_overdue_amount).toFixed(2);
+                document.getElementById('total_payment_ways_balance').textContent = parseFloat(data.total_payment_ways_balance).toFixed(2);
 
                 // Update Top Clients by Debt
                 document.getElementById('top_clients_by_debt').innerHTML = data.top_clients_by_debt.map(item => `
@@ -512,6 +671,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         <td>${item.installment_count}</td>
                     </tr>
                 `).join('');
+                installmentsChart.data.labels = data.top_clients_by_installments.map(item => item.name);
+                installmentsChart.data.datasets[0].data = data.top_clients_by_installments.map(item => item.installment_count);
+                installmentsChart.update();
 
                 // Update Top Overdue Installments
                 document.getElementById('top_overdue_installments').innerHTML = data.top_overdue_installments.map(item => `
@@ -521,6 +683,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         <td>${parseFloat(item.overdue_amount).toFixed(2)}</td>
                     </tr>
                 `).join('');
+                overdueChart.data.labels = data.top_overdue_installments.map(item => item.client_name);
+                overdueChart.data.datasets[0].data = data.top_overdue_installments.map(item => parseFloat(item.overdue_amount));
+                overdueChart.update();
 
                 // Update Upcoming Installments
                 document.getElementById('upcoming_installments').innerHTML = data.upcoming_installments.map(item => `
@@ -530,6 +695,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         <td>${parseFloat(item.required_amount).toFixed(2)}</td>
                     </tr>
                 `).join('');
+                upcomingChart.data.labels = data.upcoming_installments.map(item => item.client_name);
+                upcomingChart.data.datasets[0].data = data.upcoming_installments.map(item => parseFloat(item.required_amount));
+                upcomingChart.update();
 
                 // Update Top Payment Ways by Send
                 document.getElementById('top_payment_ways_by_send').innerHTML = data.top_payment_ways_by_send.map(item => `
@@ -573,6 +741,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         <td>${parseFloat(item.percentage_used).toFixed(2)}%</td>
                     </tr>
                 `).join('');
+                sendLimitChart.data.labels = data.top_payment_ways_nearing_send_limit.map(item => item.name);
+                sendLimitChart.data.datasets[0].data = data.top_payment_ways_nearing_send_limit.map(item => parseFloat(item.percentage_used));
+                sendLimitChart.update();
 
                 // Update Top Payment Ways Nearing Receive Limit
                 document.getElementById('top_payment_ways_nearing_receive_limit').innerHTML = data.top_payment_ways_nearing_receive_limit.map(item => `
@@ -583,6 +754,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         <td>${parseFloat(item.percentage_used).toFixed(2)}%</td>
                     </tr>
                 `).join('');
+                receiveLimitChart.data.labels = data.top_payment_ways_nearing_receive_limit.map(item => item.name);
+                receiveLimitChart.data.datasets[0].data = data.top_payment_ways_nearing_receive_limit.map(item => parseFloat(item.percentage_used));
+                receiveLimitChart.update();
 
                 // Update Top Products by Installments
                 document.getElementById('top_products_by_installments').innerHTML = data.top_products_by_installments.map(item => `
@@ -604,6 +778,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         <td>${item.created_at}</td>
                     </tr>
                 `).join('');
+                lastSendChart.data.labels = data.last_send_transactions.map(item => item.created_at);
+                lastSendChart.data.datasets[0].data = data.last_send_transactions.map(item => parseFloat(item.amount));
+                lastSendChart.update();
 
                 // Update Last Receive Transactions
                 document.getElementById('last_receive_transactions').innerHTML = data.last_receive_transactions.map(item => `
@@ -614,10 +791,14 @@ document.addEventListener('DOMContentLoaded', function () {
                         <td>${item.created_at}</td>
                     </tr>
                 `).join('');
+                lastReceiveChart.data.labels = data.last_receive_transactions.map(item => item.created_at);
+                lastReceiveChart.data.datasets[0].data = data.last_receive_transactions.map(item => parseFloat(item.amount));
+                lastReceiveChart.update();
             })
             .catch(error => {
                 console.error('Error fetching statistics:', error);
-                alert('{{ __('messages.error_fetching_statistics') }}');
+                showToast('{{ __('messages.error_fetching_statistics') }}', 'error');
+
             });
     }
 
