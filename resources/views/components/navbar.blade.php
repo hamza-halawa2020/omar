@@ -9,6 +9,13 @@
                 <button type="button" class="sidebar-mobile-toggle">
                     <iconify-icon icon="heroicons:bars-3-solid" class="icon"></iconify-icon>
                 </button>
+
+                <div class="bg-success text-white p-2 rounded text-center">
+                    <a href="https://web.whatsapp.com/" target="_blank" class="text-white text-decoration-none fw-bold">
+                        <i class="ri-whatsapp-line"></i> WhatsApp
+                    </a>
+                </div>
+
             </div>
         </div>
         <div class="col-auto">
@@ -99,7 +106,8 @@
                                     @csrf
                                     <button type="submit"
                                         class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-danger d-flex align-items-center gap-3 bg-transparent border-0">
-                                        <iconify-icon icon="lucide:power" class="icon text-xl"></iconify-icon> {{ __('messages.logout') }}
+                                        <iconify-icon icon="lucide:power" class="icon text-xl"></iconify-icon>
+                                        {{ __('messages.logout') }}
                                     </button>
                                 </form>
                             </li>
