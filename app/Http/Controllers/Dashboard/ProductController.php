@@ -32,14 +32,37 @@ class ProductController extends BaseController
         return response()->json(['status' => true, 'message' => __('messages.products_fetched_successfully'), 'data' => ProductResource::collection($products)]);
     }
 
+    // public function store(StoreProductRequest $request)
+    // {
+    //     $data = $request->validated();
+    //     $data['created_by'] = Auth::id();
+
+    //     $product = Product::create($data);
+
+    //     return response()->json(['status' => true,  'message' => __('messages.Product_created_successfully'), 'data' => new ProductResource($product)], 201);
+    // }
+
     public function store(StoreProductRequest $request)
     {
+
         $data = $request->validated();
+        // dd( $request->all());
         $data['created_by'] = Auth::id();
+
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time().'_'.$image->getClientOriginalName();
+            $image->move(public_path('uploads/products'), $imageName);
+            $data['image'] = 'uploads/products/'.$imageName;
+        }
 
         $product = Product::create($data);
 
-        return response()->json(['status' => true,  'message' => __('messages.Product_created_successfully'), 'data' => new ProductResource($product)], 201);
+        return response()->json([
+            'status' => true,
+            'message' => __('messages.Product_created_successfully'),
+            'data' => new ProductResource($product),
+        ], 201);
     }
 
     public function show($id)
@@ -54,17 +77,31 @@ class ProductController extends BaseController
         $product = Product::findOrFail($id);
         $totalCost = $product->stock * $product->purchase_price;
         $installmentContracts = $product->installmentContracts;
+        $transactions = $product->transactions;
 
         // dd($installmentContracts);
 
-        return view('dashboard.products.show', compact('product', 'totalCost','installmentContracts'));
+        return view('dashboard.products.show', compact('product', 'totalCost', 'installmentContracts', 'transactions'));
 
     }
 
     public function update(UpdateProductRequest $request, $id)
     {
+        
         $product = Product::findOrFail($id);
         $data = $request->validated();
+
+        if ($request->hasFile('image')) {
+
+            if ($product->image && file_exists(public_path($product->image))) {
+                unlink(public_path($product->image));
+            }
+
+            $image = $request->file('image');
+            $imageName = time().'_'.$image->getClientOriginalName();
+            $image->move(public_path('uploads/products'), $imageName);
+            $data['image'] = 'uploads/products/'.$imageName;
+        }
 
         $product->update($data);
 

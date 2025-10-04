@@ -10,6 +10,8 @@ class Product extends Model
 
     protected $fillable = [
         'name',
+        'code',
+        'image',
         'description',
         'purchase_price',
         'sale_price',
@@ -25,5 +27,10 @@ class Product extends Model
     public function installmentContracts()
     {
         return $this->hasMany(InstallmentContract::class, 'product_id');
+    }
+
+     public function transactions()
+    {
+        return $this->hasMany(Transaction::class, 'product_id')->latest();
     }
 }

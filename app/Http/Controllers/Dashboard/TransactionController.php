@@ -6,6 +6,7 @@ use App\Http\Requests\Transaction\StoreTransactionRequest;
 use App\Http\Resources\TransactionResource;
 use App\Models\Client;
 use App\Models\PaymentWay;
+use App\Models\Product;
 use App\Models\Transaction;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
@@ -31,6 +32,7 @@ class TransactionController extends BaseController
     {
         $data = $request->validated();
         $data['created_by'] = Auth::id();
+        $quantity = $data['quantity'] ?? 1;
 
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');
@@ -42,6 +44,10 @@ class TransactionController extends BaseController
         $client = null;
         if (! empty($data['client_id'])) {
             $client = Client::findOrFail($data['client_id']);
+        }
+        $product = null;
+        if (! empty($data['product_id'])) {
+            $product = Product::findOrFail($data['product_id']);
         }
 
         $paymentWay = PaymentWay::findOrFail($data['payment_way_id']);
@@ -80,11 +86,16 @@ class TransactionController extends BaseController
             }
         }
 
-        return DB::transaction(function () use ($data, $client, $paymentWay, $total, $monthlyLimit) {
+        return DB::transaction(function () use ($data, $client, $product, $quantity, $paymentWay, $total, $monthlyLimit) {
             $transaction = Transaction::create($data);
 
             if ($data['type'] === 'send') {
-                if ($client) {
+
+                if ($product) {
+                    $product->increment('stock', $quantity);
+                }
+
+                if ($client && ! $product) {
                     $client->increment('debt', $data['amount']);
                 }
 
@@ -94,7 +105,10 @@ class TransactionController extends BaseController
                     $monthlyLimit->increment('send_used', $data['amount']);
                 }
             } elseif ($data['type'] === 'receive') {
-                if ($client) {
+                if ($product) {
+                    $product->decrement('stock', $quantity);
+                }
+                if ($client && ! $product) {
                     $client->decrement('debt', $data['amount']);
                 }
 
@@ -120,7 +134,11 @@ class TransactionController extends BaseController
                     'client' => [
                         'id' => optional($client)->id,
                         'name' => optional($client)->name,
-                        'debt' => optional($client)->debt,
+                    ],
+                    'product' => [
+                        'id' => optional($product)->id,
+                        'name' => optional($product)->name,
+                        'debt' => optional($product)->debt,
                     ],
                     'payment_way' => [
                         'id' => $paymentWay->id,

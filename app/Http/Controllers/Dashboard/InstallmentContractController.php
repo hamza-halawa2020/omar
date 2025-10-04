@@ -201,7 +201,7 @@ class InstallmentContractController extends BaseController
             'type' => 'receive',
             'amount' => $data['amount'],
             'commission' => $data['commission'],
-            'notes' => __('messages.payment_for_installment').$installment->contract->client->name.' - '.$installment->contract->product->name,
+            'notes' => __('messages.payment_for_installment').$installment->contract->client->name ?? '' . ' - '.$installment->contract->product->name ?? '',
             'attachment' => null,
             'client_id' => $installment->contract->client_id,
         ]);

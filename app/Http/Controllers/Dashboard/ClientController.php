@@ -31,6 +31,10 @@ class ClientController extends BaseController
     {
         return view('dashboard.clients.debts');
     }
+    public function client_installments()
+    {
+        return view('dashboard.clients.client_installments');
+    }
 
     public function list()
     {
@@ -41,6 +45,13 @@ class ClientController extends BaseController
     public function listDebts()
     {
         $clients = Client::whereDoesntHave('installmentContracts')->with(['creator', 'transactions','installmentContracts'])->latest()->get();
+        
+
+        return response()->json(['status' => true, 'message' => __('messages.clients_fetched_successfully'), 'data' => ClientResource::collection($clients)]);
+    }
+    public function listClientInstallments()
+    {
+        $clients = Client::whereHas('installmentContracts')->with(['creator', 'transactions','installmentContracts'])->latest()->get();
         
 
         return response()->json(['status' => true, 'message' => __('messages.clients_fetched_successfully'), 'data' => ClientResource::collection($clients)]);

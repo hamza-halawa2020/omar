@@ -408,13 +408,17 @@ return [
     'total_amount_cost' => 'إجمالي تكلفة الشراء',
     'sales_details' => 'تفاصيل عمليات البيع',
     'no_sales_found' => 'لا توجد عمليات بيع لهذا المنتج',
-    'no_installment_contracts'=>'',
+    'no_installment_contracts' => '',
     'installment_contracts' => 'عقود الأقساط',
     'contract_number' => 'رقم العقد',
     'customer_name' => 'اسم العميل',
     'remaining_balance' => 'الرصيد المتبقي',
     'back' => 'رجوع',
-
-
+    'quantity' => 'الكمية',
+    'no_transactions' => 'لا يوجد معاملات',
+    'code' => 'كود المنتج',
+    'image' => 'صورة',
+    'all_clients' => 'جميع العملاء',
+    'clients_installments' => 'عملاء الاقساط',
 
 ];

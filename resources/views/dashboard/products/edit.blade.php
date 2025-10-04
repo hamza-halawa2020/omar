@@ -15,6 +15,14 @@
                         <label>{{ __('messages.name') }}</label>
                         <input type="text" name="name" id="editName" class="form-control" required>
                     </div>
+                     <div class="mb-3">
+                        <label>{{ __('messages.code') }}</label>
+                        <input type="text" name="code" id="editCode" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>{{ __('messages.image') }}</label>
+                        <input type="file" name="image" id="editImage" class="form-control">
+                    </div>
                     <div class="mb-3">
                         <label>{{ __('messages.description') }}</label>
                         <textarea name="description" id="editDescription" class="form-control" rows="3" required></textarea>

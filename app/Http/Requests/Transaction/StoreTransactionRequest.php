@@ -15,6 +15,8 @@ class StoreTransactionRequest extends FormRequest
     {
         return [
             'client_id' => 'nullable',
+            'quantity' => 'nullable',
+            'product_id' => 'nullable',
             'payment_way_id'  => 'required|exists:payment_ways,id',
             'type'            => 'required|in:send,receive',
             'amount'          => 'required|numeric|min:0',

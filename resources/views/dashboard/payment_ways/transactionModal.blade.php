@@ -17,6 +17,18 @@
                             <option value="">{{ __('messages.select_client') }}</option>
                         </select>
                     </div>
+                    <div class="mb-3">
+                        <label for="product_id" class="form-label">{{ __('messages.product') }}</label>
+                        <div class="d-flex gap-3 justify-content-stretch">
+                            <select name="product_id" id="product_id" class="form-select">
+                                <option value="">{{ __('messages.select_product') }}</option>
+                            </select>
+
+                            <input type="number" name="quantity" id="quantity" placeholder="{{ __('messages.quantity') }}" class="form-control">
+                        </div>
+
+                    </div>
+
 
                     <div class="mb-3">
                         <label for="amount" class="form-label">{{ __('messages.amount') }}</label>

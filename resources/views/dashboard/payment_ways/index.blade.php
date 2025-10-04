@@ -48,9 +48,23 @@
                         let clientOptions = '<option value="">{{ __('messages.select_client') }}</option>';
                         res.data.forEach(function(client) {
                             clientOptions +=
-                                `<option value="${client.id}">${client.name} (مديونية: ${parseFloat(client.debt || 0).toFixed(2)})</option>`;
+                                `<option value="${client.id}">${client.name} ({{ __('messages.debt') }}: ${parseFloat(client.debt || 0).toFixed(2)})</option>`;
                         });
                         $('#client_id').html(clientOptions);
+                    } else {
+                        showToast('{{ __('messages.something_went_wrong') }}', 'error');
+                    }
+                });
+            }
+            function loadProducts() {
+                $.get("{{ route('products.list') }}", function(res) {
+                    if (res.status) {
+                        let productOptions = '<option value="">{{ __('messages.select_product') }}</option>';
+                        res.data.forEach(function(product) {
+                            productOptions +=
+                                `<option value="${product.id}">${product.name} ({{ __('messages.sale_price') }}: ${parseFloat(product.sale_price || 0).toFixed(2)}) ({{ __('messages.stock') }}: ${product.stock || 0})</option>`;
+                        });
+                        $('#product_id').html(productOptions);
                     } else {
                         showToast('{{ __('messages.something_went_wrong') }}', 'error');
                     }
@@ -72,6 +86,7 @@
                     '{{ __('messages.create_send_transaction') }}');
 
                 loadClients();
+                loadProducts();
 
                 $('#transactionModal').modal('show');
             });

@@ -14,6 +14,14 @@
                         <input type="text" name="name" class="form-control" required>
                     </div>
                     <div class="mb-3">
+                        <label>{{ __('messages.code') }}</label>
+                        <input type="text" name="code" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>{{ __('messages.image') }}</label>
+                        <input type="file" name="image" class="form-control">
+                    </div>
+                    <div class="mb-3">
                         <label>{{ __('messages.description') }}</label>
                         <textarea name="description" class="form-control" rows="3" required></textarea>
                     </div>

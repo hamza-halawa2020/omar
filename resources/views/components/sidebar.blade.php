@@ -32,25 +32,7 @@
                 </li>
             @endcan
 
-            @can('clients_index')
-                <li>
-                    <a href="{{ route('clients.index') }}"
-                        class="d-flex align-items-center gap-2 {{ Route::is('clients.*') ? 'active-page' : '' }}">
-                        <iconify-icon icon="mdi:account-multiple-outline" class="menu-icon"></iconify-icon>
-                        <span>{{ __('messages.clients') }}</span>
-                    </a>
-                </li>
-            @endcan
 
-            @can('clients_debts')
-                <li>
-                    <a href="{{ route('debts.index') }}"
-                        class="d-flex align-items-center gap-2 {{ Route::is('debts.*') ? 'active-page' : '' }}">
-                        <iconify-icon icon="mdi:cash-multiple" class="menu-icon"></iconify-icon>
-                        <span>{{ __('messages.debts') }}</span>
-                    </a>
-                </li>
-            @endcan
 
             @can('products_index')
                 <li>
@@ -72,6 +54,46 @@
                 </li>
             @endcan
 
+            @canany(['clients_index', 'clients_debts'])
+                <li class="dropdown">
+                    <a href="javascript:void(0)">
+                        <iconify-icon icon="mdi:account-outline" class="menu-icon"></iconify-icon>
+                        <span>{{ __('messages.clients') }}</span>
+                    </a>
+
+                    <ul class="sidebar-submenu">
+                        @can('clients_index')
+                            <li>
+                                <a href="{{ route('clients.index') }}"
+                                    class="d-flex align-items-center gap-2 {{ Route::is('clients.*') ? 'active-page' : '' }}">
+                                    <iconify-icon icon="mdi:account-multiple-outline" class="menu-icon"></iconify-icon>
+                                    <span>{{ __('messages.all_clients') }}</span>
+                                </a>
+                            </li>
+                        @endcan
+
+                        @can('clients_index')
+                            <li>
+                                <a href="{{ route('client_installments') }}"
+                                    class="d-flex align-items-center gap-2 {{ Route::is('client_installments.*') ? 'active-page' : '' }}">
+                                    <iconify-icon icon="mdi:account-multiple-outline" class="menu-icon"></iconify-icon>
+                                    <span>{{ __('messages.clients_installments') }}</span>
+                                </a>
+                            </li>
+                        @endcan
+
+                        @can('clients_debts')
+                            <li>
+                                <a href="{{ route('debts.index') }}"
+                                    class="d-flex align-items-center gap-2 {{ Route::is('debts.*') ? 'active-page' : '' }}">
+                                    <iconify-icon icon="mdi:cash-multiple" class="menu-icon"></iconify-icon>
+                                    <span>{{ __('messages.debts') }}</span>
+                                </a>
+                            </li>
+                        @endcan
+                    </ul>
+                </li>
+            @endcan
             @canany(['users_index', 'roles_index'])
                 <li class="dropdown">
                     <a href="javascript:void(0)">

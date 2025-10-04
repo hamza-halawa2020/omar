@@ -37,7 +37,7 @@
     <!-- Chart.js -->
     <script src="{{ asset('assets/js/chart.umd.min.js') }}"></script>
     <!-- Slick Slider js -->
-    <script src="{{ asset('assets/js/lib/slick.min.js') }}"></script>   
+    <script src="{{ asset('assets/js/lib/slick.min.js') }}"></script>
     <!-- Bootstrap Select js -->
     <script src="{{ asset('assets/js/lib/bootstrap-select.min.js') }}"></script>
     <!-- Multi Select js -->
@@ -57,6 +57,13 @@
 
     <script>
         $(document).ready(function() {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
+
             @if (session('success'))
                 toastr.success("{{ session('success') }}");
             @endif

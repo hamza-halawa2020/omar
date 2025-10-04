@@ -22,6 +22,7 @@ class TransactionResource extends JsonResource
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
             'client' => new ClientResource($this->whenLoaded('client')),
+            'product' => new ProductResource($this->whenLoaded('product')),
             'client_id' => $this->client_id,
             // 'installmentPayment' => new InstallmentPaymentResource($this->whenLoaded('installmentPayment')),
             'installmentPayment' => InstallmentPaymentResource::collection($this->whenLoaded('installmentPayment')),

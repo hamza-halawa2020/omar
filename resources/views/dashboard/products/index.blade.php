@@ -15,6 +15,8 @@
                 <tr>
                     <th class="text-center">{{ __('messages.id') }}</th>
                     <th class="text-center">{{ __('messages.name') }}</th>
+                    <th class="text-center">{{ __('messages.code') }}</th>
+                    <th class="text-center">{{ __('messages.image') }}</th>
                     <th class="text-center">{{ __('messages.description') }}</th>
                     <th class="text-center">{{ __('messages.purchase_price') }}</th>
                     <th class="text-center">{{ __('messages.sale_price') }}</th>
@@ -52,6 +54,8 @@
                 <tr>
                     <td>${i+1}</td>
                     <td>${cat.name}</td>
+                    <td>${cat.code}</td>
+                    <td><img src="/${cat.image}" width="50" class="rounded"></td>
                     <td>${cat.description}</td>
                     <td class="purchase-price" 
                         data-real="${cat.purchase_price}" 
@@ -67,6 +71,7 @@
                         <button class="btn btn-outline-primary btn-sm radius-8 editBtn" 
                         data-id="${cat.id}" 
                         data-name="${cat.name}" 
+                        data-code="${cat.code}" 
                         data-description="${cat.description}" 
                         data-purchase_price="${cat.purchase_price}" 
                         data-sale_price="${cat.sale_price}" 
@@ -87,18 +92,34 @@
             // Create
             $('#createForm').submit(function(e) {
                 e.preventDefault();
-                $.post("{{ route('products.store') }}", $(this).serialize(), function(res) {
-                    if (res.status) {
+
+                let formData = new FormData(this);
+
+                $.ajax({
+                    url: "{{ route('products.store') }}",
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(res) {
+                        if (res.status) {
+                            $('#createModal').modal('hide');
+                            loadproducts();
+                            showToast(res.message, 'success');
+                            $('#createForm')[0].reset();
+                        } else {
+                            $('#createModal').modal('hide');
+                            showToast(res.message, 'error');
+                        }
+                    },
+                    error: function(xhr) {
                         $('#createModal').modal('hide');
-                        loadproducts();
-                        showToast(res.message, 'success');
-                        $('#createForm')[0].reset();
-                    } else {
-                        $('#createModal').modal('hide');
-                        showToast(res.message, 'error');
+                        let res = xhr.responseJSON;
+                        showToast(res?.message || 'Something went wrong', 'error');
                     }
                 });
             });
+
 
             $(document).on('click', '.purchase-price', function() {
                 let state = $(this).data('state');
@@ -119,6 +140,8 @@
             $(document).on('click', '.editBtn', function() {
                 let id = $(this).data('id');
                 let name = $(this).data('name');
+                let code = $(this).data('code');
+                let image = $(this).data('image');
                 let description = $(this).data('description');
                 let purchase_price = $(this).data('purchase_price');
                 let sale_price = $(this).data('sale_price');
@@ -127,6 +150,8 @@
 
                 $('#editId').val(id);
                 $('#editName').val(name);
+                $('#editCode').val(code);
+                $('#editImage').val(image);
                 $('#editDescription').val(description);
                 $('#editPurchasePrice').val(purchase_price);
                 $('#editSalePrice').val(sale_price);
@@ -145,10 +170,15 @@
             $('#editForm').submit(function(e) {
                 e.preventDefault();
                 let id = $('#editId').val();
+                let formData = new FormData(this);
+                    formData.append('_method', 'PUT');
+
                 $.ajax({
                     url: "/dashboard/products/" + id,
-                    type: "PUT",
-                    data: $(this).serialize(),
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
                     success: function(res) {
                         if (res.status) {
                             $('#editModal').modal('hide');

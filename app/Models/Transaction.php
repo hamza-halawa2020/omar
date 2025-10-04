@@ -19,6 +19,8 @@ class Transaction extends Model
         'notes',
         'attachment',
         'client_id',
+        'product_id',
+        'quantity'
     ];
 
    
@@ -41,6 +43,10 @@ class Transaction extends Model
     public function client()
     {
         return $this->belongsTo(Client::class, 'client_id');
+    }
+    public function product()
+    {
+        return $this->belongsTo(Product::class, 'product_id');
     }
     public function installmentPayment()
     {
