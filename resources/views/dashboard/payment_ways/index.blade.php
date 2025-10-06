@@ -160,20 +160,16 @@
                     success: function(res) {
                         if (res.status) {
                             $('#transactionModal').modal('hide');
-                            showToast('{{ __('messages.transaction_created_successfully') }}',
-                                'success');
+                            showToast('{{ __('messages.transaction_created_successfully') }}','success');
                             $('#receiveForm')[0].reset();
                             loadPaymentWays();
                         } else {
-                            showToast(res.message ||
-                                '{{ __('messages.something_went_wrong') }}', 'error');
+                            showToast(res.message ||'{{ __('messages.something_went_wrong') }}', 'error');
                         }
                     },
                     error: function(err) {
                         console.error(err.responseText);
-                        showToast(
-                            `{{ __('messages.something_went_wrong') }}: ${err.responseJSON?.message || err.responseText}`,
-                            'error');
+                        showToast(`{{ __('messages.something_went_wrong') }}: ${err.responseJSON?.message || err.responseText}`,'error');
                     }
                 });
             });
