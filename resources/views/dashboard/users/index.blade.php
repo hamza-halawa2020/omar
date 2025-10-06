@@ -4,9 +4,11 @@
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div>{{ __('messages.users') }}</div>
-            <button class="btn btn-outline-primary btn-sm radius-8" data-bs-toggle="modal" data-bs-target="#createUserModal">
-                {{ __('messages.create_user') }}
-            </button>
+            @can('users_store')
+                <button class="btn btn-outline-primary btn-sm radius-8" data-bs-toggle="modal" data-bs-target="#createUserModal">
+                    {{ __('messages.create_user') }}
+                </button>
+            @endcan
         </div>
 
         <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0" id="usersTable">
@@ -16,12 +18,13 @@
                     <th class="text-center">{{ __('messages.name') }}</th>
                     <th class="text-center">{{ __('messages.email') }}</th>
                     <th class="text-center">{{ __('messages.roles') }}</th>
-                    <th class="text-center">{{ __('messages.actions') }}</th>
+                    @canany(['users_update','users_destroy'])
+                        <th class="text-center">{{ __('messages.actions') }}</th>
+                    @endcan
                 </tr>
             </thead>
             <tbody>
                 {{-- Data will be loaded via AJAX --}}
-
             </tbody>
         </table>
     </div>
@@ -48,20 +51,26 @@
                                     <td>${user.name}</td>
                                     <td>${user.email}</td>
                                     <td>${user.roles.join(', ')}</td>
-                                    <td>
-                                        <button class="btn btn-outline-primary btn-sm radius-8 editUserBtn" 
-                                            data-id="${user.id}" 
-                                            data-name="${user.name}" 
-                                            data-email="${user.email}" 
-                                            data-roles='${JSON.stringify(user.roles)}'>
-                                            {{ __('messages.edit') }}
-                                        </button>
-                                        <button class="btn btn-outline-danger btn-sm radius-8 deleteUserBtn" 
-                                            data-id="${user.id}" 
-                                            data-name="${user.name}">
-                                            {{ __('messages.delete') }}
-                                        </button>
-                                    </td>
+                                    @canany(['users_update','users_destroy'])
+                                        <td>
+                                            @can('users_update')
+                                                <button class="btn btn-outline-primary btn-sm radius-8 editUserBtn" 
+                                                    data-id="${user.id}" 
+                                                    data-name="${user.name}" 
+                                                    data-email="${user.email}" 
+                                                    data-roles='${JSON.stringify(user.roles)}'>
+                                                    {{ __('messages.edit') }}
+                                                </button>
+                                            @endcan
+                                            @can('users_destroy')
+                                                <button class="btn btn-outline-danger btn-sm radius-8 deleteUserBtn" 
+                                                    data-id="${user.id}" 
+                                                    data-name="${user.name}">
+                                                    {{ __('messages.delete') }}
+                                                </button>
+                                            @endcan
+                                        </td>
+                                    @endcan
                                 </tr>
                             `;
                         });

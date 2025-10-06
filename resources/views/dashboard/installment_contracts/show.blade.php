@@ -49,7 +49,9 @@
                             <th class="text-center">{{ __('messages.required_amount') }}</th>
                             <th class="text-center">{{ __('messages.paid_amount') }}</th>
                             <th class="text-center">{{ __('messages.status') }}</th>
-                            <th class="text-center">{{ __('messages.actions') }}</th>
+                            @can('installments_pay')
+                                <th class="text-center">{{ __('messages.actions') }}</th>
+                            @endcan
                         </tr>
                     </thead>
                     <tbody>
@@ -68,15 +70,17 @@
                                         <span class="badge bg-warning text-dark">{{ __('messages.pending') }}</span>
                                     @endif
                                 </td>
-                                <td>
-                                    @if ($inst->status != 'paid')
-                                        <button class="btn btn-outline-success btn-sm radius-8 payBtn"
-                                            data-id="{{ $inst->id }}"
-                                            data-amount="{{ $inst->required_amount - $inst->paid_amount }}">
-                                            {{ __('messages.pay') }}
-                                        </button>
-                                    @endif
-                                </td>
+                                @can('installments_pay')
+                                    <td>
+                                        @if ($inst->status != 'paid')
+                                            <button class="btn btn-outline-success btn-sm radius-8 payBtn"
+                                                data-id="{{ $inst->id }}"
+                                                data-amount="{{ $inst->required_amount - $inst->paid_amount }}">
+                                                {{ __('messages.pay') }}
+                                            </button>
+                                        @endif
+                                    </td>
+                                @endcan
                             </tr>
                             @if ($inst->payments->count())
                                 <tr>

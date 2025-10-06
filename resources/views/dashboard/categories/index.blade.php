@@ -6,8 +6,11 @@
     <div class="container">
         <div class="d-flex justify-content-between mb-3">
             <div class="fw-bold fs-5">{{ __('messages.categories') }}</div>
-            <button class="btn btn-outline-primary btn-sm radius-8" data-bs-toggle="modal"
-                data-bs-target="#createModal">{{ __('messages.add_category') }}</button>
+
+            @can('categories_store')
+                <button class="btn btn-outline-primary btn-sm radius-8" data-bs-toggle="modal"
+                    data-bs-target="#createModal">{{ __('messages.add_category') }}</button>
+            @endcan
         </div>
 
         <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0" id="categoriesTable">
@@ -17,7 +20,9 @@
                     <th class="text-center">{{ __('messages.name') }}</th>
                     <th class="text-center">{{ __('messages.parent') }}</th>
                     <th class="text-center">{{ __('messages.created_by') }}</th>
-                    <th class="text-center">{{ __('messages.actions') }}</th>
+                    @canany(['categories_update', 'categories_destroy'])
+                        <th class="text-center">{{ __('messages.actions') }}</th>
+                    @endcan
                 </tr>
             </thead>
             <tbody>
@@ -51,10 +56,16 @@
                     <td>${cat.name}</td>
                     <td>${cat.parent ? cat.parent.name : ''}</td>
                     <td>${cat.creator ? cat.creator.name : ''}</td>
-                    <td>
-                        <button class="btn btn-outline-primary btn-sm radius-8 editBtn" data-id="${cat.id}" data-name="${cat.name}" data-parent="${cat.parent ? cat.parent.id : ''}">{{ __('messages.edit') }}</button>
-                        <button class="btn btn-outline-danger btn-sm radius-8 deleteBtn" data-id="${cat.id}" data-name="${cat.name}">{{ __('messages.delete') }}</button>
-                    </td>
+                    @canany(['categories_update', 'categories_destroy'])
+                        <td>
+                            @can('categories_update')
+                                <button class="btn btn-outline-primary btn-sm radius-8 editBtn" data-id="${cat.id}" data-name="${cat.name}" data-parent="${cat.parent ? cat.parent.id : ''}">{{ __('messages.edit') }}</button>
+                            @endcan
+                            @can( 'categories_destroy')
+                                <button class="btn btn-outline-danger btn-sm radius-8 deleteBtn" data-id="${cat.id}" data-name="${cat.name}">{{ __('messages.delete') }}</button>
+                            @endcan
+                        </td>
+                    @endcan
                 </tr>`;
                             parentOptions += `<option value="${cat.id}">${cat.name}</option>`;
                         });
@@ -73,7 +84,7 @@
                         $('#createModal').modal('hide');
                         loadCategories();
                         showToast(res.message, 'success');
-                         $('#createForm')[0].reset();
+                        $('#createForm')[0].reset();
                     } else {
                         $('#createModal').modal('hide');
                         showToast(res.message, 'error');
@@ -86,7 +97,7 @@
             $(document).on('click', '.editBtn', function() {
                 let id = $(this).data('id');
                 let name = $(this).data('name');
-                let parent = $(this).data('parent'); 
+                let parent = $(this).data('parent');
 
                 $('#editId').val(id);
                 $('#editName').val(name);

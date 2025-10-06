@@ -6,8 +6,10 @@
     <div class="container">
         <div class="d-flex justify-content-between mb-3">
             <div class="fw-bold fs-5">{{ __('messages.installments') }}</div>
-            <button class="btn btn-outline-primary btn-sm radius-8" data-bs-toggle="modal"
-                data-bs-target="#createModal">{{ __('messages.add_installment') }}</button>
+            @can('installments_store')
+                <button class="btn btn-outline-primary btn-sm radius-8" data-bs-toggle="modal"
+                    data-bs-target="#createModal">{{ __('messages.add_installment') }}</button>
+            @endcan
         </div>
 
 
@@ -25,7 +27,9 @@
                         <th class="text-center">{{ __('messages.down_payment') }}</th>
                         <th class="text-center">{{ __('messages.remaining_amount') }}</th>
                         <th class="text-center">{{ __('messages.installment_count_left') }}</th>
-                        <th class="text-center">{{ __('messages.actions') }}</th>
+                        @canany(['installments_show', 'installments_update', 'installments_destroy'])
+                            <th class="text-center">{{ __('messages.actions') }}</th>
+                        @endcan
                     </tr>
                 </thead>
                 <tbody>
@@ -76,27 +80,33 @@
                         <td>${contract.down_payment}</td>
                         <td>${contract.remaining_amount}</td>
                         <td>${contract.remaining_installments}</td>
-                        <td>
-                            <a href="{{ url('dashboard/installment_contracts') }}/${contract.id}"  class="btn btn-outline-success btn-sm radius-8">{{ __('messages.details') }}</a>
-                            <button 
-                                class="btn btn-outline-primary btn-sm radius-8 editBtn"
-                                data-id="${contract.id}"
-                                data-client_id="${contract.client?.id ?? ''}"
-                                data-product_id="${contract.product?.id ?? ''}"
-                                data-product_price="${contract.product?.purchase_price ?? ''}"
-                                data-down_payment="${contract.down_payment}"
-                                data-interest_rate="${contract.interest_rate ?? ''}" 
-                                data-installment_count="${contract.installment_count}"
-                                data-start_date="${contract.start_date}"
-                                data-total_amount="${contract.total_amount}"
-                                data-remaining_amount="${contract.remaining_amount}"
-                                data-remaining_installments="${contract.remaining_installments}"
-                                data-next_due_date="${contract.next_due_date}"
-                            >{{ __('messages.edit') }}</button>
-
-
-                            <button class="btn btn-outline-danger btn-sm radius-8 deleteBtn" data-id="${contract.id}">{{ __('messages.delete') }}</button>   
-                        </td>
+                        @canany(['installments_show', 'installments_update', 'installments_destroy'])
+                            <td>
+                                @can('installments_show')
+                                    <a href="{{ url('dashboard/installment_contracts') }}/${contract.id}"  class="btn btn-outline-success btn-sm radius-8">{{ __('messages.details') }}</a>
+                                @endcan
+                                @can('installments_update')
+                                    <button 
+                                        class="btn btn-outline-primary btn-sm radius-8 editBtn"
+                                        data-id="${contract.id}"
+                                        data-client_id="${contract.client?.id ?? ''}"
+                                        data-product_id="${contract.product?.id ?? ''}"
+                                        data-product_price="${contract.product?.purchase_price ?? ''}"
+                                        data-down_payment="${contract.down_payment}"
+                                        data-interest_rate="${contract.interest_rate ?? ''}" 
+                                        data-installment_count="${contract.installment_count}"
+                                        data-start_date="${contract.start_date}"
+                                        data-total_amount="${contract.total_amount}"
+                                        data-remaining_amount="${contract.remaining_amount}"
+                                        data-remaining_installments="${contract.remaining_installments}"
+                                        data-next_due_date="${contract.next_due_date}"
+                                    >{{ __('messages.edit') }}</button>
+                                @endcan
+                                @can('installments_destroy')
+                                    <button class="btn btn-outline-danger btn-sm radius-8 deleteBtn" data-id="${contract.id}">{{ __('messages.delete') }}</button>  
+                                @endcan
+                            </td>
+                        @endcan
                     </tr>`;
                         });
                         $('#installmentsTable tbody').html(rows);

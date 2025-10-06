@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="container py-3">
-        <div class="fw-bold fs-3 mb-3 text-primary">{{ __('messages.payment_ay_ashboard') }}</div>
+        <div class="fw-bold mb-3 text-primary">{{ __('messages.payment_ay_ashboard') }}</div>
 
         <!-- Summary Cards -->
         <div class="container">

@@ -12537,8 +12537,6 @@ select option {
 }
 
 [data-theme=dark] .btn-close {
-  background-image: url(../images/times.png);
-  background-size: auto;
   background-repeat: no-repeat;
   opacity: 1;
 }

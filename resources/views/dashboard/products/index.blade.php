@@ -6,8 +6,10 @@
     <div class="container">
         <div class="d-flex justify-content-between mb-3">
             <div class="fw-bold fs-5">{{ __('messages.products') }}</div>
-            <button class="btn btn-outline-primary btn-sm radius-8" data-bs-toggle="modal"
-                data-bs-target="#createModal">{{ __('messages.add_product') }}</button>
+            @can('products_store')
+                <button class="btn btn-outline-primary btn-sm radius-8" data-bs-toggle="modal"
+                    data-bs-target="#createModal">{{ __('messages.add_product') }}</button>
+            @endcan
         </div>
 
         <div style="overflow: auto">
@@ -23,7 +25,9 @@
                         <th class="text-center">{{ __('messages.sale_price') }}</th>
                         <th class="text-center">{{ __('messages.stock') }}</th>
                         <th class="text-center">{{ __('messages.created_by') }}</th>
-                        <th class="text-center">{{ __('messages.actions') }}</th>
+                        @canany(['products_destroy','products_update','products_show'])
+                            <th class="text-center">{{ __('messages.actions') }}</th>
+                        @endcan
                     </tr>
                 </thead>
                 <tbody>
@@ -68,19 +72,26 @@
                                     <td>${cat.sale_price}</td>
                     <td>${cat.stock}</td>
                     <td>${cat.creator ? cat.creator.name : ''}</td>
-                    <td>
-                        <a href="/dashboard/products/${cat.id}/details" class="btn btn-outline-success btn-sm radius-8">{{ __('messages.details') }}</a>
-                        <button class="btn btn-outline-primary btn-sm radius-8 editBtn" 
-                        data-id="${cat.id}" 
-                        data-name="${cat.name}" 
-                        data-code="${cat.code}" 
-                        data-description="${cat.description}" 
-                        data-purchase_price="${cat.purchase_price}" 
-                        data-sale_price="${cat.sale_price}" 
-                        data-stock="${cat.stock}">{{ __('messages.edit') }}</button>
-                        <button class="btn btn-outline-danger btn-sm radius-8 deleteBtn" data-id="${cat.id}" data-name="${cat.name}">{{ __('messages.delete') }}</button>
-
-                    </td>
+                    @canany(['products_destroy','products_update','products_show'])
+                        <td>
+                            @can('products_show')
+                                <a href="/dashboard/products/${cat.id}/details" class="btn btn-outline-success btn-sm radius-8">{{ __('messages.details') }}</a>
+                            @endcan
+                            @can('products_update')
+                                <button class="btn btn-outline-primary btn-sm radius-8 editBtn" 
+                                data-id="${cat.id}" 
+                                data-name="${cat.name}" 
+                                data-code="${cat.code}" 
+                                data-description="${cat.description}" 
+                                data-purchase_price="${cat.purchase_price}" 
+                                data-sale_price="${cat.sale_price}" 
+                                data-stock="${cat.stock}">{{ __('messages.edit') }}</button>
+                            @endcan
+                            @can('products_destroy')
+                                <button class="btn btn-outline-danger btn-sm radius-8 deleteBtn" data-id="${cat.id}" data-name="${cat.name}">{{ __('messages.delete') }}</button>
+                            @endcan
+                        </td>
+                    @endcan
                 </tr>`;
                             parentOptions += `<option value="${cat.id}">${cat.name}</option>`;
                         });

@@ -4,9 +4,11 @@
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div>{{ __('messages.roles') }}</div>
-            <a href="{{ route('roles.create') }}" class="btn btn-outline-primary btn-sm radius-8">
-                {{ __('messages.create_role') }}
-            </a>
+            @can('roles_store')
+                <a href="{{ route('roles.create') }}" class="btn btn-outline-primary btn-sm radius-8">
+                    {{ __('messages.create_role') }}
+                </a>
+            @endcan
         </div>
         @if (session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
@@ -19,7 +21,9 @@
                     <tr>
                         <th class="text-center">{{ __('messages.name') }}</th>
                         <th class="text-center">{{ __('messages.permissions') }}</th>
-                        <th class="text-center">{{ __('messages.actions') }}</th>
+                        @canany(['roles_update', 'roles_destroy'])
+                            <th class="text-center">{{ __('messages.actions') }}</th>
+                        @endcan
                     </tr>
                 </thead>
                 <tbody>
@@ -35,15 +39,21 @@
                                 </div>
                             </td>
 
-                            <td>
-                                <a href="{{ route('roles.edit', $role->id) }}"
-                                    class="btn btn-outline-primary btn-sm radius-8">{{ __('messages.edit') }}</a>
-                                <button type="button" class="btn btn-outline-danger btn-sm radius-8" data-bs-toggle="modal"
-                                    data-bs-target="#deleteModal" data-id="{{ $role->id }}"
-                                    data-name="{{ $role->name }}">
-                                    {{ __('messages.delete') }}
-                                </button>
-                            </td>
+                            @canany(['roles_update', 'roles_destroy'])
+                                <td>
+                                    @can('roles_update')
+                                        <a href="{{ route('roles.edit', $role->id) }}"
+                                            class="btn btn-outline-primary btn-sm radius-8">{{ __('messages.edit') }}</a>
+                                    @endcan
+                                    @can('roles_destroy')
+                                        <button type="button" class="btn btn-outline-danger btn-sm radius-8" data-bs-toggle="modal"
+                                            data-bs-target="#deleteModal" data-id="{{ $role->id }}"
+                                            data-name="{{ $role->name }}">
+                                            {{ __('messages.delete') }}
+                                        </button>
+                                    @endcan
+                                </td>
+                            @endcan
                         </tr>
                     @endforeach
                 </tbody>

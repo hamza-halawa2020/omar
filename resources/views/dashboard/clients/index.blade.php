@@ -6,8 +6,10 @@
     <div class="container">
         <div class="d-flex justify-content-between mb-3">
             <div class="fw-bold fs-5">{{ __('messages.clients') }}</div>
-            <button class="btn btn-outline-primary btn-sm radius-8" data-bs-toggle="modal"
-                data-bs-target="#createModal">{{ __('messages.add_client') }}</button>
+            @can('clients_store')
+                <button class="btn btn-outline-primary btn-sm radius-8" data-bs-toggle="modal"
+                    data-bs-target="#createModal">{{ __('messages.add_client') }}</button>
+            @endcan
         </div>
 
         <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0" id="clientsTable">
@@ -18,7 +20,9 @@
                     <th class="text-center">{{ __('messages.phone_number') }}</th>
                     <th class="text-center">{{ __('messages.debt') }}</th>
                     <th class="text-center">{{ __('messages.created_by') }}</th>
-                    <th class="text-center">{{ __('messages.actions') }}</th>
+                    @canany(['clients_show', 'clients_update', 'clients_destroy'])   
+                        <th class="text-center">{{ __('messages.actions') }}</th>
+                    @endcan
                 </tr>
             </thead>
             <tbody>
@@ -52,12 +56,19 @@
                                 <td>${client.phone_number}</td>
                                 <td>${client.debt}</td>
                                 <td>${client.creator ? client.creator.name : ''}</td>
-                                <td>
-                                    <a href="{{ url('dashboard/clients') }}/${client.id}" class="btn btn-outline-success btn-sm radius-8 btn-sm">{{ __('messages.details') }}</a>
-                                    <button class="btn btn-outline-primary btn-sm radius-8 editBtn"data-id="${client.id}"data-name="${client.name}"data-phone_number="${client.phone_number}"data-debt="${client.debt}">{{ __('messages.edit') }}</button>
-                                    <button class="btn btn-outline-danger btn-sm radius-8 deleteBtn" data-id="${client.id}" data-name="${client.name}">{{ __('messages.delete') }}</button>
-                                    
-                                </td>
+                                @canany(['clients_show', 'clients_update', 'clients_destroy'])   
+                                    <td>
+                                        @can('clients_show')   
+                                            <a href="{{ url('dashboard/clients') }}/${client.id}" class="btn btn-outline-success btn-sm radius-8 btn-sm">{{ __('messages.details') }}</a>
+                                        @endcan
+                                        @can('clients_update')
+                                            <button class="btn btn-outline-primary btn-sm radius-8 editBtn"data-id="${client.id}"data-name="${client.name}"data-phone_number="${client.phone_number}"data-debt="${client.debt}">{{ __('messages.edit') }}</button>
+                                        @endcan
+                                        @can('clients_destroy')
+                                            <button class="btn btn-outline-danger btn-sm radius-8 deleteBtn" data-id="${client.id}" data-name="${client.name}">{{ __('messages.delete') }}</button>
+                                        @endcan
+                                    </td>
+                                @endcan
                             </tr>`;
                         });
                         $('#clientsTable tbody').html(rows);

@@ -32,23 +32,25 @@ class DashboardController extends BaseController
      */
     public function analytics(Request $request)
     {
+
         // Handle date filtering
         $filterData = $this->getDateFilter($request);
-
+        $value = $request->analytics_number ?? 5;
+        
         // Fetch all statistics
         $statistics = [
-            'top_clients_by_debt' => $this->getTopClientsByDebt(),
-            'top_clients_by_installments' => $this->getTopClientsByInstallments(),
-            'top_overdue_installments' => $this->getTopOverdueInstallments(),
-            'upcoming_installments' => $this->getUpcomingInstallments(),
-            'top_payment_ways_by_send' => $this->getTopPaymentWaysBySend($filterData['startDate'], $filterData['endDate']),
-            'top_payment_ways_by_receive' => $this->getTopPaymentWaysByReceive($filterData['startDate'], $filterData['endDate']),
-            'top_payment_ways_by_balance' => $this->getTopPaymentWaysByBalance(),
-            'top_payment_ways_nearing_send_limit' => $this->getTopPaymentWaysNearingSendLimit(),
-            'top_payment_ways_nearing_receive_limit' => $this->getTopPaymentWaysNearingReceiveLimit(),
-            'top_products_by_installments' => $this->getTopProductsByInstallments(),
-            'last_send_transactions' => $this->getLastSendTransactions($filterData['startDate'], $filterData['endDate']),
-            'last_receive_transactions' => $this->getLastReceiveTransactions($filterData['startDate'], $filterData['endDate']),
+            'top_clients_by_debt' => $this->getTopClientsByDebt($value),
+            'top_clients_by_installments' => $this->getTopClientsByInstallments($value),
+            'top_overdue_installments' => $this->getTopOverdueInstallments($value),
+            'upcoming_installments' => $this->getUpcomingInstallments($value),
+            'top_payment_ways_by_send' => $this->getTopPaymentWaysBySend($filterData['startDate'], $filterData['endDate'],$value),
+            'top_payment_ways_by_receive' => $this->getTopPaymentWaysByReceive($filterData['startDate'], $filterData['endDate'],$value),
+            'top_payment_ways_by_balance' => $this->getTopPaymentWaysByBalance($value),
+            'top_payment_ways_nearing_send_limit' => $this->getTopPaymentWaysNearingSendLimit($value),
+            'top_payment_ways_nearing_receive_limit' => $this->getTopPaymentWaysNearingReceiveLimit($value),
+            'top_products_by_installments' => $this->getTopProductsByInstallments($value),
+            'last_send_transactions' => $this->getLastSendTransactions($filterData['startDate'], $filterData['endDate'],$value),
+            'last_receive_transactions' => $this->getLastReceiveTransactions($filterData['startDate'], $filterData['endDate'],$value),
             'total_revenue' => $this->getTotalRevenue($filterData['startDate'], $filterData['endDate']),
             'total_payment_ways_balance' => $this->getTotalPaymentWaysBalance(),
         ];
@@ -73,7 +75,6 @@ class DashboardController extends BaseController
     {
         return PaymentWay::sum('balance');
     }
-
 
     /**
      * Get date filter based on request parameters.
@@ -107,14 +108,14 @@ class DashboardController extends BaseController
     }
 
     /**
-     * Get top 5 clients with the highest debt.
+     * Get top $value clients with the highest debt.
      */
-    private function getTopClientsByDebt()
+    private function getTopClientsByDebt($value)
     {
         return Client::whereDoesntHave('installmentContracts')->with('installmentContracts.installments')
             ->get()
             ->sortByDesc('debt')
-            ->take(5)
+            ->take($value)
             ->map(function ($client) {
                 return [
                     'id' => $client->id,
@@ -126,13 +127,13 @@ class DashboardController extends BaseController
 
 
     /**
-     * Get top 5 clients with the most installments.
+     * Get top $value clients with the most installments.
      */
-    private function getTopClientsByInstallments()
+    private function getTopClientsByInstallments($value)
     {
         return Client::withCount('installmentContracts')
             ->orderByDesc('installment_contracts_count')
-            ->take(5)
+            ->take($value)
             ->get()
             ->map(function ($client) {
                 return [
@@ -144,9 +145,9 @@ class DashboardController extends BaseController
     }
 
     /**
-     * Get top 5 overdue installments.
+     * Get top $value overdue installments.
      */
-    private function getTopOverdueInstallments()
+    private function getTopOverdueInstallments($value)
     {
         return Installment::where('status', 'late')
             ->with(['contract.client'])
@@ -154,7 +155,7 @@ class DashboardController extends BaseController
             ->sortByDesc(function ($installment) {
                 return $installment->required_amount - $installment->paid_amount;
             })
-            ->take(5)
+            ->take($value)
             ->map(function ($installment) {
                 return [
                     'id' => $installment->id,
@@ -166,15 +167,15 @@ class DashboardController extends BaseController
     }
 
     /**
-     * Get top 5 upcoming installments.
+     * Get top $value upcoming installments.
      */
-    private function getUpcomingInstallments()
+    private function getUpcomingInstallments($value)
     {
         return Installment::where('status', 'pending')
             ->where('due_date', '>=', Carbon::today())
             ->with(['contract.client'])
             ->orderBy('due_date')
-            ->take(5)
+            ->take($value)
             ->get()
             ->map(function ($installment) {
                 return [
@@ -187,15 +188,15 @@ class DashboardController extends BaseController
     }
 
     /**
-     * Get top 5 payment ways by send transactions.
+     * Get top $value payment ways by send transactions.
      */
-    private function getTopPaymentWaysBySend($startDate, $endDate)
+    private function getTopPaymentWaysBySend($startDate, $endDate,$value)
     {
         return PaymentWay::withCount(['transactions' => function ($query) use ($startDate, $endDate) {
             $query->where('type', 'send')->whereBetween('created_at', [$startDate, $endDate]);
         }])
             ->orderByDesc('transactions_count')
-            ->take(5)
+            ->take($value)
             ->get()
             ->map(function ($paymentWay) {
                 return [
@@ -207,15 +208,15 @@ class DashboardController extends BaseController
     }
 
     /**
-     * Get top 5 payment ways by receive transactions.
+     * Get top $value payment ways by receive transactions.
      */
-    private function getTopPaymentWaysByReceive($startDate, $endDate)
+    private function getTopPaymentWaysByReceive($startDate, $endDate,$value)
     {
         return PaymentWay::withCount(['transactions' => function ($query) use ($startDate, $endDate) {
             $query->where('type', 'receive')->whereBetween('created_at', [$startDate, $endDate]);
         }])
             ->orderByDesc('transactions_count')
-            ->take(5)
+            ->take($value)
             ->get()
             ->map(function ($paymentWay) {
                 return [
@@ -227,12 +228,12 @@ class DashboardController extends BaseController
     }
 
     /**
-     * Get top 5 payment ways by balance.
+     * Get top $value payment ways by balance.
      */
-    private function getTopPaymentWaysByBalance()
+    private function getTopPaymentWaysByBalance($value)
     {
         return PaymentWay::orderByDesc('balance')
-            ->take(5)
+            ->take($value)
             ->get()
             ->map(function ($paymentWay) {
                 return [
@@ -244,9 +245,9 @@ class DashboardController extends BaseController
     }
 
     /**
-     * Get top 5 payment ways nearing send limit.
+     * Get top $value payment ways nearing send limit.
      */
-    private function getTopPaymentWaysNearingSendLimit()
+    private function getTopPaymentWaysNearingSendLimit($value)
     {
         $currentYear = Carbon::now()->year;
         $currentMonth = Carbon::now()->month;
@@ -261,7 +262,7 @@ class DashboardController extends BaseController
                 $monthlyLimit = $paymentWay->monthlyLimits->first();
                 return $monthlyLimit ? ($monthlyLimit->send_used / $paymentWay->send_limit) : 0;
             })
-            ->take(5)
+            ->take($value)
             ->map(function ($paymentWay) {
                 $monthlyLimit = $paymentWay->monthlyLimits->first();
                 return [
@@ -275,9 +276,9 @@ class DashboardController extends BaseController
     }
 
     /**
-     * Get top 5 payment ways nearing receive limit.
+     * Get top $value payment ways nearing receive limit.
      */
-    private function getTopPaymentWaysNearingReceiveLimit()
+    private function getTopPaymentWaysNearingReceiveLimit($value)
     {
         $currentYear = Carbon::now()->year;
         $currentMonth = Carbon::now()->month;
@@ -292,7 +293,7 @@ class DashboardController extends BaseController
                 $monthlyLimit = $paymentWay->monthlyLimits->first();
                 return $monthlyLimit ? ($monthlyLimit->receive_used / $paymentWay->receive_limit) : 0;
             })
-            ->take(5)
+            ->take($value)
             ->map(function ($paymentWay) {
                 $monthlyLimit = $paymentWay->monthlyLimits->first();
                 return [
@@ -306,13 +307,13 @@ class DashboardController extends BaseController
     }
 
     /**
-     * Get top 5 products by installment contracts.
+     * Get top $value products by installment contracts.
      */
-    private function getTopProductsByInstallments()
+    private function getTopProductsByInstallments($value)
     {
         return Product::withCount('installmentContracts')
             ->orderByDesc('installment_contracts_count')
-            ->take(5)
+            ->take($value)
             ->get()
             ->map(function ($product) {
                 return [
@@ -324,15 +325,15 @@ class DashboardController extends BaseController
     }
 
     /**
-     * Get last 5 send transactions.
+     * Get last $value send transactions.
      */
-    private function getLastSendTransactions($startDate, $endDate)
+    private function getLastSendTransactions($startDate, $endDate,$value)
     {
         return Transaction::where('type', 'send')
             ->with(['client', 'paymentWay'])
             ->whereBetween('created_at', [$startDate, $endDate])
             ->orderByDesc('created_at')
-            ->take(5)
+            ->take($value)
             ->get()
             ->map(function ($transaction) {
                 return [
@@ -346,15 +347,15 @@ class DashboardController extends BaseController
     }
 
     /**
-     * Get last 5 receive transactions.
+     * Get last $value receive transactions.
      */
-    private function getLastReceiveTransactions($startDate, $endDate)
+    private function getLastReceiveTransactions($startDate, $endDate,$value)
     {
         return Transaction::where('type', 'receive')
             ->with(['client', 'paymentWay'])
             ->whereBetween('created_at', [$startDate, $endDate])
             ->orderByDesc('created_at')
-            ->take(5)
+            ->take($value)
             ->get()
             ->map(function ($transaction) {
                 return [

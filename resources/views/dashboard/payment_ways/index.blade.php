@@ -6,8 +6,10 @@
     <div class="container">
         <div class="d-flex justify-content-between mb-3">
             <div class="fw-bold fs-5">{{ __('messages.payment_ways') }}</div>
-            <button class="btn btn-outline-primary btn-sm radius-8" data-bs-toggle="modal" data-bs-target="#createModal">
-                {{ __('messages.create_payment_way') }}</button>
+            @can('payment_ways_store')
+                <button class="btn btn-outline-primary btn-sm radius-8" data-bs-toggle="modal" data-bs-target="#createModal">
+                    {{ __('messages.create_payment_way') }}</button>
+            @endcan
         </div>
 
         <div id="paymentWaysContainer" class="row g-3">
@@ -199,13 +201,14 @@
                                 <div class="col-md-auto">
                                     <div class="card shadow-sm h-100 rounded-3 border-0">
                                         <!-- Header -->
-                                        <div class="card-header text-center">
-                                            <button class="btn btn-outline-success btn-sm receiveBtn" data-id="${way.id}" data-name="${way.name}">{{ __('messages.receive') }}</button>
-                                            <button class="btn btn-outline-primary btn-sm sendBtn" data-id="${way.id}" data-name="${way.name}">{{ __('messages.send') }}</button>
-                                            <div class="mb-0 fw-bold">${way.name}</div>
-                                            <small>${way.type ? (typeTranslations[way.type] || way.type) : ''}</small>
-                                        </div>
-
+                                        @can('transactions_store')
+                                            <div class="card-header text-center">
+                                                <button class="btn btn-outline-success btn-sm receiveBtn" data-id="${way.id}" data-name="${way.name}">{{ __('messages.receive') }}</button>
+                                                <button class="btn btn-outline-primary btn-sm sendBtn" data-id="${way.id}" data-name="${way.name}">{{ __('messages.send') }}</button>
+                                                <div class="mb-0 fw-bold">${way.name}</div>
+                                                <small>${way.type ? (typeTranslations[way.type] || way.type) : ''}</small>
+                                            </div>
+                                        @endcan
                                         <!-- Body -->
                                         <div class="card-body p-3">
                                             <!-- Balance -->
@@ -264,18 +267,24 @@
 
                                         <!-- Footer -->
                                         <div class="card-footer d-flex justify-content-between gap-3">
-                                            <a href="payment-ways/show/${way.id}" class="btn btn-outline-info btn-sm">{{ __('messages.details') }}</a>
-                                            <button class="btn btn-outline-warning btn-sm editBtn"
-                                                    data-id="${way.id}"
-                                                    data-name="${way.name}"
-                                                    data-type="${way.type}"
-                                                    data-phone="${way.phone_number ?? ''}"
-                                                    data-receive-limit="${way.receive_limit ?? 0}"
-                                                    data-send-limit="${way.send_limit ?? 0}"
-                                                    data-balance="${way.balance ?? 0}"
-                                                    data-category-id="${categoryId}"
-                                                    data-sub-category-id="${subCategoryId}">{{ __('messages.edit') }}</button>
-                                            <button class="btn btn-outline-danger btn-sm deleteBtn" data-id="${way.id}" data-name="${way.name}">{{ __('messages.delete') }}</button>
+                                            @can('payment_ways_show')
+                                                <a href="payment-ways/show/${way.id}" class="btn btn-outline-info btn-sm">{{ __('messages.details') }}</a>
+                                            @endcan
+                                            @can('payment_ways_update')
+                                                <button class="btn btn-outline-warning btn-sm editBtn"
+                                                        data-id="${way.id}"
+                                                        data-name="${way.name}"
+                                                        data-type="${way.type}"
+                                                        data-phone="${way.phone_number ?? ''}"
+                                                        data-receive-limit="${way.receive_limit ?? 0}"
+                                                        data-send-limit="${way.send_limit ?? 0}"
+                                                        data-balance="${way.balance ?? 0}"
+                                                        data-category-id="${categoryId}"
+                                                        data-sub-category-id="${subCategoryId}">{{ __('messages.edit') }}</button>
+                                            @endcan
+                                            @can('payment_ways_destroy')
+                                                <button class="btn btn-outline-danger btn-sm deleteBtn" data-id="${way.id}" data-name="${way.name}">{{ __('messages.delete') }}</button>
+                                            @endcan
                                         </div>
                                     </div>
                                 </div>

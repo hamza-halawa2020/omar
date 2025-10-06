@@ -20,6 +20,10 @@
                             <option value="custom">{{ __('messages.custom_range') }}</option>
                         </select>
                     </div>
+                    <div class="col-md-auto">
+                        <label for="filter_type" class="form-label">{{ __('messages.analytics_number') }}</label>
+                       <input type="number" class="form-control" value="5" id="analytics_number" name="value">
+                    </div>
                     <div class="col-md-auto custom-date d-none">
                         <label for="start_date" class="form-label">{{ __('messages.start_date') }}</label>
                         <input type="date" id="start_date" name="start_date" class="form-control">
@@ -70,6 +74,7 @@
             const filterTypeSelect = document.getElementById('filter_type');
             const startDateInput = document.getElementById('start_date');
             const endDateInput = document.getElementById('end_date');
+            const analytics_number = document.getElementById('analytics_number');
             const filterForm = document.getElementById('filterForm');
             const customDateFields = document.querySelectorAll('.custom-date');
 
@@ -105,9 +110,12 @@
             function fetchStatistics() {
                 const params = new URLSearchParams({
                     filter_type: filterTypeSelect.value,
+                    analytics_number:analytics_number.value,
+
                     ...(filterTypeSelect.value === 'custom' && {
                         start_date: startDateInput.value,
-                        end_date: endDateInput.value
+                        end_date: endDateInput.value,                       
+
                     })
                 });
 
@@ -117,7 +125,7 @@
                     .then(response => {
                         const data = response.data.statistics;
 
-                        // Update Summary Cards (عام)
+                        // Update Summary Cards
                         document.getElementById('total_revenue').textContent = parseFloat(data.total_revenue ||
                             0).toFixed(2);
                         document.getElementById('total_payment_ways_balance').textContent = parseFloat(data
