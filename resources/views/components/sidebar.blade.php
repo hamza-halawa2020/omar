@@ -81,6 +81,15 @@
                                 </a>
                             </li>
                         @endcan
+                        @can('clients_index')
+                            <li>
+                                <a href="{{ route('client_creditor') }}"
+                                    class="d-flex align-items-center gap-2 {{ Route::is('client_creditor.*') ? 'active-page' : '' }}">
+                                    <iconify-icon icon="mdi:account-multiple-outline" class="menu-icon"></iconify-icon>
+                                    <span>{{ __('messages.client_creditor') }}</span>
+                                </a>
+                            </li>
+                        @endcan
 
                         @can('clients_debts')
                             <li>

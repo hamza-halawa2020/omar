@@ -62,7 +62,9 @@ class PermissionSeeder extends Seeder
             'roles_update',
             'roles_destroy',
 
-            'whatsapp_index'
+            'whatsapp_index',
+
+            'client_creditor'
         ];
 
         foreach ($permissions as $permission) {

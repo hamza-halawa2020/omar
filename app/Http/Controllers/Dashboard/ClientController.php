@@ -7,9 +7,8 @@ use App\Http\Requests\Client\UpdateClientRequest;
 use App\Http\Resources\ClientResource;
 use App\Models\Client;
 use App\Models\PaymentWay;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Routing\Controller as BaseController;
-
+use Illuminate\Support\Facades\Auth;
 
 class ClientController extends BaseController
 {
@@ -18,8 +17,9 @@ class ClientController extends BaseController
         $this->middleware('check.permission:clients_index')->only('index', 'list');
         $this->middleware('check.permission:clients_debts')->only('debts', 'listDebts');
         $this->middleware('check.permission:clients_installments')->only('client_installments', 'listClientInstallments');
+        $this->middleware('check.permission:client_creditor')->only('client_creditor', 'listCreditor');
         $this->middleware('check.permission:clients_store')->only('store');
-        $this->middleware('check.permission:clients_show')->only('show','showPage');
+        $this->middleware('check.permission:clients_show')->only('show', 'showPage');
         $this->middleware('check.permission:clients_update')->only('update');
         $this->middleware('check.permission:clients_destroy')->only('destroy');
     }
@@ -28,32 +28,55 @@ class ClientController extends BaseController
     {
         return view('dashboard.clients.index');
     }
+
     public function debts()
     {
         return view('dashboard.clients.debts');
     }
+
     public function client_installments()
     {
         return view('dashboard.clients.client_installments');
     }
+    public function client_creditor()
+    {
+        return view('dashboard.clients.client_creditor');
+    }
 
     public function list()
     {
-        $clients = Client::with(['creator', 'transactions'])->latest()->get();
+        $clients = Client::with(['creator', 'transactions'])->orderByDesc('debt')->get();
 
         return response()->json(['status' => true, 'message' => __('messages.clients_fetched_successfully'), 'data' => ClientResource::collection($clients)]);
     }
+
     public function listDebts()
     {
-        $clients = Client::whereDoesntHave('installmentContracts')->with(['creator', 'transactions','installmentContracts'])->latest()->get();
-        
+        $clients = Client::where('debt', '>', 0)
+            ->whereDoesntHave('installmentContracts')
+            ->with(['creator', 'transactions', 'installmentContracts'])
+            ->orderByDesc('debt')
+            ->get();
 
         return response()->json(['status' => true, 'message' => __('messages.clients_fetched_successfully'), 'data' => ClientResource::collection($clients)]);
     }
+    public function listCreditor()
+    {
+        $clients = Client::where('debt', '<', 0)
+            ->with(['creator', 'transactions', 'installmentContracts'])
+            ->orderBy('debt','asc')
+            ->get();
+
+        return response()->json(['status' => true, 'message' => __('messages.clients_fetched_successfully'), 'data' => ClientResource::collection($clients)]);
+    }
+
     public function listClientInstallments()
     {
-        $clients = Client::whereHas('installmentContracts')->with(['creator', 'transactions','installmentContracts'])->latest()->get();
-        
+        $clients = Client::where('debt', '!=', 0)
+            ->whereHas('installmentContracts')
+            ->with(['creator', 'transactions', 'installmentContracts'])
+            ->orderByDesc('debt')
+            ->get();
 
         return response()->json(['status' => true, 'message' => __('messages.clients_fetched_successfully'), 'data' => ClientResource::collection($clients)]);
     }
