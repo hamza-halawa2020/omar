@@ -424,7 +424,10 @@ return [
     'show_chart' => 'عرض الرسم البياني',
     'total_payment_ways_balance' => 'إجمالي رصيد طرق الدفع',
     'whatsapp_index' =>'عرض الواتساب',
-    'analytics_number' => 'عدد الاحصائيات'
+    'analytics_number' => 'عدد الاحصائيات',
+    'balance_before_transaction'=>'الرصيد قبل المعاملة',
+    'alance_after_transaction'=>'الرصيد بعد المعاملة',
+
 
 
 ];

@@ -89,6 +89,18 @@ class TransactionController extends BaseController
         return DB::transaction(function () use ($data, $client, $product, $quantity, $paymentWay, $total, $monthlyLimit) {
             $transaction = Transaction::create($data);
 
+            // Store balance before and after the transaction
+            $transaction->balance_before_transaction = $paymentWay->balance;
+            if ($data['type'] === 'send') {
+                $transaction->balance_after_transaction = $paymentWay->balance - $total;
+            } elseif ($data['type'] === 'receive') {
+                $transaction->balance_after_transaction = $paymentWay->balance + $total;
+            } else {
+                $transaction->balance_after_transaction = $paymentWay->balance;
+            }
+            $transaction->save();
+            
+
             if ($data['type'] === 'send') {
 
                 if ($product) {

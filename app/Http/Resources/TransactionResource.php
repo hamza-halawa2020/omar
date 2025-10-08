@@ -16,6 +16,8 @@ class TransactionResource extends JsonResource
             'commission' => $this->commission,
             'notes' => $this->notes,
             'attachment' => $this->attachment,
+            'balance_before_transaction' => $this->balance_before_transaction,
+            'balance_after_transaction' => $this->balance_after_transaction,
             'paymentWay' => new PaymentWayResource($this->whenLoaded('paymentWay')),
             'creator' => new UserResource($this->creator),
             'logs' => TransactionLogResource::collection($this->whenLoaded('logs')),

@@ -163,7 +163,7 @@
                         <button id="prevDay" class="btn btn-outline-primary">&larr;</button>
                     </div>
                 </div>
-                <div class="">
+                <div class="" style="overflow: auto">
                     <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
                         <thead class="">
                             <tr>
@@ -174,6 +174,8 @@
                                 <th class="text-center">{{ __('messages.creator') }}</th>
                                 <th class="text-center">{{ __('messages.attachment') }}</th>
                                 <th class="text-center">{{ __('messages.client') }}</th>
+                                <th class="text-center">{{ __('messages.balance_before_transaction') }}</th>
+                                <th class="text-center">{{ __('messages.alance_after_transaction') }}</th>
                                 <th class="text-center">{{ __('messages.created_at') }}</th>
                             </tr>
                         </thead>
@@ -257,11 +259,11 @@
 
                 $("#transactionsTableBody tr").each(function() {
                     let row = $(this);
-                    let type = row.find("td:first").data("type"); // بدل النص خد الـ data-type
+                    let type = row.find("td:first").data("type"); 
                     let rowText = row.text().toLowerCase();
 
                     let matchesSearch = rowText.includes(searchText);
-                    let matchesType = !filterType || type === filterType; // لازم يطابق القيمة مش نص
+                    let matchesType = !filterType || type === filterType; 
 
                     row.toggle(matchesSearch && matchesType);
                 });
@@ -340,6 +342,8 @@
                             <td>${tx.creator?.name || ''}</td>
                             <td>${attachmentHtml}</td>
                             <td>${ tx.client_id}</td>
+                            <td>${ tx.balance_before_transaction}</td>
+                            <td>${ tx.balance_after_transaction}</td>
                             <td>${tx.created_at || ''}</td>
                         </tr>
                     `;
