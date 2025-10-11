@@ -38,6 +38,7 @@ class ClientController extends BaseController
     {
         return view('dashboard.clients.client_installments');
     }
+
     public function client_creditor()
     {
         return view('dashboard.clients.client_creditor');
@@ -60,11 +61,12 @@ class ClientController extends BaseController
 
         return response()->json(['status' => true, 'message' => __('messages.clients_fetched_successfully'), 'data' => ClientResource::collection($clients)]);
     }
+
     public function listCreditor()
     {
         $clients = Client::where('debt', '<', 0)
             ->with(['creator', 'transactions', 'installmentContracts'])
-            ->orderBy('debt','asc')
+            ->orderBy('debt', 'asc')
             ->get();
 
         return response()->json(['status' => true, 'message' => __('messages.clients_fetched_successfully'), 'data' => ClientResource::collection($clients)]);
@@ -127,7 +129,8 @@ class ClientController extends BaseController
         $client = Client::findOrFail($id);
         $data = $request->validated();
 
-        if ($client->transactions()->exists()) {
+        if ($client->transactions()->exists() || $client->installmentContracts()->exists()) {
+
             return response()->json(['status' => false, 'message' => __('messages.cannot_update_client_with_transactions')], 400);
         }
 
@@ -142,7 +145,7 @@ class ClientController extends BaseController
     {
         $client = Client::findOrFail($id);
 
-        if ($client->transactions()->exists()) {
+        if ($client->transactions()->exists() || $client->installmentContracts()->exists()) {
             return response()->json(['status' => false, 'message' => __('messages.cannot_delete_client_with_transactions')], 400);
         }
 
