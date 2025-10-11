@@ -1,7 +1,8 @@
 <aside class="sidebar">
     <button type="button" class="sidebar-close-btn">
-        <iconify-icon icon="radix-icons:cross-2"></iconify-icon>
+        <iconify-icon icon="mdi:close"></iconify-icon>
     </button>
+
     <div>
         <a href="{{ route('dashboard.index') }}" class="sidebar-logo">
             <img src="{{ asset('assets/images/1.png') }}" alt="site logo" class="light-logo">
@@ -9,6 +10,7 @@
             <img src="{{ asset('assets/images/1.png') }}" alt="site logo" class="logo-icon">
         </a>
     </div>
+
     <div class="sidebar-menu-area">
         <ul class="sidebar-menu" id="sidebar-menu">
 
@@ -16,7 +18,7 @@
                 <li>
                     <a href="{{ route('categories.index') }}"
                         class="d-flex align-items-center gap-2 {{ Route::is('categories.*') ? 'active-page' : '' }}">
-                        <iconify-icon icon="mdi:view-grid-outline" class="menu-icon"></iconify-icon>
+                        <iconify-icon icon="mdi:folder-outline" class="menu-icon"></iconify-icon>
                         <span>{{ __('messages.categories') }}</span>
                     </a>
                 </li>
@@ -26,19 +28,17 @@
                 <li>
                     <a href="{{ route('payment_ways.index') }}"
                         class="d-flex align-items-center gap-2 {{ Route::is('payment_ways.*') ? 'active-page' : '' }}">
-                        <iconify-icon icon="mdi:credit-card-check-outline" class="menu-icon"></iconify-icon>
+                        <iconify-icon icon="mdi:credit-card-outline" class="menu-icon"></iconify-icon>
                         <span>{{ __('messages.payment_way') }}</span>
                     </a>
                 </li>
             @endcan
 
-
-
             @can('products_index')
                 <li>
                     <a href="{{ route('products.index') }}"
                         class="d-flex align-items-center gap-2 {{ Route::is('products.*') ? 'active-page' : '' }}">
-                        <iconify-icon icon="mdi:cart-outline" class="menu-icon"></iconify-icon>
+                        <iconify-icon icon="mdi:package-variant-closed" class="menu-icon"></iconify-icon>
                         <span>{{ __('messages.products') }}</span>
                     </a>
                 </li>
@@ -48,16 +48,16 @@
                 <li>
                     <a href="{{ route('installment_contracts.index') }}"
                         class="d-flex align-items-center gap-2 {{ Route::is('installment_contracts.*') ? 'active-page' : '' }}">
-                        <iconify-icon icon="mdi:calendar-clock-outline" class="menu-icon"></iconify-icon>
+                        <iconify-icon icon="mdi:calendar-clock" class="menu-icon"></iconify-icon>
                         <span>{{ __('messages.installments') }}</span>
                     </a>
                 </li>
             @endcan
 
-            @canany(['clients_index', 'clients_debts'])
+            @canany(['clients_index', 'clients_debts', 'clients_installments', 'client_creditor'])
                 <li class="dropdown">
                     <a href="javascript:void(0)">
-                        <iconify-icon icon="mdi:account-outline" class="menu-icon"></iconify-icon>
+                        <iconify-icon icon="mdi:account-group-outline" class="menu-icon"></iconify-icon>
                         <span>{{ __('messages.clients') }}</span>
                     </a>
 
@@ -72,20 +72,21 @@
                             </li>
                         @endcan
 
-                        @can('clients_index')
+                        @can('clients_installments')
                             <li>
                                 <a href="{{ route('client_installments') }}"
                                     class="d-flex align-items-center gap-2 {{ Route::is('client_installments.*') ? 'active-page' : '' }}">
-                                    <iconify-icon icon="mdi:account-multiple-outline" class="menu-icon"></iconify-icon>
+                                    <iconify-icon icon="mdi:calendar-text-outline" class="menu-icon"></iconify-icon>
                                     <span>{{ __('messages.clients_installments') }}</span>
                                 </a>
                             </li>
                         @endcan
-                        @can('clients_index')
+
+                        @can('client_creditor')
                             <li>
                                 <a href="{{ route('client_creditor') }}"
                                     class="d-flex align-items-center gap-2 {{ Route::is('client_creditor.*') ? 'active-page' : '' }}">
-                                    <iconify-icon icon="mdi:account-multiple-outline" class="menu-icon"></iconify-icon>
+                                    <iconify-icon icon="mdi:hand-coin-outline" class="menu-icon"></iconify-icon>
                                     <span>{{ __('messages.client_creditor') }}</span>
                                 </a>
                             </li>
@@ -103,6 +104,7 @@
                     </ul>
                 </li>
             @endcan
+
             @canany(['users_index', 'roles_index'])
                 <li class="dropdown">
                     <a href="javascript:void(0)">
@@ -125,7 +127,7 @@
                             <li>
                                 <a href="{{ route('users.index') }}"
                                     class="d-flex align-items-center gap-2 {{ Route::is('users.*') ? 'active-page' : '' }}">
-                                    <iconify-icon icon="mdi:account-outline" class="menu-icon"></iconify-icon>
+                                    <iconify-icon icon="mdi:account-cog-outline" class="menu-icon"></iconify-icon>
                                     <span>{{ __('messages.users') }}</span>
                                 </a>
                             </li>
