@@ -16,6 +16,7 @@
                     <th class="text-center">{{ __('messages.name') }}</th>
                     <th class="text-center">{{ __('messages.phone_number') }}</th>
                     <th class="text-center">{{ __('messages.debt') }}</th>
+                    <th class="text-center">{{ __('messages.installments') }}</th>
                     <th class="text-center">{{ __('messages.created_by') }}</th>
                     @canany(['clients_show', 'clients_update', 'clients_destroy'])   
                         <th class="text-center">{{ __('messages.actions') }}</th>
@@ -49,7 +50,8 @@
                                 <td>${i+1}</td>
                                 <td>${client.name}</td>
                                 <td>${client.phone_number}</td>
-                                <td>${client.debt}</td>
+                                <td>${client.original_debt}</td>
+                                <td>${client.totalInstallments}</td>
                                 <td>${client.creator ? client.creator.name : ''}</td>
                                 @canany(['clients_show', 'clients_update', 'clients_destroy'])   
                                     <td>

@@ -8,11 +8,18 @@ class ClientResource extends JsonResource
 {
     public function toArray($request)
     {
+
+        $totalInstallments = $this->installmentContracts?->sum('remaining_amount') ?? 0;
+
+        $originalDebt = $this->debt - $totalInstallments;
+
         return [
             'id' => $this->id,
             'name' => $this->name,
             'phone_number' => $this->phone_number,
             'debt' => $this->debt,
+            'original_debt' => $originalDebt,
+            'totalInstallments' => $totalInstallments,
             'creator' => new UserResource($this->whenLoaded('creator')),
             'transactions' => TransactionResource::collection($this->whenLoaded('transactions')),
             'installment_contracts' => InstallmentContractResource::collection($this->whenLoaded('installmentContracts')),
