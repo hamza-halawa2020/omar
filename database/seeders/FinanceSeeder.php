@@ -117,19 +117,19 @@ class FinanceSeeder extends Seeder
         // ]);
 
         // Clients
-        // $client1 = Client::create([
-        //     'name' => 'Ahmed Ali',
-        //     'phone_number' => '01099999999',
-        //     'debt' => 8000,
-        //     'created_by' => $user->id,
-        // ]);
+        $client1 = Client::create([
+            'name' => 'Ahmed Ali',
+            'phone_number' => '01099999999',
+            'debt' => 8000,
+            'created_by' => $user->id,
+        ]);
 
-        // $client2 = Client::create([
-        //     'name' => 'ali Hassan',
-        //     'phone_number' => '01188888888',
-        //     'debt' => 14500,
-        //     'created_by' => $user->id,
-        // ]);
+        $client2 = Client::create([
+            'name' => 'ali Hassan',
+            'phone_number' => '01188888888',
+            'debt' => 14500,
+            'created_by' => $user->id,
+        ]);
 
         // Products
         // $product1 = Product::create([

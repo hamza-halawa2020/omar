@@ -174,12 +174,15 @@ class MultiSelect {
                                 );
                             }
                         }
-                        this.element
-                            .querySelector(".multi-select")
-                            .insertAdjacentHTML(
-                                "afterbegin",
-                                `<input type="hidden" name="${this.name}[]" value="${option.dataset.value}">`
-                            );
+                        let existingInput = this.element.querySelector(`input[value="${option.dataset.value}"]`);
+                        if (!existingInput) {
+                            this.element
+                                .querySelector(".multi-select")
+                                .insertAdjacentHTML(
+                                    "beforeend",
+                                    `<input type="hidden" name="${this.name}[]" value="${option.dataset.value}">`
+                                );
+                        }
                         this.data.filter(
                             (data) => data.value == option.dataset.value
                         )[0].selected = true;

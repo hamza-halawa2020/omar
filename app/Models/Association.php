@@ -24,7 +24,7 @@ class Association extends Model
 
     public function members()
     {
-        return $this->hasMany(AssociationMember::class, 'association_id');
+        return $this->hasMany(AssociationMember::class, 'association_id')->orderBy('payout_order');
     }
 
     public function transactions()
