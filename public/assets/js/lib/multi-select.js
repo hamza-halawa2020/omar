@@ -56,7 +56,7 @@ class MultiSelect {
                     ? " multi-select-selected"
                     : ""
             }" data-value="${this.data[i].value}">
-                <span class="multi-select-option-radio"></span>
+                <span class="multi-select-option-radio mx-1"></span>
                 <span class="multi-select-option-text">${
                     this.data[i].html ? this.data[i].html : this.data[i].text
                 }</span>
@@ -70,7 +70,7 @@ class MultiSelect {
         ) {
             selectAllHTML = `<div class="multi-select-all">
             <span class="multi-select-option-radio"></span>
-            <span class="multi-select-option-text">Select all</span>
+            <span class="multi-select-option-text mx-1">Select all</span>
         </div>`;
         }
         let template = `

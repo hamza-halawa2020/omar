@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Dashboard\AssociationController;
 use App\Http\Controllers\Dashboard\CategoryController;
 use App\Http\Controllers\Dashboard\ClientController;
 use App\Http\Controllers\Dashboard\DashboardController;
@@ -44,7 +45,6 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
     Route::delete('products/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
     Route::get('/products/{id}/details', [ProductController::class, 'details'])->name('products.details');
 
-
     Route::get('installment_contracts', [InstallmentContractController::class, 'index'])->name('installment_contracts.index');
     Route::get('installment_contracts/list', [InstallmentContractController::class, 'list'])->name('installment_contracts.list');
     Route::post('installment_contracts', [InstallmentContractController::class, 'store'])->name('installment_contracts.store');
@@ -53,8 +53,6 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
     Route::post('installments/pay', [InstallmentContractController::class, 'pay'])->name('installments.pay');
 
     Route::get('installment_contracts/{id}', [InstallmentContractController::class, 'showPage'])->name('installment_contracts.show');
-
-
 
     Route::get('payment-ways', [PaymentWayController::class, 'index'])->name('payment_ways.index');
 
@@ -89,5 +87,12 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
     Route::get('/clients/{id}', [ClientController::class, 'showPage'])->name('clients.showPage');
 
     Route::resource('roles', RoleController::class);
+
+    Route::get('associations', [AssociationController::class, 'index'])->name('associations.index');
+    Route::get('associations/list', [AssociationController::class, 'list'])->name('associations.list');
+    Route::post('associations', [AssociationController::class, 'store'])->name('associations.store');
+    Route::get('associations/{id}', [AssociationController::class, 'show'])->name('associations.show');
+    Route::put('associations/{id}', [AssociationController::class, 'update'])->name('associations.update');
+    Route::delete('associations/{id}', [AssociationController::class, 'destroy'])->name('associations.destroy');
 
 });

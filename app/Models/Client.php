@@ -49,4 +49,11 @@ class Client extends Model
             return $contract->installments->where('status', '!=', 'paid')->count();
         });
     }
+
+
+    public function associations()
+    {
+        return $this->hasMany(AssociationMember::class, 'client_id');
+    }
+
 }

@@ -21,7 +21,13 @@ class Transaction extends Model
         'quantity',
         'balance_before_transaction',
         'balance_after_transaction',
+        'association_id'
     ];
+
+    public function association()
+    {
+        return $this->belongsTo(Association::class, 'association_id');
+    }
 
     public function paymentWay()
     {

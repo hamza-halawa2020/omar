@@ -64,7 +64,13 @@ class PermissionSeeder extends Seeder
 
             'whatsapp_index',
 
-            'client_creditor'
+            'client_creditor',
+
+            'associations_index',
+            'associations_store',
+            'associations_update',
+            'associations_destroy',
+
         ];
 
         foreach ($permissions as $permission) {

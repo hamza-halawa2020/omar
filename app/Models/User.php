@@ -84,4 +84,13 @@ class User extends Authenticatable
         return $this->hasMany(TransactionLog::class, 'created_by');
     }
 
+      public function associations()
+    {
+        return $this->hasMany(AssociationMember::class, 'client_id');
+    }
+      public function associationPayments()
+    {
+        return $this->hasMany(AssociationPayment::class, 'client_id');
+    }
+
 }

@@ -54,6 +54,16 @@
                 </li>
             @endcan
 
+             @can('associations_index')
+                <li>
+                    <a href="{{ route('associations.index') }}"
+                        class="d-flex align-items-center gap-2 {{ Route::is('associations.*') ? 'active-page' : '' }}">
+                        <iconify-icon icon="mdi:account-multiple-check-outline" class="menu-icon"></iconify-icon>
+                        <span>{{ __('messages.associations') }}</span>
+                    </a>
+                </li>
+            @endcan
+
             @canany(['clients_index', 'clients_debts', 'clients_installments', 'client_creditor'])
                 <li class="dropdown">
                     <a href="javascript:void(0)">
@@ -104,6 +114,9 @@
                     </ul>
                 </li>
             @endcan
+
+           
+
 
             @canany(['users_index', 'roles_index'])
                 <li class="dropdown">

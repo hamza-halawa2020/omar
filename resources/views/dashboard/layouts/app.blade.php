@@ -42,8 +42,6 @@
     <script src="{{ asset('assets/js/lib/bootstrap-select.min.js') }}"></script>
     <!-- Multi Select js -->
     <script src="{{ asset('assets/js/lib/multi-select.js') }}"></script>
-    <!-- Select2 JS -->
-    <script src="{{ asset('assets/js/lib/select2.min.js') }}"></script>
     <!-- Iconify Font js -->
     <script src="{{ asset('assets/js/lib/iconify-icon.min.js') }}"></script>
     <!-- Toaster JS -->
