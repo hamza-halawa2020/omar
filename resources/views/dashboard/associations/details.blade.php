@@ -23,6 +23,7 @@
                 {{ __('messages.add_member') }}
             </button>
         </div>
+        
 
         <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
             <thead>
@@ -42,7 +43,7 @@
                         <td>{{ $member->receive_date }}</td>
                         <td>{{ $member->payout_order }}</td>
                         <td>
-                            <button class="btn btn-outline-danger btn-sm delete-member">
+                            <button class="btn btn-outline-danger btn-sm delete-member btn-sm radius-8">
                                 {{ __('messages.delete') }}
                             </button>
                         </td>
