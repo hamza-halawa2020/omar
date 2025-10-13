@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Dashboard;
 
+use App\Http\Requests\Association\AddMemberAssociationRequest;
 use App\Http\Requests\Association\StoreAssociationRequest;
 use App\Http\Requests\Association\UpdateAssociationRequest;
 use App\Http\Resources\AssociationResource;
@@ -11,7 +12,6 @@ use Carbon\Carbon;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Request;
 
 class AssociationController extends BaseController
 {
@@ -35,49 +35,45 @@ class AssociationController extends BaseController
     {
         $associations = Association::with(['members.client', 'creator'])->get();
 
-        return response()->json([
-            'status' => true,
-            'message' => __('messages.associations_fetched_successfully'),
-            'data' => AssociationResource::collection($associations),
-        ]);
+        return response()->json(['status' => true, 'message' => __('messages.associations_fetched_successfully'), 'data' => AssociationResource::collection($associations)]);
     }
 
     public function details($id)
     {
-        $association = Association::with(['members.client', 'creator'])
-            ->findOrFail($id);
-
+        $association = Association::with(['members.client', 'creator'])->findOrFail($id);
         $clients = Client::all();
 
         return view('dashboard.associations.details', compact('association', 'clients'));
     }
 
-    public function addMember(Request $request, $id)
+    public function addMember(AddMemberAssociationRequest $request, $id)
     {
-        $request->validate([
-            'client_id' => 'required|exists:clients,id',
-        ]);
-
+        $data = $request->validated();
         $association = Association::findOrFail($id);
+        $members = $association->members()->orderBy('payout_order')->get();
+        $lastOrder = $members->max('payout_order') ?? 0;
 
-        $lastOrder = $association->members()->max('payout_order') ?? 0;
+        if ($members->isEmpty()) {
+            $receiveDate = Carbon::parse($association->start_date);
+        } else {
+            $lastReceiveDate = Carbon::parse($members->last()->receive_date);
+            $receiveDate = $lastReceiveDate->copy()->addDays((int) $association->per_day);
+        }
 
         $member = $association->members()->create([
-            'client_id' => $request->client_id,
+            'client_id' => $data['client_id'],
             'payout_order' => $lastOrder + 1,
+            'receive_date' => $receiveDate,
         ]);
 
         $newTotal = $association->members()->count();
+
         $association->update([
             'total_members' => $newTotal,
-            'end_date' => Carbon::parse($association->start_date)->addMonths($newTotal - 1),
+            'end_date' => Carbon::parse($association->start_date)->addDays(($newTotal - 1) * (int) $association->per_day),
         ]);
 
-        return response()->json([
-            'status' => true,
-            'message' => __('messages.member_added_successfully'),
-            'data' => $member->load('client'),
-        ]);
+        return response()->json(['status' => true, 'message' => __('messages.member_added_successfully'), 'data' => $member->load('client')]);
     }
 
     public function store(StoreAssociationRequest $request)
@@ -86,12 +82,13 @@ class AssociationController extends BaseController
         $data['created_by'] = Auth::id();
         $memberCount = count($data['total_members']);
 
-        $endDate = Carbon::parse($data['start_date'])->addMonths($memberCount - 1);
+        $endDate = Carbon::parse($data['start_date'])->addDays(($memberCount - 1) * $data['per_day']);
 
         $association = DB::transaction(function () use ($data, $endDate, $memberCount) {
 
             $association = Association::create([
                 'name' => $data['name'],
+                'per_day' => $data['per_day'],
                 'monthly_amount' => $data['monthly_amount'],
                 'start_date' => $data['start_date'],
                 'end_date' => $endDate,
@@ -102,13 +99,12 @@ class AssociationController extends BaseController
             $startDate = Carbon::parse($data['start_date']);
 
             foreach ($data['total_members'] as $index => $clientId) {
-                   $receiveDate = $startDate->copy()->addMonths($index); 
+                $receiveDate = $startDate->copy()->addDays($index * $data['per_day']);
+
                 $association->members()->create([
-                    // 'client_id' => $clientId,
                     'client_id' => is_array($clientId) ? $clientId[0] : $clientId,
                     'payout_order' => $index + 1,
                     'receive_date' => $receiveDate,
-
                 ]);
             }
 
@@ -118,16 +114,41 @@ class AssociationController extends BaseController
         return response()->json(['status' => true, 'message' => __('messages.association_created_successfully'), 'data' => $association->load('members.client')], 201);
     }
 
+    public function deleteMember($associationId, $memberId)
+    {
+        $association = Association::findOrFail($associationId);
+        $member = $association->members()->findOrFail($memberId);
+
+        DB::transaction(function () use ($association, $member) {
+            $member->delete();
+            $members = $association->members()->orderBy('payout_order')->get();
+
+            $startDate = Carbon::parse($association->start_date);
+            $perDay = (int) $association->per_day;
+
+            foreach ($members as $index => $m) {
+                $newReceiveDate = $startDate->copy()->addDays($index * $perDay);
+                $m->update([
+                    'payout_order' => $index + 1,
+                    'receive_date' => $newReceiveDate,
+                ]);
+            }
+
+            $newTotal = $members->count();
+            $association->update([
+                'total_members' => $newTotal,
+                'end_date' => $startDate->copy()->addDays(($newTotal - 1) * $perDay),
+            ]);
+        });
+
+        return response()->json(['status' => true,'message' => __('messages.member_deleted_successfully')]);
+    }
+
     public function show($id)
     {
-        $association = Association::with(['members.client', 'payments', 'creator'])
-            ->findOrFail($id);
+        $association = Association::with(['members.client', 'payments', 'creator'])->findOrFail($id);
 
-        return response()->json([
-            'status' => true,
-            'message' => __('messages.association_fetched_successfully'),
-            'data' => new AssociationResource($association),
-        ]);
+        return response()->json(['status' => true, 'message' => __('messages.association_fetched_successfully'), 'data' => new AssociationResource($association)]);
     }
 
     public function update(UpdateAssociationRequest $request, $id)
@@ -135,11 +156,7 @@ class AssociationController extends BaseController
         $association = Association::findOrFail($id);
         $association->update($request->validated());
 
-        return response()->json([
-            'status' => true,
-            'message' => __('messages.association_updated_successfully'),
-            'data' => new AssociationResource($association),
-        ]);
+        return response()->json(['status' => true, 'message' => __('messages.association_updated_successfully'), 'data' => new AssociationResource($association)]);
     }
 
     public function destroy($id)
@@ -147,17 +164,11 @@ class AssociationController extends BaseController
         $association = Association::findOrFail($id);
 
         if ($association->members()->exists() || $association->payments()->exists()) {
-            return response()->json([
-                'status' => false,
-                'message' => __('messages.cannot_delete_association_with_data'),
-            ], 400);
+            return response()->json(['status' => false, 'message' => __('messages.cannot_delete_association_with_data')], 400);
         }
 
         $association->delete();
 
-        return response()->json([
-            'status' => true,
-            'message' => __('messages.association_deleted_successfully'),
-        ]);
+        return response()->json(['status' => true, 'message' => __('messages.association_deleted_successfully')]);
     }
 }

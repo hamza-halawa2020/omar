@@ -13,6 +13,10 @@
                         <label>{{ __('messages.name') }}</label>
                         <input type="text" name="name" class="form-control" required>
                     </div>
+                    <div class="mb-3">
+                        <label>{{ __('messages.per_day') }}</label>
+                        <input type="text" name="per_day" class="form-control" required>
+                    </div>
 
                     <div class="mb-3">
                         <label for="clients">{{ __('messages.clients') }}</label>

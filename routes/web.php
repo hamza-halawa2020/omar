@@ -98,4 +98,7 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
     Route::get('associations/{id}/details', [AssociationController::class, 'details'])->name('associations.details');
     Route::post('associations/{id}/add-member', [AssociationController::class, 'addMember'])->name('associations.addMember');
 
+    Route::delete('associations/{associationId}/members/{memberId}', [AssociationController::class, 'deleteMember'])->name('associations.deleteMember');
+
+
 });

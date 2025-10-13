@@ -10,6 +10,7 @@ class Association extends Model
 
     protected $fillable = [
         'name',
+        'per_day',//كل كام يوم يعني كل شهر ولا اسبوع
         'total_members', 
         'monthly_amount', // المبلغ الشهري المطلوب
         'start_date',
@@ -20,7 +21,9 @@ class Association extends Model
 
     protected $casts = [
         'monthly_amount' => 'decimal:2',
+        'per_day' => 'integer',
     ];
+    
 
     public function members()
     {

@@ -18,6 +18,7 @@
             <tr>
                 <th class="text-center">{{ __('messages.id') }}</th>
                 <th class="text-center">{{ __('messages.name') }}</th>
+                <th class="text-center">{{ __('messages.per_day') }}</th>
                 <th class="text-center">{{ __('messages.total_members') }}</th>
                 <th class="text-center">{{ __('messages.monthly_amount') }}</th>
                 <th class="text-center">{{ __('messages.status') }}</th>
@@ -56,6 +57,7 @@
                                 <tr>
                                     <td>${i + 1}</td>
                                     <td>${assoc.name}</td>
+                                    <td>${assoc.per_day}</td>
                                     <td>${assoc.total_members}</td>
                                     <td>${assoc.monthly_amount}</td>
                                     <td>${assoc.status}</td>
@@ -72,6 +74,7 @@
                                                 <button class="btn btn-outline-primary btn-sm radius-8 editBtn"
                                                     data-id="${assoc.id}"
                                                     data-name="${assoc.name}"
+                                                    data-name="${assoc.per_day}"
                                                     data-total="${assoc.total_members}"
                                                     data-amount="${assoc.monthly_amount}"
                                                     data-status="${assoc.status}"
@@ -115,6 +118,7 @@
         $(document).on('click', '.editBtn', function () {
             $('#editId').val($(this).data('id'));
             $('#editName').val($(this).data('name'));
+            $('#editPerDay').val($(this).data('per_day'));
             $('#editTotalMembers').val($(this).data('total'));
             $('#editMonthlyAmount').val($(this).data('amount'));
             $('#editStatus').val($(this).data('status'));

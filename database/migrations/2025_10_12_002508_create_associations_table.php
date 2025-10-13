@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('associations', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('per_day');
             $table->integer('total_members');
             $table->decimal('monthly_amount', 15, 2);
             $table->date('start_date');
