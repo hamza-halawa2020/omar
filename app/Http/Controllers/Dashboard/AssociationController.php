@@ -3,15 +3,18 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Requests\Association\AddMemberAssociationRequest;
+use App\Http\Requests\Association\addPaymentAssociationRequest;
 use App\Http\Requests\Association\StoreAssociationRequest;
 use App\Http\Requests\Association\UpdateAssociationRequest;
 use App\Http\Resources\AssociationResource;
 use App\Models\Association;
+use App\Models\AssociationPayment;
 use App\Models\Client;
 use Carbon\Carbon;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Request;
 
 class AssociationController extends BaseController
 {
@@ -141,8 +144,28 @@ class AssociationController extends BaseController
             ]);
         });
 
-        return response()->json(['status' => true,'message' => __('messages.member_deleted_successfully')]);
+        return response()->json(['status' => true, 'message' => __('messages.member_deleted_successfully')]);
     }
+
+
+    public function addPayment(addPaymentAssociationRequest $request, $id)
+    {
+        $association = Association::findOrFail($id);
+        $data = $request->validated();
+    
+        $data['association_id'] = $id;
+        $data['created_by'] = Auth::id();
+
+        $payment = AssociationPayment::create($data);
+
+        return response()->json([
+            'status' => true,
+            'message' => __('messages.payment_added_successfully'),
+            'data' => $payment,
+        ]);
+    }
+
+    
 
     public function show($id)
     {

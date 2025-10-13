@@ -518,5 +518,8 @@ return [
     'delete_member' => 'حذف العضو',
     'are_you_sure_you_want_to_delete_this_member' => 'هل أنت متأكد أنك تريد حذف هذا العضو؟',
     'cancel' => 'الغاء',
+    'enter_amount' => 'Enter amount',
+    'payment_status' => 'حالة الدفع',
 
+    
 ];
