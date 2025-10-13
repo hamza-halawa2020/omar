@@ -13,6 +13,8 @@ class AssociationMember extends Model
         'client_id',
         'payout_order',
         'has_received',
+        'receive_date',
+        'amount'
     ];
 
     protected $casts = [

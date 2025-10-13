@@ -16,6 +16,9 @@ return new class extends Migration
             $table->foreignId('association_id')->constrained('associations')->onDelete('cascade');
             $table->foreignId('client_id')->constrained('clients')->onDelete('cascade');
             $table->integer('payout_order');
+            $table->date('receive_date');
+            $table->string('amount')->nullable();
+
             $table->boolean('has_received')->default(false);
             $table->timestamps();
         });

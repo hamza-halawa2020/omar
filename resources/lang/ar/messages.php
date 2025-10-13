@@ -499,10 +499,16 @@ return [
     'client_installments' => 'عملاء الاقساط',
     'debts.index' => 'المديونيات',
     'users.index' => 'المستخدمين',
-    'select_clients'=>'اختر عملاء',
-
-
+    'select_clients' => 'اختر عملاء',
     'select_all' => 'تحديد الكل',
     'search_placeholder' => 'بحث...',
     'selected_count' => ':count مختار',
+    'member_added_successfully' => 'تم إضافة العضو بنجاح',
+    'add_member_to_association' => 'إضافة عضو إلى الجمعية',
+    'add_member' => 'إضافة عضو',
+    'members_list' => 'قائمة الأعضاء',
+    'client_name' => 'اسم العميل',
+    'payout_order' => 'ترتيب الاستلام',
+    'associations.details' => 'تفاصيل الجمعية',
+    'associations_details' =>'تفاصيل الجمعية',
 ];

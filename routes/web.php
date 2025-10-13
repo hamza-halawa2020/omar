@@ -95,4 +95,7 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
     Route::put('associations/{id}', [AssociationController::class, 'update'])->name('associations.update');
     Route::delete('associations/{id}', [AssociationController::class, 'destroy'])->name('associations.destroy');
 
+    Route::get('associations/{id}/details', [AssociationController::class, 'details'])->name('associations.details');
+    Route::post('associations/{id}/add-member', [AssociationController::class, 'addMember'])->name('associations.addMember');
+
 });

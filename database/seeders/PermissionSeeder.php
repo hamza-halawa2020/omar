@@ -70,6 +70,7 @@ class PermissionSeeder extends Seeder
             'associations_store',
             'associations_update',
             'associations_destroy',
+            'associations_details',
 
         ];
 

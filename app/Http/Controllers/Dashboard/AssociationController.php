@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Request;
 
 class AssociationController extends BaseController
 {
@@ -18,6 +19,7 @@ class AssociationController extends BaseController
     {
         $this->middleware('check.permission:associations_index')->only('index', 'list');
         $this->middleware('check.permission:associations_store')->only('store');
+        $this->middleware('check.permission:associations_details')->only('details');
         $this->middleware('check.permission:associations_update')->only('update');
         $this->middleware('check.permission:associations_destroy')->only('destroy');
     }
@@ -40,6 +42,44 @@ class AssociationController extends BaseController
         ]);
     }
 
+    public function details($id)
+    {
+        $association = Association::with(['members.client', 'creator'])
+            ->findOrFail($id);
+
+        $clients = Client::all();
+
+        return view('dashboard.associations.details', compact('association', 'clients'));
+    }
+
+    public function addMember(Request $request, $id)
+    {
+        $request->validate([
+            'client_id' => 'required|exists:clients,id',
+        ]);
+
+        $association = Association::findOrFail($id);
+
+        $lastOrder = $association->members()->max('payout_order') ?? 0;
+
+        $member = $association->members()->create([
+            'client_id' => $request->client_id,
+            'payout_order' => $lastOrder + 1,
+        ]);
+
+        $newTotal = $association->members()->count();
+        $association->update([
+            'total_members' => $newTotal,
+            'end_date' => Carbon::parse($association->start_date)->addMonths($newTotal - 1),
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => __('messages.member_added_successfully'),
+            'data' => $member->load('client'),
+        ]);
+    }
+
     public function store(StoreAssociationRequest $request)
     {
         $data = $request->validated();
@@ -59,18 +99,23 @@ class AssociationController extends BaseController
                 'created_by' => $data['created_by'],
             ]);
 
+            $startDate = Carbon::parse($data['start_date']);
+
             foreach ($data['total_members'] as $index => $clientId) {
+                   $receiveDate = $startDate->copy()->addMonths($index); 
                 $association->members()->create([
                     // 'client_id' => $clientId,
                     'client_id' => is_array($clientId) ? $clientId[0] : $clientId,
                     'payout_order' => $index + 1,
+                    'receive_date' => $receiveDate,
+
                 ]);
             }
 
             return $association;
         });
 
-        return response()->json(['status' => true,'message' => __('messages.association_created_successfully'),'data' => $association->load('members.client')], 201);
+        return response()->json(['status' => true, 'message' => __('messages.association_created_successfully'), 'data' => $association->load('members.client')], 201);
     }
 
     public function show($id)
