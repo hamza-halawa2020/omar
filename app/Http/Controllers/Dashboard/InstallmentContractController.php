@@ -15,6 +15,7 @@ use App\Models\Transaction;
 use Carbon\Carbon;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class InstallmentContractController extends BaseController
 {
@@ -190,44 +191,88 @@ class InstallmentContractController extends BaseController
 
     public function pay(PayRequest $request)
     {
-
         $data = $request->validated();
 
-        $installment = Installment::findOrFail($data['installment_id']);
-
-        $transactions = Transaction::create([
-            'payment_way_id' => $data['payment_way_id'],
-            'created_by' => Auth::id(),
-            'type' => 'receive',
-            'amount' => $data['amount'],
-            'commission' => $data['commission'],
-            'notes' => __('messages.payment_for_installment').$installment->contract->client->name ?? '' . ' - '.$installment->contract->product->name ?? '',
-            'attachment' => null,
-            'client_id' => $installment->contract->client_id,
-        ]);
-
-        $total = $data['amount'] + $data['commission'];
-        $transactions->paymentWay->increment('balance', $total);
-
-        $payment = $installment->payments()->create([
-            'transaction_id' => $transactions->id,
-            'amount' => $data['amount'],
-            'payment_date' => $data['payment_date'],
-            'paid_by' => Auth::id(),
-        ]);
-
-        $installment->paid_amount += $data['amount'];
-        $installment->status = $installment->paid_amount >= $installment->required_amount ? 'paid' : 'pending';
-        $installment->save();
-
+        $installment = Installment::with('contract.client', 'contract.product')->findOrFail($data['installment_id']);
         $client = $installment->contract->client;
-        $client->decrement('debt', $data['amount']);
+        $product = $installment->contract->product;
+        $paymentWay = PaymentWay::findOrFail($data['payment_way_id']);
+        $total = $data['amount'] + ($data['commission'] ?? 0);
+        $type = 'receive' ;
 
-        return response()->json([
-            'status' => true,
-            'message' => __('messages.installment_paid_successfully'),
-            'data' => $installment->load('payments'),
-        ]);
+
+        $monthlyLimit = null;
+        if ($paymentWay->type === 'wallet') {
+            $currentMonth = now()->month;
+            $currentYear = now()->year;
+
+            $monthlyLimit = $paymentWay->monthlyLimits()->where('month', $currentMonth)->where('year', $currentYear)->first();
+
+            if (($monthlyLimit->receive_used + $total) > $monthlyLimit->receive_limit) {
+                return response()->json(['status' => false, 'message' => __('messages.receive_limit_exceeded')], 400);
+            }
+        }
+
+        return DB::transaction(function () use ($data, $installment, $client, $product, $paymentWay, $total, $monthlyLimit) {
+
+            $transaction = Transaction::create([
+                'payment_way_id' => $paymentWay->id,
+                'created_by' => Auth::id(),
+                'type' => 'receive',
+                'amount' => $data['amount'],
+                'commission' => $data['commission'] ?? 0,
+                'notes' => __('messages.payment_for_installment').' '.($client->name ?? '').' - '.($product->name ?? ''),
+                'client_id' => $client->id ?? null,
+                'balance_before_transaction' => $paymentWay->balance,
+                'balance_after_transaction' => $paymentWay->balance + $total,
+            ]);
+
+            $paymentWay->increment('balance', $total);
+
+            if ($monthlyLimit) {
+                $monthlyLimit->increment('receive_used', $total);
+            }
+
+            $payment = $installment->payments()->create([
+                'transaction_id' => $transaction->id,
+                'amount' => $data['amount'],
+                'payment_date' => $data['payment_date'],
+                'paid_by' => Auth::id(),
+            ]);
+
+            $installment->increment('paid_amount', $data['amount']);
+            $installment->status = $installment->paid_amount >= $installment->required_amount ? 'paid' : 'pending';
+            $installment->save();
+
+            if ($client) {
+                $client->decrement('debt', $data['amount']);
+            }
+
+            $transaction->logs()->create([
+                'created_by' => Auth::id(),
+                'action' => 'create',
+                'data' => [
+                    'installment' => [
+                        'id' => $installment->id,
+                        'amount' => $installment->required_amount,
+                        'paid' => $installment->paid_amount,
+                        'status' => $installment->status,
+                    ],
+                    'client' => [
+                        'id' => $client->id ?? null,
+                        'name' => $client->name ?? null,
+                    ],
+                    'payment_way' => [
+                        'id' => $paymentWay->id,
+                        'name' => $paymentWay->name,
+                        'balance_before' => $transaction->balance_before_transaction,
+                        'balance_after' => $transaction->balance_after_transaction,
+                    ],
+                ],
+            ]);
+
+            return response()->json(['status' => true,'message' => __('messages.installment_paid_successfully'),'data' => ['installment' => $installment->load('payments'),'transaction' => $transaction]]);
+        });
     }
 
     public function destroy($id)

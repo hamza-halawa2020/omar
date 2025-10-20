@@ -11,6 +11,7 @@ use App\Models\Association;
 use App\Models\AssociationPayment;
 use App\Models\Client;
 use App\Models\PaymentWay;
+use App\Models\Transaction;
 use Carbon\Carbon;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
@@ -47,7 +48,8 @@ class AssociationController extends BaseController
         $association = Association::with(['members.client', 'creator'])->findOrFail($id);
         $clients = Client::all();
         $paymentWays = PaymentWay::all();
-        return view('dashboard.associations.details', compact('association', 'clients','paymentWays'));
+
+        return view('dashboard.associations.details', compact('association', 'clients', 'paymentWays'));
     }
 
     public function addMember(AddMemberAssociationRequest $request, $id)
@@ -118,43 +120,42 @@ class AssociationController extends BaseController
         return response()->json(['status' => true, 'message' => __('messages.association_created_successfully'), 'data' => $association->load('members.client')], 201);
     }
 
-    
     public function deleteMember($associationId, $memberId)
-{
-    $association = Association::findOrFail($associationId);
-    $member = $association->members()->findOrFail($memberId);
+    {
+        $association = Association::findOrFail($associationId);
+        $member = $association->members()->findOrFail($memberId);
 
-    if ($member->payments()->exists()) {
-        return response()->json(['status' => false,'message' => __('messages.cannot_delete_member_with_payments')], 400);
-    }
-
-    DB::transaction(function () use ($association, $member) {
-        $member->delete();
-
-        $members = $association->members()->orderBy('payout_order')->get();
-        $startDate = Carbon::parse($association->start_date);
-        $perDay = (int) $association->per_day;
-
-        foreach ($members as $index => $m) {
-            $newReceiveDate = $startDate->copy()->addDays($index * $perDay);
-            $m->update([
-                'payout_order' => $index + 1,
-                'receive_date' => $newReceiveDate,
-            ]);
+        if ($member->payments()->exists()) {
+            return response()->json(['status' => false, 'message' => __('messages.cannot_delete_member_with_payments')], 400);
         }
 
-        $newTotal = $members->count();
-        $association->update([
-            'total_members' => $newTotal,
-            'end_date' => $startDate->copy()->addDays(($newTotal - 1) * $perDay),
-        ]);
-    });
+        DB::transaction(function () use ($association, $member) {
+            $member->delete();
 
-    return response()->json([
-        'status' => true,
-        'message' => __('messages.member_deleted_successfully')
-    ]);
-}
+            $members = $association->members()->orderBy('payout_order')->get();
+            $startDate = Carbon::parse($association->start_date);
+            $perDay = (int) $association->per_day;
+
+            foreach ($members as $index => $m) {
+                $newReceiveDate = $startDate->copy()->addDays($index * $perDay);
+                $m->update([
+                    'payout_order' => $index + 1,
+                    'receive_date' => $newReceiveDate,
+                ]);
+            }
+
+            $newTotal = $members->count();
+            $association->update([
+                'total_members' => $newTotal,
+                'end_date' => $startDate->copy()->addDays(($newTotal - 1) * $perDay),
+            ]);
+        });
+
+        return response()->json([
+            'status' => true,
+            'message' => __('messages.member_deleted_successfully'),
+        ]);
+    }
 
     public function addPayment(addPaymentAssociationRequest $request, $id)
     {
@@ -162,21 +163,88 @@ class AssociationController extends BaseController
         $data = $request->validated();
 
         $member = $association->members()->findOrFail($data['member_id']);
-        $totalInstallments = $association->total_members; 
+        $totalInstallments = $association->total_members;
         $monthlyAmount = $association->monthly_amount;
         $totalDue = $totalInstallments * $monthlyAmount;
         $totalPaid = $member->payments()->sum('amount');
         $newAmount = $data['amount'];
         if ($totalPaid + $newAmount > $totalDue) {
-            return response()->json([    'status' => false,    'message' => __('messages.amount_exceeds_total', ['max' => $totalDue - $totalPaid]),], 400);
+            return response()->json(['status' => false, 'message' => __('messages.amount_exceeds_total', ['max' => $totalDue - $totalPaid])], 400);
         }
 
         $data['association_id'] = $id;
         $data['created_by'] = Auth::id();
 
-        $payment = AssociationPayment::create($data);
+        $paymentWay = PaymentWay::findOrFail($data['payment_way_id']);
+        $total = $data['amount'] + ($data['commission'] ?? 0);
 
-        return response()->json(['status' => true,'message' => __('messages.payment_added_successfully'),'data' => $payment,]);
+        $monthlyLimit = null;
+        if ($paymentWay->type === 'wallet') {
+            $currentMonth = now()->month;
+            $currentYear = now()->year;
+
+            $monthlyLimit = $paymentWay->monthlyLimits()->where('month', $currentMonth)->where('year', $currentYear)->first();
+
+            if (($monthlyLimit->receive_used + $total) > $monthlyLimit->receive_limit) {
+                return response()->json(['status' => false, 'message' => __('messages.receive_limit_exceeded')], 400);
+            }
+        }
+
+        return DB::transaction(function () use ($association, $member, $data, $paymentWay, $total, $monthlyLimit) {
+
+            $transaction = Transaction::create([
+                'payment_way_id' => $paymentWay->id,
+                'created_by' => Auth::id(),
+                'type' => 'receive',
+                'amount' => $data['amount'],
+                'commission' => $data['commission'] ?? 0,
+                'notes' => 'دفعة من العضو '.$member->name.' لجمعية '.$association->name,
+                'client_id' => $member->client_id ?? null,
+                'balance_before_transaction' => $paymentWay->balance,
+                'balance_after_transaction' => $paymentWay->balance,
+            ]);
+            if ($transaction->type === 'send') {
+                $transaction->balance_after_transaction = $paymentWay->balance - $total;
+                $paymentWay->decrement('balance', $total);
+                if ($monthlyLimit) {
+                    $monthlyLimit->increment('send_used', $data['amount']);
+                }
+            } elseif ($transaction->type === 'receive') {
+                $transaction->balance_after_transaction = $paymentWay->balance + $total;
+                $paymentWay->increment('balance', $total);
+                if ($monthlyLimit) {
+                    $monthlyLimit->increment('receive_used', $total);
+                }
+            }
+
+            $transaction->save();
+
+            $data['transaction_id'] = $transaction->id;
+            $payment = AssociationPayment::create($data);
+            $transaction->logs()->create([
+                'created_by' => Auth::id(),
+                'action' => 'create',
+                'data' => [
+                    'association' => [
+                        'id' => $association->id,
+                        'name' => $association->name,
+                    ],
+                    'member' => [
+                        'id' => $member->id,
+                        'name' => $member->name,
+                        'total_paid' => $member->payments()->sum('amount'),
+                    ],
+                    'payment_way' => [
+                        'id' => $paymentWay->id,
+                        'name' => $paymentWay->name,
+                        'balance_before' => $transaction->balance_before_transaction,
+                        'balance_after' => $transaction->balance_after_transaction,
+                    ],
+                ],
+            ]);
+
+            return response()->json(['status' => true, 'message' => __('messages.payment_added_successfully'), 'data' => ['payment' => $payment, 'transaction' => $transaction]]);
+        });
     }
 
     public function receiveMoney(Request $request, $associationId)
@@ -191,7 +259,7 @@ class AssociationController extends BaseController
 
         $member->update(['has_received' => true]);
 
-        return response()->json(['status' => true,'message' => __('messages.recevied_done'),'data' => $member]);
+        return response()->json(['status' => true, 'message' => __('messages.recevied_done'), 'data' => $member]);
     }
 
     public function show($id)
