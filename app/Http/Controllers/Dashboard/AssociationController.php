@@ -10,6 +10,7 @@ use App\Http\Resources\AssociationResource;
 use App\Models\Association;
 use App\Models\AssociationPayment;
 use App\Models\Client;
+use App\Models\PaymentWay;
 use Carbon\Carbon;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
@@ -45,8 +46,8 @@ class AssociationController extends BaseController
     {
         $association = Association::with(['members.client', 'creator'])->findOrFail($id);
         $clients = Client::all();
-
-        return view('dashboard.associations.details', compact('association', 'clients'));
+        $paymentWays = PaymentWay::all();
+        return view('dashboard.associations.details', compact('association', 'clients','paymentWays'));
     }
 
     public function addMember(AddMemberAssociationRequest $request, $id)
@@ -117,35 +118,43 @@ class AssociationController extends BaseController
         return response()->json(['status' => true, 'message' => __('messages.association_created_successfully'), 'data' => $association->load('members.client')], 201);
     }
 
+    
     public function deleteMember($associationId, $memberId)
-    {
-        $association = Association::findOrFail($associationId);
-        $member = $association->members()->findOrFail($memberId);
+{
+    $association = Association::findOrFail($associationId);
+    $member = $association->members()->findOrFail($memberId);
 
-        DB::transaction(function () use ($association, $member) {
-            $member->delete();
-            $members = $association->members()->orderBy('payout_order')->get();
-
-            $startDate = Carbon::parse($association->start_date);
-            $perDay = (int) $association->per_day;
-
-            foreach ($members as $index => $m) {
-                $newReceiveDate = $startDate->copy()->addDays($index * $perDay);
-                $m->update([
-                    'payout_order' => $index + 1,
-                    'receive_date' => $newReceiveDate,
-                ]);
-            }
-
-            $newTotal = $members->count();
-            $association->update([
-                'total_members' => $newTotal,
-                'end_date' => $startDate->copy()->addDays(($newTotal - 1) * $perDay),
-            ]);
-        });
-
-        return response()->json(['status' => true, 'message' => __('messages.member_deleted_successfully')]);
+    if ($member->payments()->exists()) {
+        return response()->json(['status' => false,'message' => __('messages.cannot_delete_member_with_payments')], 400);
     }
+
+    DB::transaction(function () use ($association, $member) {
+        $member->delete();
+
+        $members = $association->members()->orderBy('payout_order')->get();
+        $startDate = Carbon::parse($association->start_date);
+        $perDay = (int) $association->per_day;
+
+        foreach ($members as $index => $m) {
+            $newReceiveDate = $startDate->copy()->addDays($index * $perDay);
+            $m->update([
+                'payout_order' => $index + 1,
+                'receive_date' => $newReceiveDate,
+            ]);
+        }
+
+        $newTotal = $members->count();
+        $association->update([
+            'total_members' => $newTotal,
+            'end_date' => $startDate->copy()->addDays(($newTotal - 1) * $perDay),
+        ]);
+    });
+
+    return response()->json([
+        'status' => true,
+        'message' => __('messages.member_deleted_successfully')
+    ]);
+}
 
     public function addPayment(addPaymentAssociationRequest $request, $id)
     {

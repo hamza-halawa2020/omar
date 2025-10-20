@@ -526,4 +526,5 @@ return [
     'not_yet' => 'لم يستلم',
     'this_member_recevied' =>'هذا العضو استلم بالفعل.',
     'recevied_done' =>'تم تسليم المبلغ للعضو بنجاح.',
+    'cannot_delete_member_with_payments' => 'لا يمكن حذف العضو لانه قام بعمليات دفع',
 ];

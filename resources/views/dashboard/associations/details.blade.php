@@ -139,6 +139,19 @@
                             <label>{{ __('messages.amount') }}</label>
                             <input type="number" name="amount" value="{{ $association->monthly_amount }}"
                                 class="form-control" required placeholder="{{ __('messages.enter_amount') }}">
+                            <label>{{ __('messages.payment_way') }}</label>
+
+                        <select name="payment_way_id" id="payPaymentWay" class="form-control" required>
+
+                                 <option value="" disabled selected>{{ __('messages.select_payment_way') }}</option>
+
+                                @foreach ($paymentWays as $way)
+                                    <option value="{{ $way->id }}">{{ $way->name }}</option>
+                                @endforeach
+                            </select>
+                             <label>{{ __('messages.commission') }}</label>
+                        <input type="number" step="0.01" name="commission" id="payCommission" class="form-control"
+                            required>
                             <label>{{ __('messages.payment_date') }}</label>
                             <input type="date" name="payment_date" class="form-control" required
                                 value="{{ now()->format('Y-m-d') }}">
@@ -148,6 +161,7 @@
                                 <option value="pending">{{ __('messages.pending') }}</option>
                                 <option value="late">{{ __('messages.late') }}</option>
                             </select>
+                           
                         </div>
                         <div class="modal-footer">
                             <button type="submit" class="btn btn-outline-primary btn-sm">{{ __('messages.save') }}</button>
