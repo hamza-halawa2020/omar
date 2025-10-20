@@ -28,8 +28,8 @@
                 <tr>
                     <th class="text-center">#</th>
                     <th class="text-center">{{ __('messages.client_name') }}</th>
-                   <th class="text-center">{{ __('messages.payment_times') }}</th>
-                   <th class="text-center">{{ __('messages.is_recevied') }}</th>
+                    <th class="text-center">{{ __('messages.payment_times') }}</th>
+                    <th class="text-center">{{ __('messages.is_recevied') }}</th>
                     <th class="text-center">{{ __('messages.receive_date') }}</th>
                     <th class="text-center">{{ __('messages.payout_order') }}</th>
                     <th class="text-center">{{ __('messages.payment_status') }}</th>
@@ -38,15 +38,16 @@
             </thead>
             <tbody id="membersTableBody">
                 @foreach ($association->members as $member)
+                {{-- @dd($member) --}}
                     <tr data-id="{{ $member->id }}">
                         <td>{{ $loop->iteration }}</td>
                         <td>{{ $member->client->name }}</td>
                         <td>{{ $member->payments->count() }}</td>
                         <td>
                             @if($member->has_received)
-                                {{ __('messages.received') }} date
+                                {{ __('messages.yes') }}
                             @else
-                                {{ __('messages.not_yet') }} 
+                                {{ __('messages.not_yet') }}
                             @endif
                         </td>
                         <td>{{ $member->receive_date }}</td>
@@ -65,16 +66,13 @@
                         </td>
                         <td>
                             <div class="d-flex justify-content-between gap-1">
-                                @if(!$member->is_received)
-                                    <form method="POST" action="{{ route('associations.receiveMoney', $association->id) }}">
-                                        @csrf
-                                        <input type="hidden" name="member_id" value="{{ $member->id }}">
-                                        <button type="submit"
-                                            class="btn btn-outline-primary btn-sm btn-sm radius-8">{{ __('messages.send_money') }}</button>
-                                    </form>
+                                @if(!$member->has_received)
+                                    <button data-id="{{ $member->id }}" data-client-name="{{ $member->client->name }}"
+                                        data-amount="{{ $association->monthly_amount }}"
+                                        class="pay-member btn btn-outline-primary btn-sm btn-sm radius-8">{{ __('messages.send_money') }}</button>
                                 @else
                                     <button class="btn btn-outline-secondary btn-sm btn-sm radius-8"
-                                        style="cursor: not-allowed">{{ __('messages.received') }}</button>
+                                        style="cursor: not-allowed">{{ __('messages.this_member_recevied') }}</button>
                                 @endif
 
                                 <button class="btn btn-outline-success btn-sm add-payment btn-sm radius-8"
@@ -91,6 +89,56 @@
                 @endforeach
             </tbody>
         </table>
+
+        <!-- Pay Member Modal -->
+        <div class="modal fade" id="payMemberModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <form id="payMemberForm">
+                    @csrf
+                    <input type="hidden" name="member_id" id="pm_member_id">
+                    <input type="hidden" name="amount" id="pm_amount">
+                    <input type="hidden" name="commission" id="pm_commission" value="0">
+
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <div class="modal-title">{{ __('messages.send_money') }}: <span id="pm_member_name"></span></div>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="pm_payment_way" class="form-label">{{ __('messages.select_payment_way') }}</label>
+                                <select name="payment_way_id" id="pm_payment_way" class="form-select" required>
+                                <option value="" disabled selected>{{ __('messages.select_payment_way') }}</option>
+                                    @foreach($paymentWays as $pw)
+                                        <option value="{{ $pw->id }}">{{ $pw->name }} ({{ $pw->type }})</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="mb-3">
+
+                            <label>{{ __('messages.commission') }}</label>
+                            <input type="number" step="0.01" name="commission" id="payCommission" class="form-control"
+                                required>
+                            </div>
+
+                            <div class="mb-2">
+                                <small>{{ __('messages.amount') }}: <strong id="pm_amount_label"></strong></small>
+                            </div>
+
+                            <div id="pm_alert" class="alert alert-danger d-none" role="alert"></div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-outline-primary btn-sm btn-sm radius-8"> {{ __('messages.save') }}</button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm btn-sm radius-8" data-bs-dismiss="modal">{{ __('messages.close') }}</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+
 
         <!-- Add Member Modal -->
         <div class="modal fade" id="addMemberModal" tabindex="-1">
@@ -141,17 +189,17 @@
                                 class="form-control" required placeholder="{{ __('messages.enter_amount') }}">
                             <label>{{ __('messages.payment_way') }}</label>
 
-                        <select name="payment_way_id" id="payPaymentWay" class="form-control" required>
+                            <select name="payment_way_id" id="payPaymentWay" class="form-control" required>
 
-                                 <option value="" disabled selected>{{ __('messages.select_payment_way') }}</option>
+                                <option value="" disabled selected>{{ __('messages.select_payment_way') }}</option>
 
                                 @foreach ($paymentWays as $way)
                                     <option value="{{ $way->id }}">{{ $way->name }}</option>
                                 @endforeach
                             </select>
-                             <label>{{ __('messages.commission') }}</label>
-                        <input type="number" step="0.01" name="commission" id="payCommission" class="form-control"
-                            required>
+                            <label>{{ __('messages.commission') }}</label>
+                            <input type="number" step="0.01" name="commission" id="payCommission" class="form-control"
+                                required>
                             <label>{{ __('messages.payment_date') }}</label>
                             <input type="date" name="payment_date" class="form-control" required
                                 value="{{ now()->format('Y-m-d') }}">
@@ -161,7 +209,7 @@
                                 <option value="pending">{{ __('messages.pending') }}</option>
                                 <option value="late">{{ __('messages.late') }}</option>
                             </select>
-                           
+
                         </div>
                         <div class="modal-footer">
                             <button type="submit" class="btn btn-outline-primary btn-sm">{{ __('messages.save') }}</button>
@@ -272,6 +320,52 @@
                         showToast(xhr.responseJSON?.message || 'Something went wrong.', 'error');
                     }
                 });
+            });
+
+            $(document).on('click', '.pay-member', function () {
+                const memberId = $(this).data('id');
+                const memberName = $(this).data('client-name') || '—';
+
+                const monthlyAmount = {{ $association->monthly_amount }};
+                const totalMembers = {{ $association->members->count() }};
+                const total = monthlyAmount * totalMembers;
+
+                $('#pm_member_id').val(memberId);
+                $('#pm_member_name').text(memberName);
+                $('#pm_amount').val(total);
+                $('#pm_amount_label').text(total.toLocaleString());
+
+                $('#pm_payment_way').val('');
+                $('#pm_alert').addClass('d-none').text('');
+
+                const modalEl = document.getElementById('payMemberModal');
+                const modal = new bootstrap.Modal(modalEl);
+                modal.show();
+            });
+
+
+            $('#payMemberForm').submit(function (e) {
+                e.preventDefault();
+
+                const associationId = {{ $association->id }}; 
+                const url = `{{ url('dashboard/associations') }}/${associationId}/pay-member`;
+                const data = $(this).serialize();
+
+                $.post(url, data)
+                    .done(function (res) {
+                        if (res.status) {
+                            const modal = bootstrap.Modal.getInstance(document.getElementById('payMemberModal'));
+                            modal.hide();
+                            showToast(res.message ||  'success');
+                            location.reload();
+                        } else {
+                            $('#pm_alert').removeClass('d-none').text(res.message ||'error');
+                        }
+                    })
+                    .fail(function (err) {
+                        const msg = err.responseJSON?.message || 'error';
+                        $('#pm_alert').removeClass('d-none').text(msg);
+                    });
             });
         });
     </script>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Requests\Association\AddMemberAssociationRequest;
 use App\Http\Requests\Association\addPaymentAssociationRequest;
+use App\Http\Requests\Association\payMemberAssociationRequest;
 use App\Http\Requests\Association\StoreAssociationRequest;
 use App\Http\Requests\Association\UpdateAssociationRequest;
 use App\Http\Resources\AssociationResource;
@@ -16,7 +17,6 @@ use Carbon\Carbon;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Request;
 
 class AssociationController extends BaseController
 {
@@ -247,19 +247,87 @@ class AssociationController extends BaseController
         });
     }
 
-    public function receiveMoney(Request $request, $associationId)
+    public function payMember(payMemberAssociationRequest $request, $id)
     {
-        $association = Association::findOrFail($associationId);
+        $data = $request->validated();
 
-        $member = $association->members()->findOrFail($request['member_id']);
+        $association = Association::with('members.client')->findOrFail($id);
+        $member = $association->members()->findOrFail($data['member_id']);
+        $paymentWay = PaymentWay::findOrFail($data['payment_way_id']);
+
+        $monthlyAmount = $association->monthly_amount;
+        $totalMembers = $association->members()->count();
+        $totalReceived = $monthlyAmount * $totalMembers;
+        $commission = $data['commission'] ?? 0;
+        $total = $totalReceived + $commission;
 
         if ($member->has_received) {
             return response()->json(['status' => false, 'message' => __('messages.this_member_recevied')], 400);
         }
 
-        $member->update(['has_received' => true]);
+        $monthlyLimit = null;
+        if ($paymentWay->type === 'wallet') {
+            $currentMonth = now()->month;
+            $currentYear = now()->year;
 
-        return response()->json(['status' => true, 'message' => __('messages.recevied_done'), 'data' => $member]);
+            $monthlyLimit = $paymentWay->monthlyLimits()->where('month', $currentMonth)->where('year', $currentYear)->first();
+
+            if ($monthlyLimit && ($monthlyLimit->send_used + $total) > $monthlyLimit->send_limit) {
+                return response()->json(['status' => false, 'message' => __('messages.send_limit_exceeded')], 400);
+            }
+        }
+
+        return DB::transaction(function () use ($member, $association, $paymentWay, $totalReceived, $commission, $total, $monthlyLimit) {
+
+            $transaction = Transaction::create([
+                'payment_way_id' => $paymentWay->id,
+                'created_by' => Auth::id(),
+                'type' => 'send',
+                'amount' => $totalReceived,
+                'commission' => $commission,
+                'notes' => 'صرف جمعية '.$association->name.' للعضو '.$member->client->name,
+                'client_id' => $member->client_id,
+                'balance_before_transaction' => $paymentWay->balance,
+                'balance_after_transaction' => $paymentWay->balance - $total,
+            ]);
+
+            $paymentWay->decrement('balance', $total);
+
+            if ($monthlyLimit) {
+                $monthlyLimit->increment('send_used', $total);
+            }
+
+            $member->update([
+                'has_received' => true,
+                'transaction_id' => $transaction->id,
+                'amount' => $totalReceived,
+                'received_at' => now(),
+            ]);
+
+            $transaction->logs()->create([
+                'created_by' => Auth::id(),
+                'action' => 'create',
+                'data' => [
+                    'association' => [
+                        'id' => $association->id,
+                        'name' => $association->name,
+                    ],
+                    'member' => [
+                        'id' => $member->id,
+                        'name' => $member->client->name,
+                        'amount_received' => $totalReceived,
+                    ],
+                    'payment_way' => [
+                        'id' => $paymentWay->id,
+                        'name' => $paymentWay->name,
+                        'balance_before' => $transaction->balance_before_transaction,
+                        'balance_after' => $transaction->balance_after_transaction,
+                    ],
+                ],
+            ]);
+
+            return response()->json(['status' => true, 'message' => __('messages.recevied_done'), 'data' => ['member' => $member->fresh(), 'transaction' => $transaction]]);
+        });
     }
 
     public function show($id)
