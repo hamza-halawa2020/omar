@@ -83,7 +83,7 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
     Route::get('clients/client_creditor', [ClientController::class, 'client_creditor'])->name('client_creditor');
     Route::post('clients', [ClientController::class, 'store'])->name('clients.store');
     Route::put('clients/{id}', [ClientController::class, 'update'])->name('clients.update');
-    Route::delete('clients/{id}', [ClientController::class, 'destroy'])->name('categories.destroy');
+    Route::delete('clients/{id}', [ClientController::class, 'destroy'])->name('clients.destroy');
     Route::get('/clients/{id}', [ClientController::class, 'showPage'])->name('clients.showPage');
 
     Route::resource('roles', RoleController::class);
@@ -99,6 +99,6 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
     Route::post('associations/{id}/add-member', [AssociationController::class, 'addMember'])->name('associations.addMember');
 
     Route::delete('associations/{associationId}/members/{memberId}', [AssociationController::class, 'deleteMember'])->name('associations.deleteMember');
-    Route::post('/dashboard/associations/{id}/add-payment', [AssociationController::class, 'addPayment'])->name('associations.addPayment');
+    Route::post('/associations/{id}/add-payment', [AssociationController::class, 'addPayment'])->name('associations.addPayment');
 
 });
