@@ -28,6 +28,8 @@
                 <tr>
                     <th class="text-center">#</th>
                     <th class="text-center">{{ __('messages.client_name') }}</th>
+                   <th class="text-center">{{ __('messages.payment_times') }}</th>
+                   <th class="text-center">{{ __('messages.is_recevied') }}</th>
                     <th class="text-center">{{ __('messages.receive_date') }}</th>
                     <th class="text-center">{{ __('messages.payout_order') }}</th>
                     <th class="text-center">{{ __('messages.payment_status') }}</th>
@@ -39,6 +41,14 @@
                     <tr data-id="{{ $member->id }}">
                         <td>{{ $loop->iteration }}</td>
                         <td>{{ $member->client->name }}</td>
+                        <td>{{ $member->payments->count() }}</td>
+                        <td>
+                            @if($member->has_received)
+                                {{ __('messages.received') }} date
+                            @else
+                                {{ __('messages.not_yet') }} 
+                            @endif
+                        </td>
                         <td>{{ $member->receive_date }}</td>
                         <td>{{ $member->payout_order }}</td>
                         <td>
@@ -49,18 +59,33 @@
                             @endphp
                             <span
                                 class="badge {{ $status == 'paid' ? 'bg-success' : ($status == 'pending' ? 'bg-warning' : 'bg-danger') }}">
-                                {{ __('messages.' . $status) }} ({{ $totalPaid }} / {{ $dueAmount }})
+                                {{ __('messages.' . $status) }} ({{ $totalPaid }})
+                                {{-- {{ __('messages.' . $status) }} ({{ $totalPaid }} / {{ $dueAmount }}) --}}
                             </span>
                         </td>
                         <td>
-                            <button class="btn btn-outline-success btn-sm add-payment btn-sm radius-8"
-                                data-id="{{ $member->id }}" data-bs-toggle="modal" data-bs-target="#addPaymentModal">
-                                {{ __('messages.add_payment') }}
-                            </button>
-                            <button class="btn btn-outline-danger btn-sm delete-member btn-sm radius-8"
-                                data-id="{{ $member->id }}">
-                                {{ __('messages.delete') }}
-                            </button>
+                            <div class="d-flex justify-content-between gap-1">
+                                @if(!$member->is_received)
+                                    <form method="POST" action="{{ route('associations.receiveMoney', $association->id) }}">
+                                        @csrf
+                                        <input type="hidden" name="member_id" value="{{ $member->id }}">
+                                        <button type="submit"
+                                            class="btn btn-outline-primary btn-sm btn-sm radius-8">{{ __('messages.send_money') }}</button>
+                                    </form>
+                                @else
+                                    <button class="btn btn-outline-secondary btn-sm btn-sm radius-8"
+                                        style="cursor: not-allowed">{{ __('messages.received') }}</button>
+                                @endif
+
+                                <button class="btn btn-outline-success btn-sm add-payment btn-sm radius-8"
+                                    data-id="{{ $member->id }}" data-bs-toggle="modal" data-bs-target="#addPaymentModal">
+                                    {{ __('messages.add_payment') }}
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm delete-member btn-sm radius-8"
+                                    data-id="{{ $member->id }}">
+                                    {{ __('messages.delete') }}
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 @endforeach

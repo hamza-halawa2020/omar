@@ -100,5 +100,6 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
 
     Route::delete('associations/{associationId}/members/{memberId}', [AssociationController::class, 'deleteMember'])->name('associations.deleteMember');
     Route::post('/associations/{id}/add-payment', [AssociationController::class, 'addPayment'])->name('associations.addPayment');
+    Route::post('associations/{id}/receive-money', [AssociationController::class, 'receiveMoney'])->name('associations.receiveMoney');
 
 });

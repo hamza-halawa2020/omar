@@ -513,13 +513,17 @@ return [
     'associations_details' => 'تفاصيل الجمعية',
     'per_day' => 'الفاصل الزمني بين كل قبض (بالأيام)',
     'receive_date' => 'تاريخ الاستلام',
-
     'member_deleted_successfully' => 'تم حذف العضو بنجاح.',
     'delete_member' => 'حذف العضو',
     'are_you_sure_you_want_to_delete_this_member' => 'هل أنت متأكد أنك تريد حذف هذا العضو؟',
     'cancel' => 'الغاء',
     'enter_amount' => 'Enter amount',
     'payment_status' => 'حالة الدفع',
-
-    
+    'amount_exceeds_total' => 'المبلغ المدفوع أكبر من إجمالي المبلغ المطلوب. أقصى مبلغ متبقي هو :max جنيه.',
+    'payment_times' => 'عدد مرات الدفع',
+    'is_recevied' => 'هل استلم ؟',
+    'send_money' => 'ارسال الدفعه',
+    'not_yet' => 'لم يستلم',
+    'this_member_recevied' =>'هذا العضو استلم بالفعل.',
+    'recevied_done' =>'تم تسليم المبلغ للعضو بنجاح.',
 ];

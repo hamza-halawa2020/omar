@@ -147,25 +147,43 @@ class AssociationController extends BaseController
         return response()->json(['status' => true, 'message' => __('messages.member_deleted_successfully')]);
     }
 
-
     public function addPayment(addPaymentAssociationRequest $request, $id)
     {
         $association = Association::findOrFail($id);
         $data = $request->validated();
-    
+
+        $member = $association->members()->findOrFail($data['member_id']);
+        $totalInstallments = $association->total_members; 
+        $monthlyAmount = $association->monthly_amount;
+        $totalDue = $totalInstallments * $monthlyAmount;
+        $totalPaid = $member->payments()->sum('amount');
+        $newAmount = $data['amount'];
+        if ($totalPaid + $newAmount > $totalDue) {
+            return response()->json([    'status' => false,    'message' => __('messages.amount_exceeds_total', ['max' => $totalDue - $totalPaid]),], 400);
+        }
+
         $data['association_id'] = $id;
         $data['created_by'] = Auth::id();
 
         $payment = AssociationPayment::create($data);
 
-        return response()->json([
-            'status' => true,
-            'message' => __('messages.payment_added_successfully'),
-            'data' => $payment,
-        ]);
+        return response()->json(['status' => true,'message' => __('messages.payment_added_successfully'),'data' => $payment,]);
     }
 
-    
+    public function receiveMoney(Request $request, $associationId)
+    {
+        $association = Association::findOrFail($associationId);
+
+        $member = $association->members()->findOrFail($request['member_id']);
+
+        if ($member->has_received) {
+            return response()->json(['status' => false, 'message' => __('messages.this_member_recevied')], 400);
+        }
+
+        $member->update(['has_received' => true]);
+
+        return response()->json(['status' => true,'message' => __('messages.recevied_done'),'data' => $member]);
+    }
 
     public function show($id)
     {
