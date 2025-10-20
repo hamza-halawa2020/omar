@@ -15,7 +15,7 @@ class AssociationPayment extends Model
         'payment_date',
         'status', // e.g., 'paid', 'pending', 'late'
         'created_by',
-        'transaction_id'
+        'transaction_id',
     ];
 
     protected $casts = [
@@ -38,7 +38,7 @@ class AssociationPayment extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
-        public function transaction()
+    public function transaction()
     {
         return $this->belongsTo(Transaction::class, 'transaction_id');
     }

@@ -14,7 +14,8 @@ class AssociationMember extends Model
         'payout_order',
         'has_received',
         'receive_date',
-        'amount'
+        'amount',
+        'transaction_id',
     ];
 
     protected $casts = [
@@ -34,5 +35,10 @@ class AssociationMember extends Model
     public function payments()
     {
         return $this->hasMany(AssociationPayment::class, 'member_id');
+    }
+
+    public function transaction()
+    {
+        return $this->belongsTo(Transaction::class, 'transaction_id');
     }
 }

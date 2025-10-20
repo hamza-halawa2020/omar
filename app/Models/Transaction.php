@@ -23,8 +23,6 @@ class Transaction extends Model
         'balance_after_transaction',
     ];
 
-   
-
     public function paymentWay()
     {
         return $this->belongsTo(PaymentWay::class, 'payment_way_id');
@@ -54,8 +52,14 @@ class Transaction extends Model
     {
         return $this->hasMany(InstallmentPayment::class, 'transaction_id');
     }
+
     public function associationPayment()
     {
         return $this->hasMany(AssociationPayment::class, 'transaction_id');
+    }
+
+    public function associationMember()
+    {
+        return $this->hasMany(AssociationMember::class, 'transaction_id');
     }
 }
