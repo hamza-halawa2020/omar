@@ -21,8 +21,7 @@
                         <th class="text-center">#</th>
                         <th class="text-center">{{ __('messages.client') }}</th>
                         <th class="text-center">{{ __('messages.product') }}</th>
-                        <th class="text-center">{{ __('messages.next_installment_date') }}</th>
-                        <th class="text-center">{{ __('messages.total_amount') }}</th>
+               
                         <th class="text-center">{{ __('messages.installment_amount') }}</th>
                         <th class="text-center">{{ __('messages.down_payment') }}</th>
                         <th class="text-center">{{ __('messages.remaining_amount') }}</th>
@@ -74,8 +73,7 @@
                             <small>${clientPhone}</small>
                         </td>
                         <td>${productName}</td>
-                        <td>${contract.next_due_date}</td>
-                        <td>${contract.total_amount}</td>
+
                         <td>${contract.installment_amount}</td>
                         <td>${contract.down_payment}</td>
                         <td>${contract.remaining_amount}</td>
