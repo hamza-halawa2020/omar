@@ -21,13 +21,9 @@ class Transaction extends Model
         'quantity',
         'balance_before_transaction',
         'balance_after_transaction',
-        'association_id'
     ];
 
-    public function association()
-    {
-        return $this->belongsTo(Association::class, 'association_id');
-    }
+   
 
     public function paymentWay()
     {
@@ -57,5 +53,9 @@ class Transaction extends Model
     public function installmentPayment()
     {
         return $this->hasMany(InstallmentPayment::class, 'transaction_id');
+    }
+    public function associationPayment()
+    {
+        return $this->hasMany(AssociationPayment::class, 'transaction_id');
     }
 }

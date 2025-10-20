@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('association_payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('association_id')->constrained('associations')->cascadeOnDelete();
+            $table->foreignId('transaction_id')->nullable()->constrained('transactions')->cascadeOnDelete();
             $table->foreignId('member_id')->constrained('association_members')->cascadeOnDelete();
             $table->decimal('amount', 15, 2);
             $table->date('payment_date');
