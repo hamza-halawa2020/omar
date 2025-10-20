@@ -18,7 +18,8 @@ class addPaymentAssociationRequest extends FormRequest
             'amount' => 'required|numeric|min:0',
             'payment_date' => 'required|date',
             'status' => 'required|in:paid,pending,late',
-            'payment_way_id' => 'required'
+            'payment_way_id' => 'required',
+            'commission' => 'nullable|numeric|min:0',
         ];
     }
 }
