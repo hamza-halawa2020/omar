@@ -13,6 +13,7 @@ class Client extends Model
         'phone_number',
         'debt',
         'created_by',
+        'type' //client, merchant
     ];
 
     protected $casts = [
