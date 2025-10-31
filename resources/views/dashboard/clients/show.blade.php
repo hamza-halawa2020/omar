@@ -87,6 +87,7 @@
                             <th class="text-center">{{ __('messages.id') }}</th>
                             <th class="text-center">{{ __('messages.type') }}</th>
                             <th class="text-center">{{ __('messages.amount') }}</th>
+                            <th class="text-center">{{ __('messages.notes') }}</th>
                             <th class="text-center">{{ __('messages.commission') }}</th>
                             <th class="text-center">{{ __('messages.payment_way') }}</th>
                             <th class="text-center">{{ __('messages.created_at') }}</th>
@@ -150,20 +151,16 @@
                         // Update client info
                         $('#clientName').text(client.name);
                         $('#clientPhone').text(client.phone_number || '{{ __('messages.unknown') }}');
-                        $('#clientDebt').text(parseFloat(client.debt || 0).toFixed(2));
-                        $('#clientCreator').text(client.creator ? client.creator.name :
-                            '{{ __('messages.unknown') }}');
+                        $('#clientDebt').text(parseFloat(client.debt || 0));
+                        $('#clientCreator').text(client.creator ? client.creator.name :'{{ __('messages.unknown') }}');
                         $('#clientCreatedAt').text(client.created_at);
 
 
                         // Update statistics
                         let totalTransactions = client.transactions.length;
-                        let totalSent = client.transactions.filter(t => t.type === 'send').reduce((sum,
-                            t) => sum + parseFloat(t.amount || 0), 0).toFixed(2);
-                        let totalReceived = client.transactions.filter(t => t.type === 'receive').reduce((
-                            sum, t) => sum + parseFloat(t.amount || 0), 0).toFixed(2);
-                        let totalCommission = client.transactions.reduce((sum, t) => sum + parseFloat(t
-                            .commission || 0), 0).toFixed(2);
+                        let totalSent = client.transactions.filter(t => t.type === 'send').reduce((sum,t) => sum + parseFloat(t.amount || 0), 0);
+                        let totalReceived = client.transactions.filter(t => t.type === 'receive').reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
+                        let totalCommission = client.transactions.reduce((sum, t) => sum + parseFloat(t.commission || 0), 0);
 
                         $('#totalTransactions').text(totalTransactions);
                         $('#totalSent').text(totalSent);
@@ -181,8 +178,9 @@
                                 <tr>
                                     <td>${index +1}</td>
                                     <td class="${transaction.type === 'send' ? 'text-danger' : 'text-success'}">${status[transaction.type]}</td>
-                                    <td>${parseFloat(transaction.amount).toFixed(2)}</td>
-                                    <td>${parseFloat(transaction.commission || 0).toFixed(2)}</td>
+                                    <td>${parseFloat(transaction.amount)}</td>
+                                    <td>${parseFloat(transaction.commission || 0)}</td>
+                                    <td>${transaction.notes}</td>
                                     <td>${transaction.paymentWay ? transaction.paymentWay.name : '{{ __('messages.unknown') }}'}</td>
                                     <td>${transaction.created_at}</td>
                                 </tr>
@@ -209,8 +207,8 @@
                                 <tr>
                                     <td>${installment.id}</td>
                                     <td>${installment.due_date}</td>
-                                    <td>${parseFloat(installment.required_amount).toFixed(2)}</td>
-                                    <td>${parseFloat(installment.paid_amount).toFixed(2)}</td>
+                                    <td>${Math.ceil(installment.required_amount)}</td>
+                                    <td>${Math.ceil(installment.paid_amount)}</td>
                                     <td>
                                     <span class="${installment.status === 'paid' ? 'badge bg-success' : installment.status === 'late' ? 'badge bg-danger' : 'badge bg-warning text-dark'}">
                                         ${installmentStatus[installment.status] || '{{ __('messages.unknown') }}'}
@@ -221,7 +219,7 @@
                                             installment.status !== 'paid'
                                                 ? `<button class="btn btn-outline-success btn-sm radius-8 payBtn"
                                                             data-id="${installment.id}"
-                                                            data-amount="${(installment.required_amount - installment.paid_amount)}"
+                                                            data-amount="${(Math.ceil(installment.required_amount) - Math.ceil(installment.paid_amount))}"
                                                             data-bs-toggle="modal"
                                                             data-bs-target="#payModal">
                                                             {{ __('messages.pay') }}
@@ -241,7 +239,7 @@
                                                     <strong>{{ __('messages.payments') }}:</strong>
                                                     <ul>
                                                         ${installment.payments.map(pay =>
-                                                            `<li>${pay.payment_date} - ${parseFloat(pay.amount).toFixed(2)} (${pay.paid_by?.name || ''})</li>`
+                                                            `<li>${pay.payment_date} - ${Math.ceil(pay.amount)} (${pay.paid_by?.name || ''})</li>`
                                                         ).join('')}
                                                     </ul>
                                                 </td>

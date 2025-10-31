@@ -108,10 +108,7 @@ class ClientController extends BaseController
         $paymentWays = PaymentWay::all();
 
         if (request()->expectsJson()) {
-            return response()->json([
-                'status' => true,
-                'message' => __('messages.client_fetched_successfully'),
-                'data' => new ClientResource($client),
+            return response()->json(['status' => true,'message' => __('messages.client_fetched_successfully'),'data' => new ClientResource($client),
             ]);
         }
 
