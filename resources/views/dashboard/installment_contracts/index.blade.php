@@ -154,7 +154,6 @@
                 let installmentCount = $(this).data('installment_count');
                 let startDate = $(this).data('start_date');
 
-                // الجديد
                 let totalAmount = $(this).data('total_amount');
                 let remainingAmount = $(this).data('remaining_amount');
                 let remainingInstallments = $(this).data('remaining_installments');
@@ -169,7 +168,6 @@
                 $('#editInstallmentCount').val(installmentCount);
                 $('#editStartDate').val(startDate);
 
-                // الجديد
                 $('#editTotalAmount').val(totalAmount);
                 $('#editRemainingAmount').val(remainingAmount);
                 $('#editRemainingInstallments').val(remainingInstallments);

@@ -10,9 +10,9 @@
         <div class="fw-bold mb-2">{{ __('messages.basic_information') }}</div>
         <p><strong>{{ __('messages.name') }}:</strong> {{ $product->name }}</p>
         <p><strong>{{ __('messages.description') }}:</strong> {{ $product->description }}</p>
-        <p><strong>{{ __('messages.sale_price') }}:</strong> {{ number_format($product->sale_price, 2) }}</p>
+        <p><strong>{{ __('messages.sale_price') }}:</strong> {{ number_format($product->sale_price, 0) }}</p>
         <p><strong>{{ __('messages.stock') }}:</strong> {{ $product->stock }}</p>
-        <p><strong>{{ __('messages.total_amount_cost') }}:</strong> {{ number_format($totalCost, 2) }}</p>
+        <p><strong>{{ __('messages.total_amount_cost') }}:</strong> {{ number_format($totalCost, 0) }}</p>
     </div>
 
     <div class="card p-3 mt-3">
@@ -38,10 +38,10 @@
                         @foreach ($installmentContracts as $index => $contract)
                             <tr>
                                 <td>{{ $index + 1 }}</td>
-                                <td>{{ $contract->product_price ?? '' }}</td>
+                                <td>{{ number_format($contract->product_price,0) ?? '' }}</td>
                                 <td>{{ $contract->client->name ?? '' }}</td>
-                                <td>{{ number_format($contract->total_amount, 2) }}</td>
-                                <td>{{ number_format($contract->installment_amount, 2) }}</td>
+                                <td>{{ number_format($contract->total_amount, 0) }}</td>
+                                <td>{{ ceil($contract->installment_amount) }}</td>
                                 <td>{{ $contract->start_date ? $contract->start_date : '' }}</td>
                                 <td>
                                     @if ($contract->status == 'active')

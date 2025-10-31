@@ -23,13 +23,13 @@ class InstallmentContractResource extends JsonResource
             'id' => $this->id,
             'total_amount' => $this->total_amount,
             'installment_count' => $this->installment_count,
-            'installment_amount' => $this->installment_amount,
-            'down_payment' => $this->down_payment,
+            'installment_amount' => ceil($this->installment_amount),
+            'down_payment' => ceil($this->down_payment),
             'down_payment_percentage' => $this->down_payment_percentage,
             'start_date' => $this->start_date,
             'interest_rate' => $this->interest_rate,
             
-            'remaining_amount' => number_format($remainingAmount, 2, '.', ''), 
+            'remaining_amount' => ceil($remainingAmount), 
             'remaining_installments' => $remainingInstallments,
             'next_due_date' => $nextInstallment?->due_date->format('Y-m-d'),  
 

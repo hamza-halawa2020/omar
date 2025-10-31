@@ -181,10 +181,8 @@
                     if (res.status) {
                         let cards = '';
                         res.data.forEach((way, i) => {
-                            let categoryId = way.category_id || (way.category ? way.category.id :
-                                '');
-                            let subCategoryId = way.sub_category_id || (way.sub_category ? way
-                                .sub_category.id : '');
+                            let categoryId = way.category_id || (way.category ? way.category.id :'');
+                            let subCategoryId = way.sub_category_id || (way.sub_category ? way.sub_category.id : '');
                             let limits = way.monthly_limits || {};
                             let monthName = limits.month_name || '';
                             const typeTranslations = {
@@ -226,15 +224,15 @@
                                                             <tbody>
                                                                 <tr>
                                                                     <td class="fw-bold text-primary">{{ __('messages.send') }}</td>
-                                                                    <td>${parseFloat(limits.send_used || 0).toFixed(2)}</td>
-                                                                    <td>${parseFloat(limits.send_limit || (way.send_limit ?? 0)).toFixed(2)}</td>
-                                                                    <td>${parseFloat(limits.send_remaining || (way.send_limit ?? 0)).toFixed(2)}</td>
+                                                                    <td>${limits.send_used || 0}</td>
+                                                                    <td>${limits.send_limit || way.send_limit }</td>
+                                                                    <td>${limits.send_remaining || way.send_limit }</td>
                                                                 </tr>
                                                                 <tr>
                                                                     <td class="fw-bold text-success">{{ __('messages.receive') }}</td>
-                                                                    <td>${parseFloat(limits.receive_used || 0).toFixed(2)}</td>
-                                                                    <td>${parseFloat(limits.receive_limit || (way.receive_limit ?? 0)).toFixed(2)}</td>
-                                                                    <td>${parseFloat(limits.receive_remaining || (way.receive_limit ?? 0)).toFixed(2)}</td>
+                                                                    <td>${limits.receive_used || 0}</td>
+                                                                    <td>${limits.receive_limit || way.receive_limit }</td>
+                                                                    <td>${limits.receive_remaining || way.receive_limit }</td>
                                                                 </tr>
                                                             </tbody>
                                                         </table>

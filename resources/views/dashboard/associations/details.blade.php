@@ -11,7 +11,7 @@
                 <p><strong>{{ __('messages.start_date') }}:</strong> {{ $association->start_date }}</p>
                 <p><strong>{{ __('messages.end_date') }}:</strong> {{ $association->end_date }}</p>
                 <p><strong>{{ __('messages.per_day') }}:</strong> {{ $association->per_day }}</p>
-                <p><strong>{{ __('messages.monthly_amount') }}:</strong> {{ $association->monthly_amount }}</p>
+                <p><strong>{{ __('messages.monthly_amount') }}:</strong> {{ ceil($association->monthly_amount) }}</p>
                 <p><strong>{{ __('messages.total_members') }}:</strong> {{ $association->total_members }}</p>
                 <p><strong>{{ __('messages.created_by') }}:</strong> {{ $association->creator?->name }}</p>
             </div>
@@ -55,7 +55,7 @@
                         <td>
                             @php
                                 $totalPaid = $member->payments->sum('amount');
-                                $dueAmount = $association->monthly_amount;
+                                $dueAmount = ceil($association->monthly_amount);
                                 $status = ($totalPaid >= $dueAmount) ? 'paid' : (($totalPaid > 0) ? 'pending' : 'late');
                             @endphp
                             <span
@@ -68,7 +68,7 @@
                             <div class="d-flex justify-content-between gap-1">
                                 @if(!$member->has_received)
                                     <button data-id="{{ $member->id }}" data-client-name="{{ $member->client->name }}"
-                                        data-amount="{{ $association->monthly_amount }}"
+                                        data-amount="{{ ceil($association->monthly_amount) }}"
                                         class="pay-member btn btn-outline-primary btn-sm btn-sm radius-8">{{ __('messages.send_money') }}</button>
                                 @else
                                     <button class="btn btn-outline-secondary btn-sm btn-sm radius-8"
@@ -118,8 +118,7 @@
                             <div class="mb-3">
 
                             <label>{{ __('messages.commission') }}</label>
-                            <input type="number" step="0.01" name="commission" id="payCommission" class="form-control"
-                                required>
+                            <input type="number" name="commission" id="payCommission" class="form-control">
                             </div>
 
                             <div class="mb-2">

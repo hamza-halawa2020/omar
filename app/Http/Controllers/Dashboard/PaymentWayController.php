@@ -39,7 +39,7 @@ class PaymentWayController extends BaseController
 
     public function list()
     {
-        $paymentWays = PaymentWay::with(['category', 'subCategory', 'creator', 'transactions', 'logs', 'monthlyLimits'])->latest()->get();
+        $paymentWays = PaymentWay::with(['category', 'subCategory', 'creator', 'logs', 'monthlyLimits'])->latest()->get();
 
         return response()->json(['status' => true, 'message' => __('messages.payment_ways_fetched_successfully'), 'data' => PaymentWayResource::collection($paymentWays)]);
     }

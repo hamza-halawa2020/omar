@@ -26,14 +26,14 @@
         <div class="card mb-3">
             <div class="card-header fw-bold">{{ __('messages.contract_details') }}</div>
             <div class="card-body row">
-                <div class="col-md-3"><strong>{{ __('messages.product_price') }}:</strong> {{ $contract->product_price  ?? ''}}</div>
-                <div class="col-md-3"><strong>{{ __('messages.down_payment') }}:</strong> {{ $contract->down_payment }}</div>
-                <div class="col-md-3"><strong>{{ __('messages.remaining_amount') }}:</strong>{{ $contract->remaining_amount }}</div>
+                <div class="col-md-3"><strong>{{ __('messages.product_price') }}:</strong> {{ ceil($contract->product_price)  ?? ''}}</div>
+                <div class="col-md-3"><strong>{{ __('messages.down_payment') }}:</strong> {{  ceil($contract->down_payment) }}</div>
+                <div class="col-md-3"><strong>{{ __('messages.remaining_amount') }}:</strong>{{  ceil($contract->remaining_amount) }}</div>
                 <div class="col-md-3"><strong>{{ __('messages.interest_rate') }}:</strong> {{ $contract->interest_rate }}%</div>
-                <div class="col-md-3"><strong>{{ __('messages.interest_amount') }}:</strong>{{ $contract->interest_amount }}</div>
-                <div class="col-md-3"><strong>{{ __('messages.total_amount') }}:</strong> {{ $contract->total_amount }}</div>
-                <div class="col-md-6"><strong>{{ __('messages.installment_count_left') }}:</strong>{{ $contract->remaining_installments }}</div>
-                <div class="col-md-6"><strong>{{ __('messages.installment_amount') }}:</strong>{{ $contract->installment_amount }}</div>
+                <div class="col-md-3"><strong>{{ __('messages.interest_amount') }}:</strong>{{  ceil($contract->interest_amount) }}</div>
+                <div class="col-md-3"><strong>{{ __('messages.total_amount') }}:</strong> {{  ceil($contract->total_amount) }}</div>
+                <div class="col-md-6"><strong>{{ __('messages.installment_count_left') }}:</strong>{{  ceil($contract->remaining_installments) }}</div>
+                <div class="col-md-6"><strong>{{ __('messages.installment_amount') }}:</strong>{{  ceil($contract->installment_amount) }}</div>
             </div>
         </div>
 
@@ -59,8 +59,8 @@
                             <tr>
                                 <td>{{ $i + 1 }}</td>
                                 <td>{{ $inst->due_date->format('Y-m-d') }}</td>
-                                <td>{{ $inst->required_amount }}</td>
-                                <td>{{ $inst->paid_amount }}</td>
+                                <td>{{ ceil($inst->required_amount) }}</td>
+                                <td>{{ round($inst->paid_amount) }}</td>
                                 <td>
                                     @if ($inst->status == 'paid')
                                         <span class="badge bg-success">{{ __('messages.paid') }}</span>
@@ -75,7 +75,7 @@
                                         @if ($inst->status != 'paid')
                                             <button class="btn btn-outline-success btn-sm radius-8 payBtn"
                                                 data-id="{{ $inst->id }}"
-                                                data-amount="{{ $inst->required_amount - $inst->paid_amount }}">
+                                                data-amount="{{ ceil($inst->required_amount) - round($inst->paid_amount) }}">
                                                 {{ __('messages.pay') }}
                                             </button>
                                         @endif
@@ -88,7 +88,7 @@
                                         <strong>{{ __('messages.payments') }}:</strong>
                                         <ul>
                                             @foreach ($inst->payments as $pay)
-                                                <li>{{ $pay->payment_date->format('Y-m-d') }} - {{ $pay->amount }}
+                                                <li>{{ $pay->payment_date->format('Y-m-d') }} - {{ round($pay->amount) }}
                                                     ({{ $pay->paid_by->name ?? '' }})</li>
                                             @endforeach
                                         </ul>

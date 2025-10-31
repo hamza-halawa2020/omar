@@ -125,8 +125,7 @@
                     <div class="card-title mb-3 text-primary">{{ __('messages.payment_way_information') }}</div>
                     <div class="row">
                         <div class="col-md-6">
-                            <p><strong>{{ __('messages.name') }}: </strong> <span id="paymentWayName"
-                                    class=""></span></p>
+                            <p><strong>{{ __('messages.name') }}: </strong> <span id="paymentWayName" class=""></span></p>
                             <p><strong>{{ __('messages.phone_number') }}: </strong> <span id="paymentWayPhone"
                                     class=""></span></p>
                             <p><strong>{{ __('messages.category') }}: </strong> <span id="paymentWayCategory"
@@ -135,8 +134,7 @@
                                     class=""></span></p>
                         </div>
                         <div class="col-md-6">
-                            <p><strong>{{ __('messages.type') }}: </strong> <span id="paymentWayType"
-                                    class=""></span></p>
+                            <p><strong>{{ __('messages.type') }}: </strong> <span id="paymentWayType" class=""></span></p>
                             <p><strong>{{ __('messages.created_by') }}: </strong> <span id="paymentWayCreator"
                                     class=""></span></p>
                             <p><strong>{{ __('messages.created_at') }}: </strong> <span id="paymentWayCreatedAt"
@@ -158,8 +156,7 @@
                     </select>
                     <div class="d-flex align-items-center gap-2 mb-3">
                         <button id="nextDay" class="btn btn-outline-primary">&rarr;</button>
-                        <input type="text" id="dateRange" class="form-control w-auto"
-                            placeholder="Select date range">
+                        <input type="text" id="dateRange" class="form-control w-auto" placeholder="Select date range">
                         <button id="prevDay" class="btn btn-outline-primary">&larr;</button>
                     </div>
                 </div>
@@ -207,7 +204,7 @@
 
 @push('scripts')
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             let id = "{{ request()->id ?? '' }}";
             if (!id) {
                 $("#errorMessage").text("{{ __('messages.no_payment_way_id_provided') }}").show().fadeOut(5000);
@@ -219,11 +216,11 @@
                 mode: "range",
                 dateFormat: "Y-m-d",
                 defaultDate: [new Date()],
-                onReady: function() {
+                onReady: function () {
                     let today = formatDate(new Date());
                     fetchPaymentWay(today, today);
                 },
-                onChange: function(selectedDates) {
+                onChange: function (selectedDates) {
                     if (selectedDates.length === 2) {
                         currentDate = selectedDates[0];
                         let start = formatDate(selectedDates[0]);
@@ -237,12 +234,12 @@
                 }
             });
 
-            $("#prevDay").on("click", function() {
+            $("#prevDay").on("click", function () {
                 currentDate.setDate(currentDate.getDate() - 1);
                 fetchDay(currentDate);
             });
 
-            $("#nextDay").on("click", function() {
+            $("#nextDay").on("click", function () {
                 currentDate.setDate(currentDate.getDate() + 1);
                 fetchDay(currentDate);
             });
@@ -257,13 +254,13 @@
                 let searchText = $("#searchTransactions").val().toLowerCase();
                 let filterType = $("#filterType").val();
 
-                $("#transactionsTableBody tr").each(function() {
+                $("#transactionsTableBody tr").each(function () {
                     let row = $(this);
-                    let type = row.find("td:first").data("type"); 
+                    let type = row.find("td:first").data("type");
                     let rowText = row.text().toLowerCase();
 
                     let matchesSearch = rowText.includes(searchText);
-                    let matchesType = !filterType || type === filterType; 
+                    let matchesType = !filterType || type === filterType;
 
                     row.toggle(matchesSearch && matchesType);
                 });
@@ -288,37 +285,23 @@
                 $("#paymentWayPhone").text(data.phone_number || '');
                 $("#paymentWayCategory").text(data.category?.name || '');
                 $("#paymentWaySubCategory").text(data.subCategory?.name || '');
-                $("#paymentWayBalance").text(data.balance ? ` ${parseFloat(data.balance).toFixed(2)}` : '0');
+                $("#paymentWayBalance").text(data.balance || 0);
                 $("#paymentWayCreator").text(data.creator?.name || '');
                 $("#paymentWayCreatedAt").text(data.created_at || '');
                 $("#paymentWayTransactions").text(data.transactions?.length || 0);
-
-                $("#paymentWayReceiveLimit").text(statistics.limits?.receive_limit ? parseFloat(statistics.limits
-                    .receive_limit).toFixed(2) : '0.00');
-                $("#paymentWayReceiveUsed").text(statistics.limits?.receive_used ? parseFloat(statistics.limits
-                    .receive_used).toFixed(2) : '0.00');
-                $("#paymentWayReceiveRemaining").text(statistics.limits?.receive_remaining ? parseFloat(statistics
-                    .limits.receive_remaining).toFixed(2) : '0.00');
-                $("#paymentWaySendLimit").text(statistics.limits?.send_limit ? parseFloat(statistics.limits
-                    .send_limit).toFixed(2) : '0.00');
-                $("#paymentWaySendUsed").text(statistics.limits?.send_used ? parseFloat(statistics.limits.send_used)
-                    .toFixed(2) : '0.00');
-                $("#paymentWaySendRemaining").text(statistics.limits?.send_remaining ? parseFloat(statistics.limits
-                    .send_remaining).toFixed(2) : '0.00');
-
-                $("#receive_amount").text(statistics.receive?.receive_amount ? parseFloat(statistics.receive
-                    .receive_amount).toFixed(2) : '0.00');
-                $("#receive_commission").text(statistics.receive?.receive_commission ? parseFloat(statistics.receive
-                    .receive_commission).toFixed(2) : '0.00');
-                $("#receive_total").text(statistics.receive?.receive_total ? parseFloat(statistics.receive
-                    .receive_total).toFixed(2) : '0.00');
-                $("#send_amount").text(statistics.send?.send_amount ? parseFloat(statistics.send.send_amount)
-                    .toFixed(2) : '0.00');
-                $("#send_commission").text(statistics.send?.send_commission ? parseFloat(statistics.send
-                    .send_commission).toFixed(2) : '0.00');
-                $("#send_total").text(statistics.send?.send_total ? parseFloat(statistics.send.send_total).toFixed(
-                    2) : '0.00');
-                $("#grandNet").text(statistics.grand_net ? parseFloat(statistics.grand_net).toFixed(2) : '0.00');
+                $("#paymentWayReceiveLimit").text(statistics.limits?.receive_limit || 0);
+                $("#paymentWayReceiveUsed").text(statistics.limits?.receive_used || 0);
+                $("#paymentWayReceiveRemaining").text(statistics.limits?.receive_remaining || 0);
+                $("#paymentWaySendLimit").text(statistics.limits?.send_limit || 0);
+                $("#paymentWaySendUsed").text(statistics.limits?.send_used || 0);
+                $("#paymentWaySendRemaining").text(statistics.limits?.send_remaining || 0);
+                $("#receive_amount").text(statistics.receive?.receive_amount || 0);
+                $("#receive_commission").text(statistics.receive?.receive_commission || 0);
+                $("#receive_total").text(statistics.receive?.receive_total || 0);
+                $("#send_amount").text(statistics.send?.send_amount || 0);
+                $("#send_commission").text(statistics.send?.send_commission || 0);
+                $("#send_total").text(statistics.send?.send_total || 0);
+                $("#grandNet").text(statistics.grand_net || 0);
 
                 const translations = {
                     receive: "{{ __('messages.receive') }}",
@@ -327,23 +310,21 @@
 
                 let txHtml = "";
                 data.transactions.forEach(tx => {
-                    let attachmentHtml = tx.attachment ?
-                        `<a href="${tx.attachment}" target="_blank" class="text-primary">View</a>` : '';
+                    let attachmentHtml = tx.attachment ?`<a href="${tx.attachment}" target="_blank" class="text-primary">View</a>` : '';
                     if (tx.attachment && /\.(jpg|jpeg|png|gif)$/i.test(tx.attachment)) {
-                        attachmentHtml =
-                            `<a href="${tx.attachment}" target="_blank"><img src="${tx.attachment}" alt="Attachment" class="img-thumbnail" style="max-width: 50px; max-height: 50px;"></a>`;
+                        attachmentHtml =`<a href="${tx.attachment}" target="_blank"><img src="${tx.attachment}" alt="Attachment" class="img-thumbnail" style="max-width: 50px; max-height: 50px;"></a>`;
                     }
                     txHtml += `
                         <tr>
                             <td data-type="${tx.type}"><span class="badge bg-${tx.type === 'receive' ? 'success' : 'danger'}">${translations[tx.type] ?? tx.type}</span></td>
-                            <td>${parseFloat(tx.amount).toFixed(2)}</td>
-                            <td>${parseFloat(tx.commission).toFixed(2)}</td>
+                            <td>${tx.amount}</td>
+                            <td>${tx.commission}</td>
                             <td>${tx.notes || ''}</td>
                             <td>${tx.creator?.name || ''}</td>
                             <td>${attachmentHtml}</td>
-                            <td>${ tx.client_id}</td>
-                            <td>${ tx.balance_before_transaction}</td>
-                            <td>${ tx.balance_after_transaction}</td>
+                            <td>${tx.client_id}</td>
+                            <td>${tx.balance_before_transaction}</td>
+                            <td>${tx.balance_after_transaction}</td>
                             <td>${tx.created_at || ''}</td>
                         </tr>
                     `;
@@ -422,19 +403,17 @@
                     url: `/dashboard/payment-ways/show-list/${id}`,
                     type: "GET",
                     data: data,
-                    success: function(res) {
+                    success: function (res) {
                         $("#loader").hide();
                         if (!res.status) {
-                            $("#errorMessage").text(res.message || "Error fetching payment way details")
-                                .show().fadeOut(5000);
+                            $("#errorMessage").text(res.message || "Error fetching payment way details").show().fadeOut(5000);
                             return;
                         }
                         renderPaymentWay(res);
                     },
-                    error: function(xhr) {
+                    error: function (xhr) {
                         $("#loader").hide();
-                        $("#errorMessage").text(xhr.responseJSON?.message ||
-                            "Error fetching payment way details").show().fadeOut(5000);
+                        $("#errorMessage").text(xhr.responseJSON?.message ||"Error fetching payment way details").show().fadeOut(5000);
                     }
                 });
             }

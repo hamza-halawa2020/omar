@@ -93,23 +93,14 @@ class InstallmentContractController extends BaseController
 
         $product->decrement('stock', 1);
 
-        return response()->json([
-            'status' => true,
-            'message' => __('messages.Installment_contract_created_successfully'),
-            'data' => $contract->load('installments'),
-        ], 201);
+        return response()->json(['status' => true,'message' => __('messages.Installment_contract_created_successfully'),'data' => $contract->load('installments'),], 201);
     }
 
     public function show($id)
     {
-        $contract = InstallmentContract::with(['client', 'product', 'creator', 'installments.payments.paid_by'])
-            ->findOrFail($id);
+        $contract = InstallmentContract::with(['client', 'product', 'creator', 'installments.payments.paid_by'])->findOrFail($id);
 
-        return response()->json([
-            'status' => true,
-            'message' => __('messages.installment_contract_fetched_successfully'),
-            'data' => new InstallmentContractResource($contract),
-        ]);
+        return response()->json(['status' => true,'message' => __('messages.installment_contract_fetched_successfully'),'data' => new InstallmentContractResource($contract),]);
     }
 
     public function showPage($id)

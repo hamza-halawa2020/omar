@@ -14,7 +14,7 @@ class AssociationResource extends JsonResource
             'name' => $this->name,
             'per_day' => $this->per_day,
             'total_members' => $this->total_members,
-            'monthly_amount' => $this->monthly_amount,
+            'monthly_amount' => ceil($this->monthly_amount),
             'start_date' => $this->start_date,
             'end_date' => $this->end_date,
             'status' => $this->status,
