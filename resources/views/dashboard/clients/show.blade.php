@@ -179,8 +179,8 @@
                                     <td>${index +1}</td>
                                     <td class="${transaction.type === 'send' ? 'text-danger' : 'text-success'}">${status[transaction.type]}</td>
                                     <td>${parseFloat(transaction.amount)}</td>
-                                    <td>${parseFloat(transaction.commission || 0)}</td>
                                     <td>${transaction.notes}</td>
+                                    <td>${parseFloat(transaction.commission || 0)}</td>
                                     <td>${transaction.paymentWay ? transaction.paymentWay.name : '{{ __('messages.unknown') }}'}</td>
                                     <td>${transaction.created_at}</td>
                                 </tr>
