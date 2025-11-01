@@ -20,6 +20,7 @@ class PaymentWay extends Model
         'receive_limit_alert',
         'balance',
         'created_by',
+        'position',
     ];
 
     public function creator()

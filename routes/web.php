@@ -58,6 +58,8 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
 
     Route::get('sub-categories/{id}', [PaymentWayController::class, 'getSubCategoryOnCategory'])->name('getSubCategoryOnCategory');
 
+    Route::post('payment-ways/reorder', [PaymentWayController::class, 'reorder'])->name('payment_ways.reorder');
+
     Route::get('payment-ways/list', [PaymentWayController::class, 'list'])->name('payment_ways.list');
     Route::post('payment-ways', [PaymentWayController::class, 'store'])->name('payment_ways.store');
     Route::put('payment-ways/{id}', [PaymentWayController::class, 'update'])->name('payment_ways.update');
