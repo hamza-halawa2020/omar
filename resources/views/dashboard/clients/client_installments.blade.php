@@ -1,53 +1,64 @@
 @extends('dashboard.layouts.app')
 
 @section('content')
-    @include('components.alert')
+@include('components.alert')
 
-    <div class="container">
-        <div class="d-flex justify-content-between mb-3">
-            <div class="fw-bold fs-5">{{ __('messages.debts') }}</div>
-         
-        </div>
-
-        <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0" id="clientsTable">
-            <thead>
-                <tr>
-                    <th class="text-center">{{ __('messages.id') }}</th>
-                    <th class="text-center">{{ __('messages.name') }}</th>
-                    <th class="text-center">{{ __('messages.phone_number') }}</th>
-                    <th class="text-center">{{ __('messages.debt') }}</th>
-                    <th class="text-center">{{ __('messages.installments') }}</th>
-                    <th class="text-center">{{ __('messages.created_by') }}</th>
-                    @canany(['clients_show', 'clients_update', 'clients_destroy'])   
-                        <th class="text-center">{{ __('messages.actions') }}</th>
-                    @endcan
-                </tr>
-            </thead>
-            <tbody>
-                {{-- Data will be loaded via AJAX --}}
-            </tbody>
-        </table>
+<div class="container">
+    <div class="d-flex justify-content-between mb-3">
+        <div class="fw-bold fs-5">{{ __('messages.debts') }}</div>
     </div>
 
-    <!-- Edit Modal -->
-    @include('dashboard.clients.edit')
-    <!-- Delete Modal -->
-    @include('dashboard.clients.delete')
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <input type="text" id="searchInput" class="form-control"
+                placeholder="{{ __('messages.search_by_name_or_phone') }}">
+        </div>
+    </div>
+
+    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0" id="clientsTable">
+        <thead>
+            <tr>
+                <th class="text-center">{{ __('messages.id') }}</th>
+                <th class="text-center">{{ __('messages.name') }}</th>
+                <th class="text-center">{{ __('messages.phone_number') }}</th>
+                <th class="text-center">{{ __('messages.debt') }}</th>
+                <th class="text-center">{{ __('messages.installments') }}</th>
+                <th class="text-center">{{ __('messages.created_by') }}</th>
+                @canany(['clients_show', 'clients_update', 'clients_destroy'])
+                <th class="text-center">{{ __('messages.actions') }}</th>
+                @endcan
+            </tr>
+        </thead>
+        <tbody>
+            {{-- Data will be loaded via AJAX --}}
+        </tbody>
+    </table>
+</div>
+
+<!-- Edit Modal -->
+@include('dashboard.clients.edit')
+<!-- Delete Modal -->
+@include('dashboard.clients.delete')
 @endsection
 
 @push('scripts')
-    <script>
-        $(document).ready(function() {
-            loadclients();
+<script>
+    $(document).ready(function () {
+        loadclients();
+        $('#searchInput').on('keyup', function () {
+            const search = $(this).val();
+            loadclients(search);
+        });
 
-            function loadclients() {
-                $.get("{{ route('listClientInstallments') }}", function(res) {
-                    if (res.status) {
-                        let rows = '';
-                        res.data.forEach((client, i) => {
-                            rows += `
+        function loadclients(search = '') {
+            $.get("{{ route('listClientInstallments') }}", { search }, function (res) {
+
+                if (res.status) {
+                    let rows = '';
+                    res.data.forEach((client, i) => {
+                        rows += `
                             <tr>
-                                <td>${i+1}</td>
+                                <td>${i + 1}</td>
                                 <td>${client.name}</td>
                                 <td>${client.phone_number}</td>
                                 <td>${client.original_debt}</td>
@@ -67,88 +78,88 @@
                                     </td>
                                 @endcan
                             </tr>`;
-                        });
-                        $('#clientsTable tbody').html(rows);
-                    }
-                });
-            }
-
-
-            // Edit (open modal)
-            $(document).on('click', '.editBtn', function() {
-                let id = $(this).data('id');
-                let name = $(this).data('name');
-                let phone_number = $(this).data('phone_number');
-                let debt = $(this).data('debt');
-
-                $('#editId').val(id);
-                $('#editName').val(name);
-                $('#editPhoneNumber').val(phone_number);
-                $('#editDebt').val(debt);
-
-                $('#editModal').modal('show');
-
+                    });
+                    $('#clientsTable tbody').html(rows);
+                }
             });
+        }
 
-            // Update
-            $('#editForm').submit(function(e) {
-                e.preventDefault();
-                let id = $('#editId').val();
-                $.ajax({
-                    url: "/dashboard/clients/" + id,
-                    type: "PUT",
-                    data: $(this).serialize(),
-                    success: function(res) {
-                        if (res.status) {
-                            $('#editModal').modal('hide');
-                            loadclients();
-                            showToast(res.message, 'success');
-                        } else {
-                            $('#editModal').modal('hide');
-                            showToast(res.message, 'error');
-                        }
-                    },
-                    error: function(xhr) {
-                        $('#editModal').modal('hide');
-                        let res = xhr.responseJSON;
-                        showToast(res?.message || 'Something went wrong', 'error');
-                    }
-                });
-            });
 
-            // Delete (open modal)
-            $(document).on('click', '.deleteBtn', function() {
-                $('#deleteId').val($(this).data('id'));
-                $('#deleteName').text($(this).data('name'));
-                $('#deleteModal').modal('show');
-            });
+        // Edit (open modal)
+        $(document).on('click', '.editBtn', function () {
+            let id = $(this).data('id');
+            let name = $(this).data('name');
+            let phone_number = $(this).data('phone_number');
+            let debt = $(this).data('debt');
 
-            // Confirm Delete
-            $('#deleteForm').submit(function(e) {
-                e.preventDefault();
-                let id = $('#deleteId').val();
-                $.ajax({
-                    url: "/dashboard/clients/" + id,
-                    type: "DELETE",
-                    data: $(this).serialize(),
-                    success: function(res) {
-                        if (res.status) {
-                            $('#deleteModal').modal('hide');
-                            loadclients();
-                            showToast(res.message, 'success');
-                        } else {
-                            $('#deleteModal').modal('hide');
-                            showToast(res.message, 'error');
-                        }
-                    },
-                    error: function(xhr) {
-                        $('#deleteModal').modal('hide');
-                        let res = xhr.responseJSON;
-                        showToast(res?.message || 'Something went wrong', 'error');
-                    }
-                });
-            });
+            $('#editId').val(id);
+            $('#editName').val(name);
+            $('#editPhoneNumber').val(phone_number);
+            $('#editDebt').val(debt);
+
+            $('#editModal').modal('show');
 
         });
-    </script>
+
+        // Update
+        $('#editForm').submit(function (e) {
+            e.preventDefault();
+            let id = $('#editId').val();
+            $.ajax({
+                url: "/dashboard/clients/" + id,
+                type: "PUT",
+                data: $(this).serialize(),
+                success: function (res) {
+                    if (res.status) {
+                        $('#editModal').modal('hide');
+                        loadclients();
+                        showToast(res.message, 'success');
+                    } else {
+                        $('#editModal').modal('hide');
+                        showToast(res.message, 'error');
+                    }
+                },
+                error: function (xhr) {
+                    $('#editModal').modal('hide');
+                    let res = xhr.responseJSON;
+                    showToast(res?.message || 'Something went wrong', 'error');
+                }
+            });
+        });
+
+        // Delete (open modal)
+        $(document).on('click', '.deleteBtn', function () {
+            $('#deleteId').val($(this).data('id'));
+            $('#deleteName').text($(this).data('name'));
+            $('#deleteModal').modal('show');
+        });
+
+        // Confirm Delete
+        $('#deleteForm').submit(function (e) {
+            e.preventDefault();
+            let id = $('#deleteId').val();
+            $.ajax({
+                url: "/dashboard/clients/" + id,
+                type: "DELETE",
+                data: $(this).serialize(),
+                success: function (res) {
+                    if (res.status) {
+                        $('#deleteModal').modal('hide');
+                        loadclients();
+                        showToast(res.message, 'success');
+                    } else {
+                        $('#deleteModal').modal('hide');
+                        showToast(res.message, 'error');
+                    }
+                },
+                error: function (xhr) {
+                    $('#deleteModal').modal('hide');
+                    let res = xhr.responseJSON;
+                    showToast(res?.message || 'Something went wrong', 'error');
+                }
+            });
+        });
+
+    });
+</script>
 @endpush

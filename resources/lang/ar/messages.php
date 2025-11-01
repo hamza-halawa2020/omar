@@ -127,6 +127,7 @@ return [
     'receive_progress' => 'تقدم الاستلام',
     'limit' => 'الحد',
     'clients' => 'العملاء',
+    'search_by_name_or_phone' => 'بحث بالاسم او رقم الهاتف',
     'client' => 'العميل',
     'select_client' => 'اختيار عميل',
     'debt' => 'المديونية',

@@ -46,39 +46,78 @@ class ClientController extends BaseController
 
     public function list()
     {
-        $clients = Client::with(['creator', 'transactions'])->orderByDesc('debt')->get();
+        $query = Client::with(['creator', 'transactions'])->orderByDesc('debt');
 
-        return response()->json(['status' => true, 'message' => __('messages.clients_fetched_successfully'), 'data' => ClientResource::collection($clients)]);
+        if (request()->filled('search')) {
+            $search = request('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('phone_number', 'like', "%{$search}%");
+            });
+        }
+
+        $clients = $query->get();
+
+        return response()->json([
+            'status' => true,
+            'message' => __('messages.clients_fetched_successfully'),
+            'data' => ClientResource::collection($clients),
+        ]);
     }
 
     public function listDebts()
     {
-        $clients = Client::where('debt', '>', 0)
+        $query = Client::where('debt', '>', 0)
             ->whereDoesntHave('installmentContracts')
             ->with(['creator', 'transactions', 'installmentContracts'])
-            ->orderByDesc('debt')
-            ->get();
+            ->orderByDesc('debt');
+
+        if (request()->filled('search')) {
+            $search = request('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('phone_number', 'like', "%{$search}%");
+            });
+        }
+
+        $clients = $query->get();
 
         return response()->json(['status' => true, 'message' => __('messages.clients_fetched_successfully'), 'data' => ClientResource::collection($clients)]);
     }
 
     public function listCreditor()
     {
-        $clients = Client::where('debt', '<', 0)
+        $query = Client::where('debt', '<', 0)
             ->with(['creator', 'transactions', 'installmentContracts'])
-            ->orderBy('debt', 'asc')
-            ->get();
+            ->orderBy('debt', 'asc');
+        if (request()->filled('search')) {
+            $search = request('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('phone_number', 'like', "%{$search}%");
+            });
+        }
+        $clients = $query->get();
 
         return response()->json(['status' => true, 'message' => __('messages.clients_fetched_successfully'), 'data' => ClientResource::collection($clients)]);
     }
 
     public function listClientInstallments()
     {
-        $clients = Client::where('debt', '!=', 0)
+        $query = Client::where('debt', '!=', 0)
             ->whereHas('installmentContracts')
             ->with(['creator', 'transactions', 'installmentContracts'])
-            ->orderByDesc('debt')
-            ->get();
+            ->orderByDesc('debt');
+
+        if (request()->filled('search')) {
+            $search = request('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('phone_number', 'like', "%{$search}%");
+            });
+        }
+
+        $clients = $query->get();
 
         return response()->json(['status' => true, 'message' => __('messages.clients_fetched_successfully'), 'data' => ClientResource::collection($clients)]);
     }
@@ -108,7 +147,7 @@ class ClientController extends BaseController
         $paymentWays = PaymentWay::all();
 
         if (request()->expectsJson()) {
-            return response()->json(['status' => true,'message' => __('messages.client_fetched_successfully'),'data' => new ClientResource($client),
+            return response()->json(['status' => true, 'message' => __('messages.client_fetched_successfully'), 'data' => new ClientResource($client),
             ]);
         }
 
