@@ -9,8 +9,10 @@ use App\Models\Category;
 use App\Models\PaymentWay;
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class PaymentWayController extends BaseController
 {
@@ -21,6 +23,7 @@ class PaymentWayController extends BaseController
         $this->middleware('check.permission:payment_ways_show')->only('show', 'showList');
         $this->middleware('check.permission:payment_ways_update')->only('update');
         $this->middleware('check.permission:payment_ways_destroy')->only('destroy');
+
     }
 
     public function index()
@@ -39,7 +42,9 @@ class PaymentWayController extends BaseController
 
     public function list()
     {
-        $paymentWays = PaymentWay::with(['category', 'subCategory', 'creator', 'logs', 'monthlyLimits'])->latest()->get();
+        $paymentWays = PaymentWay::with(['category', 'subCategory', 'creator', 'logs', 'monthlyLimits'])
+            ->orderBy('position', 'asc')
+            ->get();
 
         return response()->json(['status' => true, 'message' => __('messages.payment_ways_fetched_successfully'), 'data' => PaymentWayResource::collection($paymentWays)]);
     }
@@ -48,6 +53,7 @@ class PaymentWayController extends BaseController
     {
         $data = $request->validated();
         $data['created_by'] = Auth::id();
+        $data['position'] = PaymentWay::max('position') + 1;
 
         $paymentWay = PaymentWay::create($data);
 
@@ -261,5 +267,22 @@ class PaymentWayController extends BaseController
         // event(new CreateBackup);
 
         return response()->json(['status' => true,     'message' => __('messages.payment_way_deleted_successfully')]);
+    }
+
+    public function reorder(Request $request)
+    {
+        $order = $request->input('order', []);
+
+        if (! is_array($order) || empty($order)) {
+            return response()->json(['status' => false, 'message' => 'Invalid order'], 400);
+        }
+
+        DB::transaction(function () use ($order) {
+            foreach ($order as $position => $id) {
+                PaymentWay::where('id', $id)->update(['position' => $position + 1]);
+            }
+        });
+
+        return response()->json(['status' => true, 'message' => 'Order updated successfully']);
     }
 }

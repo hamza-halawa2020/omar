@@ -13,7 +13,7 @@
         </div>
 
         <div id="paymentWaysContainer" class="row g-3">
-            {{-- Data via AJAX --}}
+             {{-- Data via AJAX --}}
         </div>
     </div>
 
@@ -26,7 +26,7 @@
 
 @push('scripts')
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             function toggleFields(type, groupClass) {
                 if (type === 'wallet') {
                     $(groupClass).show();
@@ -35,20 +35,20 @@
                 }
             }
 
-            $('select[name="type"]').on('change', function() {
+            $('select[name="type"]').on('change', function () {
                 toggleFields($(this).val(), '.phone_limit_group');
             });
             toggleFields($('select[name="type"]').val(), '.phone_limit_group');
 
-            $('#editType').on('change', function() {
+            $('#editType').on('change', function () {
                 toggleFields($(this).val(), '.phone_limit_group_edit');
             });
 
             function loadClients() {
-                $.get("{{ route('clients.list') }}", function(res) {
+                $.get("{{ route('clients.list') }}", function (res) {
                     if (res.status) {
                         let clientOptions = '<option value="">{{ __('messages.select_client') }}</option>';
-                        res.data.forEach(function(client) {
+                        res.data.forEach(function (client) {
                             clientOptions +=
                                 `<option value="${client.id}">${client.name} ({{ __('messages.debt') }}: ${parseFloat(client.debt || 0).toFixed(2)})</option>`;
                         });
@@ -59,10 +59,10 @@
                 });
             }
             function loadProducts() {
-                $.get("{{ route('products.list') }}", function(res) {
+                $.get("{{ route('products.list') }}", function (res) {
                     if (res.status) {
                         let productOptions = '<option value="">{{ __('messages.select_product') }}</option>';
-                        res.data.forEach(function(product) {
+                        res.data.forEach(function (product) {
                             productOptions +=
                                 `<option value="${product.id}">${product.name} ({{ __('messages.sale_price') }}: ${parseFloat(product.sale_price || 0).toFixed(2)}) ({{ __('messages.stock') }}: ${product.stock || 0})</option>`;
                         });
@@ -73,15 +73,15 @@
                 });
             }
 
-            $(document).on('click', '.receiveBtn, .sendBtn', function() {
+            $(document).on('click', '.receiveBtn, .sendBtn', function () {
                 $('#receiveForm input[name="payment_way_id"], #receiveForm input[name="type"]').remove();
                 let type = $(this).hasClass('receiveBtn') ? 'receive' : 'send';
                 let paymentWayId = $(this).data('id');
 
                 $('#receiveForm').append(`
-                    <input type="hidden" name="payment_way_id" value="${paymentWayId}">
-                    <input type="hidden" name="type" value="${type}">
-                `);
+                        <input type="hidden" name="payment_way_id" value="${paymentWayId}">
+                        <input type="hidden" name="type" value="${type}">
+                    `);
 
                 $('#transactionModal .modal-title').text(type === 'receive' ?
                     '{{ __('messages.create_receive_transaction') }}' :
@@ -93,23 +93,23 @@
                 $('#transactionModal').modal('show');
             });
 
-            $('#createCategorySelect').on('change', function() {
+            $('#createCategorySelect').on('change', function () {
                 let categoryId = $(this).val();
                 if (categoryId) {
                     $.ajax({
                         url: "{{ url('dashboard/sub-categories') }}/" + categoryId,
                         type: 'GET',
-                        success: function(res) {
+                        success: function (res) {
                             $('#createSubCategorySelect').html(
                                 '<option value="">{{ __('messages.select_sub_category') }}</option>'
                             );
-                            res.forEach(function(sub) {
+                            res.forEach(function (sub) {
                                 $('#createSubCategorySelect').append(
                                     `<option value="${sub.id}">${sub.name}</option>`
                                 );
                             });
                         },
-                        error: function(err) {
+                        error: function (err) {
                             console.error(err);
                             showToast('{{ __('messages.something_went_wrong') }}', 'error');
                         }
@@ -120,23 +120,23 @@
                 }
             });
 
-            $('#editCategorySelect').on('change', function() {
+            $('#editCategorySelect').on('change', function () {
                 let categoryId = $(this).val();
                 if (categoryId) {
                     $.ajax({
                         url: "{{ url('dashboard/sub-categories') }}/" + categoryId,
                         type: 'GET',
-                        success: function(res) {
+                        success: function (res) {
                             $('#editSubCategorySelect').html(
                                 '<option value="">{{ __('messages.select_sub_category') }}</option>'
                             );
-                            res.forEach(function(sub) {
+                            res.forEach(function (sub) {
                                 $('#editSubCategorySelect').append(
                                     `<option value="${sub.id}">${sub.name}</option>`
                                 );
                             });
                         },
-                        error: function(err) {
+                        error: function (err) {
                             console.error(err);
                             showToast('{{ __('messages.something_went_wrong') }}', 'error');
                         }
@@ -147,7 +147,7 @@
                 }
             });
 
-            $('#receiveForm').submit(function(e) {
+            $('#receiveForm').submit(function (e) {
                 e.preventDefault();
                 let formData = new FormData(this);
 
@@ -157,19 +157,19 @@
                     data: formData,
                     processData: false,
                     contentType: false,
-                    success: function(res) {
+                    success: function (res) {
                         if (res.status) {
                             $('#transactionModal').modal('hide');
-                            showToast('{{ __('messages.transaction_created_successfully') }}','success');
+                            showToast('{{ __('messages.transaction_created_successfully') }}', 'success');
                             $('#receiveForm')[0].reset();
                             loadPaymentWays();
                         } else {
-                            showToast(res.message ||'{{ __('messages.something_went_wrong') }}', 'error');
+                            showToast(res.message || '{{ __('messages.something_went_wrong') }}', 'error');
                         }
                     },
-                    error: function(err) {
+                    error: function (err) {
                         console.error(err.responseText);
-                        showToast(`{{ __('messages.something_went_wrong') }}: ${err.responseJSON?.message || err.responseText}`,'error');
+                        showToast(`{{ __('messages.something_went_wrong') }}: ${err.responseJSON?.message || err.responseText}`, 'error');
                     }
                 });
             });
@@ -177,11 +177,12 @@
             loadPaymentWays();
 
             function loadPaymentWays() {
-                $.get("{{ route('payment_ways.list') }}", function(res) {
+                $.get("{{ route('payment_ways.list') }}", function (res) {
                     if (res.status) {
                         let cards = '';
+                        res.data.sort((a, b) => (a.position || 0) - (b.position || 0));
                         res.data.forEach((way, i) => {
-                            let categoryId = way.category_id || (way.category ? way.category.id :'');
+                            let categoryId = way.category_id || (way.category ? way.category.id : '');
                             let subCategoryId = way.sub_category_id || (way.sub_category ? way.sub_category.id : '');
                             let limits = way.monthly_limits || {};
                             let monthName = limits.month_name || '';
@@ -192,107 +193,149 @@
                             };
 
                             cards += `
-                                <div class="col-md-auto">
-                                    <div class="card shadow-sm h-100 rounded-3 border-0">
-                                        <!-- Header -->
-                                        @can('transactions_store')
-                                            <div class="card-header text-center">
-                                                <button class="btn btn-outline-success btn-sm receiveBtn" data-id="${way.id}" data-name="${way.name}">{{ __('messages.receive') }}</button>
-                                                <button class="btn btn-outline-primary btn-sm sendBtn" data-id="${way.id}" data-name="${way.name}">{{ __('messages.send') }}</button>
-                                                <div class="mb-0 fw-bold">${way.name}</div>
-                                                <small>${way.type ? (typeTranslations[way.type] || way.type) : ''}</small>
-                                            </div>
-                                        @endcan
-                                        <!-- Body -->
-                                        <div class="card-body p-3">
-                                            <!-- Balance -->
-                                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                                <span class="fw-bold text-secondary">{{ __('messages.balance') }}</span>
-                                                <span class="fw-bold text-success fs-5">${parseFloat(way.balance ?? 0).toFixed(2)}</span>
-                                            </div>
-                                            ${way.type === 'wallet' ? `
-                                                        <!-- Limits Table -->
-                                                        <table class="text-center table table-bordered table-sm table bordered-table sm-table">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th class="text-center">{{ __('messages.type') }}</th>
-                                                                    <th class="text-center">{{ __('messages.used') }}</th>
-                                                                    <th class="text-center">{{ __('messages.limit') }}</th>
-                                                                    <th class="text-center">{{ __('messages.remaining') }}</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                <tr>
-                                                                    <td class="fw-bold text-primary">{{ __('messages.send') }}</td>
-                                                                    <td>${limits.send_used || 0}</td>
-                                                                    <td>${limits.send_limit || way.send_limit }</td>
-                                                                    <td>${limits.send_remaining || way.send_limit }</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td class="fw-bold text-success">{{ __('messages.receive') }}</td>
-                                                                    <td>${limits.receive_used || 0}</td>
-                                                                    <td>${limits.receive_limit || way.receive_limit }</td>
-                                                                    <td>${limits.receive_remaining || way.receive_limit }</td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                        <!-- Progress Bars -->
-                                                        <div class="mb-2">
-                                                            <small class="fw-bold">{{ __('messages.send_progress') }}</small>
-                                                            <div class="progress" style="height: 8px;">
-                                                                <div class="progress-bar ${((limits.send_used || 0) / (limits.send_limit || 1) * 100) >= 80 ? 'bg-danger' : 'bg-success'}"
-                                                                    role="progressbar"
-                                                                    style="width: ${((limits.send_used || 0) / (limits.send_limit || 1) * 100).toFixed(0)}%">
+                                    <div class="col-md-auto" data-id="${way.id}">
+                                        <div class="card shadow-sm h-100 rounded-3 border-0">
+                                            <!-- Header -->
+                                            @can('transactions_store')
+                                                <div class="card-header text-center">
+                                                    <button class="btn btn-outline-success btn-sm receiveBtn" data-id="${way.id}" data-name="${way.name}">{{ __('messages.receive') }}</button>
+                                                    <button class="btn btn-outline-primary btn-sm sendBtn" data-id="${way.id}" data-name="${way.name}">{{ __('messages.send') }}</button>
+                                                    <div class="mb-0 fw-bold">${way.name}</div>
+                                                    <small>${way.type ? (typeTranslations[way.type] || way.type) : ''}</small>
+                                                </div>
+                                            @endcan
+                                            <!-- Body -->
+                                            <div class="card-body p-3">
+                                                <!-- Balance -->
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <span class="fw-bold text-secondary">{{ __('messages.balance') }}</span>
+                                                    <span class="fw-bold text-success fs-5">${parseFloat(way.balance ?? 0).toFixed(2)}</span>
+                                                </div>
+                                                ${way.type === 'wallet' ? `
+                                                            <!-- Limits Table -->
+                                                            <table class="text-center table table-bordered table-sm table bordered-table sm-table">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th class="text-center">{{ __('messages.type') }}</th>
+                                                                        <th class="text-center">{{ __('messages.used') }}</th>
+                                                                        <th class="text-center">{{ __('messages.limit') }}</th>
+                                                                        <th class="text-center">{{ __('messages.remaining') }}</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    <tr>
+                                                                        <td class="fw-bold text-primary">{{ __('messages.send') }}</td>
+                                                                        <td>${limits.send_used || 0}</td>
+                                                                        <td>${limits.send_limit || way.send_limit}</td>
+                                                                        <td>${limits.send_remaining || way.send_limit}</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td class="fw-bold text-success">{{ __('messages.receive') }}</td>
+                                                                        <td>${limits.receive_used || 0}</td>
+                                                                        <td>${limits.receive_limit || way.receive_limit}</td>
+                                                                        <td>${limits.receive_remaining || way.receive_limit}</td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                            <!-- Progress Bars -->
+                                                            <div class="mb-2">
+                                                                <small class="fw-bold">{{ __('messages.send_progress') }}</small>
+                                                                <div class="progress" style="height: 8px;">
+                                                                    <div class="progress-bar ${((limits.send_used || 0) / (limits.send_limit || 1) * 100) >= 80 ? 'bg-danger' : 'bg-success'}"
+                                                                        role="progressbar"
+                                                                        style="width: ${((limits.send_used || 0) / (limits.send_limit || 1) * 100).toFixed(0)}%">
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <small class="fw-bold">{{ __('messages.receive_progress') }}</small>
-                                                            <div class="progress" style="height: 8px;">
-                                                                <div class="progress-bar ${((limits.receive_used || 0) / (limits.receive_limit || 1) * 100) >= 80 ? 'bg-danger' : 'bg-success'}"
-                                                                    role="progressbar"
-                                                                    style="width: ${((limits.receive_used || 0) / (limits.receive_limit || 1) * 100).toFixed(0)}%">
+                                                            <div class="mb-3">
+                                                                <small class="fw-bold">{{ __('messages.receive_progress') }}</small>
+                                                                <div class="progress" style="height: 8px;">
+                                                                    <div class="progress-bar ${((limits.receive_used || 0) / (limits.receive_limit || 1) * 100) >= 80 ? 'bg-danger' : 'bg-success'}"
+                                                                        role="progressbar"
+                                                                        style="width: ${((limits.receive_used || 0) / (limits.receive_limit || 1) * 100).toFixed(0)}%">
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                    ` : ''}
-                                            <p class="small mb-0">{{ __('messages.created_by') }}: ${way.creator ? way.creator.name : ''}</p>
-                                        </div>
+                                                        ` : ''}
+                                                <p class="small mb-0">{{ __('messages.created_by') }}: ${way.creator ? way.creator.name : ''}</p>
+                                            </div>
 
-                                        <!-- Footer -->
-                                        <div class="card-footer d-flex justify-content-between gap-3">
-                                            @can('payment_ways_show')
-                                                <a href="payment-ways/show/${way.id}" class="btn btn-outline-info btn-sm">{{ __('messages.details') }}</a>
-                                            @endcan
-                                            @can('payment_ways_update')
-                                                <button class="btn btn-outline-warning btn-sm editBtn"
-                                                        data-id="${way.id}"
-                                                        data-name="${way.name}"
-                                                        data-type="${way.type}"
-                                                        data-phone="${way.phone_number ?? ''}"
-                                                        data-receive-limit="${way.receive_limit ?? 0}"
-                                                        data-send-limit="${way.send_limit ?? 0}"
-                                                        data-balance="${way.balance ?? 0}"
-                                                        data-category-id="${categoryId}"
-                                                        data-sub-category-id="${subCategoryId}">{{ __('messages.edit') }}</button>
-                                            @endcan
-                                            @can('payment_ways_destroy')
-                                                <button class="btn btn-outline-danger btn-sm deleteBtn" data-id="${way.id}" data-name="${way.name}">{{ __('messages.delete') }}</button>
-                                            @endcan
+                                            <!-- Footer -->
+                                            <div class="card-footer d-flex justify-content-between gap-3">
+                                                @can('payment_ways_show')
+                                                    <a href="payment-ways/show/${way.id}" class="btn btn-outline-info btn-sm">{{ __('messages.details') }}</a>
+                                                @endcan
+                                                @can('payment_ways_update')
+                                                    <button class="btn btn-outline-warning btn-sm editBtn"
+                                                            data-id="${way.id}"
+                                                            data-name="${way.name}"
+                                                            data-type="${way.type}"
+                                                            data-phone="${way.phone_number ?? ''}"
+                                                            data-receive-limit="${way.receive_limit ?? 0}"
+                                                            data-send-limit="${way.send_limit ?? 0}"
+                                                            data-balance="${way.balance ?? 0}"
+                                                            data-category-id="${categoryId}"
+                                                            data-sub-category-id="${subCategoryId}">{{ __('messages.edit') }}</button>
+                                                @endcan
+                                                @can('payment_ways_destroy')
+                                                    <button class="btn btn-outline-danger btn-sm deleteBtn" data-id="${way.id}" data-name="${way.name}">{{ __('messages.delete') }}</button>
+                                                @endcan
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            `;
+                                `;
                         });
                         $('#paymentWaysContainer').html(cards);
+                        initSortable();
                     }
                 });
             }
 
+
+            function initSortable() {
+                const container = document.getElementById('paymentWaysContainer');
+
+                if (container.sortable) {
+                    container.sortable.destroy();
+                }
+
+                Sortable.create(container, {
+                    animation: 150,
+                    handle: '.card',
+                    ghostClass: 'bg-light',
+                    onEnd: function (evt) {
+                        const items = evt.to.querySelectorAll('[data-id]');
+                        const order = Array.from(items).map(item => item.getAttribute('data-id'));
+                        $.ajax({
+                            url: "{{ route('payment_ways.reorder') }}",
+                            type: "POST",
+                            data: {
+                                _token: "{{ csrf_token() }}",
+                                order: order
+                            },
+                            success: function(res) {
+                                if (res.status) {
+                                    showToast('{{ __("messages.updated_successfully") }}', 'success');
+                                    loadPaymentWays(); 
+                                } else {
+                                    showToast(res.message, 'error');
+                                }
+                            },
+                            error: function() {
+                                showToast('{{ __("messages.something_went_wrong") }}', 'error');
+                                loadPaymentWays(); 
+                            }
+                        });
+                    }
+                });
+
+                container.sortable = Sortable.get(container);
+            }
+
             // Create
-            $('#createForm').submit(function(e) {
+            $('#createForm').submit(function (e) {
                 e.preventDefault();
-                $.post("{{ route('payment_ways.store') }}", $(this).serialize(), function(res) {
+                $.post("{{ route('payment_ways.store') }}", $(this).serialize(), function (res) {
                     if (res.status) {
                         $('#createModal').modal('hide');
                         loadPaymentWays();
@@ -307,7 +350,7 @@
             });
 
             // Edit
-            $(document).on('click', '.editBtn', function() {
+            $(document).on('click', '.editBtn', function () {
                 $('#editId').val($(this).data('id'));
                 $('#editName').val($(this).data('name'));
                 $('#editType').val($(this).data('type'));
@@ -322,17 +365,17 @@
                     $.ajax({
                         url: "{{ url('dashboard/sub-categories') }}/" + categoryId,
                         type: 'GET',
-                        success: function(res) {
+                        success: function (res) {
                             $('#editSubCategorySelect').html(
                                 '<option value="">{{ __('messages.select_sub_category') }}</option>'
                             );
-                            res.forEach(function(sub) {
+                            res.forEach(function (sub) {
                                 $('#editSubCategorySelect').append(
                                     `<option value="${sub.id}" ${sub.id == subCategoryId ? 'selected' : ''}>${sub.name}</option>`
                                 );
                             });
                         },
-                        error: function(err) {
+                        error: function (err) {
                             console.error(err);
                             showToast('{{ __('messages.something_went_wrong') }}', 'error');
                         }
@@ -346,7 +389,7 @@
                 $('#editModal').modal('show');
             });
 
-            $('#editForm').submit(function(e) {
+            $('#editForm').submit(function (e) {
                 e.preventDefault();
                 let id = $('#editId').val();
                 if ($('#editType').val() !== 'wallet') {
@@ -358,7 +401,7 @@
                     url: "{{ url('dashboard/payment-ways') }}/" + id,
                     type: "PUT",
                     data: $(this).serialize(),
-                    success: function(res) {
+                    success: function (res) {
                         if (res.status) {
                             $('#editModal').modal('hide');
                             loadPaymentWays();
@@ -369,20 +412,20 @@
                                 '{{ __('messages.something_went_wrong') }}', 'error');
                         }
                     },
-                    error: function(err) {
+                    error: function (err) {
                         showToast('{{ __('messages.something_went_wrong') }}', 'error');
                     }
                 });
             });
 
             // Delete
-            $(document).on('click', '.deleteBtn', function() {
+            $(document).on('click', '.deleteBtn', function () {
                 $('#deleteId').val($(this).data('id'));
                 $('#deleteName').text($(this).data('name'));
                 $('#deleteModal').modal('show');
             });
 
-            $('#deleteForm').submit(function(e) {
+            $('#deleteForm').submit(function (e) {
                 e.preventDefault();
                 let id = $('#deleteId').val();
                 $.ajax({
@@ -391,7 +434,7 @@
                     data: {
                         _token: "{{ csrf_token() }}"
                     },
-                    success: function(res) {
+                    success: function (res) {
                         if (res.status) {
                             $('#deleteModal').modal('hide');
                             loadPaymentWays();
@@ -401,7 +444,7 @@
                             showToast(res.message, 'error');
                         }
                     },
-                    error: function(err) {
+                    error: function (err) {
                         console.log(err);
                         showToast(err.responseJSON.message, 'error');
 

@@ -36,6 +36,8 @@
     <script src="{{ asset('assets/js/axios.min.js') }}"></script>
     <!-- Chart.js -->
     <script src="{{ asset('assets/js/chart.umd.min.js') }}"></script>
+    <!-- sortable.min.js -->
+    <script src="{{ asset('assets/js/sortable.min.js') }}"></script>
     <!-- Slick Slider js -->
     <script src="{{ asset('assets/js/lib/slick.min.js') }}"></script>
     <!-- Bootstrap Select js -->

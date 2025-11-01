@@ -18,6 +18,7 @@ return [
     'yes_delete' => 'نعم، احذف',
     'no' => 'لا',
     'edit' => 'تعديل',
+    'updated_successfully' => 'تم التحديث بنجاح',
     'delete' => 'حذف',
     'something_went_wrong' => 'حدث خطأ ما',
     'create_payment_way' => 'انشاء طريقة دفع',
