@@ -35,6 +35,13 @@
                             <option value="balance_machine">{{ __('messages.balance_machine') }}</option>
                         </select>
                     </div>
+                    <div class="mb-3">
+                        <label>{{ __('messages.client_type') }}</label>
+                        <select name="client_type" id="createclientType" class="form-control">
+                            <option value="client">{{ __('messages.client') }}</option>
+                            <option value="merchant">{{ __('messages.merchant') }}</option>
+                        </select>
+                    </div>
                     <div class="mb-3 phone_limit_group">
                         <label>{{ __('messages.phone_number') }}</label>
                         <input type="text" name="phone_number" class="form-control">

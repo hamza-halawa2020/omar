@@ -21,6 +21,7 @@ class UpdatePaymentWayRequest extends FormRequest
             'phone_number' => 'nullable|string|max:20',
             'send_limit' => 'nullable|numeric|min:0',
             'receive_limit' => 'nullable|numeric|min:0',
+            'client_type' => 'nullable',
         ];
     }
 }

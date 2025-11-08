@@ -151,8 +151,8 @@
                         </div>
                         <div class="modal-body">
                             <label>{{ __('messages.select_client') }}</label>
-                            <select name="client_id" class="form-select" required>
-                                <option value="" disabled selected>{{ __('messages.select_client') }}</option>
+                            <select name="client_id" class="form-select" required data-searchable="true" data-placeholder="{{ __('messages.select_client') }}">
+                                {{-- <option value="" disabled selected>{{ __('messages.select_client') }}</option> --}}
                                 @foreach ($clients as $client)
                                     <option value="{{ $client->id }}">{{ $client->name }}</option>
                                 @endforeach

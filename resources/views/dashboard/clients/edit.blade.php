@@ -19,6 +19,14 @@
                         <label>{{ __('messages.phone_number') }}</label>
                         <input type="text" name="phone_number" id="editPhoneNumber" class="form-control" required>
                     </div>
+                     <div class="mb-3">
+                        <label>{{ __('messages.type') }}</label>
+                        <select name="type"  id="editTypeId" class="form-control">
+                            <option value="client">{{ __('messages.client') }}</option>
+                            <option value="merchant">{{ __('messages.merchant') }}</option>
+
+                        </select>
+                    </div>
                     <div class="mb-3">
                         <label>{{ __('messages.debt') }}</label>
                         <input type="text" name="debt" id="editDebt" class="form-control" required>

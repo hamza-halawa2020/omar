@@ -7,6 +7,7 @@ use App\Http\Requests\Client\UpdateClientRequest;
 use App\Http\Resources\ClientResource;
 use App\Models\Client;
 use App\Models\PaymentWay;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\Auth;
 
@@ -34,6 +35,11 @@ class ClientController extends BaseController
         return view('dashboard.clients.debts');
     }
 
+    public function merchants()
+    {
+        return view('dashboard.clients.merchants');
+    }
+
     public function client_installments()
     {
         return view('dashboard.clients.client_installments');
@@ -44,9 +50,12 @@ class ClientController extends BaseController
         return view('dashboard.clients.client_creditor');
     }
 
-    public function list()
+    public function list(Request $request)
     {
-        $query = Client::with(['creator', 'transactions'])->orderByDesc('debt');
+        // dd($request->all());
+        $query = Client::
+        where('type', $request->type ?? 'client')->
+        with(['creator', 'transactions'])->orderByDesc('debt');
 
         if (request()->filled('search')) {
             $search = request('search');
@@ -67,7 +76,8 @@ class ClientController extends BaseController
 
     public function listDebts()
     {
-        $query = Client::where('debt', '>', 0)
+        $query = Client::where('type', 'client')
+            ->where('debt', '>', 0)
             ->whereDoesntHave('installmentContracts')
             ->with(['creator', 'transactions', 'installmentContracts'])
             ->orderByDesc('debt');
@@ -85,9 +95,29 @@ class ClientController extends BaseController
         return response()->json(['status' => true, 'message' => __('messages.clients_fetched_successfully'), 'data' => ClientResource::collection($clients)]);
     }
 
+    public function listMerchants()
+    {
+        $query = Client::where('type', 'merchant')
+            ->with(['creator', 'transactions'])
+            ->orderByDesc('debt');
+
+        if (request()->filled('search')) {
+            $search = request('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('phone_number', 'like', "%{$search}%");
+            });
+        }
+
+        $clients = $query->get();
+
+        return response()->json(['status' => true, 'message' => __('messages.clients_fetched_successfully'), 'data' => ClientResource::collection($clients)]);
+    }
+
     public function listCreditor()
     {
-        $query = Client::where('debt', '<', 0)
+        $query = Client::where('type', 'client')
+        ->where('debt', '<', 0)
             ->with(['creator', 'transactions', 'installmentContracts'])
             ->orderBy('debt', 'asc');
         if (request()->filled('search')) {
@@ -104,7 +134,8 @@ class ClientController extends BaseController
 
     public function listClientInstallments()
     {
-        $query = Client::where('debt', '!=', 0)
+        $query = Client::where('type', 'client')
+            ->where('debt', '!=', 0)
             ->whereHas('installmentContracts')
             ->with(['creator', 'transactions', 'installmentContracts'])
             ->orderByDesc('debt');

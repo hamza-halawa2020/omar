@@ -13,8 +13,8 @@
                     <!-- Client -->
                     <div class="mb-3 col-md-6">
                         <label>{{ __('messages.client') }}</label>
-                        <select name="client_id" class="form-control" required>
-                            <option value="">{{ __('messages.choose_client') }}</option>
+                        <select name="client_id" class="form-control" required data-searchable="true" data-placeholder="{{ __('messages.select_client') }}">
+                            {{-- <option value="">{{ __('messages.choose_client') }}</option> --}}
                             @foreach ($clients as $client)
                                 <option value="{{ $client->id }}">{{ $client->name }} - {{ $client->debt }}</option>
                             @endforeach

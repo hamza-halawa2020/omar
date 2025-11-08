@@ -64,7 +64,7 @@
                 </li>
             @endcan
 
-            @canany(['clients_index', 'clients_debts', 'clients_installments', 'client_creditor'])
+            @canany(['clients_index', 'clients_debts', 'clients_merchants','clients_installments', 'client_creditor'])
                 <li class="dropdown">
                     <a href="javascript:void(0)">
                         <iconify-icon icon="mdi:account-group-outline" class="menu-icon"></iconify-icon>
@@ -108,6 +108,15 @@
                                     class="d-flex align-items-center gap-2 {{ Route::is('debts.*') ? 'active-page' : '' }}">
                                     <iconify-icon icon="mdi:cash-multiple" class="menu-icon"></iconify-icon>
                                     <span>{{ __('messages.debts') }}</span>
+                                </a>
+                            </li>
+                        @endcan
+                        @can('clients_merchants')
+                            <li>
+                                <a href="{{ route('merchants.index') }}"
+                                    class="d-flex align-items-center gap-2 {{ Route::is('merchants.*') ? 'active-page' : '' }}">
+                                    <iconify-icon icon="mdi:cash-multiple" class="menu-icon"></iconify-icon>
+                                    <span>{{ __('messages.merchants') }}</span>
                                 </a>
                             </li>
                         @endcan

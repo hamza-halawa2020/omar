@@ -72,6 +72,8 @@ class PermissionSeeder extends Seeder
             'associations_destroy',
             'associations_details',
 
+            'clients_merchants'
+
         ];
 
         foreach ($permissions as $permission) {

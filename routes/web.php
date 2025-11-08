@@ -77,9 +77,11 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
 
     Route::get('clients', [ClientController::class, 'index'])->name('clients.index');
     Route::get('debts', [ClientController::class, 'debts'])->name('debts.index');
+    Route::get('merchants', [ClientController::class, 'merchants'])->name('merchants.index');
     Route::get('client_installments', [ClientController::class, 'client_installments'])->name('client_installments');
     Route::get('clients/list', [ClientController::class, 'list'])->name('clients.list');
     Route::get('clients/listDebts', [ClientController::class, 'listDebts'])->name('clients.listDebts');
+    Route::get('clients/listMerchants', [ClientController::class, 'listMerchants'])->name('clients.listMerchants');
     Route::get('clients/listClientInstallments', [ClientController::class, 'listClientInstallments'])->name('listClientInstallments');
     Route::get('clients/listCreditor', [ClientController::class, 'listCreditor'])->name('listCreditor');
     Route::get('clients/client_creditor', [ClientController::class, 'client_creditor'])->name('client_creditor');

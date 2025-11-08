@@ -21,6 +21,7 @@ class PaymentWay extends Model
         'balance',
         'created_by',
         'position',
+        'client_type'
     ];
 
     public function creator()

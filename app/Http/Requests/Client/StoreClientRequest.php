@@ -17,6 +17,7 @@ class StoreClientRequest extends FormRequest
             'name' => 'required|string|max:255',
             'phone_number' => 'nullable|string|max:20',
             'debt' => 'nullable|numeric|min:0',
+            'type' => 'nullable'
         ];
     }
 

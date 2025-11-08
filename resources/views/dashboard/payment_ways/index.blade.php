@@ -44,8 +44,9 @@
                 toggleFields($(this).val(), '.phone_limit_group_edit');
             });
 
-            function loadClients() {
-                $.get("{{ route('clients.list') }}", function (res) {
+            function loadClients(type) {
+                $.get("{{ route('clients.list') }}", { type: type }, function (res) {
+
                     if (res.status) {
                         let clientOptions = '<option value="">{{ __('messages.select_client') }}</option>';
                         res.data.forEach(function (client) {
@@ -87,10 +88,15 @@
                     '{{ __('messages.create_receive_transaction') }}' :
                     '{{ __('messages.create_send_transaction') }}');
 
-                loadClients();
-                loadProducts();
 
+                let clientType = $(this).closest('.card').find('span[data-client-type]').attr('data-client-type');
+                console.log(clientType);
+                
+                loadProducts();
+                
                 $('#transactionModal').modal('show');
+                loadClients(clientType);    
+                        
             });
 
             $('#createCategorySelect').on('change', function () {
@@ -183,6 +189,12 @@
                         res.data.sort((a, b) => (a.position || 0) - (b.position || 0));
                         res.data.forEach((way, i) => {
                             let categoryId = way.category_id || (way.category ? way.category.id : '');
+                            let clientType = way.client_type; // 'client', 'merchant'
+
+                            let clientTypeText = '';
+                            if (clientType === 'client') clientTypeText = "{{ __('messages.client') }}";
+                            else if (clientType === 'merchant') clientTypeText = "{{ __('messages.merchant') }}";
+
                             let subCategoryId = way.sub_category_id || (way.sub_category ? way.sub_category.id : '');
                             let limits = way.monthly_limits || {};
                             let monthName = limits.month_name || '';
@@ -201,7 +213,7 @@
                                                     <button class="btn btn-outline-success btn-sm receiveBtn" data-id="${way.id}" data-name="${way.name}">{{ __('messages.receive') }}</button>
                                                     <button class="btn btn-outline-primary btn-sm sendBtn" data-id="${way.id}" data-name="${way.name}">{{ __('messages.send') }}</button>
                                                     <div class="mb-0 fw-bold">${way.name}</div>
-                                                    <small>${way.type ? (typeTranslations[way.type] || way.type) : ''}</small>
+                                                    <small>${way.type ? (typeTranslations[way.type] || way.type) : ''} | <span data-client-type="${clientType}">${clientTypeText}</span></small>
                                                 </div>
                                             @endcan
                                             <!-- Body -->
@@ -270,6 +282,7 @@
                                                             data-id="${way.id}"
                                                             data-name="${way.name}"
                                                             data-type="${way.type}"
+                                                            data-client-type="${way.client_type}"
                                                             data-phone="${way.phone_number ?? ''}"
                                                             data-receive-limit="${way.receive_limit ?? 0}"
                                                             data-send-limit="${way.send_limit ?? 0}"
@@ -354,6 +367,7 @@
                 $('#editId').val($(this).data('id'));
                 $('#editName').val($(this).data('name'));
                 $('#editType').val($(this).data('type'));
+                $('#editCientType').val($(this).data('client-type'));
                 $('#editPhone').val($(this).data('phone'));
                 $('#editReceiveLimit').val($(this).data('receive-limit'));
                 $('#editSendLimit').val($(this).data('send-limit'));

@@ -31,7 +31,7 @@ class InstallmentContractController extends BaseController
 
     public function index()
     {
-        $clients = Client::all();
+        $clients = Client::where('type', 'client')->get();
         $products = Product::all();
 
         return view('dashboard.installment_contracts.index', compact('clients', 'products'));
@@ -39,7 +39,9 @@ class InstallmentContractController extends BaseController
 
     public function list()
     {
-        $installments = InstallmentContract::with(['client', 'product', 'creator', 'installments'])->latest()->get();
+        $installments = InstallmentContract::with(['client' => function ($query) {
+            $query->where('type', 'client');
+        }, 'product', 'creator', 'installments'])->latest()->get();
 
         return response()->json(['status' => true, 'message' => __('messages.installments_fetched_successfully'), 'data' => InstallmentContractResource::collection($installments)]);
     }
@@ -93,19 +95,23 @@ class InstallmentContractController extends BaseController
 
         $product->decrement('stock', 1);
 
-        return response()->json(['status' => true,'message' => __('messages.Installment_contract_created_successfully'),'data' => $contract->load('installments'),], 201);
+        return response()->json(['status' => true, 'message' => __('messages.Installment_contract_created_successfully'), 'data' => $contract->load('installments')], 201);
     }
 
     public function show($id)
     {
-        $contract = InstallmentContract::with(['client', 'product', 'creator', 'installments.payments.paid_by'])->findOrFail($id);
+        $contract = InstallmentContract::with(['client'=> function ($query) {
+            $query->where('type', 'client');
+        }, 'product', 'creator', 'installments.payments.paid_by'])->findOrFail($id);
 
-        return response()->json(['status' => true,'message' => __('messages.installment_contract_fetched_successfully'),'data' => new InstallmentContractResource($contract),]);
+        return response()->json(['status' => true, 'message' => __('messages.installment_contract_fetched_successfully'), 'data' => new InstallmentContractResource($contract)]);
     }
 
     public function showPage($id)
     {
-        $contract = InstallmentContract::with(['client', 'product', 'creator', 'installments.payments'])->findOrFail($id);
+        $contract = InstallmentContract::with(['client'=> function ($query) {
+            $query->where('type', 'client');
+        }, 'product', 'creator', 'installments.payments'])->findOrFail($id);
 
         $paymentWays = PaymentWay::all();
 
@@ -189,8 +195,7 @@ class InstallmentContractController extends BaseController
         $product = $installment->contract->product;
         $paymentWay = PaymentWay::findOrFail($data['payment_way_id']);
         $total = $data['amount'] + ($data['commission'] ?? 0);
-        $type = 'receive' ;
-
+        $type = 'receive';
 
         $monthlyLimit = null;
         if ($paymentWay->type === 'wallet') {
@@ -262,7 +267,7 @@ class InstallmentContractController extends BaseController
                 ],
             ]);
 
-            return response()->json(['status' => true,'message' => __('messages.installment_paid_successfully'),'data' => ['installment' => $installment->load('payments'),'transaction' => $transaction]]);
+            return response()->json(['status' => true, 'message' => __('messages.installment_paid_successfully'), 'data' => ['installment' => $installment->load('payments'), 'transaction' => $transaction]]);
         });
     }
 

@@ -27,6 +27,7 @@ class PaymentWayResource extends JsonResource
             'name' => $this->name,
             'type' => $this->type,
             'phone_number' => $this->phone_number,
+            'client_type' => $this->client_type,
             'receive_limit' => round($this->receive_limit),
             'receive_limit_alert' => round($this->receive_limit_alert),
             'send_limit' => round($this->send_limit),

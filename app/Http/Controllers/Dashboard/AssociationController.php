@@ -31,14 +31,17 @@ class AssociationController extends BaseController
 
     public function index()
     {
-        $clients = Client::all();
+        $clients = Client::where('type', 'client')->get();
 
         return view('dashboard.associations.index', compact('clients'));
     }
 
     public function list()
     {
-        $associations = Association::with(['members.client', 'creator'])->get();
+        $associations = Association::with(['members.client' => function ($query) {
+            $query->where('type', 'client');
+        }, 'creator',
+        ])->get();
 
         return response()->json(['status' => true, 'message' => __('messages.associations_fetched_successfully'), 'data' => AssociationResource::collection($associations)]);
     }
@@ -46,7 +49,7 @@ class AssociationController extends BaseController
     public function details($id)
     {
         $association = Association::with(['members.client', 'creator'])->findOrFail($id);
-        $clients = Client::all();
+        $clients = Client::where('type', 'client')->get();
         $paymentWays = PaymentWay::all();
 
         return view('dashboard.associations.details', compact('association', 'clients', 'paymentWays'));
