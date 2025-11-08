@@ -17,6 +17,7 @@ class ClientController extends BaseController
     {
         $this->middleware('check.permission:clients_index')->only('index', 'list');
         $this->middleware('check.permission:clients_debts')->only('debts', 'listDebts');
+        $this->middleware('check.permission:clients_merchants')->only('merchants', 'listMerchants');
         $this->middleware('check.permission:clients_installments')->only('client_installments', 'listClientInstallments');
         $this->middleware('check.permission:client_creditor')->only('client_creditor', 'listCreditor');
         $this->middleware('check.permission:clients_store')->only('store');
