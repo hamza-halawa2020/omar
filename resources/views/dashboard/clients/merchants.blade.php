@@ -68,7 +68,13 @@
                                             <a href="{{ url('dashboard/clients') }}/${client.id}" class="btn btn-outline-success btn-sm radius-8 btn-sm">{{ __('messages.details') }}</a>
                                         @endcan
                                         @can('clients_update')
-                                            <button class="btn btn-outline-primary btn-sm radius-8 editBtn"data-id="${client.id}"data-name="${client.name}"data-phone_number="${client.phone_number}"data-debt="${client.debt}">{{ __('messages.edit') }}</button>
+                                            <button class="btn btn-outline-primary btn-sm radius-8 editBtn"
+                                            data-id="${client.id}" 
+                                            data-type="${client.type}" 
+                                            data-name="${client.name}"
+                                            data-phone_number="${client.phone_number}"
+                                            data-debt="${client.debt}">
+                                            {{ __('messages.edit') }}</button>
                                         @endcan
                                         @can('clients_destroy')
                                             <button class="btn btn-outline-danger btn-sm radius-8 deleteBtn" data-id="${client.id}" data-name="${client.name}">{{ __('messages.delete') }}</button>
@@ -88,12 +94,14 @@
             let id = $(this).data('id');
             let name = $(this).data('name');
             let phone_number = $(this).data('phone_number');
+            let type = $(this).data('type');
             let debt = $(this).data('debt');
 
             $('#editId').val(id);
             $('#editName').val(name);
             $('#editPhoneNumber').val(phone_number);
             $('#editDebt').val(debt);
+            $('#editTypeId').val(type);
 
             $('#editModal').modal('show');
 

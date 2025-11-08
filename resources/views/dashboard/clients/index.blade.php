@@ -117,7 +117,6 @@
             let name = $(this).data('name');
             let phone_number = $(this).data('phone_number');
             let type = $(this).data('type');
-
             let debt = $(this).data('debt');
 
             $('#editId').val(id);
@@ -125,7 +124,6 @@
             $('#editPhoneNumber').val(phone_number);
             $('#editDebt').val(debt);
             $('#editTypeId').val(type);
-
 
             $('#editModal').modal('show');
 
