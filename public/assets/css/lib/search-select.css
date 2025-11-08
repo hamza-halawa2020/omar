@@ -1,0 +1,52 @@
+:root {
+    --ss-bg: #ffffff;
+    --ss-border: #ced4da;
+    --ss-text: #000000;
+    --ss-hover: #f1f1f1;
+}
+
+[data-theme="dark"] {
+    --ss-bg: #1b2431;
+    --ss-border: #444;
+    --ss-text: #f1f1f1;
+    --ss-hover: #444;
+}
+
+.searchable-select-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.searchable-select-input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    background-color: var(--ss-bg);
+    color: var(--ss-text);
+    border: 1px solid var(--ss-border);
+}
+
+.searchable-select-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: var(--ss-bg);
+    border: 1px solid var(--ss-border);
+    border-radius: 0.375rem;
+    max-height: 200px;
+    overflow-y: auto;
+    display: none;
+    z-index: 10000;
+}
+
+.searchable-select-dropdown div {
+    padding: 0.5rem;
+    cursor: pointer;
+    color: var(--ss-text);
+}
+
+.searchable-select-dropdown div:hover {
+    background-color: var(--ss-hover);
+}

@@ -40,6 +40,8 @@
     <script src="{{ asset('assets/js/sortable.min.js') }}"></script>
     <!-- Slick Slider js -->
     <script src="{{ asset('assets/js/lib/slick.min.js') }}"></script>
+    <!--search select js -->
+    <script src="{{ asset('assets/js/lib/search-select.js') }}"></script>
     <!-- Bootstrap Select js -->
     <script src="{{ asset('assets/js/lib/bootstrap-select.min.js') }}"></script>
     <!-- Multi Select js -->

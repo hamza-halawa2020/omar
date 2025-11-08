@@ -26,6 +26,8 @@
     <link rel="stylesheet" href="{{ asset('assets/css/lib/magnific-popup.css') }}">
     <!-- Slick Slider css -->
     <link rel="stylesheet" href="{{ asset('assets/css/lib/slick.css') }}">
+    <!-- search select css -->
+    <link rel="stylesheet" href="{{ asset('assets/css/lib/search-select.css') }}">
     <!-- prism css -->
     <link rel="stylesheet" href="{{ asset('assets/css/lib/prism.css') }}">
     <!-- main css -->

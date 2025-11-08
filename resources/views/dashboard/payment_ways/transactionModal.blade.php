@@ -13,8 +13,8 @@
 
                     <div class="mb-3">
                         <label for="client_id" class="form-label">{{ __('messages.client') }}</label>
-                        <select name="client_id" id="client_id" class="form-select">
-                            <option value="">{{ __('messages.select_client') }}</option>
+                        <select name="client_id" id="client_id" class="form-select" data-searchable="true" data-placeholder="{{ __('messages.select_client') }}">
+                            {{-- <option value="" disabled>{{ __('messages.select_client') }}</option> --}}
                         </select>
                     </div>
                     <div class="mb-3">
