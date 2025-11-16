@@ -6,8 +6,10 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Contracts\Queue\ShouldQueue;
 
-class CreateBackup
+class CreateBackup implements ShouldQueue
+
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
