@@ -53,13 +53,16 @@ class ClientController extends BaseController
 
     public function list(Request $request)
     {
-        // dd($request->all());
-        $query = Client::
-        where('type', $request->type ?? 'client')->
-        with(['creator', 'transactions'])->orderByDesc('debt');
+        $query = Client::query();
 
-        if (request()->filled('search')) {
-            $search = request('search');
+        $query->when($request->type === 'merchant', function ($q) {
+            return $q->where('type', 'merchant');
+        });
+
+        $query->with(['creator', 'transactions'])->orderByDesc('debt');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                     ->orWhere('phone_number', 'like', "%{$search}%");
@@ -118,7 +121,7 @@ class ClientController extends BaseController
     public function listCreditor()
     {
         $query = Client::where('type', 'client')
-        ->where('debt', '<', 0)
+            ->where('debt', '<', 0)
             ->with(['creator', 'transactions', 'installmentContracts'])
             ->orderBy('debt', 'asc');
         if (request()->filled('search')) {
