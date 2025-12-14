@@ -108,8 +108,7 @@ class PaymentWayController extends BaseController
         $timeFilter = request('time', 'today');
         $startDate = request('start_date');
         $endDate = request('end_date');
-        $transactions = $paymentWay->transactions();
-
+        $transactions = $paymentWay->transactions()->with(['client', 'installmentPayment']);
         try {
             if ($timeFilter === 'custom' && $startDate && $endDate) {
                 $start = Carbon::parse($startDate)->startOfDay();

@@ -322,7 +322,7 @@
                             <td>${tx.notes || ''}</td>
                             <td>${tx.creator?.name || ''}</td>
                             <td>${attachmentHtml}</td>
-                            <td>${tx.client_id}</td>
+                            <td>${tx.client?.name ?? ''}</td>
                             <td>${tx.balance_before_transaction}</td>
                             <td>${tx.balance_after_transaction}</td>
                             <td>${tx.created_at || ''}</td>
