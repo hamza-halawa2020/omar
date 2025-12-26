@@ -17,7 +17,7 @@ class UpdateTransactionRequest extends FormRequest
             'client_id' => 'nullable',
             'quantity' => 'nullable',
             'product_id' => 'nullable',
-            'sometimes|nullable|exists:payment_ways,id',
+            'payment_way_id' => 'sometimes|nullable|exists:payment_ways,id',
             'type'            => 'required|in:send,receive',
             'amount'          => 'required|numeric|min:0',
             'commission'      => 'required|numeric|min:0',
