@@ -176,16 +176,19 @@
                     <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
                         <thead class="">
                             <tr>
+                                <th class="text-center">{{ __('messages.actions') }}</th>
                                 <th class="text-center">{{ __('messages.type') }}</th>
                                 <th class="text-center">{{ __('messages.amount') }}</th>
                                 <th class="text-center">{{ __('messages.commission') }}</th>
-                                <th class="text-center">{{ __('messages.notes') }}</th>
-                                <th class="text-center">{{ __('messages.creator') }}</th>
-                                <th class="text-center">{{ __('messages.attachment') }}</th>
                                 <th class="text-center">{{ __('messages.client') }}</th>
                                 <th class="text-center">{{ __('messages.balance_before_transaction') }}</th>
                                 <th class="text-center">{{ __('messages.alance_after_transaction') }}</th>
                                 <th class="text-center">{{ __('messages.created_at') }}</th>
+                                <th class="text-center">{{ __('messages.creator') }}</th>
+                                <th class="text-center">{{ __('messages.notes') }}</th>
+                                <th class="text-center">{{ __('messages.attachment') }}</th>
+
+
                             </tr>
                         </thead>
                         <tbody id="transactionsTableBody"></tbody>
@@ -215,6 +218,12 @@
 
     <!-- Transaction Modal -->
     @include('dashboard.payment_ways.transactionModal')
+    
+    <!-- Edit Transaction Modal -->
+    @include('dashboard.payment_ways.editTransactionModal')
+    
+    <!-- Transaction Logs Modal -->
+    @include('dashboard.payment_ways.transactionLogsModal')
 @endsection
 
 @push('scripts')
@@ -323,6 +332,234 @@
                 });
             });
 
+            // Edit transaction handler
+            $(document).on('click', '.editTransactionBtn', function () {
+                let transactionId = $(this).data('id');
+                let type = $(this).data('type');
+                let amount = $(this).data('amount');
+                let commission = $(this).data('commission');
+                let notes = $(this).data('notes');
+                let clientId = $(this).data('client-id');
+                let productId = $(this).data('product-id');
+                let quantity = $(this).data('quantity');
+                let paymentWayId = $(this).data('payment-way-id');
+                let attachment = $(this).data('attachment');
+
+                // Populate form
+                $('#editTransactionId').val(transactionId);
+                $('#editType').val(type);
+                $('#editAmount').val(amount);
+                $('#editCommission').val(commission);
+                $('#editNotes').val(notes);
+                $('#editQuantity').val(quantity);
+
+                // Load payment ways
+                loadPaymentWaysForEdit();
+                
+                // Load clients and products
+                if (currentPaymentWay) {
+                    loadClientsForEdit(currentPaymentWay.client_type);
+                }
+                loadProductsForEdit();
+
+                // Set selected values after loading
+                setTimeout(() => {
+                    $('#editPaymentWayId').val(paymentWayId);
+                    $('#editClientId').val(clientId);
+                    $('#editProductId').val(productId);
+                }, 500);
+
+                // Show current attachment
+                if (attachment) {
+                    $('#currentAttachment').html(`
+                        <small class="">{{ __('messages.current_attachment') }}: </small>
+                        <a href="${attachment}" target="_blank" class="text-primary">${attachment.split('/').pop()}</a>
+                    `);
+                } else {
+                    $('#currentAttachment').html('');
+                }
+
+                $('#editTransactionModal').modal('show');
+            });
+
+            // Edit transaction form submission
+            $('#editTransactionForm').submit(function (e) {
+                e.preventDefault();
+                let transactionId = $('#editTransactionId').val();
+                let formData = new FormData(this);
+
+                if (!formData.get('payment_way_id')) {
+                    formData.delete('payment_way_id');
+                }
+
+                $.ajax({
+                    url: `/dashboard/transactions/${transactionId}`,
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (res) {
+                        if (res.status) {
+                            $('#editTransactionModal').modal('hide');
+                            showToast('{{ __('messages.transaction_updated_successfully') }}', 'success');
+                            $('#editTransactionForm')[0].reset();
+                            // Refresh the payment way data
+                            let currentDateRange = $("#dateRange").val();
+                            if (currentDateRange) {
+                                let dates = currentDateRange.split(' to ');
+                                if (dates.length === 2) {
+                                    fetchPaymentWay(dates[0], dates[1]);
+                                } else {
+                                    fetchPaymentWay(dates[0], dates[0]);
+                                }
+                            } else {
+                                fetchDay(currentDate);
+                            }
+                        } else {
+                            showToast(res.message || '{{ __('messages.something_went_wrong') }}', 'error');
+                        }
+                    },
+                    error: function (err) {
+                        console.error(err.responseText);
+                        showToast(`{{ __('messages.something_went_wrong') }}: ${err.responseJSON?.message || err.responseText}`, 'error');
+                    }
+                });
+            });
+
+            // View logs handler
+            $(document).on('click', '.viewLogsBtn', function () {
+                let transactionId = $(this).data('id');
+                
+                $.ajax({
+                    url: `/dashboard/transactions/${transactionId}`,
+                    type: "GET",
+                    success: function (res) {
+                        if (res.status) {
+                            displayTransactionLogs(res.data.logs);
+                            $('#transactionLogsModal').modal('show');
+                        } else {
+                            showToast(res.message || '{{ __('messages.something_went_wrong') }}', 'error');
+                        }
+                    },
+                    error: function (err) {
+                        console.error(err.responseText);
+                        showToast(`{{ __('messages.something_went_wrong') }}: ${err.responseJSON?.message || err.responseText}`, 'error');
+                    }
+                });
+            });
+
+            // Helper functions for edit modal
+            function loadPaymentWaysForEdit() {
+                $.get("{{ route('payment_ways.list') }}", function (res) {
+                    if (res.status) {
+                        let options = '<option value="">{{ __('messages.select_payment_way') }}</option>';
+                        res.data.forEach(function (way) {
+                            options += `<option value="${way.id}">${way.name}</option>`;
+                        });
+                        $('#editPaymentWayId').html(options);
+                    }
+                });
+            }
+
+            function loadClientsForEdit(type) {
+                $.get("{{ route('clients.list') }}", { type: type }, function (res) {
+                    if (res.status) {
+                        let options = '<option value="">{{ __('messages.select_client') }}</option>';
+                        res.data.forEach(function (client) {
+                            options += `<option value="${client.id}">${client.name} ({{ __('messages.debt') }}: ${parseFloat(client.debt || 0).toFixed(2)})</option>`;
+                        });
+                        $('#editClientId').html(options);
+                    }
+                });
+            }
+
+            function loadProductsForEdit() {
+                $.get("{{ route('products.list') }}", function (res) {
+                    if (res.status) {
+                        let options = '<option value="">{{ __('messages.select_product') }}</option>';
+                        res.data.forEach(function (product) {
+                            options += `<option value="${product.id}">${product.name} ({{ __('messages.sale_price') }}: ${parseFloat(product.sale_price || 0).toFixed(2)}) ({{ __('messages.stock') }}: ${product.stock || 0})</option>`;
+                        });
+                        $('#editProductId').html(options);
+                    }
+                });
+            }
+
+            function displayTransactionLogs(logs) {
+                let logsHtml = '';
+                
+                if (!logs || logs.length === 0) {
+                    logsHtml = '<p class=" text-center">{{ __('messages.no_logs_found') }}</p>';
+                } else {
+                    let actionLabels = {
+                        create: "{{ __('messages.create') }}",
+                        update: "{{ __('messages.update') }}",
+                        delete: "{{ __('messages.delete') }}"
+                    };
+
+                    logs.forEach(log => {
+                        console.log('loggggggg',log);
+                        let badgeClass = log.action === 'create' ? 'success' : log.action === 'update' ? 'warning' : 'danger';
+                        
+                        logsHtml += `
+                            <div class="card mb-3">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="badge bg-${badgeClass} me-2">${actionLabels[log.action] || log.action}</span>
+                                        <small class="">{{ __('messages.by') }}: ${log.creator?.name || 'Unknown'}</small>
+                                    </div>
+                                    <small class="">${log.created_at}</small>
+                                </div>
+                                <div class="card-body">
+                                    ${formatLogData(log.data, log.action)}
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                
+                $('#transactionLogsContent').html(logsHtml);
+            }
+
+            function formatLogData(data, action) {
+                if (!data) return '<p class="">{{ __('messages.no_data_available') }}</p>';
+                
+                let html = '';
+                
+                if (action === 'update' && data.old_data && data.new_data) {
+                    html += '<div>{{ __('messages.changes_made') }}:</div>';
+                    html += '<div class="row">';
+                    html += '<div class="col-md-6"><div class="text-danger">{{ __('messages.old_values') }}</div>';
+                    html += formatDataTable(data.old_data);
+                    html += '</div>';
+                    html += '<div class="col-md-6"><div class="text-success">{{ __('messages.new_values') }}</div>';
+                    html += formatDataTable(data.new_data);
+                    html += '</div>';
+                    html += '</div>';
+                } else {
+                    html += formatDataTable(data);
+                }
+                
+                return html;
+            }
+
+            function formatDataTable(data) {
+                let html = '<table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">';
+                
+                Object.entries(data).forEach(([key, value]) => {
+                    if (typeof value === 'object' && value !== null) {
+                        if (key === 'client' || key === 'product' || key === 'payment_way') {
+                            html += `<tr><td><strong>${key.replace('_', ' ').toUpperCase()}</strong></td><td>${value.name || value.id || 'N/A'}</td></tr>`;
+                        }
+                    } else {
+                        html += `<tr><td><strong>${key.replace('_', ' ').toUpperCase()}</strong></td><td>${value || 'N/A'}</td></tr>`;
+                    }
+                });
+                
+                html += '</table>';
+                return html;
+            }
+
             let currentDate = new Date();
             let dateRangePicker = $("#dateRange").flatpickr({
                 mode: "range",
@@ -429,18 +666,46 @@
                     if (tx.attachment && /\.(jpg|jpeg|png|gif)$/i.test(tx.attachment)) {
                         attachmentHtml =`<a href="${tx.attachment}" target="_blank"><img src="${tx.attachment}" alt="Attachment" class="img-thumbnail" style="max-width: 50px; max-height: 50px;"></a>`;
                     }
+                    
+                    let actionsHtml = `
+                        <div class="d-flex gap-1 justify-content-center">
+                            @can('transactions_update')
+                                <button class="btn btn-outline-warning btn-sm editTransactionBtn" 
+                                        data-id="${tx.id}"
+                                        data-type="${tx.type}"
+                                        data-amount="${tx.amount}"
+                                        data-commission="${tx.commission || 0}"
+                                        data-notes="${tx.notes || ''}"
+                                        data-client-id="${tx.client?.id || ''}"
+                                        data-product-id="${tx.product?.id || ''}"
+                                        data-quantity="${tx.quantity || ''}"
+                                        data-payment-way-id="${tx.payment_way?.id || ''}"
+                                        data-attachment="${tx.attachment || ''}"
+                                        title="{{ __('messages.edit') }}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            @endcan
+                            <button class="btn btn-outline-info btn-sm viewLogsBtn" 
+                                    data-id="${tx.id}"
+                                    title="{{ __('messages.view_logs') }}">
+                                <i class="fas fa-history"></i>
+                            </button>
+                        </div>
+                    `;
+                    
                     txHtml += `
                         <tr>
+                            <td>${actionsHtml}</td>
                             <td data-type="${tx.type}"><span class="badge bg-${tx.type === 'receive' ? 'success' : 'danger'}">${translations[tx.type] ?? tx.type}</span></td>
                             <td>${tx.amount}</td>
                             <td>${tx.commission}</td>
-                            <td>${tx.notes || ''}</td>
-                            <td>${tx.creator?.name || ''}</td>
-                            <td>${attachmentHtml}</td>
                             <td>${tx.client?.name ?? ''}</td>
                             <td>${tx.balance_before_transaction}</td>
                             <td>${tx.balance_after_transaction}</td>
                             <td>${tx.created_at || ''}</td>
+                            <td>${tx.creator?.name || ''}</td>
+                            <td>${tx.notes || ''}</td>
+                            <td>${attachmentHtml}</td>
                         </tr>
                     `;
                 });
