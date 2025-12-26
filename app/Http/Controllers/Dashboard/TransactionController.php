@@ -177,11 +177,8 @@ class TransactionController extends BaseController
 
     public function update(UpdateTransactionRequest $request, $id)
     {
-        // dd($request->all(),$id);
-
         $transaction = Transaction::findOrFail($id);
         $data = $request->validated();
-
         // Store old values for logging
         $oldData = [
             'id' => $transaction->id,
@@ -235,21 +232,18 @@ class TransactionController extends BaseController
 
         return DB::transaction(function () use ($transaction, $data, $oldData, $client, $product, $paymentWay, $oldPaymentWay, $oldTotal, $newTotal, $quantity, $oldQuantity) {
             
-            // Reverse old transaction effects
             $this->reverseTransactionEffects($transaction, $oldPaymentWay, $oldTotal, $oldQuantity);
             
-            // Update transaction
+            $balanceBeforeTransaction = $paymentWay->fresh()->balance;
             $transaction->update($data);
             
-            // Apply new transaction effects
             $this->applyTransactionEffects($transaction, $paymentWay, $client, $product, $newTotal, $quantity);
             
-            // Update balance tracking
-            $transaction->balance_before_transaction = $paymentWay->balance;
+            $transaction->balance_before_transaction = $balanceBeforeTransaction;
             if ($data['type'] === 'send') {
-                $transaction->balance_after_transaction = $paymentWay->balance - $newTotal;
+                $transaction->balance_after_transaction = $balanceBeforeTransaction - $newTotal;
             } elseif ($data['type'] === 'receive') {
-                $transaction->balance_after_transaction = $paymentWay->balance + $newTotal;
+                $transaction->balance_after_transaction = $balanceBeforeTransaction + $newTotal;
             }
             $transaction->save();
 
