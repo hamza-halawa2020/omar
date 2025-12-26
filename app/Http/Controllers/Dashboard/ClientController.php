@@ -59,7 +59,7 @@ class ClientController extends BaseController
             return $q->where('type', 'merchant');
         });
 
-        $query->with(['creator', 'transactions'])->orderByDesc('debt');
+        $query->with(['creator'])->orderByDesc('debt');
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -83,7 +83,7 @@ class ClientController extends BaseController
         $query = Client::where('type', 'client')
             ->where('debt', '>', 0)
             ->whereDoesntHave('installmentContracts')
-            ->with(['creator', 'transactions', 'installmentContracts'])
+            ->with(['creator', 'installmentContracts'])
             ->orderByDesc('debt');
 
         if (request()->filled('search')) {
@@ -102,7 +102,7 @@ class ClientController extends BaseController
     public function listMerchants()
     {
         $query = Client::where('type', 'merchant')
-            ->with(['creator', 'transactions'])
+            ->with(['creator'])
             ->orderByDesc('debt');
 
         if (request()->filled('search')) {
@@ -122,7 +122,7 @@ class ClientController extends BaseController
     {
         $query = Client::where('type', 'client')
             ->where('debt', '<', 0)
-            ->with(['creator', 'transactions', 'installmentContracts'])
+            ->with(['creator',  'installmentContracts'])
             ->orderBy('debt', 'asc');
         if (request()->filled('search')) {
             $search = request('search');
@@ -141,7 +141,7 @@ class ClientController extends BaseController
         $query = Client::where('type', 'client')
             ->where('debt', '!=', 0)
             ->whereHas('installmentContracts')
-            ->with(['creator', 'transactions', 'installmentContracts'])
+            ->with(['creator', 'installmentContracts'])
             ->orderByDesc('debt');
 
         if (request()->filled('search')) {
