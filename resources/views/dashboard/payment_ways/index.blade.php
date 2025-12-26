@@ -90,7 +90,6 @@
 
 
                 let clientType = $(this).closest('.card').find('span[data-client-type]').attr('data-client-type');
-                console.log(clientType);
                 
                 loadProducts();
                 
@@ -116,7 +115,6 @@
                             });
                         },
                         error: function (err) {
-                            console.error(err);
                             showToast('{{ __('messages.something_went_wrong') }}', 'error');
                         }
                     });
@@ -143,7 +141,6 @@
                             });
                         },
                         error: function (err) {
-                            console.error(err);
                             showToast('{{ __('messages.something_went_wrong') }}', 'error');
                         }
                     });
@@ -174,7 +171,6 @@
                         }
                     },
                     error: function (err) {
-                        console.error(err.responseText);
                         showToast(`{{ __('messages.something_went_wrong') }}: ${err.responseJSON?.message || err.responseText}`, 'error');
                     }
                 });
@@ -390,7 +386,6 @@
                             });
                         },
                         error: function (err) {
-                            console.error(err);
                             showToast('{{ __('messages.something_went_wrong') }}', 'error');
                         }
                     });
@@ -459,7 +454,6 @@
                         }
                     },
                     error: function (err) {
-                        console.log(err);
                         showToast(err.responseJSON.message, 'error');
 
                     }

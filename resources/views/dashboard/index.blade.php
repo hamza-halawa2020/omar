@@ -137,7 +137,6 @@
                             updateProductsTransactionsSection(data);
                     })
                     .catch(error => {
-                        console.error('Error fetching statistics:', error);
                         showToast('{{ __('messages.error_fetching_statistics') }}', 'error');
                     });
             }

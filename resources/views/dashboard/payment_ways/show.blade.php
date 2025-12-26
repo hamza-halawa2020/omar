@@ -326,7 +326,6 @@
                         }
                     },
                     error: function (err) {
-                        console.error(err.responseText);
                         showToast(`{{ __('messages.something_went_wrong') }}: ${err.responseJSON?.message || err.responseText}`, 'error');
                     }
                 });
@@ -403,24 +402,36 @@
                             $('#editTransactionModal').modal('hide');
                             showToast('{{ __('messages.transaction_updated_successfully') }}', 'success');
                             $('#editTransactionForm')[0].reset();
-                            // Refresh the payment way data
-                            let currentDateRange = $("#dateRange").val();
-                            if (currentDateRange) {
-                                let dates = currentDateRange.split(' to ');
-                                if (dates.length === 2) {
-                                    fetchPaymentWay(dates[0], dates[1]);
-                                } else {
-                                    fetchPaymentWay(dates[0], dates[0]);
-                                }
+                            
+                            // Check if payment way changed
+                            let newPaymentWayId = $('#editPaymentWayId').val();
+                            let currentPaymentWayId = id; // Current page payment way ID
+                            
+                            if (newPaymentWayId && newPaymentWayId != currentPaymentWayId) {
+                                // Payment way changed, redirect to new payment way page
+                                showToast('{{ __('messages.transaction_moved_to_new_payment_way') }}', 'info');
+                                setTimeout(() => {
+                                    window.location.href = `/dashboard/payment-ways/show/${newPaymentWayId}`;
+                                }, 2000);
                             } else {
-                                fetchDay(currentDate);
+                                // Same payment way, just refresh the data
+                                let currentDateRange = $("#dateRange").val();
+                                if (currentDateRange) {
+                                    let dates = currentDateRange.split(' to ');
+                                    if (dates.length === 2) {
+                                        fetchPaymentWay(dates[0], dates[1]);
+                                    } else {
+                                        fetchPaymentWay(dates[0], dates[0]);
+                                    }
+                                } else {
+                                    fetchDay(currentDate);
+                                }
                             }
                         } else {
                             showToast(res.message || '{{ __('messages.something_went_wrong') }}', 'error');
                         }
                     },
                     error: function (err) {
-                        console.error(err.responseText);
                         showToast(`{{ __('messages.something_went_wrong') }}: ${err.responseJSON?.message || err.responseText}`, 'error');
                     }
                 });
@@ -442,7 +453,6 @@
                         }
                     },
                     error: function (err) {
-                        console.error(err.responseText);
                         showToast(`{{ __('messages.something_went_wrong') }}: ${err.responseJSON?.message || err.responseText}`, 'error');
                     }
                 });
@@ -498,7 +508,6 @@
                     };
 
                     logs.forEach(log => {
-                        console.log('loggggggg',log);
                         let badgeClass = log.action === 'create' ? 'success' : log.action === 'update' ? 'warning' : 'danger';
                         
                         logsHtml += `

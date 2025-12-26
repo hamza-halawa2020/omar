@@ -59,6 +59,7 @@ return [
     'transaction_created_successfully' => 'تم انشاء المعاملة بنجاح',
     'transaction_updated_successfully' => 'تم تحديث المعاملة بنجاح',
     'transaction_fetched_successfully' => 'تم جلب المعاملة بنجاح',
+    'transaction_moved_to_new_payment_way' => 'تم نقل المعاملة إلى طريقة الدفع الجديدة، سيتم توجيهك الآن...',
     'no_changes_detected' => 'لم يتم اكتشاف أي تغييرات في البيانات',
     'edit_transaction' => 'تعديل المعاملة',
     'transaction_logs' => 'سجلات المعاملة',

@@ -232,7 +232,6 @@
 
                                     if (installment.payments && installment.payments.length > 0) {
 
-                                        console.log( installment.payments);
                                         installmentsHtml += `
                                             <tr>
                                                 <td colspan="6" class="text-start">
