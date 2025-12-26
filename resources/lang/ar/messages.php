@@ -53,6 +53,7 @@ return [
     'payment_way_created_successfully' => 'تم انشاء طريقة الدفع بنجاح',
     'payment_way_updated_successfully' => 'تم تعديل طريقة الدفع بنجاح',
     'payment_way_deleted_successfully' => 'تم حذف طريقة الدفع بنجاح',
+    'payment_way_not_loaded' => 'لم يتم تحميل بيانات طريقة الدفع بعد',
     'create_receive_transaction' => 'انشاء معاملة استلام',
     'create_send_transaction' => 'انشاء معاملة ارسال',
     'transaction_created_successfully' => 'تم انشاء المعاملة بنجاح',

@@ -105,6 +105,18 @@
                 </div>
             </div>
         </div>
+        <!-- Send/Receive Buttons -->
+        @can('transactions_store')
+            <div class="d-flex justify-content-center gap-3 my-3">
+                <button class="btn btn-success btn-lg receiveBtn" id="receiveBtn" style="min-width: 150px;">
+                    <i class="fas fa-arrow-down me-2"></i> {{ __('messages.receive') }}
+                </button>
+                <button class="btn btn-primary btn-lg sendBtn" id="sendBtn" style="min-width: 150px;">
+                    <i class="fas fa-arrow-up me-2"></i> {{ __('messages.send') }}
+                </button>
+            </div>
+        @endcan
+
         <!-- Tabs -->
         <ul class="nav nav-tabs mb-3" id="paymentTabs">
             <li class="nav-item">
@@ -200,16 +212,116 @@
         <!-- Alerts -->
         <div id="errorMessage" class="alert alert-danger mt-3" style="display: none;"></div>
     </div>
+
+    <!-- Transaction Modal -->
+    @include('dashboard.payment_ways.transactionModal')
 @endsection
 
 @push('scripts')
     <script>
         $(document).ready(function () {
             let id = "{{ request()->id ?? '' }}";
+            let currentPaymentWay = null; // Store current payment way data
+            
             if (!id) {
                 $("#errorMessage").text("{{ __('messages.no_payment_way_id_provided') }}").show().fadeOut(5000);
                 return;
             }
+
+            // Load clients and products functions (same as index page)
+            function loadClients(type) {
+                $.get("{{ route('clients.list') }}", { type: type }, function (res) {
+                    if (res.status) {
+                        let clientOptions = '<option value="">{{ __('messages.select_client') }}</option>';
+                        res.data.forEach(function (client) {
+                            clientOptions +=
+                                `<option value="${client.id}">${client.name} ({{ __('messages.debt') }}: ${parseFloat(client.debt || 0).toFixed(2)})</option>`;
+                        });
+                        $('#client_id').html(clientOptions);
+                    } else {
+                        showToast('{{ __('messages.something_went_wrong') }}', 'error');
+                    }
+                });
+            }
+
+            function loadProducts() {
+                $.get("{{ route('products.list') }}", function (res) {
+                    if (res.status) {
+                        let productOptions = '<option value="">{{ __('messages.select_product') }}</option>';
+                        res.data.forEach(function (product) {
+                            productOptions +=
+                                `<option value="${product.id}">${product.name} ({{ __('messages.sale_price') }}: ${parseFloat(product.sale_price || 0).toFixed(2)}) ({{ __('messages.stock') }}: ${product.stock || 0})</option>`;
+                        });
+                        $('#product_id').html(productOptions);
+                    } else {
+                        showToast('{{ __('messages.something_went_wrong') }}', 'error');
+                    }
+                });
+            }
+
+            // Send/Receive button handlers
+            $(document).on('click', '.receiveBtn, .sendBtn', function () {
+                if (!currentPaymentWay) {
+                    showToast('{{ __('messages.payment_way_not_loaded') }}', 'error');
+                    return;
+                }
+
+                $('#receiveForm input[name="payment_way_id"], #receiveForm input[name="type"]').remove();
+                let type = $(this).hasClass('receiveBtn') ? 'receive' : 'send';
+
+                $('#receiveForm').append(`
+                    <input type="hidden" name="payment_way_id" value="${id}">
+                    <input type="hidden" name="type" value="${type}">
+                `);
+
+                let actionText = type === 'receive' ? '{{ __('messages.create_receive_transaction') }}' : '{{ __('messages.create_send_transaction') }}';
+                $('#transactionModal .modal-title').text(`${actionText} - ${currentPaymentWay.name}`);
+
+                let clientType = currentPaymentWay.client_type;
+                
+                loadProducts();
+                loadClients(clientType);
+                $('#transactionModal').modal('show');
+            });
+
+            // Transaction form submission
+            $('#receiveForm').submit(function (e) {
+                e.preventDefault();
+                let formData = new FormData(this);
+
+                $.ajax({
+                    url: "{{ route('transactions.store') }}",
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (res) {
+                        if (res.status) {
+                            $('#transactionModal').modal('hide');
+                            showToast('{{ __('messages.transaction_created_successfully') }}', 'success');
+                            $('#receiveForm')[0].reset();
+                            // Refresh the payment way data
+                            let currentDateRange = $("#dateRange").val();
+                            if (currentDateRange) {
+                                let dates = currentDateRange.split(' to ');
+                                if (dates.length === 2) {
+                                    fetchPaymentWay(dates[0], dates[1]);
+                                } else {
+                                    fetchPaymentWay(dates[0], dates[0]);
+                                }
+                            } else {
+                                fetchDay(currentDate);
+                            }
+                        } else {
+                            showToast(res.message || '{{ __('messages.something_went_wrong') }}', 'error');
+                        }
+                    },
+                    error: function (err) {
+                        console.error(err.responseText);
+                        showToast(`{{ __('messages.something_went_wrong') }}: ${err.responseJSON?.message || err.responseText}`, 'error');
+                    }
+                });
+            });
 
             let currentDate = new Date();
             let dateRangePicker = $("#dateRange").flatpickr({
@@ -273,6 +385,9 @@
             function renderPaymentWay(res) {
                 let data = res.data;
                 let statistics = res.statistics || {};
+                
+                // Store current payment way data for send/receive functionality
+                currentPaymentWay = data;
 
                 if (data.type === 'wallet') {
                     $('.wallet-only').show();
