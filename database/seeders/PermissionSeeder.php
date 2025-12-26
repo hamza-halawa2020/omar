@@ -48,6 +48,7 @@ class PermissionSeeder extends Seeder
             'transactions_index',
             'transactions_store',
             'transactions_show',
+            'transactions_update',
 
             'transaction_logs_index',
 
