@@ -59,6 +59,7 @@ return [
     'transaction_created_successfully' => 'تم انشاء المعاملة بنجاح',
     'transaction_updated_successfully' => 'تم تحديث المعاملة بنجاح',
     'transaction_fetched_successfully' => 'تم جلب المعاملة بنجاح',
+    'no_changes_detected' => 'لم يتم اكتشاف أي تغييرات في البيانات',
     'edit_transaction' => 'تعديل المعاملة',
     'transaction_logs' => 'سجلات المعاملة',
     'view_logs' => 'عرض السجلات',

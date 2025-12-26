@@ -170,7 +170,7 @@ class TransactionController extends BaseController
 
     public function show($id)
     {
-        $transaction = Transaction::with(['paymentWay', 'client', 'creator', 'logs'])->findOrFail($id);
+        $transaction = Transaction::with(['paymentWay', 'client', 'product', 'creator', 'logs'])->findOrFail($id);
 
         return response()->json(['status' => true, 'message' => __('messages.transaction_fetched_successfully'), 'data' => new TransactionResource($transaction)]);
     }

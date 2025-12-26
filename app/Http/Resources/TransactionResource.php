@@ -18,6 +18,10 @@ class TransactionResource extends JsonResource
             'attachment' => $this->attachment,
             'balance_before_transaction' => round($this->balance_before_transaction),
             'balance_after_transaction' => round($this->balance_after_transaction),
+            'client_id' => $this->client_id,
+            'product_id' => $this->product_id,
+            'payment_way_id' => $this->payment_way_id,
+            'quantity' => $this->quantity,
             'paymentWay' => new PaymentWayResource($this->whenLoaded('paymentWay')),
             'creator' => new UserResource($this->creator),
             'logs' => TransactionLogResource::collection($this->whenLoaded('logs')),
@@ -25,7 +29,6 @@ class TransactionResource extends JsonResource
             'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
             'client' => new ClientResource($this->whenLoaded('client')),
             'product' => new ProductResource($this->whenLoaded('product')),
-            'client_id' => $this->client_id,
             // 'installmentPayment' => new InstallmentPaymentResource($this->whenLoaded('installmentPayment')),
             'installmentPayment' => InstallmentPaymentResource::collection($this->whenLoaded('installmentPayment')),
 

@@ -103,12 +103,12 @@ class PaymentWayController extends BaseController
 
     public function showList($id)
     {
-        $paymentWay = PaymentWay::with(['category', 'subCategory', 'creator', 'transactions.client',  'transactions.installmentPayment', 'logs', 'monthlyLimits'])->findOrFail($id);
+        $paymentWay = PaymentWay::with(['category', 'subCategory', 'creator', 'transactions.client', 'transactions.product', 'transactions.installmentPayment', 'logs', 'monthlyLimits'])->findOrFail($id);
 
         $timeFilter = request('time', 'today');
         $startDate = request('start_date');
         $endDate = request('end_date');
-        $transactions = $paymentWay->transactions()->with(['client', 'installmentPayment']);
+        $transactions = $paymentWay->transactions()->with(['client', 'product', 'installmentPayment']);
         try {
             if ($timeFilter === 'custom' && $startDate && $endDate) {
                 $start = Carbon::parse($startDate)->startOfDay();
