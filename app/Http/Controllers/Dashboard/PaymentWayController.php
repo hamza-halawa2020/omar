@@ -42,7 +42,7 @@ class PaymentWayController extends BaseController
 
     public function list()
     {
-        $paymentWays = PaymentWay::with(['category', 'subCategory', 'creator', 'logs', 'monthlyLimits'])
+        $paymentWays = PaymentWay::with(['category', 'subCategory', 'creator', 'monthlyLimits'])
             ->orderBy('position', 'asc')
             ->get();
 
