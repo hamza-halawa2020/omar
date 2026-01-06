@@ -23,6 +23,16 @@
                     </a>
                 </li>
             @endcan
+            
+            @can('transactions_index')
+                <li>
+                    <a href="{{ route('transactions.index') }}"
+                        class="d-flex align-items-center gap-2 {{ Route::is('transactions.*') ? 'active-page' : '' }}">
+                        <iconify-icon icon="mdi:finance" class="menu-icon"></iconify-icon>
+                        <span>{{ __('messages.transactions_list') }}</span>
+                    </a>
+                </li>
+            @endcan
 
             @can('payment_ways_index')
                 <li>
@@ -123,9 +133,6 @@
                     </ul>
                 </li>
             @endcan
-
-           
-
 
             @canany(['users_index', 'roles_index'])
                 <li class="dropdown">

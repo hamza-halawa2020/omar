@@ -17,11 +17,26 @@ class TransactionController extends BaseController
 {
     public function __construct()
     {
-        $this->middleware('check.permission:transactions_index')->only('list');
+        $this->middleware('check.permission:transactions_index')->only(['list', 'index']);
         $this->middleware('check.permission:transactions_store')->only('store');
         $this->middleware('check.permission:transactions_show')->only('show');
         $this->middleware('check.permission:transactions_update')->only('update');
     }
+
+    public function index()
+    {
+        $fromDate = request('from_date', now()->isoFormat('YYYY-MM-DD'));
+        $toDate = request('to_date', now()->isoFormat('YYYY-MM-DD'));
+
+        $transactions = Transaction::with(['paymentWay', 'client', 'creator', 'logs'])
+            ->whereDate('created_at', '>=', $fromDate)
+            ->whereDate('created_at', '<=', $toDate)
+            ->latest()
+            ->paginate(50);
+
+        return view('dashboard.transactions.index', compact('transactions', 'fromDate', 'toDate'));
+    }
+
 
     public function list()
     {
