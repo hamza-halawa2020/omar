@@ -21,6 +21,8 @@ return [
     'reset' => 'إعادة تعيين',
     'filter' => 'تصفية',
     'show' => 'عرض',
+    'search' => 'بحث',
+    'no_data_found' => 'لا توجد بيانات',
     'transactions_list' => 'قائمة المعاملات',
     'client_type' => 'نوع العميل',
     'updated_successfully' => 'تم التحديث بنجاح',

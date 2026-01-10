@@ -25,9 +25,17 @@ class ProductController extends BaseController
         return view('dashboard.products.index');
     }
 
-    public function list()
+    public function list(\Illuminate\Http\Request $request)
     {
-        $products = Product::with(['creator'])->get();
+        $products = Product::with(['creator'])
+            ->when($request->search, function ($q) use ($request) {
+                $q->where(function ($query) use ($request) {
+                    $query->where('name', 'like', '%' . $request->search . '%')
+                        ->orWhere('code', 'like', '%' . $request->search . '%')
+                        ->orWhere('stock', 'like', '%' . $request->search . '%');
+                });
+            })
+            ->get();
 
         return response()->json(['status' => true, 'message' => __('messages.products_fetched_successfully'), 'data' => ProductResource::collection($products)]);
     }

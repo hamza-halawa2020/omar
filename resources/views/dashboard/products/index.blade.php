@@ -12,6 +12,17 @@
             @endcan
         </div>
 
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label>{{ __('messages.search') }}</label>
+                        <input type="text" id="searchInput" class="form-control mt-1" placeholder="{{ __('messages.search') }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div style="overflow: auto">
             <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0" id="productsTable">
                 <thead>
@@ -50,8 +61,16 @@
         $(document).ready(function() {
             loadproducts();
 
+            $('#searchInput').on('keyup', function() {
+                loadproducts();
+            });
+
             function loadproducts() {
-                $.get("{{ route('products.list') }}", function(res) {
+                let search = $('#searchInput').val();
+
+                $.get("{{ route('products.list') }}", {
+                    search: search
+                }, function(res) {
                     if (res.status) {
                         let rows = '';
                         let parentOptions = '<option value="">{{ __('messages.none') }}</option>';
