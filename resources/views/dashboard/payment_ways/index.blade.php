@@ -451,14 +451,25 @@
             function loadStats(data) {
                 let totalBalance = 0;
                 let totalWallets = 0;
+                let walletBalance = 0;
                 let totalCash = 0;
+                let cashBalance = 0;
                 let totalMachines = 0;
+                let machineBalance = 0;
 
                 data.forEach(way => {
-                    totalBalance += parseFloat(way.balance || 0);
-                    if (way.type === 'wallet') totalWallets++;
-                    else if (way.type === 'cash') totalCash++;
-                    else if (way.type === 'balance_machine') totalMachines++;
+                    let balance = parseFloat(way.balance || 0);
+                    totalBalance += balance;
+                    if (way.type === 'wallet') {
+                        totalWallets++;
+                        walletBalance += balance;
+                    } else if (way.type === 'cash') {
+                        totalCash++;
+                        cashBalance += balance;
+                    } else if (way.type === 'balance_machine') {
+                        totalMachines++;
+                        machineBalance += balance;
+                    }
                 });
 
                 let statsHtml = `
@@ -483,7 +494,7 @@
                                 <div class="d-flex align-items-center">
                                     <div class="flex-grow-1">
                                         <h6 class="mb-1 opacity-75">{{ __('messages.electronic_wallets') }}</h6>
-                                        <div class="mb-0 fw-bold">${totalWallets}</div>
+                                        <div class="mb-0 fw-bold">${totalWallets} <span class="text-success ms-1">(${walletBalance.toFixed(2)})</span></div>
                                     </div>
                                     <div class="ms-3">
                                         <i class="fas fa-wallet fa-2x opacity-75"></i>
@@ -498,7 +509,7 @@
                                 <div class="d-flex align-items-center">
                                     <div class="flex-grow-1">
                                         <h6 class="mb-1 opacity-75">{{ __('messages.cash_methods') }}</h6>
-                                        <div class="mb-0 fw-bold">${totalCash}</div>
+                                        <div class="mb-0 fw-bold">${totalCash} <span class="text-success ms-1">(${cashBalance.toFixed(2)})</span></div>
                                     </div>
                                     <div class="ms-3">
                                         <i class="fas fa-money-bill-wave fa-2x opacity-75"></i>
@@ -513,7 +524,7 @@
                                 <div class="d-flex align-items-center">
                                     <div class="flex-grow-1">
                                         <h6 class="mb-1 opacity-75">{{ __('messages.balance_machines') }}</h6>
-                                        <div class="mb-0 fw-bold">${totalMachines}</div>
+                                        <div class="mb-0 fw-bold">${totalMachines} <span class="text-success ms-1">(${machineBalance.toFixed(2)})</span></div>
                                     </div>
                                     <div class="ms-3">
                                         <i class="fas fa-credit-card fa-2x opacity-75"></i>
