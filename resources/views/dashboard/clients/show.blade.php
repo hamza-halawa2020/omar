@@ -80,13 +80,15 @@
             <div class="card-header  d-flex justify-content-between align-items-center">
                 <div class="mb-0">{{ __('messages.transactions') }}</div>
             </div>
-            <div class="card-body">
+            <div class="card-body" style="overflow-x: auto;">
                 <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
                     <thead>
                         <tr>
                             <th class="text-center">{{ __('messages.id') }}</th>
                             <th class="text-center">{{ __('messages.type') }}</th>
                             <th class="text-center">{{ __('messages.amount') }}</th>
+                            <th class="text-center">{{ __('messages.debt_before') }}</th>
+                            <th class="text-center">{{ __('messages.debt_after') }}</th>
                             <th class="text-center">{{ __('messages.notes') }}</th>
                             <th class="text-center">{{ __('messages.commission') }}</th>
                             <th class="text-center">{{ __('messages.payment_way') }}</th>
@@ -101,9 +103,34 @@
         </div>
 
 
-        <!-- Contracts & Installments -->
         <div class="accordion mt-3" id="contractsAccordion">
             {{-- dynamic --}}
+        </div>
+
+        <!-- Debt History Card -->
+        <div class="card shadow-sm rounded-3 border-0 mt-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="mb-0">{{ __('messages.debt_history') }}</div>
+            </div>
+            <div class="card-body"  style="overflow-x: auto;">
+                <table class="text-center table table-bordered table-sm bordered-table sm-table mb-0">
+                    <thead>
+                        <tr>
+                            <th class="text-center">{{ __('messages.id') }}</th>
+                            <th class="text-center">{{ __('messages.debt_before') }}</th>
+                            <th class="text-center">{{ __('messages.change_amount') }}</th>
+                            <th class="text-center">{{ __('messages.debt_after') }}</th>
+                            <th class="text-center">{{ __('messages.description') }}</th>
+                            <th class="text-center">{{ __('messages.source') }}</th>
+                            <th class="text-center">{{ __('messages.created_by') }}</th>
+                            <th class="text-center">{{ __('messages.created_at') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody id="debtLogsTable">
+                        {{-- Data via AJAX --}}
+                    </tbody>
+                </table>
+            </div>
         </div>
 
     </div>
@@ -179,6 +206,8 @@
                                     <td>${index +1}</td>
                                     <td class="${transaction.type === 'send' ? 'text-danger' : 'text-success'}">${status[transaction.type]}</td>
                                     <td>${parseFloat(transaction.amount)}</td>
+                                    <td>${transaction.debt_before !== null ? parseFloat(transaction.debt_before).toFixed(2) : '-'}</td>
+                                    <td>${transaction.debt_after !== null ? parseFloat(transaction.debt_after).toFixed(2) : '-'}</td>
                                     <td>${transaction.notes}</td>
                                     <td>${parseFloat(transaction.commission || 0)}</td>
                                     <td>${transaction.paymentWay ? transaction.paymentWay.name : '{{ __('messages.unknown') }}'}</td>
@@ -287,6 +316,38 @@
                         });
 
                         $('#contractsAccordion').html(contractsAccordion);
+
+                        // Update Debt Logs
+                        let debtLogsHtml = '';
+                        if (client.debt_logs && client.debt_logs.length > 0) {
+                            client.debt_logs.forEach(function(log) {
+                                let changeClass = log.change_amount > 0 ? 'text-danger' : 'text-success'; // Debt increase is bad (red), decrease is good (green) for client view? Or standard accounting?
+                                // Usually debt increase = you owe more = red. decrease = you paid = green.
+                                // Actually, if I lend money: debt increases for them.
+                                // Let's simplify:
+                                
+                                let sourceType = '{{ __('messages.manual') }}';
+                                if (log.source_type && log.source_type.includes('Transaction')) sourceType = '{{ __('messages.transaction') }}';
+                                else if (log.source_type && log.source_type.includes('InstallmentContract')) sourceType = '{{ __('messages.installment_contract') }}';
+                                else if (log.source_type) sourceType = log.source_type.split('\\').pop();
+
+                                debtLogsHtml += `
+                                    <tr>
+                                        <td>${log.id}</td>
+                                        <td>${parseFloat(log.debt_before).toFixed(2)}</td>
+                                        <td class="${parseFloat(log.change_amount) > 0 ? 'text-danger' : 'text-success'}">${parseFloat(log.change_amount).toFixed(2)}</td>
+                                        <td>${parseFloat(log.debt_after).toFixed(2)}</td>
+                                        <td>${log.description || '-'}</td>
+                                        <td>${sourceType} #${log.source_id || ''}</td>
+                                        <td>${log.creator ? log.creator.name : '-'}</td>
+                                        <td>${log.created_at}</td>
+                                    </tr>
+                                `;
+                            });
+                        } else {
+                            debtLogsHtml = `<tr><td colspan="8">{{ __('messages.no_records_found') }}</td></tr>`;
+                        }
+                        $('#debtLogsTable').html(debtLogsHtml);
 
 
                     } else {

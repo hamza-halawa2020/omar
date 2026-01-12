@@ -125,6 +125,8 @@ class TransactionController extends BaseController
                 }
 
                 if ($client && ! $product) {
+                    $client->source_model = $transaction;
+                    $client->log_description = __('messages.transaction_created_successfully');
                     $client->increment('debt', $data['amount']);
                 }
 
@@ -138,6 +140,8 @@ class TransactionController extends BaseController
                     $product->decrement('stock', $quantity);
                 }
                 if ($client && ! $product) {
+                    $client->source_model = $transaction;
+                    $client->log_description = __('messages.transaction_created_successfully');
                     $client->decrement('debt', $data['amount']);
                 }
 
@@ -317,6 +321,8 @@ class TransactionController extends BaseController
                 $product->decrement('stock', $quantity);
             }
             if ($client && !$product) {
+                $client->source_model = $transaction;
+                $client->log_description = __('messages.transaction_reversal');
                 $client->decrement('debt', $transaction->amount);
             }
             $paymentWay->increment('balance', $total);
@@ -337,6 +343,8 @@ class TransactionController extends BaseController
                 $product->increment('stock', $quantity);
             }
             if ($client && !$product) {
+                $client->source_model = $transaction;
+                $client->log_description = __('messages.transaction_reversal');
                 $client->increment('debt', $transaction->amount);
             }
             $paymentWay->decrement('balance', $total);
@@ -361,6 +369,8 @@ class TransactionController extends BaseController
                 $product->increment('stock', $quantity);
             }
             if ($client && !$product) {
+                $client->source_model = $transaction;
+                $client->log_description = __('messages.transaction_updated_successfully');
                 $client->increment('debt', $transaction->amount);
             }
             $paymentWay->decrement('balance', $total);
@@ -388,6 +398,8 @@ class TransactionController extends BaseController
                 $product->decrement('stock', $quantity);
             }
             if ($client && !$product) {
+                $client->source_model = $transaction;
+                $client->log_description = __('messages.transaction_updated_successfully');
                 $client->decrement('debt', $transaction->amount);
             }
             $paymentWay->increment('balance', $total);

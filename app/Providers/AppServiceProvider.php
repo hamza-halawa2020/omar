@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
 use League\Flysystem\Filesystem;
 use Masbug\Flysystem\GoogleDriveAdapter;
-
+use App\Observers\ClientObserver;
+use App\Models\Client as ClientModel;
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -26,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        ClientModel::observe(ClientObserver::class);
 
         $this->loadGoogleStorageDriver();
     }

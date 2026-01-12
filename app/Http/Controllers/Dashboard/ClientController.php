@@ -178,7 +178,7 @@ class ClientController extends BaseController
 
     public function showPage($id)
     {
-        $client = Client::with(['creator', 'transactions.paymentWay', 'installmentContracts.installments.payments'])->findOrFail($id);
+        $client = Client::with(['creator', 'transactions.paymentWay', 'transactions.debtLog', 'installmentContracts.installments.payments', 'debtLogs.source', 'debtLogs.creator'])->findOrFail($id);
         $paymentWays = PaymentWay::all();
 
         if (request()->expectsJson()) {
@@ -205,6 +205,7 @@ class ClientController extends BaseController
             return response()->json(['status' => false, 'message' => __('messages.cannot_update_client_with_transactions')], 400);
         }
 
+        $client->log_description = __('messages.manual_update');
         $client->update($data);
 
         // event(new CreateBackup);

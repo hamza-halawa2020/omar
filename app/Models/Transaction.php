@@ -62,4 +62,9 @@ class Transaction extends Model
     {
         return $this->hasMany(AssociationMember::class, 'transaction_id');
     }
+
+    public function debtLog()
+    {
+        return $this->morphOne(ClientDebtLog::class, 'source');
+    }
 }

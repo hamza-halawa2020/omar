@@ -57,4 +57,9 @@ class Client extends Model
         return $this->hasMany(AssociationMember::class, 'client_id');
     }
 
+    public function debtLogs()
+    {
+        return $this->hasMany(ClientDebtLog::class, 'client_id')->latest();
+    }
+
 }

@@ -24,6 +24,7 @@ class ClientResource extends JsonResource
             'creator' => new UserResource($this->whenLoaded('creator')),
             'transactions' => TransactionResource::collection($this->whenLoaded('transactions')),
             'installment_contracts' => InstallmentContractResource::collection($this->whenLoaded('installmentContracts')),
+            'debt_logs' => $this->whenLoaded('debtLogs'),
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
         ];

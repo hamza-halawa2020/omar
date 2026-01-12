@@ -78,6 +78,8 @@ class InstallmentContractController extends BaseController
         ]);
 
         $client = Client::find($data['client_id']);
+        $client->source_model = $contract;
+        $client->log_description = __('messages.Installment_contract_created_successfully');
         $client->increment('debt', $totalAmount);
 
         $startDate = Carbon::parse($data['start_date']);
@@ -174,6 +176,8 @@ class InstallmentContractController extends BaseController
             }
 
             $client = Client::find($data['client_id']);
+            $client->source_model = $contract;
+            $client->log_description = __('messages.installment_contract_updated_successfully');
             $client->decrement('debt', $oldTotal);
             $client->increment('debt', $totalAmount);
 
@@ -241,6 +245,8 @@ class InstallmentContractController extends BaseController
             $installment->save();
 
             if ($client) {
+                $client->source_model = $transaction;
+                $client->log_description = __('messages.installment_paid_successfully');
                 $client->decrement('debt', $data['amount']);
             }
 

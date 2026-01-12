@@ -18,6 +18,8 @@ class TransactionResource extends JsonResource
             'attachment' => $this->attachment,
             'balance_before_transaction' => round($this->balance_before_transaction),
             'balance_after_transaction' => round($this->balance_after_transaction),
+            'debt_before' => $this->debtLog ? $this->debtLog->debt_before : null,
+            'debt_after' => $this->debtLog ? $this->debtLog->debt_after : null,
             'client_id' => $this->client_id,
             'product_id' => $this->product_id,
             'payment_way_id' => $this->payment_way_id,
