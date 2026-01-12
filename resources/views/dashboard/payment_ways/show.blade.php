@@ -1,156 +1,256 @@
 @extends('dashboard.layouts.app')
 
 @section('content')
-    <div class="container py-3">
-        <div class="fw-bold mb-3 text-primary">{{ __('messages.payment_ay_ashboard') }}</div>
+    <div class="container-fluid px-3 py-3">
+        <!-- Header -->
+        <div class="mb-3">
+            <div class="div fw-bold mb-1">
+                <i class="fas fa-credit-card me-2 text-primary"></i>
+                {{ __('messages.payment_ay_ashboard') }}
+            </div>
+            <p class=" mb-0">{{ __('messages.manage_transactions_and_limits') }}</p>
+        </div>
 
-        <!-- Summary Cards -->
-        <div class="container">
-            <div class="d-flex justify-content-between gap-1 fs-5">
-                <div class="">
-                    <div class="card shadow-sm text-center border-0">
-                        <div class="card-body">
-                            <div class="fw-bold">{{ __('messages.current_balance') }}</div>
-                            <div id="paymentWayBalance" class="fw-bold badge bg-success">0</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="">
-                    <div class="card shadow-sm text-center border-0">
-                        <div class="card-body">
-                            <div class="fw-bold">{{ __('messages.total_transactions') }}</div>
-                            <div id="paymentWayTransactions" class="fw-bold badge bg-success">0</div>
-                        </div>
-                    </div>
-                </div>
-                <div class=" wallet-only" style="display: none;">
-                    <div class="card shadow-sm text-center border-0">
-                        <div class="card-body">
-                            <div class="fw-bold">{{ __('messages.receive_limit') }}</div>
-                            <div id="paymentWayReceiveLimit" class="fw-bold badge bg-primary">0</div>
-                            <div class="mt-2">
-                                <span class="fw-bold">{{ __('messages.used') }}: </span>
-                                <span id="paymentWayReceiveUsed" class="badge bg-danger">0</span>
-                            </div>
+        <!-- Summary Cards Grid -->
+        <div class="row g-3 mb-3">
+            <!-- Current Balance -->
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="card border-0 shadow-sm rounded-3 h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <span class="fw-bold">{{ __('messages.remaining') }}: </span>
-                                <span id="paymentWayReceiveRemaining" class="badge bg-success">0</span>
+                                <p class=" small mb-2">{{ __('messages.current_balance') }}</p>
+                                <div class="fw-bold mb-0" id="paymentWayBalance">0</div>
                             </div>
+                            <i class="fas fa-wallet fa-2x text-primary opacity-25"></i>
                         </div>
                     </div>
                 </div>
-                <div class=" wallet-only" style="display: none;">
-                    <div class="card shadow-sm text-center border-0">
-                        <div class="card-body">
-                            <div class="fw-bold">{{ __('messages.send_limit') }}</div>
-                            <div id="paymentWaySendLimit" class="fw-bold badge bg-primary">0</div>
-                            <div class="mt-2">
-                                <span class="fw-bold">{{ __('messages.used') }}: </span>
-                                <span id="paymentWaySendUsed" class="badge bg-danger">0</span>
-                            </div>
+            </div>
+
+            <!-- Total Transactions -->
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="card border-0 shadow-sm rounded-3 h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <span class="fw-bold">{{ __('messages.remaining') }}: </span>
-                                <span id="paymentWaySendRemaining" class="badge bg-success">0</span>
+                                <p class=" small mb-2">{{ __('messages.total_transactions') }}</p>
+                                <div class="fw-bold mb-0" id="paymentWayTransactions">0</div>
+                            </div>
+                            <i class="fas fa-exchange-alt fa-2x text-info opacity-25"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Receive Stats -->
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="card border-0 shadow-sm rounded-3 h-100">
+                    <div class="card-body">
+                        <p class=" small mb-3">{{ __('messages.received') }}</p>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="small">{{ __('messages.amount') }}</span>
+                                <span class="fw-bold text-success" id="receive_amount">0</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="small">{{ __('messages.commission') }}</span>
+                                <span class="fw-bold text-warning" id="receive_commission">0</span>
+                            </div>
+                        </div>
+                        <div class="border-top pt-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="small fw-semibold">{{ __('messages.total') }}</span>
+                                <span class="fw-bold text-primary" id="receive_total">0</span>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="">
-                    <div class="card shadow-sm text-center border-0">
-                        <div class="card-body">
-                            <div>
-                                <div>
-                                    <span class="fw-bold">{{ __('messages.received') }}</span>
-                                    <span id="receive_amount" class="fw-bold badge bg-success">0</span>
-                                </div>
-                                <div>
-                                    <span class="fw-bold">{{ __('messages.commission') }}</span>
-                                    <span id="receive_commission" class="fw-bold badge bg-warning">0</span>
-                                </div>
-                                <div>
-                                    <span class="fw-bold">{{ __('messages.total') }}</span>
-                                    <span id="receive_total" class="fw-bold badge bg-primary">0</span>
-                                </div>
+            </div>
+
+            <!-- Send Stats -->
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="card border-0 shadow-sm rounded-3 h-100">
+                    <div class="card-body">
+                        <p class=" small mb-3">{{ __('messages.sent') }}</p>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="small">{{ __('messages.amount') }}</span>
+                                <span class="fw-bold text-success" id="send_amount">0</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="small">{{ __('messages.commission') }}</span>
+                                <span class="fw-bold text-warning" id="send_commission">0</span>
                             </div>
                         </div>
-                    </div>
-                </div>
-                <div class="">
-                    <div class="card shadow-sm text-center border-0">
-                        <div class="card-body">
-                            <div>
-                                <div>
-                                    <span class="fw-bold">{{ __('messages.sent') }}</span>
-                                    <span id="send_amount" class="fw-bold badge bg-success">0</span>
-                                </div>
-                                <div>
-                                    <span class="fw-bold">{{ __('messages.commission') }}</span>
-                                    <span id="send_commission" class="fw-bold badge bg-warning">0</span>
-                                </div>
-                                <div>
-                                    <span class="fw-bold">{{ __('messages.total') }}</span>
-                                    <span id="send_total" class="fw-bold badge bg-primary">0</span>
-                                </div>
+                        <div class="border-top pt-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="small fw-semibold">{{ __('messages.total') }}</span>
+                                <span class="fw-bold text-primary" id="send_total">0</span>
                             </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="">
-                    <div class="card shadow-sm text-center border-0">
-                        <div class="card-body">
-                            <div class="fw-bold">{{ __('messages.grand_net') }}</div>
-                            <div id="grandNet" class="fw-bold badge bg-primary">0</div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- Send/Receive Buttons -->
+
+        <!-- Wallet Limits (shown only for wallet type) -->
+        <div class="row g-3 mb-3 wallet-only" style="display: none;">
+            <!-- Receive Limit -->
+            <div class="col-12 col-lg-6">
+                <div class="card border-0 shadow-sm rounded-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                            <div class="fw-bold mb-0">
+                                <i class="fas fa-arrow-down me-2 text-success"></i>
+                                {{ __('messages.receive_limit') }}
+                            </div>
+                            <span class="badge bg-primary" id="paymentWayReceiveLimit">0</span>
+                        </div>
+                        <div class="progress rounded-pill mb-3" style="height: 8px;">
+                            <div class="progress-bar bg-success" id="receiveProgressBar" role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <div class="row text-center g-2">
+                            <div class="col-6">
+                                <small class="">{{ __('messages.used') }}</small>
+                                <p class="fw-bold mb-0" id="paymentWayReceiveUsed">0</p>
+                            </div>
+                            <div class="col-6">
+                                <small class="">{{ __('messages.remaining') }}</small>
+                                <p class="fw-bold mb-0 text-success" id="paymentWayReceiveRemaining">0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Send Limit -->
+            <div class="col-12 col-lg-6">
+                <div class="card border-0 shadow-sm rounded-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                            <div class="fw-bold mb-0">
+                                <i class="fas fa-arrow-up me-2 text-primary"></i>
+                                {{ __('messages.send_limit') }}
+                            </div>
+                            <span class="badge bg-primary" id="paymentWaySendLimit">0</span>
+                        </div>
+                        <div class="progress rounded-pill mb-3" style="height: 8px;">
+                            <div class="progress-bar bg-primary" id="sendProgressBar" role="progressbar" style="width: 0%"></div>
+                        </div>
+                        <div class="row text-center g-2">
+                            <div class="col-6">
+                                <small class="">{{ __('messages.used') }}</small>
+                                <p class="fw-bold mb-0" id="paymentWaySendUsed">0</p>
+                            </div>
+                            <div class="col-6">
+                                <small class="">{{ __('messages.remaining') }}</small>
+                                <p class="fw-bold mb-0 text-success" id="paymentWaySendRemaining">0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Grand Net Summary -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm rounded-3 bg-gradient">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class=" small mb-1 fs-5">{{ __('messages.grand_net') }}</p>
+                                <div class="fw-bold mb-0" id="grandNet">0</div>
+                            </div>
+                            <i class="fas fa-chart-line fa-3x text-primary opacity-25"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
         @can('transactions_store')
-            <div class="d-flex justify-content-center gap-3 my-3">
-                <button class="btn btn-success btn-lg receiveBtn" id="receiveBtn" style="min-width: 150px;">
-                    <i class="fas fa-arrow-down me-2"></i> {{ __('messages.receive') }}
+            <div class="d-flex justify-content-center gap-2 gap-md-3 mb-3 flex-wrap">
+                <button class="btn btn-success rounded-pill px-3 px-md-5 receiveBtn shadow-sm" id="receiveBtn">
+                    <i class="fas fa-arrow-down me-2"></i>
+                    <span class="d-none d-sm-inline">{{ __('messages.receive') }}</span>
+                    <span class="d-sm-none">{{ __('messages.receive') }}</span>
                 </button>
-                <button class="btn btn-primary btn-lg sendBtn" id="sendBtn" style="min-width: 150px;">
-                    <i class="fas fa-arrow-up me-2"></i> {{ __('messages.send') }}
+                <button class="btn btn-primary rounded-pill px-3 px-md-5 sendBtn shadow-sm" id="sendBtn">
+                    <i class="fas fa-arrow-up me-2"></i>
+                    <span class="d-none d-sm-inline">{{ __('messages.send') }}</span>
+                    <span class="d-sm-none">{{ __('messages.send') }}</span>
                 </button>
             </div>
         @endcan
 
         <!-- Tabs -->
-        <ul class="nav nav-tabs mb-3" id="paymentTabs">
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="tab" href="#details">{{ __('messages.details') }}</a>
+        <ul class="nav nav-tabs border-bottom mb-3" id="paymentTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="details-tab" data-bs-toggle="tab" data-bs-target="#details" type="button" role="tab">
+                    <i class="fas fa-info-circle me-2"></i>
+                    {{ __('messages.details') }}
+                </button>
             </li>
-            <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="tab" href="#transactions">{{ __('messages.transactions') }}</a>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="transactions-tab" data-bs-toggle="tab" data-bs-target="#transactions" type="button" role="tab">
+                    <i class="fas fa-list me-2"></i>
+                    {{ __('messages.transactions') }}
+                </button>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="tab" href="#logs">{{ __('messages.changes') }}</a>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="logs-tab" data-bs-toggle="tab" data-bs-target="#logs" type="button" role="tab">
+                    <i class="fas fa-history me-2"></i>
+                    {{ __('messages.changes') }}
+                </button>
             </li>
         </ul>
 
         <div class="tab-content">
             <!-- Details Tab -->
-            <div class="tab-pane fade" id="details">
-                <div class="card shadow-sm p-3 border-0">
-                    <div class="card-title mb-3 text-primary">{{ __('messages.payment_way_information') }}</div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <p><strong>{{ __('messages.name') }}: </strong> <span id="paymentWayName" class=""></span></p>
-                            <p><strong>{{ __('messages.phone_number') }}: </strong> <span id="paymentWayPhone"
-                                    class=""></span></p>
-                            <p><strong>{{ __('messages.category') }}: </strong> <span id="paymentWayCategory"
-                                    class=""></span></p>
-                            <p><strong>{{ __('messages.sub_category') }}: </strong> <span id="paymentWaySubCategory"
-                                    class=""></span></p>
+            <div class="tab-pane fade" id="details" role="tabpanel">
+                <div class="card border-0 shadow-sm rounded-3">
+                    <div class="card-body">
+                        <div class="fw-bold mb-3">
+                            <i class="fas fa-info-circle me-2 text-primary"></i>
+                            {{ __('messages.payment_way_information') }}
                         </div>
-                        <div class="col-md-6">
-                            <p><strong>{{ __('messages.type') }}: </strong> <span id="paymentWayType" class=""></span></p>
-                            <p><strong>{{ __('messages.created_by') }}: </strong> <span id="paymentWayCreator"
-                                    class=""></span></p>
-                            <p><strong>{{ __('messages.created_at') }}: </strong> <span id="paymentWayCreatedAt"
-                                    class=""></span></p>
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <div class="mb-3">
+                                    <label class=" small d-block mb-1">{{ __('messages.name') }}</label>
+                                    <p class="fw-semibold mb-0" id="paymentWayName">-</p>
+                                </div>
+                                <div class="mb-3">
+                                    <label class=" small d-block mb-1">{{ __('messages.phone_number') }}</label>
+                                    <p class="fw-semibold mb-0" id="paymentWayPhone">-</p>
+                                </div>
+                                <div class="mb-3">
+                                    <label class=" small d-block mb-1">{{ __('messages.category') }}</label>
+                                    <p class="fw-semibold mb-0" id="paymentWayCategory">-</p>
+                                </div>
+                                <div class="mb-3">
+                                    <label class=" small d-block mb-1">{{ __('messages.sub_category') }}</label>
+                                    <p class="fw-semibold mb-0" id="paymentWaySubCategory">-</p>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <div class="mb-3">
+                                    <label class=" small d-block mb-1">{{ __('messages.type') }}</label>
+                                    <p class="fw-semibold mb-0" id="paymentWayType">-</p>
+                                </div>
+                                <div class="mb-3">
+                                    <label class=" small d-block mb-1">{{ __('messages.created_by') }}</label>
+                                    <p class="fw-semibold mb-0" id="paymentWayCreator">-</p>
+                                </div>
+                                <div class="mb-3">
+                                    <label class=" small d-block mb-1">{{ __('messages.created_at') }}</label>
+                                    <p class="fw-semibold mb-0" id="paymentWayCreatedAt">-</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -172,44 +272,50 @@
                         <button id="prevDay" class="btn btn-outline-primary">&larr;</button>
                     </div>
                 </div>
+
+                <!-- Transactions Table -->
                 <div class="" style="overflow: auto">
                     <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
-                        <thead class="">
-                            <tr>
-                                <th class="text-center">{{ __('messages.actions') }}</th>
-                                <th class="text-center">{{ __('messages.type') }}</th>
-                                <th class="text-center">{{ __('messages.amount') }}</th>
-                                <th class="text-center">{{ __('messages.commission') }}</th>
-                                <th class="text-center">{{ __('messages.client') }}</th>
-                                <th class="text-center">{{ __('messages.balance_before_transaction') }}</th>
-                                <th class="text-center">{{ __('messages.balance_after_transaction') }}</th>
-                                <th class="text-center">{{ __('messages.created_at') }}</th>
-                                <th class="text-center">{{ __('messages.creator') }}</th>
-                                <th class="text-center">{{ __('messages.notes') }}</th>
-                                <th class="text-center">{{ __('messages.attachment') }}</th>
-
-
-                            </tr>
-                        </thead>
-                        <tbody id="transactionsTableBody"></tbody>
-                    </table>
+                            <thead class="">
+                                <tr>
+                                    <th class="text-center">{{ __('messages.actions') }}</th>
+                                    <th class="text-center">{{ __('messages.type') }}</th>
+                                    <th class="text-center">{{ __('messages.amount') }}</th>
+                                    <th class="text-center">{{ __('messages.commission') }}</th>
+                                    <th class="text-center">{{ __('messages.client') }}</th>
+                                    <th class="text-center">{{ __('messages.balance_before_transaction') }}</th>
+                                    <th class="text-center">{{ __('messages.balance_after_transaction') }}</th>
+                                    <th class="text-center">{{ __('messages.created_at') }}</th>
+                                    <th class="text-center">{{ __('messages.creator') }}</th>
+                                    <th class="text-center">{{ __('messages.notes') }}</th>
+                                    <th class="text-center">{{ __('messages.attachment') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactionsTableBody"></tbody>
+                        </table>
                 </div>
             </div>
 
             <!-- Logs Tab -->
-            <div class="tab-pane fade" id="logs">
-                <div class="card shadow-sm p-3 border-0">
-                    <div class="card-title mb-3 text-primary">{{ __('messages.activity_logs') }}</div>
-                    <ul class="list-group list-group-flush" id="logsTimeline"></ul>
+            <div class="tab-pane fade" id="logs" role="tabpanel">
+                <div class="card border-0 shadow-sm rounded-3">
+                    <div class="card-body">
+                        <div class="fw-bold mb-3">
+                            <i class="fas fa-history me-2 text-primary"></i>
+                            {{ __('messages.activity_logs') }}
+                        </div>
+                        <div id="logsTimeline"></div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Loader -->
-        <div id="loader" class="text-center my-5" style="display: none;">
-            <div class="spinner-border text-primary" role="status">
+        <div id="loader" class="text-center py-5" style="display: none;">
+            <div class="spinner-border text-primary mb-3" role="status">
                 <span class="visually-hidden">{{ __('messages.loading...') }}</span>
             </div>
+            <p class="">{{ __('messages.loading...') }}</p>
         </div>
 
         <!-- Alerts -->
