@@ -182,7 +182,7 @@
                                 <th class="text-center">{{ __('messages.commission') }}</th>
                                 <th class="text-center">{{ __('messages.client') }}</th>
                                 <th class="text-center">{{ __('messages.balance_before_transaction') }}</th>
-                                <th class="text-center">{{ __('messages.alance_after_transaction') }}</th>
+                                <th class="text-center">{{ __('messages.balance_after_transaction') }}</th>
                                 <th class="text-center">{{ __('messages.created_at') }}</th>
                                 <th class="text-center">{{ __('messages.creator') }}</th>
                                 <th class="text-center">{{ __('messages.notes') }}</th>
