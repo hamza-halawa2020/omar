@@ -1,3 +1,107 @@
+@once
+    <style>
+        #transactionModal {
+            --tm-select-bg: var(--white);
+            --tm-select-border: var(--input-form-light);
+            --tm-select-text: var(--text-primary-light);
+            --tm-select-placeholder: var(--text-secondary-light);
+            --tm-select-focus: var(--primary-600);
+            --tm-select-focus-shadow: rgba(72, 127, 255, 0.2);
+            --tm-select-dropdown-shadow: 0 0.5rem 1rem rgba(15, 23, 42, 0.12);
+        }
+
+        [data-theme=dark] #transactionModal {
+            --tm-select-focus-shadow: rgba(72, 127, 255, 0.28);
+            --tm-select-dropdown-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.35);
+        }
+
+        #transactionModal .select2-container {
+            width: 100% !important;
+        }
+
+        #transactionModal .select2-container .select2-selection--single {
+            height: 38px;
+            background-color: var(--tm-select-bg);
+            border: 1px solid var(--tm-select-border);
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            padding: 0 0.75rem;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        #transactionModal .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 1.5;
+            padding: 0;
+            color: var(--tm-select-text);
+        }
+
+        #transactionModal .select2-container--default .select2-selection--single .select2-selection__placeholder {
+            color: var(--tm-select-placeholder);
+        }
+
+        #transactionModal .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 100%;
+            left: 0.5rem;
+            right: auto;
+        }
+
+        #transactionModal .select2-container--default .select2-selection--single .select2-selection__arrow b {
+            border-color: var(--tm-select-placeholder) transparent transparent transparent;
+        }
+
+        #transactionModal .select2-container--open .select2-selection--single,
+        #transactionModal .select2-container--default.select2-container--focus .select2-selection--single {
+            border-color: var(--tm-select-focus);
+            box-shadow: 0 0 0 0.2rem var(--tm-select-focus-shadow);
+        }
+
+        #transactionModal .select2-dropdown {
+            background-color: var(--tm-select-bg);
+            border: 1px solid var(--tm-select-border);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: var(--tm-select-dropdown-shadow);
+        }
+
+        #transactionModal .select2-search--dropdown {
+            padding: 0.5rem;
+            background-color: var(--tm-select-bg);
+        }
+
+        #transactionModal .select2-search--dropdown .select2-search__field {
+            background-color: var(--tm-select-bg);
+            border: 1px solid var(--tm-select-border);
+            border-radius: 0.4rem;
+            color: var(--tm-select-text);
+            padding: 0.375rem 0.6rem;
+        }
+
+        #transactionModal .select2-search--dropdown .select2-search__field::placeholder {
+            color: var(--tm-select-placeholder);
+        }
+
+        #transactionModal .select2-results {
+            background-color: var(--tm-select-bg);
+        }
+
+        #transactionModal .select2-results__option {
+            color: var(--tm-select-text);
+            padding: 0.5rem 0.75rem;
+        }
+
+        #transactionModal .select2-container--default .select2-results__option--selected {
+            background-color: var(--primary-50);
+            color: var(--tm-select-text);
+        }
+
+        #transactionModal .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+            background-color: var(--tm-select-focus);
+            color: #fff;
+        }
+    </style>
+@endonce
+
 <div class="modal fade" id="transactionModal" tabindex="-1" aria-labelledby="transactionModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -14,7 +118,7 @@
                     <div class="mb-3">
                         <label for="client_id" class="form-label">{{ __('messages.client') }}</label>
                         <select name="client_id" id="client_id" class="form-select" data-placeholder="{{ __('messages.select_client') }}">
-                            {{-- <option value="" disabled>{{ __('messages.select_client') }}</option> --}}
+                            <option value="">{{ __('messages.select_client') }}</option>
                         </select>
                     </div>
                     <div class="mb-3">
