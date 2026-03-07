@@ -84,6 +84,31 @@
                 toggleFields($(this).val(), '.phone_limit_group_edit');
             });
 
+            function initializeClientSelect2() {
+                if (!$.fn.select2) {
+                    return;
+                }
+
+                const $clientSelect = $('#client_id');
+                if (!$clientSelect.length) {
+                    return;
+                }
+
+                if ($clientSelect.hasClass('select2-hidden-accessible')) {
+                    $clientSelect.select2('destroy');
+                }
+
+                $clientSelect.select2({
+                    width: '100%',
+                    allowClear: true,
+                    placeholder: "{{ __('messages.select_client') }}",
+                    dropdownParent: $('#transactionModal'),
+                    dir: $('html').attr('dir') || 'rtl'
+                });
+            }
+
+            initializeClientSelect2();
+
             function loadClients(type) {
                 $.get("{{ route('clients.list') }}", { type: type }, function (res) {
 
@@ -93,7 +118,7 @@
                             clientOptions +=
                                 `<option value="${client.id}">${client.name} ({{ __('messages.debt') }}: ${parseFloat(client.debt || 0).toFixed(2)})</option>`;
                         });
-                        $('#client_id').html(clientOptions);
+                        $('#client_id').html(clientOptions).val('').trigger('change');
                     } else {
                         showToast('{{ __('messages.something_went_wrong') }}', 'error');
                     }
