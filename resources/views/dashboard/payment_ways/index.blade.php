@@ -109,20 +109,62 @@
 
             initializeClientSelect2();
 
-            function loadClients(type) {
-                $.get("{{ route('clients.list') }}", { type: type }, function (res) {
+            const clientsCache = {};
 
-                    if (res.status) {
-                        let clientOptions = '<option value="">{{ __('messages.select_client') }}</option>';
-                        res.data.forEach(function (client) {
-                            clientOptions +=
-                                `<option value="${client.id}">${client.name} ({{ __('messages.debt') }}: ${parseFloat(client.debt || 0).toFixed(2)})</option>`;
-                        });
-                        $('#client_id').html(clientOptions).val('').trigger('change');
-                    } else {
-                        showToast('{{ __('messages.something_went_wrong') }}', 'error');
-                    }
+            function renderClientOptions(clients) {
+                let clientOptions = '<option value="">{{ __('messages.select_client') }}</option>';
+                clients.forEach(function (client) {
+                    clientOptions +=
+                        `<option value="${client.id}">${client.name} ({{ __('messages.debt') }}: ${parseFloat(client.debt || 0).toFixed(2)})</option>`;
                 });
+
+                $('#client_id').prop('disabled', false).html(clientOptions).val('').trigger('change');
+            }
+
+            function setClientLoadingState() {
+                $('#client_id')
+                    .prop('disabled', true)
+                    .html('<option value="">{{ __('messages.loading_text') }}...</option>')
+                    .val('')
+                    .trigger('change');
+            }
+
+            function loadClients(type) {
+                let deferred = $.Deferred();
+
+                if (!type) {
+                    renderClientOptions([]);
+                    deferred.resolve([]);
+                    return deferred.promise();
+                }
+
+                if (clientsCache[type]) {
+                    renderClientOptions(clientsCache[type]);
+                    deferred.resolve(clientsCache[type]);
+                    return deferred.promise();
+                }
+
+                setClientLoadingState();
+
+                $.get("{{ route('clients.list') }}", { type: type })
+                    .done(function (res) {
+                        if (res.status) {
+                            clientsCache[type] = res.data || [];
+                            renderClientOptions(clientsCache[type]);
+                            deferred.resolve(clientsCache[type]);
+                        } else {
+                            renderClientOptions([]);
+                            showToast('{{ __('messages.something_went_wrong') }}', 'error');
+                            deferred.reject();
+                        }
+                    })
+                    .fail(function () {
+                        renderClientOptions([]);
+                        showToast('{{ __('messages.something_went_wrong') }}', 'error');
+                        deferred.reject();
+                    });
+
+                return deferred.promise();
             }
             function loadProducts() {
                 $.get("{{ route('products.list') }}", function (res) {
@@ -144,10 +186,6 @@
                 let $btn = $(this);
                 let originalText = $btn.html();
                 $btn.html('<i class="fas fa-spinner fa-spin me-1"></i>{{ __('messages.loading_text') }}').prop('disabled', true);
-                
-                setTimeout(() => {
-                    $btn.html(originalText).prop('disabled', false);
-                }, 500);
 
                 $('#receiveForm input[name="payment_way_id"], #receiveForm input[name="type"]').remove();
                 let type = $(this).hasClass('receiveBtn') ? 'receive' : 'send';
@@ -166,9 +204,11 @@
                 let clientType = $(this).closest('.card').find('span[data-client-type]').attr('data-client-type');
                 
                 loadProducts();
-                
-                $('#transactionModal').modal('show');
-                loadClients(clientType);    
+
+                loadClients(clientType).always(function () {
+                    $('#transactionModal').modal('show');
+                    $btn.html(originalText).prop('disabled', false);
+                });
                         
             });
 
