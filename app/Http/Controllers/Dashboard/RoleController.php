@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers\Dashboard;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\Role\StoreRoleRequest;
+use App\Http\Requests\Role\UpdateRoleRequest;
+use App\Services\RoleService;
 use Illuminate\Routing\Controller as BaseController;
-use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class RoleController extends BaseController
 {
-    public function __construct()
+    public function __construct(private readonly RoleService $roleService)
     {
         $this->middleware('check.permission:roles_index')->only('index');
         $this->middleware('check.permission:roles_store')->only('store', 'create');
@@ -19,63 +20,37 @@ class RoleController extends BaseController
 
     public function index()
     {
-        $roles = Role::with('permissions')->paginate(10);
-
-        return view('dashboard.roles.index', compact('roles'));
+        return view('dashboard.roles.index', $this->roleService->indexData());
     }
 
     public function create()
     {
-        $permissions = Permission::all();
-
-        return view('dashboard.roles.create', compact('permissions'));
+        return view('dashboard.roles.create', $this->roleService->createData());
     }
 
-    public function store(Request $request)
+    public function store(StoreRoleRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|unique:roles,name',
-            'permissions' => 'array',
-        ]);
-
-        $role = Role::create(['name' => $request->name, 'guard_name' => 'web']);
-
-        if ($request->has('permissions')) {
-            $role->syncPermissions($request->permissions);
-        }
+        $this->roleService->store($request->validated());
 
         return redirect()->route('roles.index')->with('success', 'Role created successfully.');
     }
 
     public function edit($id)
     {
-        $role = Role::findOrFail($id);
-        $permissions = Permission::all();
-        $rolePermissions = $role->permissions->pluck('name')->toArray();
-
-        return view('dashboard.roles.edit', compact('role', 'permissions', 'rolePermissions'));
+        return view('dashboard.roles.edit', $this->roleService->editData((int) $id));
     }
 
-   public function update(Request $request, $id)
-{
-    $role = Role::findOrFail($id);
+    public function update(UpdateRoleRequest $request, $id)
+    {
+        $this->roleService->update((int) $id, $request->validated());
 
-    $request->validate([
-        'name' => 'required|string|max:255|unique:roles,name,' . $role->id,
-    ]);
-
-    $role->update(['name' => $request->name]);
-
-    // Update permissions
-    $role->syncPermissions($request->permissions ?? []);
-
-    return redirect()->route('roles.index')->with('success', 'Role updated successfully.');
-}
+        return redirect()->route('roles.index')->with('success', 'Role updated successfully.');
+    }
 
 
     public function destroy(Role $role)
     {
-        $role->delete();
+        $this->roleService->destroy($role);
 
         return redirect()->route('roles.index')->with('success', 'Role deleted successfully.');
     }

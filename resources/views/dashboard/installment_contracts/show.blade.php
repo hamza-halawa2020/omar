@@ -12,12 +12,12 @@
             <div class="card-header fw-bold">{{ __('messages.client_and_product_info') }}</div>
             <div class="card-body row">
                 <div class="col-md-6">
-                    <p><strong>{{ __('messages.client') }}:</strong> {{ $contract->client->name }}({{ $contract->client->phone_number }})</p>
+                    <p><strong>{{ __('messages.client') }}:</strong> {{ $contract->client->name ?? ''}}({{ $contract->client->phone_number  ?? '' }})</p>
                     <p><strong>{{ __('messages.product') }}:</strong> {{ $contract->product->name  ?? ''}}</p>
                 </div>
                 <div class="col-md-6">
-                    <p><strong>{{ __('messages.created_by') }}:</strong> {{ $contract->creator->name }}</p>
-                    <p><strong>{{ __('messages.start_date') }}:</strong> {{ $contract->start_date }}</p>
+                    <p><strong>{{ __('messages.created_by') }}:</strong> {{ $contract->creator->name ?? '' }}</p>
+                    <p><strong>{{ __('messages.start_date') }}:</strong> {{ $contract->start_date ?? '' }}</p>
                 </div>
             </div>
         </div>

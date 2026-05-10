@@ -5,13 +5,12 @@ namespace App\Http\Controllers\Dashboard;
 use App\Http\Requests\Category\StoreCategoryRequest;
 use App\Http\Requests\Category\UpdateCategoryRequest;
 use App\Http\Resources\CategoryResource;
-use App\Models\Category;
+use App\Services\CategoryService;
 use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Support\Facades\Auth;
 
 class CategoryController extends BaseController
 {
-    public function __construct()
+    public function __construct(private readonly CategoryService $categoryService)
     {
         $this->middleware('check.permission:categories_index')->only('index', 'list');
         $this->middleware('check.permission:categories_store')->only('store');
@@ -26,47 +25,35 @@ class CategoryController extends BaseController
 
     public function list()
     {
-        $categories = Category::with(['parent', 'children', 'creator'])->get();
+        $categories = $this->categoryService->list();
 
         return response()->json(['status' => true, 'message' => __('messages.categories_fetched_successfully'), 'data' => CategoryResource::collection($categories)]);
     }
 
     public function store(StoreCategoryRequest $request)
     {
-        $data = $request->validated();
-        $data['created_by'] = Auth::id();
-
-        $category = Category::create($data);
+        $category = $this->categoryService->store($request->validated());
 
         return response()->json(['status' => true,  'message' => __('messages.category_created_successfully'), 'data' => new CategoryResource($category)], 201);
     }
 
     public function show($id)
     {
-        $category = Category::with(['parent', 'children', 'creator'])->findOrFail($id);
+        $category = $this->categoryService->show((int) $id);
 
         return response()->json(['status' => true, 'message' => __('messages.category_fetched_successfully'), 'data' => new CategoryResource($category)]);
     }
 
     public function update(UpdateCategoryRequest $request, $id)
     {
-        $category = Category::findOrFail($id);
-        $data = $request->validated();
-
-        $category->update($data);
+        $category = $this->categoryService->update((int) $id, $request->validated());
 
         return response()->json(['status' => true, 'message' => __('messages.category_updated_successfully'), 'data' => new CategoryResource($category)]);
     }
 
     public function destroy($id)
     {
-        $category = Category::findOrFail($id);
-
-        if ($category->categoryPaymentWay()->exists() || $category->subCategoryPaymentWay()->exists()) {
-            return response()->json(['status' => false, 'message' => __('messages.cannot_delete_category_with_payment_way')], 400);
-        }
-
-        $category->delete();
+        $this->categoryService->destroy((int) $id);
 
         return response()->json(['status' => true, 'message' => __('messages.category_deleted_successfully')]);
     }

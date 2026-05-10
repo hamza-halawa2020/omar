@@ -286,6 +286,7 @@
                                     <th class="text-center">{{ __('messages.balance_before_transaction') }}</th>
                                     <th class="text-center">{{ __('messages.balance_after_transaction') }}</th>
                                     <th class="text-center">{{ __('messages.created_at') }}</th>
+                                    <th class="text-center">{{ __('messages.last_update') }}</th>
                                     <th class="text-center">{{ __('messages.creator') }}</th>
                                     <th class="text-center">{{ __('messages.notes') }}</th>
                                     <th class="text-center">{{ __('messages.attachment') }}</th>
@@ -619,6 +620,10 @@
 
             // View logs handler
             $(document).on('click', '.viewLogsBtn', function () {
+                if ($(this).prop('disabled') || $(this).hasClass('disabled')) {
+                    return;
+                }
+
                 let transactionId = $(this).data('id');
                 
                 $.ajax({
@@ -687,20 +692,40 @@
                         delete: "{{ __('messages.delete') }}"
                     };
 
+                    const totalLogs = logs.length;
+                    const updateLogs = logs.filter(log => log.action === 'update').length;
+
+                    logsHtml += `
+                        <div class="mb-3 p-3 rounded-3 border">
+                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                <div class="fw-semibold">{{ __('messages.transaction_logs') }}</div>
+                                <div class="d-flex gap-2">
+                                    <span class="badge bg-primary">${totalLogs} {{ __('messages.logs') }}</span>
+                                    <span class="badge bg-warning text-dark">${updateLogs} {{ __('messages.update') }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
                     logs.forEach(log => {
                         let badgeClass = log.action === 'create' ? 'success' : log.action === 'update' ? 'warning' : 'danger';
-                        
+                        const actorName = log.creator?.name || '{{ __('messages.unknown') }}';
+                        const logDate = log.created_at || '{{ __('messages.unknown') }}';
+
                         logsHtml += `
-                            <div class="card mb-3">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <span class="badge bg-${badgeClass} me-2">${actionLabels[log.action] || log.action}</span>
-                                        <small class="">{{ __('messages.by') }}: ${log.creator?.name || 'Unknown'}</small>
+                            <div class="shadow-sm mb-3 p-3 rounded-3 border">
+                                <div class="pb-2 border-bottom mb-3">
+                                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="badge bg-${badgeClass}">${actionLabels[log.action] || log.action}</span>
+                                            <span class="badge bg-light text-dark border">{{ __('messages.log_id') }} #${log.id}</span>
+                                        </div>
+                                        <small class="text-muted">${logDate}</small>
                                     </div>
-                                    <small class="">${log.created_at}</small>
+                                    <div class="small mt-2">{{ __('messages.by') }}: <span class="fw-semibold">${actorName}</span></div>
                                 </div>
-                                <div class="card-body">
-                                    ${formatLogData(log.data, log.action)}
+                                <div>
+                                    ${formatLogData(log.data, log.action, log)}
                                 </div>
                             </div>
                         `;
@@ -710,21 +735,28 @@
                 $('#transactionLogsContent').html(logsHtml);
             }
 
-            function formatLogData(data, action) {
+            function formatLogData(data, action, log = null) {
                 if (!data) return '<p class="">{{ __('messages.no_data_available') }}</p>';
                 
                 let html = '';
                 
                 if (action === 'update' && data.old_data && data.new_data) {
-                    html += '<div>{{ __('messages.changes_made') }}:</div>';
-                    html += '<div class="row">';
-                    html += '<div class="col-md-6"><div class="text-danger">{{ __('messages.old_values') }}</div>';
-                    html += formatDataTable(data.old_data);
-                    html += '</div>';
-                    html += '<div class="col-md-6"><div class="text-success">{{ __('messages.new_values') }}</div>';
-                    html += formatDataTable(data.new_data);
-                    html += '</div>';
-                    html += '</div>';
+                    const changes = getChangedFields(data.old_data, data.new_data);
+                    html += `<div class="mb-2 fw-semibold">{{ __('messages.changes_made') }} (${changes.length})</div>`;
+                    if (data.old_data.payment_way_id && data.new_data.payment_way_id && data.old_data.payment_way_id != data.new_data.payment_way_id) {
+                        const oldPaymentWayName =
+                            log?.old_payment_way_name ||
+                            data.history?.old_payment_way?.name ||
+                            data.old_data?.payment_way?.name ||
+                            data.old_data.payment_way_id;
+                        const newPaymentWayName =
+                            log?.new_payment_way_name ||
+                            data.history?.new_payment_way?.name ||
+                            data.new_data?.payment_way?.name ||
+                            data.new_data.payment_way_id;
+                        html += `<div class="alert alert-warning py-2 px-3 mt-2 mb-3 small">{{ __('messages.transaction_moved_between_payment_ways') }}: <span class="fw-semibold">${oldPaymentWayName}</span> <i class="fas fa-arrow-right mx-1"></i> <span class="fw-semibold">${newPaymentWayName}</span></div>`;
+                    }
+                    html += formatDiffTable(changes, data, log);
                 } else {
                     html += formatDataTable(data);
                 }
@@ -733,20 +765,137 @@
             }
 
             function formatDataTable(data) {
-                let html = '<table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">';
+                let html = '<div class="table-responsive"><table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">';
+                html += '<thead class="text-center"><tr class="text-center"><th class="text-center">{{ __('messages.name') }}</th><th>{{ __('messages.details') }}</th></tr></thead><tbody>';
                 
                 Object.entries(data).forEach(([key, value]) => {
+                    const label = formatLogFieldLabel(key);
                     if (typeof value === 'object' && value !== null) {
                         if (key === 'client' || key === 'product' || key === 'payment_way') {
-                            html += `<tr><td><strong>${key.replace('_', ' ').toUpperCase()}</strong></td><td>${value.name || value.id || 'N/A'}</td></tr>`;
+                            html += `<tr><td class="fw-semibold">${label}</td><td>${value.name || value.id || '{{ __('messages.not_specified') }}'}</td></tr>`;
                         }
                     } else {
-                        html += `<tr><td><strong>${key.replace('_', ' ').toUpperCase()}</strong></td><td>${value || 'N/A'}</td></tr>`;
+                        html += `<tr><td class="fw-semibold">${label}</td><td>${value ?? '{{ __('messages.not_specified') }}'}</td></tr>`;
                     }
                 });
                 
-                html += '</table>';
+                html += '</tbody></table></div>';
                 return html;
+            }
+
+            function getChangedFields(oldData, newData) {
+                const keys = new Set([...Object.keys(oldData || {}), ...Object.keys(newData || {})]);
+                const changes = [];
+
+                keys.forEach((key) => {
+                    const oldVal = normalizeLogValue(oldData?.[key], key);
+                    const newVal = normalizeLogValue(newData?.[key], key);
+                    if (oldVal !== newVal) {
+                        changes.push({
+                            key,
+                            label: formatLogFieldLabel(key),
+                            oldVal: oldVal || '{{ __('messages.not_specified') }}',
+                            newVal: newVal || '{{ __('messages.not_specified') }}',
+                        });
+                    }
+                });
+
+                return changes;
+            }
+
+            function normalizeLogValue(value, key = null) {
+                if (value === null || value === undefined || value === '') {
+                    return '';
+                }
+
+                if (typeof value === 'object') {
+                    if (key === 'payment_way') {
+                        return value.name || value.id || '';
+                    }
+                    if (key === 'client' || key === 'product') {
+                        return value.name || value.id || '';
+                    }
+                    return JSON.stringify(value);
+                }
+
+                return String(value);
+            }
+
+            function formatDiffTable(changes, data = {}, log = null) {
+                if (!changes.length) {
+                    return `<div class="alert alert-info py-2 px-3 mb-0">{{ __('messages.no_changes_detected') }}</div>`;
+                }
+
+                let html = '<div class="table-responsive"><table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">';
+
+                html += `
+                    <thead class="text-center">
+                        <tr class="text-center">
+                            <th class="text-center">{{ __('messages.name') }}</th>
+                            <th class="text-danger text-center">{{ __('messages.old_values') }}</th>
+                            <th class="text-success text-center">{{ __('messages.new_values') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                `;
+
+                changes.forEach((change) => {
+                    let oldDisplay = change.oldVal;
+                    let newDisplay = change.newVal;
+
+                    if (change.key === 'payment_way_id') {
+                        oldDisplay =
+                            log?.old_payment_way_name ||
+                            data?.history?.old_payment_way?.name ||
+                            data?.old_data?.payment_way?.name ||
+                            change.oldVal;
+                        newDisplay =
+                            log?.new_payment_way_name ||
+                            data?.history?.new_payment_way?.name ||
+                            data?.new_data?.payment_way?.name ||
+                            change.newVal;
+                    }
+
+                    html += `
+                        <tr>
+                            <td class="fw-semibold">${change.label}</td>
+                            <td class="text-danger">${escapeHtml(oldDisplay)}</td>
+                            <td class="text-success">${escapeHtml(newDisplay)}</td>
+                        </tr>
+                    `;
+                });
+
+                html += '</tbody></table></div>';
+                return html;
+            }
+
+            function escapeHtml(value) {
+                return String(value)
+                    .replaceAll('&', '&amp;')
+                    .replaceAll('<', '&lt;')
+                    .replaceAll('>', '&gt;')
+                    .replaceAll('"', '&quot;')
+                    .replaceAll("'", '&#039;');
+            }
+
+            function formatLogFieldLabel(key) {
+                const labels = {
+                    id: "{{ __('messages.id') }}",
+                    type: "{{ __('messages.type') }}",
+                    amount: "{{ __('messages.amount') }}",
+                    commission: "{{ __('messages.commission') }}",
+                    notes: "{{ __('messages.notes') }}",
+                    payment_way_id: "{{ __('messages.payment_way') }}",
+                    client_id: "{{ __('messages.client') }}",
+                    product_id: "{{ __('messages.product') }}",
+                    quantity: "{{ __('messages.quantity') }}",
+                    balance_before_transaction: "{{ __('messages.balance_before_transaction') }}",
+                    balance_after_transaction: "{{ __('messages.balance_after_transaction') }}",
+                    created_at: "{{ __('messages.created_at') }}",
+                    updated_at: "{{ __('messages.updated_at') }}",
+                };
+
+                return labels[key] || key.replace(/_/g, ' ');
             }
 
             let currentDate = new Date();
@@ -851,6 +1000,7 @@
 
                 let txHtml = "";
                 data.transactions.forEach(tx => {
+                    const canViewLogs = Boolean(tx.is_edited);
                     let attachmentHtml = tx.attachment ?`<a href="${tx.attachment}" target="_blank" class="text-primary">View</a>` : '';
                     if (tx.attachment && /\.(jpg|jpeg|png|gif)$/i.test(tx.attachment)) {
                         attachmentHtml =`<a href="${tx.attachment}" target="_blank"><img src="${tx.attachment}" alt="Attachment" class="img-thumbnail" style="max-width: 50px; max-height: 50px;"></a>`;
@@ -874,9 +1024,10 @@
                                     <i class="fas fa-edit"></i>
                                 </button>
                             @endcan
-                            <button class="btn btn-outline-info btn-sm viewLogsBtn" 
+                            <button class="btn btn-outline-info btn-sm viewLogsBtn ${canViewLogs ? '' : 'disabled'}" 
                                     data-id="${tx.id}"
-                                    title="{{ __('messages.view_logs') }}">
+                                    title="${canViewLogs ? `{{ __('messages.view_logs') }}` : `{{ __('messages.no_logs_found') }}`}"
+                                    ${canViewLogs ? '' : 'disabled aria-disabled="true"'}>
                                 <i class="fas fa-history"></i>
                             </button>
                         </div>
@@ -885,13 +1036,17 @@
                     txHtml += `
                         <tr>
                             <td>${actionsHtml}</td>
-                            <td data-type="${tx.type}"><span class="badge bg-${tx.type === 'receive' ? 'success' : 'danger'}">${translations[tx.type] ?? tx.type}</span></td>
+                            <td data-type="${tx.type}">
+                                <span class="badge bg-${tx.type === 'receive' ? 'success' : 'danger'}">${translations[tx.type] ?? tx.type}</span>
+                                ${tx.is_edited ? '<span class="badge bg-warning text-dark ms-1">{{ __('messages.edited') }}</span>' : ''}
+                            </td>
                             <td>${tx.amount}</td>
                             <td>${tx.commission}</td>
                             <td>${tx.client?.name ?? ''}</td>
                             <td>${tx.balance_before_transaction}</td>
                             <td>${tx.balance_after_transaction}</td>
                             <td>${tx.created_at || ''}</td>
+                            <td>${tx.updated_at || ''}</td>
                             <td>${tx.creator?.name || ''}</td>
                             <td>${tx.notes || ''}</td>
                             <td>${attachmentHtml}</td>

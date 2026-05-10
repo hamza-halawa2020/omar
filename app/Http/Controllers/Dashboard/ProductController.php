@@ -5,13 +5,13 @@ namespace App\Http\Controllers\Dashboard;
 use App\Http\Requests\Product\StoreProductRequest;
 use App\Http\Requests\Product\UpdateProductRequest;
 use App\Http\Resources\ProductResource;
-use App\Models\Product;
+use App\Services\ProductService;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Support\Facades\Auth;
 
 class ProductController extends BaseController
 {
-    public function __construct()
+    public function __construct(private readonly ProductService $productService)
     {
         $this->middleware('check.permission:products_index')->only('index', 'list');
         $this->middleware('check.permission:products_store')->only('store');
@@ -25,106 +25,45 @@ class ProductController extends BaseController
         return view('dashboard.products.index');
     }
 
-    public function list(\Illuminate\Http\Request $request)
+    public function list(Request $request)
     {
-        $products = Product::with(['creator'])
-            ->when($request->search, function ($q) use ($request) {
-                $q->where(function ($query) use ($request) {
-                    $query->where('name', 'like', '%' . $request->search . '%')
-                        ->orWhere('code', 'like', '%' . $request->search . '%')
-                        ->orWhere('stock', 'like', '%' . $request->search . '%');
-                });
-            })
-            ->get();
+        $products = $this->productService->list($request);
 
         return response()->json(['status' => true, 'message' => __('messages.products_fetched_successfully'), 'data' => ProductResource::collection($products)]);
     }
 
-    // public function store(StoreProductRequest $request)
-    // {
-    //     $data = $request->validated();
-    //     $data['created_by'] = Auth::id();
-
-    //     $product = Product::create($data);
-
-    //     return response()->json(['status' => true,  'message' => __('messages.Product_created_successfully'), 'data' => new ProductResource($product)], 201);
-    // }
 
     public function store(StoreProductRequest $request)
     {
+        $product = $this->productService->create($request->validated(), $request);
 
-        $data = $request->validated();
-        // dd( $request->all());
-        $data['created_by'] = Auth::id();
-
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-            $imageName = time().'_'.$image->getClientOriginalName();
-            $image->move(public_path('uploads/products'), $imageName);
-            $data['image'] = 'uploads/products/'.$imageName;
-        }
-
-        $product = Product::create($data);
-
-        return response()->json([
-            'status' => true,
-            'message' => __('messages.Product_created_successfully'),
-            'data' => new ProductResource($product),
-        ], 201);
+        return response()->json(['status' => true,'message' => __('messages.Product_created_successfully'),'data' => new ProductResource($product)], 201);
     }
 
     public function show($id)
     {
-        $product = Product::with(['creator'])->findOrFail($id);
+        $product = $this->productService->show((int) $id);
 
         return response()->json(['status' => true, 'message' => __('messages.Product_fetched_successfully'), 'data' => new ProductResource($product)]);
     }
 
     public function details($id)
     {
-        $product = Product::findOrFail($id);
-        $totalCost = $product->stock * $product->purchase_price;
-        $installmentContracts = $product->installmentContracts;
-        $transactions = $product->transactions;
+        $details = $this->productService->details((int) $id);
 
-        // dd($installmentContracts);
-
-        return view('dashboard.products.show', compact('product', 'totalCost', 'installmentContracts', 'transactions'));
-
+        return view('dashboard.products.show', $details);
     }
 
     public function update(UpdateProductRequest $request, $id)
     {
-        
-        $product = Product::findOrFail($id);
-        $data = $request->validated();
-
-        if ($request->hasFile('image')) {
-
-            if ($product->image && file_exists(public_path($product->image))) {
-                unlink(public_path($product->image));
-            }
-
-            $image = $request->file('image');
-            $imageName = time().'_'.$image->getClientOriginalName();
-            $image->move(public_path('uploads/products'), $imageName);
-            $data['image'] = 'uploads/products/'.$imageName;
-        }
-
-        $product->update($data);
+        $product = $this->productService->update((int) $id, $request->validated(), $request);
 
         return response()->json(['status' => true, 'message' => __('messages.Product_updated_successfully'), 'data' => new ProductResource($product)]);
     }
 
     public function destroy($id)
     {
-        $product = Product::findOrFail($id);
-
-        if ($product->installmentContracts()->exists()) {
-            return response()->json(['status' => false, 'message' => __('messages.cannot_delete_Product_with_installments')], 400);
-        }
-
-        $product->delete();
+        $this->productService->delete((int) $id);
 
         return response()->json(['status' => true, 'message' => __('messages.Product_deleted_successfully')]);
     }

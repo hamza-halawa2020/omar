@@ -578,4 +578,8 @@ return [
     'loading_payment_ways' => 'جاري تحميل طرق الدفع...',
     'saving_order' => 'جاري حفظ الترتيب الجديد...',
     'not_specified' => 'غير محدد',
+    'last_update' => 'آخر تعديل',
+    'edited' => 'معدلة',
+    'log_id' => 'سجل',
+    'transaction_moved_between_payment_ways' => 'تم نقل المعاملة بين طريقتي دفع',
 ];

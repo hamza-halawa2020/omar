@@ -5,15 +5,13 @@ namespace App\Http\Controllers\Dashboard;
 use App\Http\Requests\Client\StoreClientRequest;
 use App\Http\Requests\Client\UpdateClientRequest;
 use App\Http\Resources\ClientResource;
-use App\Models\Client;
-use App\Models\PaymentWay;
+use App\Services\ClientService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Support\Facades\Auth;
 
 class ClientController extends BaseController
 {
-    public function __construct()
+    public function __construct(private readonly ClientService $clientService)
     {
         $this->middleware('check.permission:clients_index')->only('index', 'list');
         $this->middleware('check.permission:clients_debts')->only('debts', 'listDebts');
@@ -53,116 +51,42 @@ class ClientController extends BaseController
 
     public function list(Request $request)
     {
-        $query = Client::query();
+        $clients = $this->clientService->list($request);
 
-        $query->when($request->type === 'merchant', function ($q) {
-            return $q->where('type', 'merchant');
-        });
-
-        $query->with(['creator'])->orderByDesc('debt');
-
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('phone_number', 'like', "%{$search}%");
-            });
-        }
-
-        $clients = $query->get();
-
-        return response()->json([
-            'status' => true,
-            'message' => __('messages.clients_fetched_successfully'),
-            'data' => ClientResource::collection($clients),
-        ]);
+        return response()->json(['status' => true,'message' => __('messages.clients_fetched_successfully'),'data' => ClientResource::collection($clients)]);
     }
 
     public function listDebts()
     {
-        $query = Client::where('type', 'client')
-            ->where('debt', '>', 0)
-            ->whereDoesntHave('installmentContracts')
-            ->with(['creator', 'installmentContracts'])
-            ->orderByDesc('debt');
-
-        if (request()->filled('search')) {
-            $search = request('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('phone_number', 'like', "%{$search}%");
-            });
-        }
-
-        $clients = $query->get();
+        $clients = $this->clientService->listDebts(request('search'));
 
         return response()->json(['status' => true, 'message' => __('messages.clients_fetched_successfully'), 'data' => ClientResource::collection($clients)]);
     }
 
     public function listMerchants()
     {
-        $query = Client::where('type', 'merchant')
-            ->with(['creator'])
-            ->orderByDesc('debt');
-
-        if (request()->filled('search')) {
-            $search = request('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('phone_number', 'like', "%{$search}%");
-            });
-        }
-
-        $clients = $query->get();
+        $clients = $this->clientService->listMerchants(request('search'));
 
         return response()->json(['status' => true, 'message' => __('messages.clients_fetched_successfully'), 'data' => ClientResource::collection($clients)]);
     }
 
     public function listCreditor()
     {
-        $query = Client::where('type', 'client')
-            ->where('debt', '<', 0)
-            ->with(['creator',  'installmentContracts'])
-            ->orderBy('debt', 'asc');
-        if (request()->filled('search')) {
-            $search = request('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('phone_number', 'like', "%{$search}%");
-            });
-        }
-        $clients = $query->get();
+        $clients = $this->clientService->listCreditor(request('search'));
 
         return response()->json(['status' => true, 'message' => __('messages.clients_fetched_successfully'), 'data' => ClientResource::collection($clients)]);
     }
 
     public function listClientInstallments()
     {
-        $query = Client::where('type', 'client')
-            ->where('debt', '!=', 0)
-            ->whereHas('installmentContracts')
-            ->with(['creator', 'installmentContracts'])
-            ->orderByDesc('debt');
-
-        if (request()->filled('search')) {
-            $search = request('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('phone_number', 'like', "%{$search}%");
-            });
-        }
-
-        $clients = $query->get();
+        $clients = $this->clientService->listClientInstallments(request('search'));
 
         return response()->json(['status' => true, 'message' => __('messages.clients_fetched_successfully'), 'data' => ClientResource::collection($clients)]);
     }
 
     public function store(StoreClientRequest $request)
     {
-        $data = $request->validated();
-        $data['created_by'] = Auth::id();
-
-        $client = Client::create($data);
+        $client = $this->clientService->store($request->validated());
 
         // event(new CreateBackup);
 
@@ -171,42 +95,27 @@ class ClientController extends BaseController
 
     public function show($id)
     {
-        $client = Client::with(['creator', 'transactions'])->findOrFail($id);
+        $client = $this->clientService->show((int) $id);
 
         return response()->json(['status' => true, 'message' => __('messages.client_fetched_successfully'), 'data' => new ClientResource($client)]);
     }
 
     public function showPage($id)
     {
-        $client = Client::with(['creator', 'transactions.paymentWay', 'transactions.debtLog', 'installmentContracts.installments.payments', 'debtLogs.source', 'debtLogs.creator'])->findOrFail($id);
-        $paymentWays = PaymentWay::all();
+        $data = $this->clientService->showPage((int) $id);
+        $client = $data['client'];
 
         if (request()->expectsJson()) {
-            return response()->json(['status' => true, 'message' => __('messages.client_fetched_successfully'), 'data' => new ClientResource($client),
-            ]);
+            return response()->json(['status' => true, 'message' => __('messages.client_fetched_successfully'), 'data' => new ClientResource($client)]);
         }
 
-        return view('dashboard.clients.show', [
-            'client' => $client,
-            'remaining_amount' => $client->total_remaining_amount,
-            'remaining_installments' => $client->total_remaining_installments,
-            'paymentWays' => $paymentWays,
-        ]);
+        return view('dashboard.clients.show', $data);
 
     }
 
     public function update(UpdateClientRequest $request, $id)
     {
-        $client = Client::findOrFail($id);
-        $data = $request->validated();
-
-        if ($client->transactions()->exists() || $client->installmentContracts()->exists()) {
-
-            return response()->json(['status' => false, 'message' => __('messages.cannot_update_client_with_transactions')], 400);
-        }
-
-        $client->log_description = __('messages.manual_update');
-        $client->update($data);
+        $client = $this->clientService->update((int) $id, $request->validated());
 
         // event(new CreateBackup);
 
@@ -215,13 +124,7 @@ class ClientController extends BaseController
 
     public function destroy($id)
     {
-        $client = Client::findOrFail($id);
-
-        if ($client->transactions()->exists() || $client->installmentContracts()->exists()) {
-            return response()->json(['status' => false, 'message' => __('messages.cannot_delete_client_with_transactions')], 400);
-        }
-
-        $client->delete();
+        $this->clientService->destroy((int) $id);
 
         // event(new CreateBackup);
 
