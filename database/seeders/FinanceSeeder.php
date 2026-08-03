@@ -14,17 +14,28 @@ use App\Models\Transaction;
 use App\Models\TransactionLog;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Role;
 
 class FinanceSeeder extends Seeder
 {
     public function run(): void
     {
-        // Create Admin User
-        $user = User::create([
-            'name' => 'Admin',
-            'email' => 'admin@example.com',
-            'password' => bcrypt('12345678'),
+        // Create or find Super admin role
+        $superAdminRole = Role::firstOrCreate([
+            'name' => 'Super admin',
+            'guard_name' => 'web',
         ]);
+
+        // Create Admin User and assign Super admin role
+        $user = User::firstOrCreate(
+            ['email' => 'admin@example.com'],
+            [
+                'name' => 'Admin',
+                'password' => bcrypt('12345678'),
+            ]
+        );
+
+        $user->syncRoles($superAdminRole);
 
         // // Categories
         // $sales = Category::create([
