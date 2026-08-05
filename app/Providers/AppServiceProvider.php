@@ -34,12 +34,16 @@ class AppServiceProvider extends ServiceProvider
 
     private function loadGoogleStorageDriver(string $driverName = 'google')
     {
-        try {
-            Storage::extend($driverName, function ($app, $config) {
+        Storage::extend($driverName, function ($app, $config) {
+            try {
                 $options = [];
 
                 if (! empty($config['teamDriveId'] ?? null)) {
                     $options['teamDriveId'] = $config['teamDriveId'];
+                }
+
+                if (empty($config['refreshToken'])) {
+                    throw new Exception('Google Drive refresh token is not configured.');
                 }
 
                 $client = new Client;
@@ -52,10 +56,10 @@ class AppServiceProvider extends ServiceProvider
                 $driver = new Filesystem($adapter);
 
                 return new FilesystemAdapter($driver, $adapter);
-            });
-        } catch (Exception $e) {
-            info('Google Drive Storage Error: '.$e->getMessage());
-
-        }
+            } catch (Exception $e) {
+                info('Google Drive Storage Error: ' . $e->getMessage());
+                throw $e; // Re-throw so spatie/backup can handle it gracefully
+            }
+        });
     }
 }

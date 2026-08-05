@@ -12,30 +12,18 @@ use App\Models\PaymentWayLimit;
 use App\Models\Product;
 use App\Models\Transaction;
 use App\Models\TransactionLog;
-use App\Models\User;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
 
 class FinanceSeeder extends Seeder
 {
     public function run(): void
     {
-        // Create or find Super admin role
-        $superAdminRole = Role::firstOrCreate([
-            'name' => 'Super admin',
-            'guard_name' => 'web',
-        ]);
+        // Users are stored in central DB — get the first admin user for this tenant
+        $user = \DB::connection('mysql')->table('users')
+            ->where('tenant_id', tenant('id'))
+            ->first();
 
-        // Create Admin User and assign Super admin role
-        $user = User::firstOrCreate(
-            ['email' => 'admin@example.com'],
-            [
-                'name' => 'Admin',
-                'password' => bcrypt('12345678'),
-            ]
-        );
-
-        $user->syncRoles($superAdminRole);
+        $userId = $user?->id ?? 1;
 
         // // Categories
         // $sales = Category::create([
@@ -132,14 +120,14 @@ class FinanceSeeder extends Seeder
             'name' => 'Ahmed Ali',
             'phone_number' => '01099999999',
             'debt' => 8000,
-            'created_by' => $user->id,
+            'created_by' => $userId,
         ]);
 
         $client2 = Client::create([
             'name' => 'ali Hassan',
             'phone_number' => '01188888888',
             'debt' => 14500,
-            'created_by' => $user->id,
+            'created_by' => $userId,
         ]);
 
         // Products

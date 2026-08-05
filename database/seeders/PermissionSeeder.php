@@ -53,12 +53,6 @@ class PermissionSeeder extends Seeder
 
             'transaction_logs_index',
 
-            'users_index',
-            'users_store',
-            'users_show',
-            'users_update',
-            'users_destroy',
-
             'roles_index',
             'roles_store',
             'roles_update',
@@ -80,7 +74,10 @@ class PermissionSeeder extends Seeder
 
         foreach ($permissions as $permission) {
             $name = "{$permission}";
-            Permission::firstOrCreate(['name' => $name]);
+            Permission::firstOrCreate([
+                'name' => $name,
+                'guard_name' => 'web',
+            ]);
         }
 
         $superAdminRole = Role::firstOrCreate(['name' => 'Super admin', 'guard_name' => 'web']);

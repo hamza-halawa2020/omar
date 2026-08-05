@@ -7,24 +7,102 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
+use Spatie\Permission\Traits\HasPermissions;
 
 
 class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasRoles;
 
+    // User model is stored in Central Database
+    protected $connection = 'central';
 
     /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
+     * Override Spatie roles relation to run on the active default connection (tenant DB when tenancy initialized).
      */
+    public function roles(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        $activeConn = config('database.default');
+
+        // Temporarily switch this model's connection so morphToMany builds the query on the tenant DB
+        $this->setConnection($activeConn);
+
+        $relation = $this->morphToMany(
+            config('permission.models.role'),
+            'model',
+            config('permission.table_names.model_has_roles'),
+            config('permission.column_names.model_morph_key'),
+            config('permission.column_names.role_pivot_key') ?: 'role_id'
+        );
+
+        // Restore central connection on this model instance
+        $this->setConnection('central');
+
+        $relation->getRelated()->setConnection($activeConn);
+
+        return $relation;
+    }
+
+    /**
+     * Override Spatie permissions relation to run on the active default connection (tenant DB when tenancy initialized).
+     */
+    public function permissions(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        $activeConn = config('database.default');
+
+        // Temporarily switch this model's connection so morphToMany builds the query on the tenant DB
+        $this->setConnection($activeConn);
+
+        $relation = $this->morphToMany(
+            config('permission.models.permission'),
+            'model',
+            config('permission.table_names.model_has_permissions'),
+            config('permission.column_names.model_morph_key'),
+            config('permission.column_names.permission_pivot_key') ?: 'permission_id'
+        );
+
+        // Restore central connection on this model instance
+        $this->setConnection('central');
+
+        $relation->getRelated()->setConnection($activeConn);
+
+        return $relation;
+    }
+
+    /**
+     * Override hasDirectPermission to avoid loadMissing() using the central connection.
+     * Instead, query the permissions relation directly on the tenant connection.
+     */
+    public function hasDirectPermission($permission): bool
+    {
+        $activeConn = config('database.default');
+        $permissionClass = $this->getPermissionClass();
+
+        if (is_string($permission)) {
+            $permission = $permissionClass->setConnection($activeConn)->findByName($permission, $this->getDefaultGuardName());
+        }
+
+        if (is_int($permission)) {
+            $permission = $permissionClass->setConnection($activeConn)->findById($permission, $this->getDefaultGuardName());
+        }
+
+        if (! $permission instanceof \Spatie\Permission\Contracts\Permission) {
+            return false;
+        }
+
+        return $this->permissions()->where(
+            config('permission.table_names.permissions') . '.id',
+            $permission->id
+        )->exists();
+    }
+
     protected $fillable = [
         'name',
         'email',
         'email_verified_at',
         'profile_image',
         'password',
+        'tenant_id',
     ];
 
     /**
@@ -48,6 +126,11 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function tenant()
+    {
+        return $this->belongsTo(Tenant::class);
     }
 
     public function products()

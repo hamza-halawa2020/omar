@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Dashboard\TenantController;
 use App\Http\Controllers\Dashboard\AssociationController;
 use App\Http\Controllers\Dashboard\CategoryController;
 use App\Http\Controllers\Dashboard\ClientController;
@@ -11,13 +12,19 @@ use App\Http\Controllers\Dashboard\ProductController;
 use App\Http\Controllers\Dashboard\ProfileController;
 use App\Http\Controllers\Dashboard\RoleController;
 use App\Http\Controllers\Dashboard\TransactionController;
-use App\Http\Controllers\Dashboard\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->name('login.attempt');
 
-Route::prefix('dashboard')->middleware('auth')->group(function () {
+// Tenant management (super-admin only, no tenant context needed)
+Route::prefix('dashboard/tenants')->middleware(['auth'])->group(function () {
+    Route::get('/', [TenantController::class, 'index'])->name('tenants.index');
+    Route::post('/', [TenantController::class, 'store'])->name('tenants.store');
+    Route::delete('/{id}', [TenantController::class, 'destroy'])->name('tenants.destroy');
+});
+
+Route::prefix('dashboard')->middleware(['auth.or_impersonate', 'tenancy'])->group(function () {
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
@@ -31,12 +38,6 @@ Route::prefix('dashboard')->middleware('auth')->group(function () {
     Route::post('categories', [CategoryController::class, 'store'])->name('categories.store');
     Route::put('categories/{id}', [CategoryController::class, 'update'])->name('categories.update');
     Route::delete('categories/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');
-
-    Route::get('users', [UserController::class, 'index'])->name('users.index');
-    Route::get('users/list', [UserController::class, 'list'])->name('users.list');
-    Route::post('users', [UserController::class, 'store'])->name('users.store');
-    Route::put('users/{id}', [UserController::class, 'update'])->name('users.update');
-    Route::delete('users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
 
     Route::get('products', [ProductController::class, 'index'])->name('products.index');
     Route::get('products/list', [ProductController::class, 'list'])->name('products.list');

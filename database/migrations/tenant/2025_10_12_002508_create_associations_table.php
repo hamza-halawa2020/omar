@@ -1,0 +1,29 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('associations', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('per_day');
+            $table->integer('total_members');
+            $table->decimal('monthly_amount', 15, 2);
+            $table->date('start_date');
+            $table->date('end_date');
+            $table->enum('status', ['active', 'completed', 'paused'])->default('active');
+            $table->unsignedBigInteger('created_by')->nullable();
+            $table->timestamps();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('associations');
+    }
+};

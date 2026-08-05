@@ -151,16 +151,6 @@
                                 </a>
                             </li>
                         @endcan
-
-                        @can('users_index')
-                            <li>
-                                <a href="{{ route('users.index') }}"
-                                    class="d-flex align-items-center gap-2 {{ Route::is('users.*') ? 'active-page' : '' }}">
-                                    <iconify-icon icon="mdi:account-cog-outline" class="menu-icon"></iconify-icon>
-                                    <span>{{ __('messages.users') }}</span>
-                                </a>
-                            </li>
-                        @endcan
                     </ul>
                 </li>
             @endcan

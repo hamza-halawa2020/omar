@@ -10,6 +10,16 @@
         <div id="toastContainer"></div>
     </div>
 
+    {{-- Impersonation banner — Requirements: 6.2 --}}
+    @if (session('impersonating_tenant_id'))
+        <div class="alert alert-warning text-center mb-0 rounded-0 py-2 fw-bold"
+             style="position: sticky; top: 0; z-index: 9999;">
+            ⚠️ وضع المحاكاة نشط — أنت تتصفح كـ Super Admin
+            <a href="{{ route('admin.impersonate.exit') }}"
+               class="btn btn-sm btn-danger ms-3">الخروج من المحاكاة</a>
+        </div>
+    @endif
+
     <x-sidebar />
 
     <main class="dashboard-main">

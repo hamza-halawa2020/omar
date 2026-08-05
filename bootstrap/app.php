@@ -3,6 +3,8 @@
 use App\Http\Middleware\CheckPermission;
 use App\Http\Middleware\CheckProjectAccess;
 use App\Http\Middleware\Cors;
+use App\Http\Middleware\EnsureAuthOrImpersonation;
+use App\Http\Middleware\EnsureSuperAdminAuthenticated;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -17,16 +19,22 @@ return Application::configure(basePath: dirname(__DIR__))
         api: __DIR__ . '/../routes/api.php',
         commands: __DIR__ . '/../routes/console.php',
         health: '/up',
+        then: function () {
+            \Illuminate\Support\Facades\Route::middleware('web')
+                ->group(base_path('routes/admin.php'));
+        },
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
-            'user.active' => EnsureUserIsActive::class,
+            'user.active'   => EnsureUserIsActive::class,
             'check.permission' => CheckPermission::class,
-            'abilities' => CheckAbilities::class,
-            'ability' => CheckForAnyAbility::class,
+            'abilities'     => CheckAbilities::class,
+            'ability'       => CheckForAnyAbility::class,
             'CheckProjectAccess' => CheckProjectAccess::class,
-            'cors' => Cors::class,
-            
+            'cors'          => Cors::class,
+            'tenancy'       => \App\Http\Middleware\InitializeTenancyBySession::class,
+            'auth.admin'    => EnsureSuperAdminAuthenticated::class,
+            'auth.or_impersonate' => EnsureAuthOrImpersonation::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

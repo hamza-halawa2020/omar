@@ -31,9 +31,11 @@
                         data-bs-toggle="dropdown">
                         @php
                             $user = Auth::user();
-                            $profileImage = $user->staff->staff_photo ?? asset('assets/images/1.png');
+                            $profileImage = $user?->profile_image
+                                ? asset('storage/' . $user->profile_image)
+                                : asset('assets/images/1.png');
                         @endphp
-                        <img src="{{ auth()->user()->profile_image ? asset('storage/' . auth()->user()->profile_image) : asset('images/default-profile.png') }}"
+                        <img src="{{ $profileImage }}"
                             alt="image" class="w-40-px h-40-px object-fit-cover rounded-circle">
 
                     </button>
@@ -44,7 +46,7 @@
                                 <a href="{{ route('dashboard.profile.index') }}">
 
                                     <div class="text-lg text-primary-light fw-semibold mb-2">
-                                        {{ Auth::user()?->name ?? 'Guest' }}
+                                        {{ Auth::user()?->name ?? Auth::guard('admin')->user()?->name ?? 'Guest' }}
                                     </div>
                                 </a>
                             </div>
