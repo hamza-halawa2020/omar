@@ -1,6 +1,6 @@
 @extends('admin.layouts.app')
 
-@section('title', 'قائمة الـ Tenants')
+@section('title', __('messages.admin.tenants_list'))
 
 @section('content')
 @include('admin.dashboard')

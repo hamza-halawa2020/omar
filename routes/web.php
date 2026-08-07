@@ -17,8 +17,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->name('login.attempt');
 
-// Tenant management (super-admin only, no tenant context needed)
-Route::prefix('dashboard/tenants')->middleware(['auth'])->group(function () {
+// Tenant management must stay in the central context and behind the admin guard.
+Route::prefix('dashboard/tenants')->middleware(['auth.admin'])->group(function () {
     Route::get('/', [TenantController::class, 'index'])->name('tenants.index');
     Route::post('/', [TenantController::class, 'store'])->name('tenants.store');
     Route::delete('/{id}', [TenantController::class, 'destroy'])->name('tenants.destroy');

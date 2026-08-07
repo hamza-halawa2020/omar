@@ -15,10 +15,13 @@ class AdminRoleController extends Controller
      */
     public function index(Tenant $tenant)
     {
-        tenancy()->initialize($tenant);
-        $roles       = Role::with('permissions')->get();
-        $permissions = Permission::all();
-        tenancy()->end();
+        try {
+            tenancy()->initialize($tenant);
+            $roles       = Role::with('permissions')->get();
+            $permissions = Permission::all();
+        } finally {
+            tenancy()->end();
+        }
 
         return view('admin.roles.index', compact('tenant', 'roles', 'permissions'));
     }
@@ -32,9 +35,12 @@ class AdminRoleController extends Controller
             'name' => ['required', 'string', 'max:255'],
         ]);
 
-        tenancy()->initialize($tenant);
-        Role::create(['name' => $request->name, 'guard_name' => 'web']);
-        tenancy()->end();
+        try {
+            tenancy()->initialize($tenant);
+            Role::create(['name' => $request->name, 'guard_name' => 'web']);
+        } finally {
+            tenancy()->end();
+        }
 
         return redirect()
             ->route('admin.tenants.roles.index', $tenant)
@@ -46,11 +52,14 @@ class AdminRoleController extends Controller
      */
     public function destroy(Tenant $tenant, int $roleId)
     {
-        tenancy()->initialize($tenant);
-        $role = Role::findById($roleId);
-        $role->syncPermissions([]);
-        $role->delete();
-        tenancy()->end();
+        try {
+            tenancy()->initialize($tenant);
+            $role = Role::findById($roleId);
+            $role->syncPermissions([]);
+            $role->delete();
+        } finally {
+            tenancy()->end();
+        }
 
         return redirect()
             ->route('admin.tenants.roles.index', $tenant)
@@ -67,10 +76,13 @@ class AdminRoleController extends Controller
             'permissions.*' => ['string'],
         ]);
 
-        tenancy()->initialize($tenant);
-        $role = Role::findById($roleId);
-        $role->syncPermissions($request->input('permissions', []));
-        tenancy()->end();
+        try {
+            tenancy()->initialize($tenant);
+            $role = Role::findById($roleId);
+            $role->syncPermissions($request->input('permissions', []));
+        } finally {
+            tenancy()->end();
+        }
 
         return redirect()
             ->route('admin.tenants.roles.index', $tenant)

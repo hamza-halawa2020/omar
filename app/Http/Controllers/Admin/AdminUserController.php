@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
@@ -28,9 +29,12 @@ class AdminUserController extends Controller
      */
     public function create(Tenant $tenant)
     {
-        tenancy()->initialize($tenant);
-        $roles = Role::all();
-        tenancy()->end();
+        try {
+            tenancy()->initialize($tenant);
+            $roles = Role::all();
+        } finally {
+            tenancy()->end();
+        }
 
         return view('admin.users.create', compact('tenant', 'roles'));
     }
@@ -45,6 +49,7 @@ class AdminUserController extends Controller
             'email'    => ['required', 'email', 'unique:central.users,email'],
             'password' => ['required', 'string', 'min:8'],
             'role'     => ['nullable', 'string'],
+            'is_active' => ['nullable', 'boolean'],
         ]);
 
         // Create user in central DB with correct tenant_id
@@ -53,18 +58,22 @@ class AdminUserController extends Controller
             'email'     => $request->email,
             'password'  => Hash::make($request->password),
             'tenant_id' => $tenant->id,
+            'is_active' => $request->boolean('is_active', true),
         ]);
 
         // Assign role in tenant DB
         if ($request->filled('role')) {
-            tenancy()->initialize($tenant);
-            $user->assignRole($request->role);
-            tenancy()->end();
+            try {
+                tenancy()->initialize($tenant);
+                $user->assignRole($request->role);
+            } finally {
+                tenancy()->end();
+            }
         }
 
         return redirect()
             ->route('admin.tenants.users.index', $tenant)
-            ->with('success', 'تم إنشاء المستخدم بنجاح.');
+            ->with('success', __('messages.admin.user_created'));
     }
 
     /**
@@ -72,8 +81,34 @@ class AdminUserController extends Controller
      */
     public function destroy(Tenant $tenant, User $user)
     {
+        abort_unless($user->tenant_id === $tenant->id, 404);
+
+        try {
+            tenancy()->initialize($tenant);
+            $user->syncRoles([]);
+        } finally {
+            tenancy()->end();
+        }
+
         $user->delete();
 
-        return back()->with('success', 'تم حذف المستخدم بنجاح.');
+        return back()->with('success', __('messages.admin.user_deleted'));
+    }
+
+    public function updateStatus(Request $request, Tenant $tenant, User $user)
+    {
+        abort_unless($user->tenant_id === $tenant->id, 404);
+
+        $validated = $request->validate([
+            'is_active' => ['required', 'boolean'],
+        ]);
+
+        $user->forceFill(['is_active' => (bool) $validated['is_active']])->save();
+
+        if (! $user->is_active) {
+            DB::connection('central')->table('sessions')->where('user_id', $user->id)->delete();
+        }
+
+        return back()->with('success', __('messages.admin.user_status_updated'));
     }
 }

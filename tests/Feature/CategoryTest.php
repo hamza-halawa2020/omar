@@ -2,11 +2,10 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
+use App\Models\Tenant;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
-use App\Models\Category;
-    use App\Models\User;
 
 class CategoryTest extends TestCase
 {
@@ -21,13 +20,41 @@ class CategoryTest extends TestCase
     // }
 
 
-public function testIndex(): void
-{
-    $user = User::firstOrFail();
+    public function testIndex(): void
+    {
+        $tenant = Tenant::all()->first(function (Tenant $tenant) {
+            return $this->tenantDatabaseExists($tenant);
+        });
 
-    $response = $this->actingAs($user)
-        ->get(route('categories.index'));
+        if (! $tenant) {
+            $this->markTestSkipped('No provisioned tenant database is available for this feature test.');
+        }
 
-    $response->assertStatus(200);
-}
+        $user = User::where('tenant_id', $tenant->id)->first();
+
+        if (! $user) {
+            $this->markTestSkipped('No central user exists for the provisioned tenant database.');
+        }
+
+        $response = $this
+            ->actingAs($user)
+            ->withSession(['tenant_id' => $tenant->id])
+            ->get(route('categories.index'));
+
+        $response->assertStatus(200);
+    }
+
+    private function tenantDatabaseExists(Tenant $tenant): bool
+    {
+        $database = $tenant->database()->getName();
+
+        try {
+            $pdo = DB::connection('central')->getPdo();
+            $statement = $pdo->query('SHOW DATABASES LIKE ' . $pdo->quote($database));
+
+            return (bool) $statement->fetchColumn();
+        } catch (\Throwable) {
+            return false;
+        }
+    }
 }

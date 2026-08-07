@@ -22,13 +22,13 @@ class LoginService
 
     public function login(Request $request)
     {
-        $email = $request['email'];
-        $password = $request['password'];
-        $remember = $request['remember'];
+        $email = Str::lower($request->input('email'));
+        $password = $request->input('password');
+        $remember = $request->boolean('remember');
 
         // Extract domain from email and find tenant
         $domain = Str::after($email, '@');
-        $tenant = Tenant::where('domain', $domain)->first();
+        $tenant = Tenant::on('central')->where('domain', $domain)->first();
 
         if (! $tenant) {
             if ($request->wantsJson()) {
@@ -37,7 +37,7 @@ class LoginService
             return back()->withErrors(['login' => 'Invalid credentials.'])->withInput();
         }
 
-        if (! Auth::attempt(['email' => $email, 'password' => $password], $remember)) {
+        if (! Auth::guard('web')->attempt(['email' => $email, 'password' => $password], $remember)) {
             if ($request->wantsJson()) {
                 return response()->json(['status' => false, 'message' => __('messages.invalid_credentials')], 401);
             }
@@ -45,12 +45,22 @@ class LoginService
         }
 
         // Make sure user belongs to this tenant
-        if (Auth::user()->tenant_id !== $tenant->id) {
-            Auth::logout();
+        if (Auth::guard('web')->user()->tenant_id !== $tenant->id) {
+            Auth::guard('web')->logout();
             if ($request->wantsJson()) {
                 return response()->json(['status' => false, 'message' => __('messages.invalid_credentials')], 401);
             }
             return back()->withErrors(['login' => 'Invalid credentials.'])->withInput();
+        }
+
+        if (! Auth::guard('web')->user()->is_active) {
+            Auth::guard('web')->logout();
+
+            if ($request->wantsJson()) {
+                return response()->json(['status' => false, 'message' => __('messages.admin.account_inactive')], 403);
+            }
+
+            return back()->withErrors(['login' => __('messages.admin.account_inactive')])->withInput();
         }
 
         $request->session()->regenerate();
@@ -58,7 +68,7 @@ class LoginService
 
         tenancy()->initialize($tenant);
 
-        $user = Auth::user();
+        $user = Auth::guard('web')->user();
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -79,7 +89,7 @@ class LoginService
             tenancy()->end();
         }
 
-        Auth::logout();
+        Auth::guard('web')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 

@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Models\Tenant;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Stancl\JobPipeline\JobPipeline;
+use Stancl\Tenancy\DatabaseConfig;
 use Stancl\Tenancy\Events;
 use Stancl\Tenancy\Jobs;
 use Stancl\Tenancy\Listeners;
-use Stancl\Tenancy\Middleware;
 
 class TenancyServiceProvider extends ServiceProvider
 {
@@ -99,10 +100,32 @@ class TenancyServiceProvider extends ServiceProvider
 
     public function boot()
     {
+        $this->configureTenantDatabaseNames();
         $this->bootEvents();
         $this->mapRoutes();
 
         $this->makeTenancyMiddlewareHighestPriority();
+    }
+
+    protected function configureTenantDatabaseNames(): void
+    {
+        DatabaseConfig::generateDatabaseNamesUsing(function (Tenant $tenant) {
+            $base = $tenant->name ?: $tenant->domain ?: 'tenant';
+            $base = str($base)
+                ->before('@')
+                ->before('.')
+                ->ascii()
+                ->lower()
+                ->replaceMatches('/[^a-z0-9]+/', '_')
+                ->trim('_')
+                ->limit(40, '')
+                ->value();
+
+            $base = $base ?: 'tenant';
+            $shortId = substr((string) $tenant->getTenantKey(), 0, 8);
+
+            return "tenant_{$base}_{$shortId}";
+        });
     }
 
     protected function bootEvents()

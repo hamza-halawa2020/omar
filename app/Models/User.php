@@ -103,6 +103,7 @@ class User extends Authenticatable
         'profile_image',
         'password',
         'tenant_id',
+        'is_active',
     ];
 
     /**
@@ -125,6 +126,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
         ];
     }
 

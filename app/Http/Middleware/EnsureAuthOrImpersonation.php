@@ -14,6 +14,18 @@ class EnsureAuthOrImpersonation
     public function handle(Request $request, Closure $next)
     {
         if (Auth::guard('web')->check()) {
+            if (! Auth::guard('web')->user()->is_active) {
+                Auth::guard('web')->logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                if ($request->wantsJson()) {
+                    return response()->json(['status' => false, 'message' => __('messages.admin.account_inactive')], 403);
+                }
+
+                return redirect()->route('login')->withErrors(['login' => __('messages.admin.account_inactive')]);
+            }
+
             return $next($request);
         }
 

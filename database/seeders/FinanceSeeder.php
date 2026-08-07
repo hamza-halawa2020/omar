@@ -19,7 +19,7 @@ class FinanceSeeder extends Seeder
     public function run(): void
     {
         // Users are stored in central DB — get the first admin user for this tenant
-        $user = \DB::connection('mysql')->table('users')
+        $user = \DB::connection('central')->table('users')
             ->where('tenant_id', tenant('id'))
             ->first();
 

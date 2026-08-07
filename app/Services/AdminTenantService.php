@@ -4,7 +4,8 @@ namespace App\Services;
 
 use App\Models\Tenant;
 use App\Models\User;
-use Illuminate\Support\Facades\Artisan;
+use Database\Seeders\PermissionSeeder;
+use Database\Seeders\RolesSeeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -19,24 +20,30 @@ class AdminTenantService
     {
         $id = str_replace('-', '', Str::uuid()->toString());
 
-        $tenant = Tenant::create([
-            'id'     => $id,
-            'name'   => $name,
-            'domain' => $domain,
-        ]);
-
         try {
-            Artisan::call('tenants:migrate', [
-                '--tenants' => [$tenant->id],
+            $tenant = Tenant::create([
+                'id'     => $id,
+                'name'   => $name,
+                'domain' => $domain,
             ]);
+
+            $tenant->run(function () {
+                app(PermissionSeeder::class)->run();
+                app(RolesSeeder::class)->run();
+            });
+
+            return $tenant;
         } catch (\Throwable $e) {
-            Log::error('tenants:migrate failed for tenant ' . $tenant->id . ': ' . $e->getMessage());
-            // Rollback: delete the tenant record that was just created
-            $tenant->delete();
+            Log::error('Tenant provisioning failed for tenant ' . $id . ': ' . $e->getMessage());
+
+            $tenant = Tenant::find($id);
+            if ($tenant) {
+                // The TenantDeleted listener drops the tenant database if it was already created.
+                $tenant->delete();
+            }
+
             throw $e;
         }
-
-        return $tenant;
     }
 
     /**

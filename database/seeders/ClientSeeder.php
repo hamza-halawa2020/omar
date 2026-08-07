@@ -10,12 +10,16 @@ class ClientSeeder extends Seeder
 {
     public function run(): void
     {
-        $user = User::first();
+        $user = User::on('central')
+            ->when(tenant('id'), fn ($query, $tenantId) => $query->where('tenant_id', $tenantId))
+            ->first();
+
         if (!$user) {
-            $user = User::create([
+            $user = User::on('central')->create([
                 'name' => 'Admin',
                 'email' => 'admin@example.com',
                 'password' => bcrypt('12345678'),
+                'tenant_id' => tenant('id'),
             ]);
         }
 

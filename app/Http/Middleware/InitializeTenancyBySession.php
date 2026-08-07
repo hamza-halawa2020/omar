@@ -23,7 +23,7 @@ class InitializeTenancyBySession
             return redirect()->route('login');
         }
 
-        $tenant = Tenant::find($tenantId);
+        $tenant = Tenant::on('central')->find($tenantId);
 
         if (! $tenant) {
             session()->forget('tenant_id');

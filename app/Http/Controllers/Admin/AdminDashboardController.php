@@ -12,7 +12,11 @@ class AdminDashboardController extends Controller
      */
     public function index()
     {
-        $tenants = Tenant::latest()->get();
+        $tenants = Tenant::withCount([
+            'users',
+            'users as active_users_count' => fn ($query) => $query->where('is_active', true),
+        ])->latest()->get();
+
         return view('admin.dashboard', compact('tenants'));
     }
 }

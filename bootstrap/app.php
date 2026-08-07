@@ -1,14 +1,12 @@
 <?php
 
 use App\Http\Middleware\CheckPermission;
-use App\Http\Middleware\CheckProjectAccess;
 use App\Http\Middleware\Cors;
 use App\Http\Middleware\EnsureAuthOrImpersonation;
 use App\Http\Middleware\EnsureSuperAdminAuthenticated;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use App\Http\Middleware\EnsureUserIsActive;
 use Laravel\Sanctum\Http\Middleware\CheckAbilities;
 use Laravel\Sanctum\Http\Middleware\CheckForAnyAbility;
 use Sentry\Laravel\Integration;
@@ -26,11 +24,9 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
-            'user.active'   => EnsureUserIsActive::class,
             'check.permission' => CheckPermission::class,
             'abilities'     => CheckAbilities::class,
             'ability'       => CheckForAnyAbility::class,
-            'CheckProjectAccess' => CheckProjectAccess::class,
             'cors'          => Cors::class,
             'tenancy'       => \App\Http\Middleware\InitializeTenancyBySession::class,
             'auth.admin'    => EnsureSuperAdminAuthenticated::class,
