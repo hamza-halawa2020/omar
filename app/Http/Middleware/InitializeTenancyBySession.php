@@ -18,7 +18,7 @@ class InitializeTenancyBySession
 
         if (! $tenantId) {
             if ($request->wantsJson()) {
-                return response()->json(['status' => false, 'message' => 'Tenant not found.'], 401);
+                return response()->json(['status' => false, 'message' => __('messages.company_not_found')], 401);
             }
             return redirect()->route('login');
         }
@@ -27,7 +27,7 @@ class InitializeTenancyBySession
 
         if (! $tenant) {
             session()->forget('tenant_id');
-            return redirect()->route('login')->withErrors(['login' => 'Tenant not found.']);
+            return redirect()->route('login')->withErrors(['login' => __('messages.company_not_found')]);
         }
 
         tenancy()->initialize($tenant);

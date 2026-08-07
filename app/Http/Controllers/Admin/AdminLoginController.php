@@ -10,6 +10,10 @@ class AdminLoginController extends Controller
 {
     public function showForm()
     {
+        if (Auth::guard('web')->check()) {
+            Auth::guard('admin')->logout();
+        }
+
         if (Auth::guard('admin')->check()) {
             return redirect()->route('admin.dashboard');
         }
@@ -26,10 +30,16 @@ class AdminLoginController extends Controller
 
         if (! Auth::guard('admin')->attempt($credentials, $request->boolean('remember'))) {
             return back()
-                ->withErrors(['email' => __('auth.failed')])
+                ->withErrors(['email' => __('messages.invalid_credentials')])
                 ->withInput($request->only('email'));
         }
 
+        if (tenancy()->initialized) {
+            tenancy()->end();
+        }
+
+        Auth::guard('web')->logout();
+        $request->session()->forget('tenant_id');
         $request->session()->regenerate();
 
         return redirect()->route('admin.dashboard');

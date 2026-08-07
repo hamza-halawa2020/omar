@@ -34,14 +34,14 @@ class LoginService
             if ($request->wantsJson()) {
                 return response()->json(['status' => false, 'message' => __('messages.invalid_credentials')], 401);
             }
-            return back()->withErrors(['login' => 'Invalid credentials.'])->withInput();
+            return back()->withErrors(['login' => __('messages.invalid_credentials')])->withInput();
         }
 
         if (! Auth::guard('web')->attempt(['email' => $email, 'password' => $password], $remember)) {
             if ($request->wantsJson()) {
                 return response()->json(['status' => false, 'message' => __('messages.invalid_credentials')], 401);
             }
-            return back()->withErrors(['login' => 'Invalid credentials.'])->withInput();
+            return back()->withErrors(['login' => __('messages.invalid_credentials')])->withInput();
         }
 
         // Make sure user belongs to this tenant
@@ -50,7 +50,7 @@ class LoginService
             if ($request->wantsJson()) {
                 return response()->json(['status' => false, 'message' => __('messages.invalid_credentials')], 401);
             }
-            return back()->withErrors(['login' => 'Invalid credentials.'])->withInput();
+            return back()->withErrors(['login' => __('messages.invalid_credentials')])->withInput();
         }
 
         if (! Auth::guard('web')->user()->is_active) {
@@ -63,6 +63,7 @@ class LoginService
             return back()->withErrors(['login' => __('messages.admin.account_inactive')])->withInput();
         }
 
+        Auth::guard('admin')->logout();
         $request->session()->regenerate();
         session(['tenant_id' => $tenant->id]);
 

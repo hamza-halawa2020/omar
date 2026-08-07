@@ -5,10 +5,23 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminTenantController;
 use App\Http\Controllers\Admin\AdminRoleController;
 use App\Http\Controllers\Admin\AdminUserController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 // Public admin routes
 Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', function () {
+        if (Auth::guard('web')->check()) {
+            Auth::guard('admin')->logout();
+
+            return redirect()->route('admin.login');
+        }
+
+        return Auth::guard('admin')->check()
+            ? redirect()->route('admin.dashboard')
+            : redirect()->route('admin.login');
+    })->name('home');
+
     Route::get('/login', [AdminLoginController::class, 'showForm'])->name('login');
     Route::post('/login', [AdminLoginController::class, 'login'])->name('login.attempt');
 
