@@ -11,7 +11,7 @@ COPY . .
 RUN if [ -f package.json ]; then npm run build; fi
 
 
-FROM php:8.3-apache
+FROM php:8.4-apache
 
 RUN apt-get update && apt-get install -y \
     git \
