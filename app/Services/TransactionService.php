@@ -6,6 +6,7 @@ use App\Models\Client;
 use App\Models\PaymentWay;
 use App\Models\Product;
 use App\Models\Transaction;
+use App\Services\Concerns\HandlesTransactionConcurrency;
 use App\Services\Concerns\HandlesWalletMonthlyLimits;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 
 class TransactionService
 {
+    use HandlesTransactionConcurrency;
     use HandlesWalletMonthlyLimits;
 
     public function __construct(private readonly FileService $fileService)
@@ -43,112 +45,101 @@ class TransactionService
     public function store(array $data, Request $request): Transaction
     {
         $data['created_by'] = Auth::id();
-        $data['attachment'] = $request->hasFile('attachment')
-            ? $this->fileService->storePublicFile($request->file('attachment'), 'uploads/transactions')
-            : null;
-        $quantity = $data['quantity'] ?? 1;
 
-        $client = ! empty($data['client_id']) ? Client::findOrFail($data['client_id']) : null;
-        $product = ! empty($data['product_id']) ? Product::findOrFail($data['product_id']) : null;
+        return $this->withTransactionSubmissionLock('manual-transaction', $data, function () use ($data, $request) {
+            $data['attachment'] = $request->hasFile('attachment')
+                ? $this->fileService->storePublicFile($request->file('attachment'), 'uploads/transactions')
+                : null;
+            $quantity = $data['quantity'] ?? 1;
 
-        $paymentWay = PaymentWay::findOrFail($data['payment_way_id']);
-        $total = $data['amount'] + ($data['commission'] ?? 0);
+            $client = ! empty($data['client_id']) ? Client::findOrFail($data['client_id']) : null;
+            $product = ! empty($data['product_id']) ? Product::findOrFail($data['product_id']) : null;
+            $total = $data['amount'] + ($data['commission'] ?? 0);
 
-        if ($data['type'] === 'send' && $total > $paymentWay->balance) {
-            throw new HttpResponseException(response()->json(['status' => false, 'message' => __('messages.not_enough_balance')], 400));
-        }
+            return DB::transaction(function () use ($data, $client, $product, $quantity, $total) {
+                $paymentWay = $this->lockedPaymentWay($data['payment_way_id']);
+                $monthlyLimit = $this->lockedCurrentMonthlyLimit($paymentWay);
+                $this->assertPaymentWayCanHandleTransaction($paymentWay, $monthlyLimit, $data['type'], $data['amount'], $total);
 
-        $monthlyLimit = $this->getOrCreateCurrentMonthlyLimit($paymentWay);
+                $transaction = Transaction::create(array_filter($data, fn ($value) => $value !== null));
 
-        if ($monthlyLimit) {
-            if ($data['type'] === 'send' && ($monthlyLimit->send_used + $data['amount']) > $monthlyLimit->send_limit) {
-                throw new HttpResponseException(response()->json(['status' => false, 'message' => __('messages.send_limit_exceeded')], 400));
-            }
+                $transaction->balance_before_transaction = $paymentWay->balance;
+                if ($data['type'] === 'send') {
+                    $transaction->balance_after_transaction = $paymentWay->balance - $total;
+                } elseif ($data['type'] === 'receive') {
+                    $transaction->balance_after_transaction = $paymentWay->balance + $total;
+                } else {
+                    $transaction->balance_after_transaction = $paymentWay->balance;
+                }
+                $transaction->save();
 
-            if ($data['type'] === 'receive' && ($monthlyLimit->receive_used + $total) > $monthlyLimit->receive_limit) {
-                throw new HttpResponseException(response()->json(['status' => false, 'message' => __('messages.receive_limit_exceeded')], 400));
-            }
-        }
+                if ($data['type'] === 'send') {
+                    if ($product) {
+                        $product->increment('stock', $quantity);
+                    }
 
-        return DB::transaction(function () use ($data, $client, $product, $quantity, $paymentWay, $total, $monthlyLimit) {
-            $transaction = Transaction::create(array_filter($data, fn ($value) => $value !== null));
+                    if ($client && ! $product) {
+                        $client->source_model = $transaction;
+                        $client->log_description = __('messages.transaction_created_successfully');
+                        $client->increment('debt', $data['amount']);
+                    }
 
-            $transaction->balance_before_transaction = $paymentWay->balance;
-            if ($data['type'] === 'send') {
-                $transaction->balance_after_transaction = $paymentWay->balance - $total;
-            } elseif ($data['type'] === 'receive') {
-                $transaction->balance_after_transaction = $paymentWay->balance + $total;
-            } else {
-                $transaction->balance_after_transaction = $paymentWay->balance;
-            }
-            $transaction->save();
+                    $paymentWay->decrement('balance', $total);
 
-            if ($data['type'] === 'send') {
-                if ($product) {
-                    $product->increment('stock', $quantity);
+                    if ($monthlyLimit) {
+                        $monthlyLimit->increment('send_used', $data['amount']);
+                    }
+                } elseif ($data['type'] === 'receive') {
+                    if ($product) {
+                        $product->decrement('stock', $quantity);
+                    }
+
+                    if ($client && ! $product) {
+                        $client->source_model = $transaction;
+                        $client->log_description = __('messages.transaction_created_successfully');
+                        $client->decrement('debt', $data['amount']);
+                    }
+
+                    $paymentWay->increment('balance', $total);
+
+                    if ($monthlyLimit) {
+                        $monthlyLimit->increment('receive_used', $total);
+                    }
                 }
 
-                if ($client && ! $product) {
-                    $client->source_model = $transaction;
-                    $client->log_description = __('messages.transaction_created_successfully');
-                    $client->increment('debt', $data['amount']);
-                }
-
-                $paymentWay->decrement('balance', $total);
-
-                if ($monthlyLimit) {
-                    $monthlyLimit->increment('send_used', $data['amount']);
-                }
-            } elseif ($data['type'] === 'receive') {
-                if ($product) {
-                    $product->decrement('stock', $quantity);
-                }
-
-                if ($client && ! $product) {
-                    $client->source_model = $transaction;
-                    $client->log_description = __('messages.transaction_created_successfully');
-                    $client->decrement('debt', $data['amount']);
-                }
-
-                $paymentWay->increment('balance', $total);
-
-                if ($monthlyLimit) {
-                    $monthlyLimit->increment('receive_used', $total);
-                }
-            }
-
-            $transaction->logs()->create([
-                'created_by' => Auth::id(),
-                'action' => 'create',
-                'data' => [
-                    'transaction' => [
-                        'id' => $transaction->id,
-                        'type' => $transaction->type,
-                        'amount' => $transaction->amount,
-                        'commission' => $transaction->commission,
-                        'notes' => $transaction->notes,
-                        'attachment' => $transaction->attachment,
+                $transaction->logs()->create([
+                    'created_by' => Auth::id(),
+                    'action' => 'create',
+                    'data' => [
+                        'transaction' => [
+                            'id' => $transaction->id,
+                            'type' => $transaction->type,
+                            'amount' => $transaction->amount,
+                            'commission' => $transaction->commission,
+                            'notes' => $transaction->notes,
+                            'attachment' => $transaction->attachment,
+                        ],
+                        'client' => [
+                            'id' => optional($client)->id,
+                            'name' => optional($client)->name,
+                        ],
+                        'product' => [
+                            'id' => optional($product)->id,
+                            'name' => optional($product)->name,
+                            'debt' => optional($product)->debt,
+                        ],
+                        'payment_way' => [
+                            'id' => $paymentWay->id,
+                            'name' => $paymentWay->name,
+                            'category' => optional($paymentWay->category)->name,
+                            'sub_category' => optional($paymentWay->subCategory)->name,
+                            'creator' => optional($paymentWay->creator)->name,
+                        ],
                     ],
-                    'client' => [
-                        'id' => optional($client)->id,
-                        'name' => optional($client)->name,
-                    ],
-                    'product' => [
-                        'id' => optional($product)->id,
-                        'name' => optional($product)->name,
-                        'debt' => optional($product)->debt,
-                    ],
-                    'payment_way' => [
-                        'id' => $paymentWay->id,
-                        'name' => $paymentWay->name,
-                        'category' => optional($paymentWay->category)->name,
-                        'sub_category' => optional($paymentWay->subCategory)->name,
-                        'creator' => optional($paymentWay->creator)->name,
-                    ],
-                ],
-            ]);
+                ]);
 
-            return $transaction->load(['paymentWay', 'client', 'creator']);
+                return $transaction->load(['paymentWay', 'client', 'creator']);
+            });
         });
     }
 

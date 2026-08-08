@@ -63,6 +63,7 @@ return [
     'create_receive_transaction' => 'Create Receive Transaction',
     'create_send_transaction' => 'Create Send Transaction',
     'transaction_created_successfully' => 'Transaction created successfully',
+    'duplicate_transaction_in_progress' => 'This transaction is already being processed. Please wait a few seconds and try again.',
     'transaction_updated_successfully' => 'Transaction updated successfully',
     'transaction_fetched_successfully' => 'Transaction fetched successfully',
     'transaction_moved_to_new_payment_way' => 'Transaction has been moved to the new payment method. You will be redirected now...',

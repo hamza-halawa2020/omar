@@ -17,6 +17,9 @@ class ProductService
     public function list(Request $request): Collection
     {
         return Product::with(['creator'])
+            ->when($request->filled('code'), function ($q) use ($request) {
+                $q->where('code', $request->code);
+            })
             ->when($request->search, function ($q) use ($request) {
                 $q->where(function ($query) use ($request) {
                     $query->where('name', 'like', '%' . $request->search . '%')
@@ -24,6 +27,17 @@ class ProductService
                         ->orWhere('stock', 'like', '%' . $request->search . '%');
                 });
             })
+            ->get();
+    }
+
+    public function codes(): Collection
+    {
+        return Product::query()
+            ->select('code')
+            ->whereNotNull('code')
+            ->where('code', '!=', '')
+            ->distinct()
+            ->orderBy('code')
             ->get();
     }
 

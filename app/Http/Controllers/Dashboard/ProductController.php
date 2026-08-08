@@ -22,14 +22,21 @@ class ProductController extends BaseController
 
     public function index()
     {
-        return view('dashboard.products.index');
+        return view('dashboard.products.index', [
+            'productCodes' => $this->productService->codes(),
+        ]);
     }
 
     public function list(Request $request)
     {
         $products = $this->productService->list($request);
 
-        return response()->json(['status' => true, 'message' => __('messages.products_fetched_successfully'), 'data' => ProductResource::collection($products)]);
+        return response()->json([
+            'status' => true,
+            'message' => __('messages.products_fetched_successfully'),
+            'data' => ProductResource::collection($products),
+            'codes' => $this->productService->codes(),
+        ]);
     }
 
 

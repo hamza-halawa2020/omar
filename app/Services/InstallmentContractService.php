@@ -8,7 +8,7 @@ use App\Models\InstallmentContract;
 use App\Models\PaymentWay;
 use App\Models\Product;
 use App\Models\Transaction;
-use App\Services\Concerns\HandlesWalletMonthlyLimits;
+use App\Services\Concerns\HandlesTransactionConcurrency;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\DB;
 
 class InstallmentContractService
 {
-    use HandlesWalletMonthlyLimits;
+    use HandlesTransactionConcurrency;
 
     public function indexData(): array
     {
@@ -148,80 +148,76 @@ class InstallmentContractService
         $installment = Installment::with('contract.client', 'contract.product')->findOrFail($data['installment_id']);
         $client = $installment->contract->client;
         $product = $installment->contract->product;
-        $paymentWay = PaymentWay::findOrFail($data['payment_way_id']);
         $total = $data['amount'] + ($data['commission'] ?? 0);
 
-        $monthlyLimit = null;
-        if ($paymentWay->type === 'wallet') {
-            $monthlyLimit = $this->getOrCreateCurrentMonthlyLimit($paymentWay);
+        return $this->withTransactionSubmissionLock('installment-payment', $data, function () use ($data, $installment, $client, $product, $total) {
+            return DB::transaction(function () use ($data, $installment, $client, $product, $total) {
+                $paymentWay = $this->lockedPaymentWay($data['payment_way_id']);
+                $monthlyLimit = $this->lockedCurrentMonthlyLimit($paymentWay);
+                $this->assertPaymentWayCanHandleTransaction($paymentWay, $monthlyLimit, 'receive', $data['amount'], $total);
 
-            if (($monthlyLimit->receive_used + $total) > $monthlyLimit->receive_limit) {
-                throw new HttpResponseException(response()->json(['status' => false, 'message' => __('messages.receive_limit_exceeded')], 400));
-            }
-        }
+                $transaction = Transaction::create([
+                    'payment_way_id' => $paymentWay->id,
+                    'created_by' => Auth::id(),
+                    'type' => 'receive',
+                    'amount' => $data['amount'],
+                    'commission' => $data['commission'] ?? 0,
+                    'notes' => __('messages.payment_for_installment') . ' ' . ($client->name ?? '') . ' - ' . ($product->name ?? ''),
+                    'client_id' => $client->id ?? null,
+                    'balance_before_transaction' => $paymentWay->balance,
+                    'balance_after_transaction' => $paymentWay->balance + $total,
+                ]);
 
-        return DB::transaction(function () use ($data, $installment, $client, $product, $paymentWay, $total, $monthlyLimit) {
-            $transaction = Transaction::create([
-                'payment_way_id' => $paymentWay->id,
-                'created_by' => Auth::id(),
-                'type' => 'receive',
-                'amount' => $data['amount'],
-                'commission' => $data['commission'] ?? 0,
-                'notes' => __('messages.payment_for_installment') . ' ' . ($client->name ?? '') . ' - ' . ($product->name ?? ''),
-                'client_id' => $client->id ?? null,
-                'balance_before_transaction' => $paymentWay->balance,
-                'balance_after_transaction' => $paymentWay->balance + $total,
-            ]);
+                $paymentWay->increment('balance', $total);
+                if ($monthlyLimit) {
+                    $monthlyLimit->increment('receive_used', $total);
+                }
 
-            $paymentWay->increment('balance', $total);
-            if ($monthlyLimit) {
-                $monthlyLimit->increment('receive_used', $total);
-            }
+                $installment->payments()->create([
+                    'transaction_id' => $transaction->id,
+                    'amount' => $data['amount'],
+                    'payment_date' => $data['payment_date'],
+                    'paid_by' => Auth::id(),
+                ]);
 
-            $installment->payments()->create([
-                'transaction_id' => $transaction->id,
-                'amount' => $data['amount'],
-                'payment_date' => $data['payment_date'],
-                'paid_by' => Auth::id(),
-            ]);
+                $installment->increment('paid_amount', $data['amount']);
+                $installment->status = $installment->paid_amount >= $installment->required_amount ? 'paid' : 'pending';
+                $installment->save();
 
-            $installment->increment('paid_amount', $data['amount']);
-            $installment->status = $installment->paid_amount >= $installment->required_amount ? 'paid' : 'pending';
-            $installment->save();
+                if ($client) {
+                    $client->source_model = $transaction;
+                    $client->log_description = __('messages.installment_paid_successfully');
+                    $client->decrement('debt', $data['amount']);
+                }
 
-            if ($client) {
-                $client->source_model = $transaction;
-                $client->log_description = __('messages.installment_paid_successfully');
-                $client->decrement('debt', $data['amount']);
-            }
-
-            $transaction->logs()->create([
-                'created_by' => Auth::id(),
-                'action' => 'create',
-                'data' => [
-                    'installment' => [
-                        'id' => $installment->id,
-                        'amount' => $installment->required_amount,
-                        'paid' => $installment->paid_amount,
-                        'status' => $installment->status,
+                $transaction->logs()->create([
+                    'created_by' => Auth::id(),
+                    'action' => 'create',
+                    'data' => [
+                        'installment' => [
+                            'id' => $installment->id,
+                            'amount' => $installment->required_amount,
+                            'paid' => $installment->paid_amount,
+                            'status' => $installment->status,
+                        ],
+                        'client' => [
+                            'id' => $client->id ?? null,
+                            'name' => $client->name ?? null,
+                        ],
+                        'payment_way' => [
+                            'id' => $paymentWay->id,
+                            'name' => $paymentWay->name,
+                            'balance_before' => $transaction->balance_before_transaction,
+                            'balance_after' => $transaction->balance_after_transaction,
+                        ],
                     ],
-                    'client' => [
-                        'id' => $client->id ?? null,
-                        'name' => $client->name ?? null,
-                    ],
-                    'payment_way' => [
-                        'id' => $paymentWay->id,
-                        'name' => $paymentWay->name,
-                        'balance_before' => $transaction->balance_before_transaction,
-                        'balance_after' => $transaction->balance_after_transaction,
-                    ],
-                ],
-            ]);
+                ]);
 
-            return [
-                'installment' => $installment->load('payments'),
-                'transaction' => $transaction,
-            ];
+                return [
+                    'installment' => $installment->load('payments'),
+                    'transaction' => $transaction,
+                ];
+            });
         });
     }
 

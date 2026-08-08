@@ -558,7 +558,7 @@ return [
     'delete_member' => 'حذف العضو',
     'are_you_sure_you_want_to_delete_this_member' => 'هل أنت متأكد أنك تريد حذف هذا العضو؟',
     'cancel' => 'الغاء',
-    'enter_amount' => 'Enter amount',
+    'enter_amount' => 'أدخل المبلغ',
     'payment_status' => 'حالة الدفع',
     'amount_exceeds_total' => 'المبلغ المدفوع أكبر من إجمالي المبلغ المطلوب. أقصى مبلغ متبقي هو :max جنيه.',
     'payment_times' => 'عدد مرات الدفع',
@@ -654,5 +654,6 @@ return [
         'user_status_updated' => 'تم تحديث حالة المستخدم بنجاح.',
         'user_created' => 'تم إنشاء المستخدم بنجاح.',
         'user_deleted' => 'تم حذف المستخدم بنجاح.',
+        'duplicate_transaction_in_progress' => 'هناك معاملة مكررة قيد المعالجة. يرجى الانتظار حتى اكتمال المعاملة الحالية قبل محاولة إرسال معاملة جديدة.',
     ],
 ];

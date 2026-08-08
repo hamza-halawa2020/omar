@@ -7,7 +7,7 @@ use App\Models\AssociationPayment;
 use App\Models\Client;
 use App\Models\PaymentWay;
 use App\Models\Transaction;
-use App\Services\Concerns\HandlesWalletMonthlyLimits;
+use App\Services\Concerns\HandlesTransactionConcurrency;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
 
 class AssociationService
 {
-    use HandlesWalletMonthlyLimits;
+    use HandlesTransactionConcurrency;
 
     public function indexData(): array
     {
@@ -147,58 +147,62 @@ class AssociationService
 
         $data['association_id'] = $id;
         $data['created_by'] = Auth::id();
-        $paymentWay = PaymentWay::findOrFail($data['payment_way_id']);
         $total = $data['amount'] + ($data['commission'] ?? 0);
 
-        $monthlyLimit = null;
-        if ($paymentWay->type === 'wallet') {
-            $monthlyLimit = $this->getOrCreateCurrentMonthlyLimit($paymentWay);
-            if (($monthlyLimit->receive_used + $total) > $monthlyLimit->receive_limit) {
-                throw new HttpResponseException(response()->json(['status' => false, 'message' => __('messages.receive_limit_exceeded')], 400));
-            }
-        }
+        return $this->withTransactionSubmissionLock('association-payment', $data, function () use ($association, $member, $data, $total) {
+            return DB::transaction(function () use ($association, $member, $data, $total) {
+                $member = $member->newQuery()->with('client')->whereKey($member->id)->lockForUpdate()->firstOrFail();
+                $totalDue = $association->total_members * $association->monthly_amount;
+                $totalPaid = $member->payments()->sum('amount');
+                if (($totalPaid + $data['amount']) > $totalDue) {
+                    throw new HttpResponseException(response()->json(['status' => false, 'message' => __('messages.amount_exceeds_total', ['max' => $totalDue - $totalPaid])], 400));
+                }
 
-        return DB::transaction(function () use ($association, $member, $data, $paymentWay, $total, $monthlyLimit) {
-            $transaction = Transaction::create([
-                'payment_way_id' => $paymentWay->id,
-                'created_by' => Auth::id(),
-                'type' => 'receive',
-                'amount' => $data['amount'],
-                'commission' => $data['commission'] ?? 0,
-                'notes' => __('messages.payment_for_installment') . ' ' . ($member->client->name ?? '') . ' - ' . $association->name,
-                'client_id' => $member->client_id ?? null,
-                'balance_before_transaction' => $paymentWay->balance,
-                'balance_after_transaction' => $paymentWay->balance + $total,
-            ]);
+                $paymentWay = $this->lockedPaymentWay($data['payment_way_id']);
+                $monthlyLimit = $this->lockedCurrentMonthlyLimit($paymentWay);
+                $this->assertPaymentWayCanHandleTransaction($paymentWay, $monthlyLimit, 'receive', $data['amount'], $total);
 
-            $paymentWay->increment('balance', $total);
-            if ($monthlyLimit) {
-                $monthlyLimit->increment('receive_used', $total);
-            }
+                $transaction = Transaction::create([
+                    'payment_way_id' => $paymentWay->id,
+                    'created_by' => Auth::id(),
+                    'type' => 'receive',
+                    'amount' => $data['amount'],
+                    'commission' => $data['commission'] ?? 0,
+                    'notes' => __('messages.payment_for_installment') . ' ' . ($member->client->name ?? '') . ' - ' . $association->name,
+                    'client_id' => $member->client_id ?? null,
+                    'balance_before_transaction' => $paymentWay->balance,
+                    'balance_after_transaction' => $paymentWay->balance + $total,
+                ]);
 
-            $data['transaction_id'] = $transaction->id;
-            $payment = AssociationPayment::create($data);
+                $paymentWay->increment('balance', $total);
+                if ($monthlyLimit) {
+                    $monthlyLimit->increment('receive_used', $total);
+                }
 
-            $transaction->logs()->create([
-                'created_by' => Auth::id(),
-                'action' => 'create',
-                'data' => [
-                    'association' => ['id' => $association->id, 'name' => $association->name],
-                    'member' => [
-                        'id' => $member->id,
-                        'name' => $member->client->name ?? null,
-                        'total_paid' => $member->payments()->sum('amount'),
+                $data['transaction_id'] = $transaction->id;
+                $payment = AssociationPayment::create($data);
+
+                $transaction->logs()->create([
+                    'created_by' => Auth::id(),
+                    'action' => 'create',
+                    'data' => [
+                        'association' => ['id' => $association->id, 'name' => $association->name],
+                        'member' => [
+                            'id' => $member->id,
+                            'name' => $member->client->name ?? null,
+                            'total_paid' => $member->payments()->sum('amount'),
+                        ],
+                        'payment_way' => [
+                            'id' => $paymentWay->id,
+                            'name' => $paymentWay->name,
+                            'balance_before' => $transaction->balance_before_transaction,
+                            'balance_after' => $transaction->balance_after_transaction,
+                        ],
                     ],
-                    'payment_way' => [
-                        'id' => $paymentWay->id,
-                        'name' => $paymentWay->name,
-                        'balance_before' => $transaction->balance_before_transaction,
-                        'balance_after' => $transaction->balance_after_transaction,
-                    ],
-                ],
-            ]);
+                ]);
 
-            return ['payment' => $payment, 'transaction' => $transaction];
+                return ['payment' => $payment, 'transaction' => $transaction];
+            });
         });
     }
 
@@ -206,7 +210,6 @@ class AssociationService
     {
         $association = Association::with('members.client')->findOrFail($id);
         $member = $association->members()->findOrFail($data['member_id']);
-        $paymentWay = PaymentWay::findOrFail($data['payment_way_id']);
 
         if ($member->has_received) {
             throw new HttpResponseException(response()->json(['status' => false, 'message' => __('messages.this_member_recevied')], 400));
@@ -216,59 +219,62 @@ class AssociationService
         $commission = $data['commission'] ?? 0;
         $total = $totalReceived + $commission;
 
-        $monthlyLimit = null;
-        if ($paymentWay->type === 'wallet') {
-            $monthlyLimit = $this->getOrCreateCurrentMonthlyLimit($paymentWay);
-            if (($monthlyLimit->send_used + $total) > $monthlyLimit->send_limit) {
-                throw new HttpResponseException(response()->json(['status' => false, 'message' => __('messages.send_limit_exceeded')], 400));
-            }
-        }
+        return $this->withTransactionSubmissionLock('association-member-payout', $data, function () use ($data, $member, $association, $totalReceived, $commission, $total) {
+            return DB::transaction(function () use ($data, $member, $association, $totalReceived, $commission, $total) {
+                $member = $member->newQuery()->with('client')->whereKey($member->id)->lockForUpdate()->firstOrFail();
+                if ($member->has_received) {
+                    throw new HttpResponseException(response()->json(['status' => false, 'message' => __('messages.this_member_recevied')], 400));
+                }
 
-        return DB::transaction(function () use ($member, $association, $paymentWay, $totalReceived, $commission, $total, $monthlyLimit) {
-            $transaction = Transaction::create([
-                'payment_way_id' => $paymentWay->id,
-                'created_by' => Auth::id(),
-                'type' => 'send',
-                'amount' => $totalReceived,
-                'commission' => $commission,
-                'notes' => __('messages.recevied_done') . ' ' . $association->name . ' - ' . ($member->client->name ?? ''),
-                'client_id' => $member->client_id,
-                'balance_before_transaction' => $paymentWay->balance,
-                'balance_after_transaction' => $paymentWay->balance - $total,
-            ]);
+                $paymentWay = $this->lockedPaymentWay($data['payment_way_id']);
+                $monthlyLimit = $this->lockedCurrentMonthlyLimit($paymentWay);
+                $this->assertPaymentWayCanHandleTransaction($paymentWay, $monthlyLimit, 'send', $totalReceived, $total);
 
-            $paymentWay->decrement('balance', $total);
-            if ($monthlyLimit) {
-                $monthlyLimit->increment('send_used', $total);
-            }
+                $transaction = Transaction::create([
+                    'payment_way_id' => $paymentWay->id,
+                    'created_by' => Auth::id(),
+                    'type' => 'send',
+                    'amount' => $totalReceived,
+                    'commission' => $commission,
+                    'notes' => __('messages.recevied_done') . ' ' . $association->name . ' - ' . ($member->client->name ?? ''),
+                    'client_id' => $member->client_id,
+                    'balance_before_transaction' => $paymentWay->balance,
+                    'balance_after_transaction' => $paymentWay->balance - $total,
+                ]);
 
-            $member->update([
-                'has_received' => true,
-                'transaction_id' => $transaction->id,
-                'amount' => $totalReceived,
-                'received_at' => now(),
-            ]);
+                $paymentWay->decrement('balance', $total);
+                if ($monthlyLimit) {
+                    $monthlyLimit->increment('send_used', $total);
+                }
 
-            $transaction->logs()->create([
-                'created_by' => Auth::id(),
-                'action' => 'create',
-                'data' => [
-                    'association' => ['id' => $association->id, 'name' => $association->name],
-                    'member' => [
-                        'id' => $member->id,
-                        'name' => $member->client->name ?? null,
-                        'amount_received' => $totalReceived,
+                $member->update([
+                    'has_received' => true,
+                    'transaction_id' => $transaction->id,
+                    'amount' => $totalReceived,
+                    'received_at' => now(),
+                ]);
+
+                $transaction->logs()->create([
+                    'created_by' => Auth::id(),
+                    'action' => 'create',
+                    'data' => [
+                        'association' => ['id' => $association->id, 'name' => $association->name],
+                        'member' => [
+                            'id' => $member->id,
+                            'name' => $member->client->name ?? null,
+                            'amount_received' => $totalReceived,
+                        ],
+                        'payment_way' => [
+                            'id' => $paymentWay->id,
+                            'name' => $paymentWay->name,
+                            'balance_before' => $transaction->balance_before_transaction,
+                            'balance_after' => $transaction->balance_after_transaction,
+                        ],
                     ],
-                    'payment_way' => [
-                        'id' => $paymentWay->id,
-                        'name' => $paymentWay->name,
-                        'balance_before' => $transaction->balance_before_transaction,
-                        'balance_after' => $transaction->balance_after_transaction,
-                    ],
-                ],
-            ]);
+                ]);
 
-            return ['member' => $member->fresh(), 'transaction' => $transaction];
+                return ['member' => $member->fresh(), 'transaction' => $transaction];
+            });
         });
     }
 

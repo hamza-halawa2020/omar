@@ -19,6 +19,15 @@
                         <label>{{ __('messages.search') }}</label>
                         <input type="text" id="searchInput" class="form-control mt-1" placeholder="{{ __('messages.search') }}">
                     </div>
+                    <div class="col-md-4">
+                        <label>{{ __('messages.code') }}</label>
+                        <select id="codeFilter" class="form-control mt-1">
+                            <option value="">{{ __('messages.all') }}</option>
+                            @foreach ($productCodes as $productCode)
+                                <option value="{{ $productCode->code }}">{{ $productCode->code }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
@@ -65,13 +74,21 @@
                 loadproducts();
             });
 
+            $('#codeFilter').on('change', function() {
+                loadproducts();
+            });
+
             function loadproducts() {
                 let search = $('#searchInput').val();
+                let code = $('#codeFilter').val();
 
                 $.get("{{ route('products.list') }}", {
-                    search: search
+                    search: search,
+                    code: code
                 }, function(res) {
                     if (res.status) {
+                        refreshCodeFilter(res.codes || []);
+
                         let rows = '';
                         let parentOptions = '<option value="">{{ __('messages.none') }}</option>';
                         res.data.forEach((cat, i) => {
@@ -118,6 +135,29 @@
                         $('#parentSelect').html(parentOptions);
                         $('#editParent').html(parentOptions);
                     }
+                });
+            }
+
+            function refreshCodeFilter(codes) {
+                let selectedCode = $('#codeFilter').val();
+                let codeFilter = $('#codeFilter');
+
+                codeFilter.empty().append(
+                    $('<option>', {
+                        value: '',
+                        text: '{{ __('messages.all') }}'
+                    })
+                );
+
+                codes.forEach(function(item) {
+                    let code = item.code ?? item;
+                    codeFilter.append(
+                        $('<option>', {
+                            value: code,
+                            text: code,
+                            selected: code == selectedCode
+                        })
+                    );
                 });
             }
 
