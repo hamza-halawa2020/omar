@@ -16,7 +16,7 @@ trait HandlesTransactionConcurrency
 
         $key = 'transaction-submission:'.sha1($scope.'|'.$this->stableJson($payload));
 
-        if (! Cache::lock($key, $seconds)->get()) {
+        if (! Cache::store('file')->lock($key, $seconds)->get()) {
             throw new HttpResponseException(response()->json([
                 'status' => false,
                 'message' => __('messages.duplicate_transaction_in_progress'),
