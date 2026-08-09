@@ -6,6 +6,7 @@ use App\Http\Controllers\Dashboard\CategoryController;
 use App\Http\Controllers\Dashboard\ClientController;
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Dashboard\InstallmentContractController;
+use App\Http\Controllers\Dashboard\IphoneController;
 use App\Http\Controllers\Dashboard\LoginController;
 use App\Http\Controllers\Dashboard\PaymentWayController;
 use App\Http\Controllers\Dashboard\ProductController;
@@ -45,6 +46,14 @@ Route::prefix('dashboard')->middleware(['auth.or_impersonate', 'tenancy'])->grou
     Route::put('products/{id}', [ProductController::class, 'update'])->name('products.update');
     Route::delete('products/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
     Route::get('/products/{id}/details', [ProductController::class, 'details'])->name('products.details');
+
+    Route::get('iphones', [IphoneController::class, 'index'])->name('iphones.index');
+    Route::get('iphones/list', [IphoneController::class, 'list'])->name('iphones.list');
+    Route::post('iphones', [IphoneController::class, 'store'])->name('iphones.store');
+    Route::put('iphones/{id}', [IphoneController::class, 'update'])->name('iphones.update');
+    Route::delete('iphones/{id}', [IphoneController::class, 'destroy'])->name('iphones.destroy');
+    Route::get('iphones/{id}/logs', [IphoneController::class, 'logs'])->name('iphones.logs');
+    Route::post('iphones/{id}/logs', [IphoneController::class, 'storeLog'])->name('iphones.logs.store');
 
     Route::get('installment_contracts', [InstallmentContractController::class, 'index'])->name('installment_contracts.index');
     Route::get('installment_contracts/list', [InstallmentContractController::class, 'list'])->name('installment_contracts.list');

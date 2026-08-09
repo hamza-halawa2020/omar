@@ -46,6 +46,12 @@ class PermissionSeeder extends Seeder
             'products_update',
             'products_destroy',
 
+            'iphones_index',
+            'iphones_store',
+            'iphones_update',
+            'iphones_destroy',
+            'iphones_logs',
+
             'transactions_index',
             'transactions_store',
             'transactions_show',
