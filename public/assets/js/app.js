@@ -21,14 +21,41 @@
     $(".dashboard-main").toggleClass("active");
   });
 
+  function closeMobileSidebar() {
+    $(".sidebar").removeClass("sidebar-open");
+    $("body").removeClass("overlay-active");
+  }
+
   $(".sidebar-mobile-toggle").on("click", function(){
     $(".sidebar").addClass("sidebar-open");
     $("body").addClass("overlay-active");
   });
 
   $(".sidebar-close-btn").on("click", function(){
-    $(".sidebar").removeClass("sidebar-open");
-    $("body").removeClass("overlay-active");
+    closeMobileSidebar();
+  });
+
+  $(document).on("click", function(event){
+    if (!$("body").hasClass("overlay-active")) return;
+
+    const clickedInsideSidebar = $(event.target).closest(".sidebar").length;
+    const clickedToggle = $(event.target).closest(".sidebar-mobile-toggle").length;
+
+    if (!clickedInsideSidebar && !clickedToggle) {
+      closeMobileSidebar();
+    }
+  });
+
+  $(document).on("keyup", function(event){
+    if (event.key === "Escape") {
+      closeMobileSidebar();
+    }
+  });
+
+  $(".sidebar-menu a[href]:not([href='javascript:void(0)'])").on("click", function(){
+    if (window.innerWidth < 1200) {
+      closeMobileSidebar();
+    }
   });
 
   //to keep the current page active

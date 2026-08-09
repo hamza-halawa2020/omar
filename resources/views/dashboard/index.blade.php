@@ -3,16 +3,16 @@
 @section('title', __('messages.dashboard'))
 
 @section('content')
-    <div class="container-fluid py-3">
+    <div class="container-fluid py-3 dashboard-analytics-page">
         <!-- Header -->
-        <div class="mb-3">{{ __('messages.dashboard') }}</div>
+        <div class="mb-3 dashboard-page-title">{{ __('messages.dashboard') }}</div>
 
         <!-- Date Filter Form -->
         <div class="card mb-3">
             <div class="card-body">
                 <div class="card-title">{{ __('messages.filter_statistics') }}</div>
-                <form id="filterForm" class="row g-3">
-                    <div class="col-md-auto">
+                <form id="filterForm" class="row g-3 dashboard-filter-form">
+                    <div class="col-12 col-sm-6 col-lg-auto">
                         <label for="filter_type" class="form-label">{{ __('messages.filter_type') }}</label>
                         <select id="filter_type" name="filter_type" class="form-select">
                             <option value="today">{{ __('messages.today') }}</option>
@@ -20,19 +20,19 @@
                             <option value="custom">{{ __('messages.custom_range') }}</option>
                         </select>
                     </div>
-                    <div class="col-md-auto">
+                    <div class="col-12 col-sm-6 col-lg-auto">
                         <label for="filter_type" class="form-label">{{ __('messages.analytics_number') }}</label>
                        <input type="number" class="form-control" value="5" id="analytics_number" name="value">
                     </div>
-                    <div class="col-md-auto custom-date d-none">
+                    <div class="col-12 col-sm-6 col-lg-auto custom-date d-none">
                         <label for="start_date" class="form-label">{{ __('messages.start_date') }}</label>
                         <input type="date" id="start_date" name="start_date" class="form-control">
                     </div>
-                    <div class="col-md-auto custom-date d-none">
+                    <div class="col-12 col-sm-6 col-lg-auto custom-date d-none">
                         <label for="end_date" class="form-label">{{ __('messages.end_date') }}</label>
                         <input type="date" id="end_date" name="end_date" class="form-control">
                     </div>
-                    <div class="col-md-2 align-self-end">
+                    <div class="col-12 col-sm-6 col-lg-2 align-self-end">
                         <button type="submit" class="btn btn-primary w-100">{{ __('messages.apply_filter') }}</button>
                     </div>
                 </form>
@@ -40,9 +40,9 @@
         </div>
 
         <!-- Summary Cards -->
-        <div class="row mb-3">
-            <div class="col-md-auto">
-                <div class="card">
+        <div class="row g-3 mb-3 dashboard-summary-grid">
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card dashboard-summary-card">
                     <div class="card-body">
                         <div class="card-title">{{ __('messages.total_revenue') }}</div>
                         <p class="card-text display-3" id="total_revenue">0.00</p>
@@ -50,8 +50,8 @@
                 </div>
             </div>
 
-            <div class="col-md-auto">
-                <div class="card">
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card dashboard-summary-card">
                     <div class="card-body">
                         <div class="card-title">{{ __('messages.total_payment_ways_balance') }}</div>
                         <p class="card-text display-3" id="total_payment_ways_balance">0.00</p>
@@ -60,7 +60,7 @@
             </div>
         </div>
 
-        <div class="row g-3">
+        <div class="row g-3 dashboard-analytics-grid">
             @include('dashboard.partials.clients-section')
             @include('dashboard.partials.payment-ways-section')
             @include('dashboard.partials.products-transactions-section')

@@ -1,7 +1,7 @@
 {{-- قسم المنتجات والمعاملات: Products, Last Send, Last Receive --}}
 
 <!-- Top Products by Installments -->
-<div class="col-md-auto mb-3">
+<div class="col-12 col-lg-6 col-xxl-4 dashboard-analytics-column">
     <div class="card">
         <div class="card-header">
             <div class="card-title">{{ __('messages.top_products_by_installments') }}</div>
@@ -13,8 +13,8 @@
             <div class="chart-container" id="productsChartContainer">
                 <canvas id="productsChart" height="200"></canvas>
             </div>
-            <div class="table-container d-none" id="productsTableContainer">
-                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+            <div class="table-container responsive-records-wrapper d-none" id="productsTableContainer">
+                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records">
                     <thead>
                         <tr>
                             <th class="text-center">{{ __('messages.name') }}</th>
@@ -29,7 +29,7 @@
 </div>
 
 <!-- Last Send Transactions -->
-<div class="col-md-auto mb-3">
+<div class="col-12 col-lg-6 col-xxl-4 dashboard-analytics-column">
     <div class="card">
         <div class="card-header">
             <div class="card-title">{{ __('messages.last_send_transactions') }}</div>
@@ -41,8 +41,8 @@
             <div class="chart-container" id="lastSendChartContainer">
                 <canvas id="lastSendChart" height="200"></canvas>
             </div>
-            <div class="table-container d-none" id="lastSendTableContainer">
-                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+            <div class="table-container responsive-records-wrapper d-none" id="lastSendTableContainer">
+                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records">
                     <thead>
                         <tr>
                             <th class="text-center">{{ __('messages.client') }}</th>
@@ -59,7 +59,7 @@
 </div>
 
 <!-- Last Receive Transactions -->
-<div class="col-md-auto mb-3">
+<div class="col-12 col-lg-6 col-xxl-4 dashboard-analytics-column">
     <div class="card">
         <div class="card-header">
             <div class="card-title">{{ __('messages.last_receive_transactions') }}</div>
@@ -71,8 +71,8 @@
             <div class="chart-container" id="lastReceiveChartContainer">
                 <canvas id="lastReceiveChart" height="200"></canvas>
             </div>
-            <div class="table-container d-none" id="lastReceiveTableContainer">
-                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+            <div class="table-container responsive-records-wrapper d-none" id="lastReceiveTableContainer">
+                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records">
                     <thead>
                         <tr>
                             <th class="text-center">{{ __('messages.client') }}</th>
@@ -188,7 +188,7 @@
             // Update Top Products by Installments
             document.getElementById('top_products_by_installments').innerHTML = data.top_products_by_installments.map(
                 item => `
-        <tr><td>${item.name}</td><td>${item.installment_contract_count}</td></tr>
+        <tr><td class="mobile-primary" data-label="{{ __('messages.name') }}">${item.name}</td><td data-label="{{ __('messages.contract_count') }}">${item.installment_contract_count}</td></tr>
     `).join('');
             productsChart.data.labels = data.top_products_by_installments.map(item => item.name);
             productsChart.data.datasets[0].data = data.top_products_by_installments.map(item => item
@@ -197,7 +197,7 @@
 
             // Update Last Send Transactions
             document.getElementById('last_send_transactions').innerHTML = data.last_send_transactions.map(item => `
-        <tr><td>${item.client_name}</td><td>${item.payment_way}</td><td>${parseFloat(item.amount).toFixed(2)}</td><td>${item.created_at}</td></tr>
+        <tr><td class="mobile-primary" data-label="{{ __('messages.client') }}">${item.client_name}</td><td data-label="{{ __('messages.payment_way') }}">${item.payment_way}</td><td data-label="{{ __('messages.amount') }}">${parseFloat(item.amount).toFixed(2)}</td><td data-label="{{ __('messages.date') }}">${item.created_at}</td></tr>
     `).join('');
             lastSendChart.data.labels = data.last_send_transactions.map(item => item.created_at);
             lastSendChart.data.datasets[0].data = data.last_send_transactions.map(item => parseFloat(item.amount));
@@ -205,7 +205,7 @@
 
             // Update Last Receive Transactions
             document.getElementById('last_receive_transactions').innerHTML = data.last_receive_transactions.map(item => `
-        <tr><td>${item.client_name}</td><td>${item.payment_way}</td><td>${parseFloat(item.amount).toFixed(2)}</td><td>${item.created_at}</td></tr>
+        <tr><td class="mobile-primary" data-label="{{ __('messages.client') }}">${item.client_name}</td><td data-label="{{ __('messages.payment_way') }}">${item.payment_way}</td><td data-label="{{ __('messages.amount') }}">${parseFloat(item.amount).toFixed(2)}</td><td data-label="{{ __('messages.date') }}">${item.created_at}</td></tr>
     `).join('');
             lastReceiveChart.data.labels = data.last_receive_transactions.map(item => item.created_at);
             lastReceiveChart.data.datasets[0].data = data.last_receive_transactions.map(item => parseFloat(item.amount));

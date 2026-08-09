@@ -38,6 +38,7 @@
                                 <option value="{{ $client->id }}">{{ $client->name }}</option>
                             @endforeach
                         </select>
+                        <span class="mobile-helper-text" id="logClientHelperText"></span>
                     </div>
                     <div class="mb-3">
                         <label>{{ __('messages.amount') }}</label>

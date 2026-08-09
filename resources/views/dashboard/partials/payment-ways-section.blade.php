@@ -1,7 +1,7 @@
 {{-- قسم طرق الدفع: Send, Receive, Balance, Nearing Limits --}}
 
 <!-- Top Payment Ways by Send -->
-<div class="col-md-auto mb-3">
+<div class="col-12 col-lg-6 col-xxl-4 dashboard-analytics-column">
     <div class="card">
         <div class="card-header">
             <div class="card-title">{{ __('messages.top_payment_ways_by_send') }}</div>
@@ -13,8 +13,8 @@
             <div class="chart-container" id="paymentWaysSendChartContainer">
                 <canvas id="paymentWaysSendChart" height="200"></canvas>
             </div>
-            <div class="table-container d-none" id="paymentWaysSendTableContainer">
-                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+            <div class="table-container responsive-records-wrapper d-none" id="paymentWaysSendTableContainer">
+                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records">
                     <thead>
                         <tr>
                             <th class="text-center">{{ __('messages.name') }}</th>
@@ -29,7 +29,7 @@
 </div>
 
 <!-- Top Payment Ways by Receive -->
-<div class="col-md-auto mb-3">
+<div class="col-12 col-lg-6 col-xxl-4 dashboard-analytics-column">
     <div class="card">
         <div class="card-header">
             <div class="card-title">{{ __('messages.top_payment_ways_by_receive') }}</div>
@@ -41,8 +41,8 @@
             <div class="chart-container" id="paymentWaysReceiveChartContainer">
                 <canvas id="paymentWaysReceiveChart" height="200"></canvas>
             </div>
-            <div class="table-container d-none" id="paymentWaysReceiveTableContainer">
-                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+            <div class="table-container responsive-records-wrapper d-none" id="paymentWaysReceiveTableContainer">
+                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records">
                     <thead>
                         <tr>
                             <th class="text-center">{{ __('messages.name') }}</th>
@@ -57,7 +57,7 @@
 </div>
 
 <!-- Top Payment Ways by Balance -->
-<div class="col-md-auto mb-3">
+<div class="col-12 col-lg-6 col-xxl-4 dashboard-analytics-column">
     <div class="card">
         <div class="card-header">
             <div class="card-title">{{ __('messages.top_payment_ways_by_balance') }}</div>
@@ -69,8 +69,8 @@
             <div class="chart-container" id="paymentWaysBalanceChartContainer">
                 <canvas id="paymentWaysBalanceChart" height="200"></canvas>
             </div>
-            <div class="table-container d-none" id="paymentWaysBalanceTableContainer">
-                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+            <div class="table-container responsive-records-wrapper d-none" id="paymentWaysBalanceTableContainer">
+                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records">
                     <thead>
                         <tr>
                             <th class="text-center">{{ __('messages.name') }}</th>
@@ -85,7 +85,7 @@
 </div>
 
 <!-- Top Payment Ways Nearing Send Limit -->
-<div class="col-md-auto mb-3">
+<div class="col-12 col-lg-6 col-xxl-4 dashboard-analytics-column">
     <div class="card">
         <div class="card-header">
             <div class="card-title">{{ __('messages.top_payment_ways_nearing_send_limit') }}</div>
@@ -97,8 +97,8 @@
             <div class="chart-container" id="sendLimitChartContainer">
                 <canvas id="sendLimitChart" height="200"></canvas>
             </div>
-            <div class="table-container d-none" id="sendLimitTableContainer">
-                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+            <div class="table-container responsive-records-wrapper d-none" id="sendLimitTableContainer">
+                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records">
                     <thead>
                         <tr>
                             <th class="text-center">{{ __('messages.name') }}</th>
@@ -115,7 +115,7 @@
 </div>
 
 <!-- Top Payment Ways Nearing Receive Limit -->
-<div class="col-md-auto mb-3">
+<div class="col-12 col-lg-6 col-xxl-4 dashboard-analytics-column">
     <div class="card">
         <div class="card-header">
             <div class="card-title">{{ __('messages.top_payment_ways_nearing_receive_limit') }}</div>
@@ -127,8 +127,8 @@
             <div class="chart-container" id="receiveLimitChartContainer">
                 <canvas id="receiveLimitChart" height="200"></canvas>
             </div>
-            <div class="table-container d-none" id="receiveLimitTableContainer">
-                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+            <div class="table-container responsive-records-wrapper d-none" id="receiveLimitTableContainer">
+                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records">
                     <thead>
                         <tr>
                             <th class="text-center">{{ __('messages.name') }}</th>
@@ -242,7 +242,7 @@
         function updatePaymentWaysSection(data) {
             // Update Top Payment Ways by Send
             document.getElementById('top_payment_ways_by_send').innerHTML = data.top_payment_ways_by_send.map(item => `
-        <tr><td>${item.name}</td><td>${item.transaction_count}</td></tr>
+        <tr><td class="mobile-primary" data-label="{{ __('messages.name') }}">${item.name}</td><td data-label="{{ __('messages.transaction_count') }}">${item.transaction_count}</td></tr>
     `).join('');
             paymentSendChart.data.labels = data.top_payment_ways_by_send.map(item => item.name);
             paymentSendChart.data.datasets[0].data = data.top_payment_ways_by_send.map(item => item.transaction_count);
@@ -250,7 +250,7 @@
 
             // Update Top Payment Ways by Receive
             document.getElementById('top_payment_ways_by_receive').innerHTML = data.top_payment_ways_by_receive.map(item => `
-        <tr><td>${item.name}</td><td>${item.transaction_count}</td></tr>
+        <tr><td class="mobile-primary" data-label="{{ __('messages.name') }}">${item.name}</td><td data-label="{{ __('messages.transaction_count') }}">${item.transaction_count}</td></tr>
     `).join('');
             paymentReceiveChart.data.labels = data.top_payment_ways_by_receive.map(item => item.name);
             paymentReceiveChart.data.datasets[0].data = data.top_payment_ways_by_receive.map(item => item
@@ -259,7 +259,7 @@
 
             // Update Top Payment Ways by Balance
             document.getElementById('top_payment_ways_by_balance').innerHTML = data.top_payment_ways_by_balance.map(item => `
-        <tr><td>${item.name}</td><td>${parseFloat(item.balance).toFixed(2)}</td></tr>
+        <tr><td class="mobile-primary" data-label="{{ __('messages.name') }}">${item.name}</td><td data-label="{{ __('messages.balance') }}">${parseFloat(item.balance).toFixed(2)}</td></tr>
     `).join('');
             paymentBalanceChart.data.labels = data.top_payment_ways_by_balance.map(item => item.name);
             paymentBalanceChart.data.datasets[0].data = data.top_payment_ways_by_balance.map(item => parseFloat(item
@@ -269,7 +269,7 @@
             // Update Top Payment Ways Nearing Send Limit
             document.getElementById('top_payment_ways_nearing_send_limit').innerHTML = data
                 .top_payment_ways_nearing_send_limit.map(item => `
-        <tr><td>${item.name}</td><td>${parseFloat(item.send_used).toFixed(2)}</td><td>${parseFloat(item.send_limit).toFixed(2)}</td><td>${parseFloat(item.percentage_used).toFixed(2)}%</td></tr>
+        <tr><td class="mobile-primary" data-label="{{ __('messages.name') }}">${item.name}</td><td data-label="{{ __('messages.send_used') }}">${parseFloat(item.send_used).toFixed(2)}</td><td data-label="{{ __('messages.send_limit') }}">${parseFloat(item.send_limit).toFixed(2)}</td><td data-label="{{ __('messages.percentage_used') }}">${parseFloat(item.percentage_used).toFixed(2)}%</td></tr>
     `).join('');
             paymentSendLimitChart.data.labels = data.top_payment_ways_nearing_send_limit.map(item => item.name);
             paymentSendLimitChart.data.datasets[0].data = data.top_payment_ways_nearing_send_limit.map(item => parseFloat(
@@ -279,7 +279,7 @@
             // Update Top Payment Ways Nearing Receive Limit
             document.getElementById('top_payment_ways_nearing_receive_limit').innerHTML = data
                 .top_payment_ways_nearing_receive_limit.map(item => `
-        <tr><td>${item.name}</td><td>${parseFloat(item.receive_used).toFixed(2)}</td><td>${parseFloat(item.receive_limit).toFixed(2)}</td><td>${parseFloat(item.percentage_used).toFixed(2)}%</td></tr>
+        <tr><td class="mobile-primary" data-label="{{ __('messages.name') }}">${item.name}</td><td data-label="{{ __('messages.receive_used') }}">${parseFloat(item.receive_used).toFixed(2)}</td><td data-label="{{ __('messages.receive_limit') }}">${parseFloat(item.receive_limit).toFixed(2)}</td><td data-label="{{ __('messages.percentage_used') }}">${parseFloat(item.percentage_used).toFixed(2)}%</td></tr>
     `).join('');
             paymentReceiveLimitChart.data.labels = data.top_payment_ways_nearing_receive_limit.map(item => item.name);
             paymentReceiveLimitChart.data.datasets[0].data = data.top_payment_ways_nearing_receive_limit.map(item =>

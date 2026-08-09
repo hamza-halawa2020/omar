@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex justify-content-between align-items-center mb-3 mobile-stack-header">
         <div>Tenants</div>
         <button class="btn btn-outline-primary btn-sm radius-8" data-bs-toggle="modal" data-bs-target="#createTenantModal">
             Add Tenant
@@ -11,7 +11,7 @@
 
     <div class="card">
         <div class="card-body p-0">
-            <table class="table table-striped mb-0">
+            <table class="table table-striped mb-0 responsive-records">
                 <thead>
                     <tr>
                         <th>#</th>
@@ -24,17 +24,17 @@
                 <tbody>
                     @forelse($tenants as $tenant)
                     <tr>
-                        <td>{{ $loop->iteration }}</td>
-                        <td>{{ $tenant->name }}</td>
-                        <td>{{ $tenant->domain }}</td>
-                        <td>{{ $tenant->created_at?->format('Y-m-d') }}</td>
-                        <td>
+                        <td data-label="#"> {{ $loop->iteration }}</td>
+                        <td class="mobile-primary" data-label="Name">{{ $tenant->name }}</td>
+                        <td data-label="Domain">{{ $tenant->domain }}</td>
+                        <td data-label="Created">{{ $tenant->created_at?->format('Y-m-d') }}</td>
+                        <td class="mobile-actions" data-label="Actions">
                             <button class="btn btn-sm btn-outline-danger"
                                 onclick="deleteTenant('{{ $tenant->id }}')">Delete</button>
                         </td>
                     </tr>
                     @empty
-                    <tr><td colspan="5" class="text-center">No tenants found.</td></tr>
+                    <tr><td colspan="5" class="text-center" data-label="No tenants found">No tenants found.</td></tr>
                     @endforelse
                 </tbody>
             </table>

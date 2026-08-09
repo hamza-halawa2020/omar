@@ -5,7 +5,7 @@
 
     <div class="container">
         <!-- Header -->
-        <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-3 mobile-stack-header">
             <div class="fw-bold fs-5">
                 {{ __('messages.client_details') }}
             </div>
@@ -41,26 +41,26 @@
                 <div class="mb-0">{{ __('messages.statistics') }}</div>
             </div>
             <div class="card-body">
-                <div class="row text-center">
-                    <div class="col-md-3">
+                <div class="row text-center g-2 client-stats-grid">
+                    <div class="col-6 col-md-3">
                         <div class="p-3 rounded">
                             <div>{{ __('messages.total_transactions') }}</div>
                             <p id="totalTransactions" class="fw-bold">0</p>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-6 col-md-3">
                         <div class="p-3 rounded">
                             <div>{{ __('messages.total_sent') }}</div>
                             <p id="totalSent" class="fw-bold text-danger">0.00</p>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-6 col-md-3">
                         <div class="p-3 rounded">
                             <div>{{ __('messages.total_received') }}</div>
                             <p id="totalReceived" class="fw-bold text-success">0.00</p>
                         </div>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-6 col-md-3">
                         <div class="p-3 rounded">
                             <div>{{ __('messages.total_commission') }}</div>
                             <p id="totalCommission" class="fw-bold text-warning">0.00</p>
@@ -80,8 +80,8 @@
             <div class="card-header  d-flex justify-content-between align-items-center">
                 <div class="mb-0">{{ __('messages.transactions') }}</div>
             </div>
-            <div class="card-body" style="overflow-x: auto;">
-                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+            <div class="card-body responsive-records-wrapper">
+                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records">
                     <thead>
                         <tr>
                             <th class="text-center">{{ __('messages.id') }}</th>
@@ -112,8 +112,8 @@
             <div class="card-header d-flex justify-content-between align-items-center">
                 <div class="mb-0">{{ __('messages.debt_history') }}</div>
             </div>
-            <div class="card-body"  style="overflow-x: auto;">
-                <table class="text-center table table-bordered table-sm bordered-table sm-table mb-0">
+            <div class="card-body responsive-records-wrapper">
+                <table class="text-center table table-bordered table-sm bordered-table sm-table mb-0 responsive-records">
                     <thead>
                         <tr>
                             <th class="text-center">{{ __('messages.id') }}</th>
@@ -203,15 +203,15 @@
                         client.transactions.forEach(function(transaction, index) {
                             transactionsHtml += `
                                 <tr>
-                                    <td>${index +1}</td>
-                                    <td class="${transaction.type === 'send' ? 'text-danger' : 'text-success'}">${status[transaction.type]}</td>
-                                    <td>${parseFloat(transaction.amount)}</td>
-                                    <td>${transaction.debt_before !== null ? parseFloat(transaction.debt_before).toFixed(2) : '-'}</td>
-                                    <td>${transaction.debt_after !== null ? parseFloat(transaction.debt_after).toFixed(2) : '-'}</td>
-                                    <td>${transaction.notes}</td>
-                                    <td>${parseFloat(transaction.commission || 0)}</td>
-                                    <td>${transaction.paymentWay ? transaction.paymentWay.name : '{{ __('messages.unknown') }}'}</td>
-                                    <td>${transaction.created_at}</td>
+                                    <td data-label="{{ __('messages.id') }}">${index +1}</td>
+                                    <td class="mobile-primary ${transaction.type === 'send' ? 'text-danger' : 'text-success'}" data-label="{{ __('messages.type') }}">${status[transaction.type]}</td>
+                                    <td data-label="{{ __('messages.amount') }}">${parseFloat(transaction.amount)}</td>
+                                    <td data-label="{{ __('messages.debt_before') }}">${transaction.debt_before !== null ? parseFloat(transaction.debt_before).toFixed(2) : '-'}</td>
+                                    <td data-label="{{ __('messages.debt_after') }}">${transaction.debt_after !== null ? parseFloat(transaction.debt_after).toFixed(2) : '-'}</td>
+                                    <td class="mobile-muted" data-label="{{ __('messages.notes') }}">${transaction.notes}</td>
+                                    <td data-label="{{ __('messages.commission') }}">${parseFloat(transaction.commission || 0)}</td>
+                                    <td data-label="{{ __('messages.payment_way') }}">${transaction.paymentWay ? transaction.paymentWay.name : '{{ __('messages.unknown') }}'}</td>
+                                    <td class="mobile-muted" data-label="{{ __('messages.created_at') }}">${transaction.created_at}</td>
                                 </tr>
                             `;
                         });
@@ -234,16 +234,16 @@
                                 contract.installments.forEach(function(installment) {
                                     installmentsHtml += `
                                 <tr>
-                                    <td>${installment.id}</td>
-                                    <td>${installment.due_date}</td>
-                                    <td>${Math.ceil(installment.required_amount)}</td>
-                                    <td>${Math.ceil(installment.paid_amount)}</td>
-                                    <td>
+                                    <td data-label="{{ __('messages.id') }}">${installment.id}</td>
+                                    <td class="mobile-primary" data-label="{{ __('messages.due_date') }}">${installment.due_date}</td>
+                                    <td data-label="{{ __('messages.required') }}">${Math.ceil(installment.required_amount)}</td>
+                                    <td data-label="{{ __('messages.paid') }}">${Math.ceil(installment.paid_amount)}</td>
+                                    <td data-label="{{ __('messages.status') }}">
                                     <span class="${installment.status === 'paid' ? 'badge bg-success' : installment.status === 'late' ? 'badge bg-danger' : 'badge bg-warning text-dark'}">
                                         ${installmentStatus[installment.status] || '{{ __('messages.unknown') }}'}
                                         </span>
                                     </td>
-                                    <td>
+                                    <td class="mobile-actions" data-label="{{ __('messages.actions') }}">
                                         ${
                                             installment.status !== 'paid'
                                                 ? `<button class="btn btn-outline-success btn-sm radius-8 payBtn"
@@ -263,7 +263,7 @@
 
                                         installmentsHtml += `
                                             <tr>
-                                                <td colspan="6" class="text-start">
+                                                <td colspan="6" class="text-start" data-label="{{ __('messages.payments') }}">
                                                     <strong>{{ __('messages.payments') }}:</strong>
                                                     <ul>
                                                         ${installment.payments.map(pay =>
@@ -282,7 +282,7 @@
                             contractsAccordion += `
                         <div class="accordion-item">
                             <div class="accordion-header" id="heading${index}">
-                                <button class="accordion-button ${index > 0 ? 'collapsed' : ''}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${index}">
+                                <button class="accordion-button client-contract-toggle ${index > 0 ? 'collapsed' : ''}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${index}">
                                     <span class="px-3 py-1 bg-primary m-2 rounded">{{ __('messages.installments') }} #${contract.id} </span>
                                     <span class="px-3 py-1 bg-primary m-2 rounded">{{ __('messages.total') }} ${parseFloat(contract.total_amount).toFixed(2)} </span>
                                     <span class="px-3 py-1 bg-primary m-2 rounded">{{ __('messages.remaining_installments') }} ${contract.remaining_installments} </span>
@@ -294,7 +294,8 @@
                                     <p><strong>{{ __('messages.installment_count') }}:</strong> ${contract.installment_count}</p>
                                     <p><strong>{{ __('messages.installment_amount') }}:</strong> ${parseFloat(contract.installment_amount).toFixed(2)}</p>
                                     <hr>
-                                    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+                                    <div class="responsive-records-wrapper table-responsive">
+                                        <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records">
                                         <thead>
                                             <tr>
                                                 <th class="text-center">{{ __('messages.id') }}</th>
@@ -306,9 +307,10 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            ${installmentsHtml || `<tr><td colspan="5">{{ __('messages.no_installments') }}</td></tr>`}
+                                            ${installmentsHtml || `<tr><td colspan="5" data-label="{{ __('messages.no_installments') }}">{{ __('messages.no_installments') }}</td></tr>`}
                                         </tbody>
-                                    </table>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -333,19 +335,19 @@
 
                                 debtLogsHtml += `
                                     <tr>
-                                        <td>${log.id}</td>
-                                        <td>${parseFloat(log.debt_before).toFixed(2)}</td>
-                                        <td class="${parseFloat(log.change_amount) > 0 ? 'text-danger' : 'text-success'}">${parseFloat(log.change_amount).toFixed(2)}</td>
-                                        <td>${parseFloat(log.debt_after).toFixed(2)}</td>
-                                        <td>${log.description || '-'}</td>
-                                        <td>${sourceType} #${log.source_id || ''}</td>
-                                        <td>${log.creator ? log.creator.name : '-'}</td>
-                                        <td>${log.created_at}</td>
+                                        <td data-label="{{ __('messages.id') }}">${log.id}</td>
+                                        <td data-label="{{ __('messages.debt_before') }}">${parseFloat(log.debt_before).toFixed(2)}</td>
+                                        <td class="mobile-primary ${parseFloat(log.change_amount) > 0 ? 'text-danger' : 'text-success'}" data-label="{{ __('messages.change_amount') }}">${parseFloat(log.change_amount).toFixed(2)}</td>
+                                        <td data-label="{{ __('messages.debt_after') }}">${parseFloat(log.debt_after).toFixed(2)}</td>
+                                        <td class="mobile-muted" data-label="{{ __('messages.description') }}">${log.description || '-'}</td>
+                                        <td data-label="{{ __('messages.source') }}">${sourceType} #${log.source_id || ''}</td>
+                                        <td class="mobile-muted mobile-hide" data-label="{{ __('messages.created_by') }}">${log.creator ? log.creator.name : '-'}</td>
+                                        <td class="mobile-muted" data-label="{{ __('messages.created_at') }}">${log.created_at}</td>
                                     </tr>
                                 `;
                             });
                         } else {
-                            debtLogsHtml = `<tr><td colspan="8">{{ __('messages.no_records_found') }}</td></tr>`;
+                            debtLogsHtml = `<tr><td colspan="8" data-label="{{ __('messages.no_records_found') }}">{{ __('messages.no_records_found') }}</td></tr>`;
                         }
                         $('#debtLogsTable').html(debtLogsHtml);
 

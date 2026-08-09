@@ -1,0 +1,493 @@
+@media (max-width: 991.98px) {
+    .dashboard-main-body {
+        padding: 12px;
+    }
+
+    .dashboard-main-body .container {
+        max-width: 100%;
+        padding-inline: 0;
+    }
+
+    .dashboard-main-body .card-body {
+        padding: 12px;
+    }
+
+    .dashboard-main-body .card-header.d-flex,
+    .dashboard-main-body .card-body > .d-flex.justify-content-between {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .dashboard-main-body .modal-dialog {
+        margin: 10px;
+    }
+
+    .dashboard-main-body .modal-body {
+        max-height: calc(100vh - 170px);
+        overflow-y: auto;
+    }
+
+    .dashboard-main-body .btn {
+        min-height: 38px;
+    }
+
+    .dashboard-main-body .form-control,
+    .dashboard-main-body .form-select {
+        min-width: 0;
+    }
+
+    body.overlay-active {
+        overflow: hidden;
+    }
+
+    body::after {
+        position: fixed;
+        z-index: 2;
+    }
+
+    .navbar-header {
+        height: auto;
+        min-height: 64px;
+        padding: 10px 12px;
+    }
+
+    .navbar-header > .row {
+        --bs-gutter-x: 10px;
+        gap: 8px 0;
+    }
+
+    .sidebar-mobile-toggle,
+    .sidebar-close-btn,
+    [data-theme-toggle],
+    .navbar-header .dropdown > button {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    .sidebar-mobile-toggle,
+    .sidebar-close-btn {
+        align-items: center;
+        border-radius: 8px;
+        display: inline-flex;
+        justify-content: center;
+    }
+
+    .sidebar {
+        max-width: min(86vw, 300px);
+        transition: inset-inline-start 0.25s ease;
+        z-index: 4;
+    }
+
+    .sidebar-logo {
+        min-height: 64px;
+        padding-inline-end: 48px;
+    }
+
+    .sidebar-menu-area {
+        height: calc(100vh - 64px);
+        padding: 10px;
+    }
+
+    .sidebar-menu li a {
+        min-height: 44px;
+    }
+
+    .dashboard-analytics-page .dashboard-filter-form > [class*="col-"] {
+        min-width: 0;
+    }
+
+    .dashboard-summary-card {
+        height: 100%;
+    }
+
+    .dashboard-summary-card .display-3 {
+        font-size: clamp(30px, 5vw, 56px);
+        line-height: 1.1;
+        overflow-wrap: anywhere;
+    }
+
+    .dashboard-analytics-column .card {
+        height: 100%;
+    }
+
+    .dashboard-analytics-column .card-header {
+        align-items: center;
+        display: flex;
+        gap: 10px;
+        justify-content: space-between;
+    }
+
+    .dashboard-analytics-column .card-title {
+        margin-bottom: 0;
+        min-width: 0;
+    }
+
+    .dashboard-analytics-column .toggle-btn {
+        flex: 0 0 auto;
+        white-space: nowrap;
+    }
+
+    .dashboard-analytics-column .chart-container {
+        height: 260px;
+        min-width: 0;
+        position: relative;
+    }
+
+    .association-details-summary {
+        display: grid;
+        gap: 10px 16px;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+
+    .association-details-summary p {
+        margin-bottom: 0;
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    #transactionsChart {
+        max-height: 320px;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .dashboard-main-body {
+        padding: 10px;
+    }
+
+    .mobile-stack-header {
+        align-items: stretch !important;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .mobile-stack-header .btn {
+        width: 100%;
+    }
+
+    .dashboard-main-body .card-header.d-flex {
+        align-items: stretch !important;
+        flex-direction: column;
+    }
+
+    .mobile-filter-actions {
+        align-items: stretch !important;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .mobile-filter-actions .btn {
+        margin-inline-start: 0 !important;
+        width: 100%;
+    }
+
+    .mobile-card-grid {
+        --bs-gutter-y: 12px;
+    }
+
+    .navbar-header .row {
+        flex-wrap: nowrap;
+    }
+
+    .navbar-header .col-auto {
+        min-width: 0;
+    }
+
+    .navbar-header .d-flex.flex-wrap {
+        gap: 8px !important;
+    }
+
+    .navbar-header .bg-success {
+        padding: 8px 10px !important;
+    }
+
+    .navbar-header .bg-success a {
+        display: inline-flex;
+        max-width: 116px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .navbar-header .dropdown-menu {
+        max-width: calc(100vw - 24px);
+    }
+
+    .dashboard-page-title {
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    .dashboard-analytics-page .card-title {
+        font-size: 15px;
+        line-height: 1.4;
+    }
+
+    .dashboard-analytics-page .dashboard-filter-form {
+        --bs-gutter-y: 10px;
+    }
+
+    .dashboard-summary-card .display-3 {
+        font-size: 30px;
+    }
+
+    .dashboard-analytics-column .card-header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .dashboard-analytics-column .toggle-btn {
+        width: 100%;
+    }
+
+    .dashboard-analytics-column .chart-container {
+        height: 230px;
+    }
+
+    .client-stats-grid .p-3 {
+        padding: 10px !important;
+    }
+
+    .client-contract-toggle {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .client-contract-toggle span {
+        margin: 0 !important;
+        text-align: center;
+        white-space: normal;
+    }
+
+    .payment-way-filters {
+        align-items: stretch !important;
+        flex-direction: column;
+    }
+
+    .payment-way-filters .form-control,
+    .payment-way-filters .w-25,
+    .payment-way-filters .w-50 {
+        width: 100% !important;
+    }
+
+    .payment-way-date-filter {
+        margin-bottom: 0 !important;
+        width: 100%;
+    }
+
+    .payment-way-date-filter .btn {
+        flex: 0 0 44px;
+        padding-inline: 0;
+    }
+
+    #paymentTabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding-bottom: 2px;
+    }
+
+    #paymentTabs .nav-link {
+        min-height: 42px;
+        white-space: nowrap;
+    }
+
+    .payment-way-card .card-header,
+    .payment-way-card .card-body,
+    .payment-way-card .card-footer {
+        padding: 12px !important;
+    }
+
+    .payment-way-card .card-footer .d-flex {
+        flex-direction: column;
+    }
+
+    .payment-way-card .card-footer .btn {
+        width: 100%;
+    }
+
+    .payment-way-card .row.g-2 > [class*="col-"] {
+        width: 100%;
+    }
+
+    .responsive-records-wrapper {
+        overflow: visible !important;
+    }
+
+    .responsive-records {
+        border: 0 !important;
+        border-collapse: separate !important;
+        border-spacing: 0 12px !important;
+        min-width: 0 !important;
+        width: 100%;
+    }
+
+    .responsive-records thead {
+        display: none;
+    }
+
+    .responsive-records tbody,
+    .responsive-records tr,
+    .responsive-records td {
+        display: block;
+        width: 100%;
+    }
+
+    .responsive-records tbody tr {
+        background: var(--white);
+        border: 1px solid var(--neutral-200);
+        border-radius: 8px;
+        padding: 10px 12px;
+    }
+
+    .responsive-records tbody tr td {
+        align-items: flex-start;
+        background: transparent !important;
+        border: 0 !important;
+        border-bottom: 1px solid var(--neutral-100) !important;
+        color: var(--text-primary-light);
+        display: flex;
+        font-size: 14px;
+        gap: 12px;
+        justify-content: space-between;
+        padding: 9px 0 !important;
+        text-align: end !important;
+        white-space: normal;
+    }
+
+    .responsive-records tbody tr td:last-child {
+        border-bottom: 0 !important;
+        padding-bottom: 0 !important;
+    }
+
+    .responsive-records tbody tr td::before {
+        color: var(--text-secondary-light);
+        content: attr(data-label);
+        flex: 0 0 44%;
+        font-weight: 600;
+        text-align: start;
+    }
+
+    .responsive-records tbody tr td.mobile-primary {
+        align-items: center;
+        border-bottom-color: var(--neutral-200) !important;
+        font-size: 15px;
+        font-weight: 700;
+        padding-top: 0 !important;
+    }
+
+    .responsive-records tbody tr td.mobile-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: flex-start;
+        text-align: start !important;
+    }
+
+    .responsive-records tbody tr td.mobile-actions::before {
+        flex-basis: 100%;
+    }
+
+    .responsive-records tbody tr td.mobile-actions .btn {
+        flex: 1 1 calc(50% - 8px);
+        min-width: 120px;
+    }
+
+    .responsive-records tbody tr td.mobile-actions > .d-flex {
+        flex-wrap: wrap;
+        gap: 8px !important;
+        width: 100%;
+    }
+
+    .responsive-records .mobile-muted {
+        color: var(--text-secondary-light);
+    }
+
+    .responsive-records tbody tr td.mobile-hide {
+        display: none;
+    }
+
+    .responsive-records tbody tr td[colspan] {
+        display: block;
+        text-align: center !important;
+    }
+
+    .responsive-records tbody tr td[colspan]::before {
+        display: none;
+    }
+
+    .mobile-helper-text {
+        color: var(--text-secondary-light);
+        display: block;
+        font-size: 12px;
+        line-height: 1.5;
+        margin-top: 6px;
+    }
+
+    .modal .responsive-records tbody tr td.mobile-actions .btn {
+        flex-basis: 100%;
+    }
+
+    .modal .modal-header,
+    .modal .modal-footer {
+        padding: 12px;
+    }
+
+    .modal .modal-footer {
+        align-items: stretch;
+        flex-direction: column-reverse;
+    }
+
+    .modal .modal-footer .btn {
+        margin: 0;
+        width: 100%;
+    }
+
+    .mobile-badge-list {
+        justify-content: flex-start !important;
+    }
+
+    .mobile-badge-list .badge {
+        white-space: normal;
+        text-align: start;
+    }
+
+    .mobile-permissions-grid > [class*="col-"] {
+        width: 100%;
+    }
+
+    .mobile-permissions-grid .form-check {
+        border: 1px solid var(--neutral-200);
+        border-radius: 8px;
+        padding: 10px 12px 10px 34px;
+        width: 100%;
+    }
+
+    .profile-page {
+        margin-top: 0 !important;
+    }
+
+    .profile-card-column {
+        width: 100%;
+    }
+
+    .profile-page .card-header,
+    .profile-page .card-body {
+        padding: 12px;
+    }
+
+    .profile-page .profile-image {
+        height: 120px;
+        width: 120px;
+    }
+
+    .profile-page .preview-image {
+        height: 86px;
+        width: 86px;
+    }
+
+    .profile-submit-btn {
+        width: 100%;
+    }
+}

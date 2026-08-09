@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container">
-    <div class="d-flex justify-content-between mb-3">
+    <div class="d-flex justify-content-between mb-3 mobile-stack-header">
         <div class="fw-bold">{{ __('messages.product_details') }}: {{ $product->name }}</div>
     </div>
 
@@ -21,8 +21,8 @@
         @if ($installmentContracts->isEmpty())
             <div class="">{{ __('messages.no_installment_contracts') }}</div>
         @else
-            <div class="table-responsive">
-                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+            <div class="table-responsive responsive-records-wrapper">
+                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records">
                     <thead class="">
                         <tr>
                             <th class="text-center">#</th>
@@ -37,13 +37,13 @@
                     <tbody>
                         @foreach ($installmentContracts as $index => $contract)
                             <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td>{{ number_format($contract->product_price,0) ?? '' }}</td>
-                                <td>{{ $contract->client->name ?? '' }}</td>
-                                <td>{{ number_format($contract->total_amount, 0) }}</td>
-                                <td>{{ ceil($contract->installment_amount) }}</td>
-                                <td>{{ $contract->start_date ? $contract->start_date : '' }}</td>
-                                <td>
+                                <td data-label="#">{{ $index + 1 }}</td>
+                                <td data-label="{{ __('messages.sale_price') }}">{{ number_format($contract->product_price,0) ?? '' }}</td>
+                                <td class="mobile-primary" data-label="{{ __('messages.customer_name') }}">{{ $contract->client->name ?? '' }}</td>
+                                <td data-label="{{ __('messages.total_amount') }}">{{ number_format($contract->total_amount, 0) }}</td>
+                                <td data-label="{{ __('messages.installment_amount') }}">{{ ceil($contract->installment_amount) }}</td>
+                                <td data-label="{{ __('messages.start_date') }}">{{ $contract->start_date ? $contract->start_date : '' }}</td>
+                                <td data-label="{{ __('messages.status') }}">
                                     @if ($contract->status == 'active')
                                         <span class="badge bg-success">{{ __('messages.active') }}</span>
                                     @elseif ($contract->status == 'completed')
@@ -65,8 +65,8 @@
         @if ($transactions->isEmpty())
             <div class="">{{ __('messages.no_transactions') }}</div>
         @else
-            <div class="table-responsive">
-                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+            <div class="table-responsive responsive-records-wrapper">
+                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records">
                     <thead class="">
                         <tr>
                             <th class="text-center">#</th>
@@ -81,12 +81,12 @@
                         {{-- @dd($transactions) --}}
                         @foreach ($transactions as $index => $contract)
                             <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td>{{ $contract->amount ?? '' }}</td>
-                                <td>{{ $contract->commission ?? '' }}</td> 
-                                <td>{{ $contract->quantity ?? '' }}</td> 
-                                <td>{{ $contract->notes ?? '' }}</td> 
-                                <td>
+                                <td data-label="#">{{ $index + 1 }}</td>
+                                <td class="mobile-primary" data-label="{{ __('messages.amount') }}">{{ $contract->amount ?? '' }}</td>
+                                <td data-label="{{ __('messages.commission') }}">{{ $contract->commission ?? '' }}</td> 
+                                <td data-label="{{ __('messages.quantity') }}">{{ $contract->quantity ?? '' }}</td> 
+                                <td class="mobile-muted" data-label="{{ __('messages.notes') }}">{{ $contract->notes ?? '' }}</td> 
+                                <td data-label="{{ __('messages.type') }}">
                                     @if ($contract->type == 'receive')
                                         <span class="badge bg-success">{{ __('messages.receive') }}</span>
                                     @elseif ($contract->type == 'send')

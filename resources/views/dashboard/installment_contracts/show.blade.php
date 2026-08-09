@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="container">
-        <div class="d-flex justify-content-between mb-3">
+        <div class="d-flex justify-content-between mb-3 mobile-stack-header">
             <div>{{ __('messages.installment_contract_details') }}</div>
          
         </div>
@@ -41,7 +41,8 @@
         <div class="card mb-3">
             <div class="card-header fw-bold">{{ __('messages.installments') }}</div>
             <div class="card-body">
-                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+                <div class="responsive-records-wrapper table-responsive">
+                    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records">
                     <thead>
                         <tr>
                             <th class="text-center">#</th>
@@ -57,11 +58,11 @@
                     <tbody>
                         @foreach ($contract->installments as $i => $inst)
                             <tr>
-                                <td>{{ $i + 1 }}</td>
-                                <td>{{ $inst->due_date->format('Y-m-d') }}</td>
-                                <td>{{ ceil($inst->required_amount) }}</td>
-                                <td>{{ round($inst->paid_amount) }}</td>
-                                <td>
+                                <td data-label="#">{{ $i + 1 }}</td>
+                                <td class="mobile-primary" data-label="{{ __('messages.due_date') }}">{{ $inst->due_date->format('Y-m-d') }}</td>
+                                <td data-label="{{ __('messages.required_amount') }}">{{ ceil($inst->required_amount) }}</td>
+                                <td data-label="{{ __('messages.paid_amount') }}">{{ round($inst->paid_amount) }}</td>
+                                <td data-label="{{ __('messages.status') }}">
                                     @if ($inst->status == 'paid')
                                         <span class="badge bg-success">{{ __('messages.paid') }}</span>
                                     @elseif($inst->status == 'late')
@@ -71,7 +72,7 @@
                                     @endif
                                 </td>
                                 @can('installments_pay')
-                                    <td>
+                                    <td class="mobile-actions" data-label="{{ __('messages.actions') }}">
                                         @if ($inst->status != 'paid')
                                             <button class="btn btn-outline-success btn-sm radius-8 payBtn"
                                                 data-id="{{ $inst->id }}"
@@ -84,7 +85,7 @@
                             </tr>
                             @if ($inst->payments->count())
                                 <tr>
-                                    <td colspan="6" class="text-start">
+                                    <td colspan="6" class="text-start mobile-payments-row" data-label="{{ __('messages.payments') }}">
                                         <strong>{{ __('messages.payments') }}:</strong>
                                         <ul>
                                             @foreach ($inst->payments as $pay)
@@ -97,7 +98,8 @@
                             @endif
                         @endforeach
                     </tbody>
-                </table>
+                    </table>
+                </div>
             </div>
         </div>
 

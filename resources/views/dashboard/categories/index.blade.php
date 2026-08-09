@@ -4,7 +4,7 @@
     @include('components.alert')
 
     <div class="container">
-        <div class="d-flex justify-content-between mb-3">
+        <div class="d-flex justify-content-between mb-3 mobile-stack-header">
             <div class="fw-bold fs-5">{{ __('messages.categories') }}</div>
 
             @can('categories_store')
@@ -13,7 +13,8 @@
             @endcan
         </div>
 
-        <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0" id="categoriesTable">
+        <div class="responsive-records-wrapper table-responsive">
+        <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records" id="categoriesTable">
             <thead>
                 <tr>
                     <th class="text-center">{{ __('messages.id') }}</th>
@@ -29,6 +30,7 @@
                 {{-- Data will be loaded via AJAX --}}
             </tbody>
         </table>
+        </div>
     </div>
 
     <!-- Create Modal -->
@@ -44,6 +46,18 @@
         $(document).ready(function() {
             loadCategories();
 
+            function valueOrEmpty(value) {
+                return value ?? '';
+            }
+
+            function escapeHtml(value) {
+                return String(valueOrEmpty(value)).replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
+            }
+
             function loadCategories() {
                 $.get("{{ route('categories.list') }}", function(res) {
                     if (res.status) {
@@ -52,22 +66,22 @@
                         res.data.forEach((cat, i) => {
                             rows += `
                 <tr>
-                    <td>${i+1}</td>
-                    <td>${cat.name}</td>
-                    <td>${cat.parent ? cat.parent.name : ''}</td>
-                    <td>${cat.creator ? cat.creator.name : ''}</td>
+                    <td data-label="{{ __('messages.id') }}">${i+1}</td>
+                    <td class="mobile-primary" data-label="{{ __('messages.name') }}">${escapeHtml(cat.name)}</td>
+                    <td data-label="{{ __('messages.parent') }}">${cat.parent ? escapeHtml(cat.parent.name) : ''}</td>
+                    <td class="mobile-muted mobile-hide" data-label="{{ __('messages.created_by') }}">${cat.creator ? escapeHtml(cat.creator.name) : ''}</td>
                     @canany(['categories_update', 'categories_destroy'])
-                        <td>
+                        <td class="mobile-actions" data-label="{{ __('messages.actions') }}">
                             @can('categories_update')
-                                <button class="btn btn-outline-primary btn-sm radius-8 editBtn" data-id="${cat.id}" data-name="${cat.name}" data-parent="${cat.parent ? cat.parent.id : ''}">{{ __('messages.edit') }}</button>
+                                <button class="btn btn-outline-primary btn-sm radius-8 editBtn" data-id="${cat.id}" data-name="${escapeHtml(cat.name)}" data-parent="${cat.parent ? cat.parent.id : ''}">{{ __('messages.edit') }}</button>
                             @endcan
                             @can( 'categories_destroy')
-                                <button class="btn btn-outline-danger btn-sm radius-8 deleteBtn" data-id="${cat.id}" data-name="${cat.name}">{{ __('messages.delete') }}</button>
+                                <button class="btn btn-outline-danger btn-sm radius-8 deleteBtn" data-id="${cat.id}" data-name="${escapeHtml(cat.name)}">{{ __('messages.delete') }}</button>
                             @endcan
                         </td>
                     @endcan
                 </tr>`;
-                            parentOptions += `<option value="${cat.id}">${cat.name}</option>`;
+                            parentOptions += `<option value="${cat.id}">${escapeHtml(cat.name)}</option>`;
                         });
                         $('#categoriesTable tbody').html(rows);
                         $('#parentSelect').html(parentOptions);
@@ -108,7 +122,7 @@
                         res.data.forEach(cat => {
                             if (cat.id != id) {
                                 parentOptions +=
-                                    `<option value="${cat.id}">${cat.name}</option>`;
+                                    `<option value="${cat.id}">${escapeHtml(cat.name)}</option>`;
                             }
                         });
 

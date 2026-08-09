@@ -4,7 +4,7 @@
     @include('components.alert')
 
     <div class="container">
-        <div class="d-flex justify-content-between mb-3">
+        <div class="d-flex justify-content-between mb-3 mobile-stack-header">
             <div class="fw-bold fs-5">{{ __('messages.installments') }}</div>
             @can('installments_store')
                 <button class="btn btn-outline-primary btn-sm radius-8" data-bs-toggle="modal"
@@ -13,8 +13,8 @@
         </div>
 
 
-        <div style="overflow-x:auto;">
-            <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0"
+        <div class="responsive-records-wrapper table-responsive">
+            <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records"
                 id="installmentsTable">
                 <thead>
                     <tr>
@@ -54,6 +54,18 @@
         $(document).ready(function() {
             loadinstallments();
 
+            function valueOrEmpty(value) {
+                return value ?? '';
+            }
+
+            function escapeHtml(value) {
+                return String(valueOrEmpty(value)).replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
+            }
+
             function loadinstallments() {
                 $.get("{{ route('installment_contracts.list') }}", function(res) {
 
@@ -67,19 +79,19 @@
 
                             rows += `
                     <tr>
-                        <td>${i+1}</td>
-                        <td>
-                            <strong>${clientName}</strong><br>
-                            <small>${clientPhone}</small>
+                        <td data-label="{{ __('messages.id') }}">${i+1}</td>
+                        <td class="mobile-primary" data-label="{{ __('messages.client') }}">
+                            <strong>${escapeHtml(clientName)}</strong><br>
+                            <small>${escapeHtml(clientPhone)}</small>
                         </td>
-                        <td>${productName}</td>
+                        <td data-label="{{ __('messages.product') }}">${escapeHtml(productName)}</td>
 
-                        <td>${contract.installment_amount}</td>
-                        <td>${contract.down_payment}</td>
-                        <td>${contract.remaining_amount}</td>
-                        <td>${contract.remaining_installments}</td>
+                        <td data-label="{{ __('messages.installment_amount') }}">${escapeHtml(contract.installment_amount)}</td>
+                        <td data-label="{{ __('messages.down_payment') }}">${escapeHtml(contract.down_payment)}</td>
+                        <td data-label="{{ __('messages.remaining_amount') }}">${escapeHtml(contract.remaining_amount)}</td>
+                        <td data-label="{{ __('messages.installment_count_left') }}">${escapeHtml(contract.remaining_installments)}</td>
                         @canany(['installments_show', 'installments_update', 'installments_destroy'])
-                            <td>
+                            <td class="mobile-actions" data-label="{{ __('messages.actions') }}">
                                 @can('installments_show')
                                     <a href="{{ url('dashboard/installment_contracts') }}/${contract.id}"  class="btn btn-outline-success btn-sm radius-8">{{ __('messages.details') }}</a>
                                 @endcan
@@ -90,14 +102,14 @@
                                         data-client_id="${contract.client?.id ?? ''}"
                                         data-product_id="${contract.product?.id ?? ''}"
                                         data-product_price="${contract.product?.purchase_price ?? ''}"
-                                        data-down_payment="${contract.down_payment}"
-                                        data-interest_rate="${contract.interest_rate ?? ''}" 
-                                        data-installment_count="${contract.installment_count}"
-                                        data-start_date="${contract.start_date}"
-                                        data-total_amount="${contract.total_amount}"
-                                        data-remaining_amount="${contract.remaining_amount}"
-                                        data-remaining_installments="${contract.remaining_installments}"
-                                        data-next_due_date="${contract.next_due_date}"
+                                        data-down_payment="${escapeHtml(contract.down_payment)}"
+                                        data-interest_rate="${escapeHtml(contract.interest_rate ?? '')}" 
+                                        data-installment_count="${escapeHtml(contract.installment_count)}"
+                                        data-start_date="${escapeHtml(contract.start_date)}"
+                                        data-total_amount="${escapeHtml(contract.total_amount)}"
+                                        data-remaining_amount="${escapeHtml(contract.remaining_amount)}"
+                                        data-remaining_installments="${escapeHtml(contract.remaining_installments)}"
+                                        data-next_due_date="${escapeHtml(contract.next_due_date)}"
                                     >{{ __('messages.edit') }}</button>
                                 @endcan
                                 @can('installments_destroy')

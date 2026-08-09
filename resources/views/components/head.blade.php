@@ -32,6 +32,7 @@
     <link rel="stylesheet" href="{{ asset('assets/css/lib/prism.css') }}">
     <!-- main css -->
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/dashboard-responsive.css') }}">
     <!-- Multi Select css -->
     <link rel="stylesheet" href="{{ asset('assets/css/lib/multi-select.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/lib/bootstrap-select.min.css') }}">

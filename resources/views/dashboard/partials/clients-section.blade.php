@@ -1,7 +1,7 @@
 {{-- قسم العملاء: Debt, Installments, Overdue, Upcoming --}}
 
 <!-- Top Clients by Debt -->
-<div class="col-md-auto mb-3">
+<div class="col-12 col-lg-6 col-xxl-4 dashboard-analytics-column">
     <div class="card">
         <div class="card-header">
             <div class="card-title">{{ __('messages.top_clients_by_debt') }}</div>
@@ -13,8 +13,8 @@
             <div class="chart-container" id="debtChartContainer">
                 <canvas id="debtChart" height="200"></canvas>
             </div>
-            <div class="table-container d-none" id="debtTableContainer">
-                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+            <div class="table-container responsive-records-wrapper d-none" id="debtTableContainer">
+                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records">
                     <thead>
                         <tr>
                             <th class="text-center">{{ __('messages.name') }}</th>
@@ -29,7 +29,7 @@
 </div>
 
 <!-- Top Clients by Installments -->
-<div class="col-md-auto mb-3">
+<div class="col-12 col-lg-6 col-xxl-4 dashboard-analytics-column">
     <div class="card">
         <div class="card-header">
             <div class="card-title">{{ __('messages.top_clients_by_installments') }}</div>
@@ -41,8 +41,8 @@
             <div class="chart-container" id="installmentsChartContainer">
                 <canvas id="installmentsChart" height="200"></canvas>
             </div>
-            <div class="table-container d-none" id="installmentsTableContainer">
-                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+            <div class="table-container responsive-records-wrapper d-none" id="installmentsTableContainer">
+                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records">
                     <thead>
                         <tr>
                             <th class="text-center">{{ __('messages.name') }}</th>
@@ -57,7 +57,7 @@
 </div>
 
 <!-- Top Overdue Installments -->
-<div class="col-md-auto mb-3">
+<div class="col-12 col-lg-6 col-xxl-4 dashboard-analytics-column">
     <div class="card">
         <div class="card-header">
             <div class="card-title">{{ __('messages.top_overdue_installments') }}</div>
@@ -69,8 +69,8 @@
             <div class="chart-container" id="overdueChartContainer">
                 <canvas id="overdueChart" height="200"></canvas>
             </div>
-            <div class="table-container d-none" id="overdueTableContainer">
-                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+            <div class="table-container responsive-records-wrapper d-none" id="overdueTableContainer">
+                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records">
                     <thead>
                         <tr>
                             <th class="text-center">{{ __('messages.client') }}</th>
@@ -86,7 +86,7 @@
 </div>
 
 <!-- Upcoming Installments -->
-<div class="col-md-auto mb-3">
+<div class="col-12 col-lg-6 col-xxl-4 dashboard-analytics-column">
     <div class="card">
         <div class="card-header">
             <div class="card-title">{{ __('messages.upcoming_installments') }}</div>
@@ -98,8 +98,8 @@
             <div class="chart-container" id="upcomingChartContainer">
                 <canvas id="upcomingChart" height="200"></canvas>
             </div>
-            <div class="table-container d-none" id="upcomingTableContainer">
-                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+            <div class="table-container responsive-records-wrapper d-none" id="upcomingTableContainer">
+                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records">
                     <thead>
                         <tr>
                             <th class="text-center">{{ __('messages.client') }}</th>
@@ -232,7 +232,7 @@
         function updateClientsSection(data) {
             // Update Top Clients by Debt
             document.getElementById('top_clients_by_debt').innerHTML = data.top_clients_by_debt.map(item => `
-        <tr><td>${item.name}</td><td>${parseFloat(item.total_remaining_amount).toFixed(2)}</td></tr>
+        <tr><td class="mobile-primary" data-label="{{ __('messages.name') }}">${item.name}</td><td data-label="{{ __('messages.debt_amount') }}">${parseFloat(item.total_remaining_amount).toFixed(2)}</td></tr>
     `).join('');
             clientsDebtChart.data.labels = data.top_clients_by_debt.map(item => item.name);
             clientsDebtChart.data.datasets[0].data = data.top_clients_by_debt.map(item => parseFloat(item
@@ -241,7 +241,7 @@
 
             // Update Top Clients by Installments
             document.getElementById('top_clients_by_installments').innerHTML = data.top_clients_by_installments.map(item => `
-        <tr><td>${item.name}</td><td>${item.installment_count}</td></tr>
+        <tr><td class="mobile-primary" data-label="{{ __('messages.name') }}">${item.name}</td><td data-label="{{ __('messages.installment_count') }}">${item.installment_count}</td></tr>
     `).join('');
             clientsInstallmentsChart.data.labels = data.top_clients_by_installments.map(item => item.name);
             clientsInstallmentsChart.data.datasets[0].data = data.top_clients_by_installments.map(item => item
@@ -250,7 +250,7 @@
 
             // Update Top Overdue Installments
             document.getElementById('top_overdue_installments').innerHTML = data.top_overdue_installments.map(item => `
-        <tr><td>${item.client_name}</td><td>${item.due_date}</td><td>${parseFloat(item.overdue_amount).toFixed(2)}</td></tr>
+        <tr><td class="mobile-primary" data-label="{{ __('messages.client') }}">${item.client_name}</td><td data-label="{{ __('messages.due_date') }}">${item.due_date}</td><td data-label="{{ __('messages.overdue_amount') }}">${parseFloat(item.overdue_amount).toFixed(2)}</td></tr>
     `).join('');
             clientsOverdueChart.data.labels = data.top_overdue_installments.map(item => item.client_name);
             clientsOverdueChart.data.datasets[0].data = data.top_overdue_installments.map(item => parseFloat(item
@@ -259,7 +259,7 @@
 
             // Update Upcoming Installments
             document.getElementById('upcoming_installments').innerHTML = data.upcoming_installments.map(item => `
-        <tr><td>${item.client_name}</td><td>${item.due_date}</td><td>${parseFloat(item.required_amount).toFixed(2)}</td></tr>
+        <tr><td class="mobile-primary" data-label="{{ __('messages.client') }}">${item.client_name}</td><td data-label="{{ __('messages.due_date') }}">${item.due_date}</td><td data-label="{{ __('messages.amount') }}">${parseFloat(item.required_amount).toFixed(2)}</td></tr>
     `).join('');
             clientsUpcomingChart.data.labels = data.upcoming_installments.map(item => item.client_name);
             clientsUpcomingChart.data.datasets[0].data = data.upcoming_installments.map(item => parseFloat(item

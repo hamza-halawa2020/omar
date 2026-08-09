@@ -9,7 +9,7 @@
             <div class="col-12">
                 <div class="card border-0 shadow-sm   rounded-3">
                     <div class="card-body p-3">
-                        <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex justify-content-between align-items-center mobile-stack-header">
                             <div>
                                 <div class="mb-1 fw-bold">
                                     <i class="fas fa-credit-card me-2"></i>
@@ -36,7 +36,7 @@
         </div>
 
         <!-- Payment Ways Grid -->
-        <div id="paymentWaysContainer" class="row g-3">
+        <div id="paymentWaysContainer" class="row g-3 mobile-card-grid">
              {{-- Data via AJAX --}}
         </div>
     </div>

@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="container">
-        <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-3 mobile-stack-header">
             <div>{{ __('messages.roles') }}</div>
             @can('roles_store')
                 <a href="{{ route('roles.create') }}" class="btn btn-outline-primary btn-sm radius-8">
@@ -14,8 +14,8 @@
             <div class="alert alert-success">{{ session('success') }}</div>
         @endif
 
-        <div style="overflow: auto">
-            <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0" id="categoriesTable">
+        <div class="responsive-records-wrapper table-responsive">
+            <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records" id="categoriesTable">
 
                 <thead>
                     <tr>
@@ -29,9 +29,9 @@
                 <tbody>
                     @foreach ($roles as $role)
                         <tr>
-                            <td>{{ $role->name }}</td>
-                            <td class="" style="max-width: 250px;">
-                                <div class="d-flex flex-wrap gap-1 justify-content-center">
+                            <td class="mobile-primary" data-label="{{ __('messages.name') }}">{{ $role->name }}</td>
+                            <td class="mobile-muted" data-label="{{ __('messages.permissions') }}" style="max-width: 250px;">
+                                <div class="d-flex flex-wrap gap-1 justify-content-center mobile-badge-list">
                                     @foreach ($role->permissions as $permission)
                                         <span
                                             class="badge bg-primary px-3 py-1">{{ __('messages.' . $permission->name) }}</span>
@@ -40,7 +40,7 @@
                             </td>
 
                             @canany(['roles_update', 'roles_destroy'])
-                                <td>
+                                <td class="mobile-actions" data-label="{{ __('messages.actions') }}">
                                     @can('roles_update')
                                         <a href="{{ route('roles.edit', $role->id) }}"
                                             class="btn btn-outline-primary btn-sm radius-8">{{ __('messages.edit') }}</a>

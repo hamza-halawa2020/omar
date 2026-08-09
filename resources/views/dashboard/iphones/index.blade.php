@@ -4,7 +4,7 @@
     @include('components.alert')
 
     <div class="container">
-        <div class="d-flex justify-content-between mb-3">
+        <div class="d-flex justify-content-between mb-3 mobile-stack-header">
             <div class="fw-bold fs-5">{{ __('messages.iphones') }}</div>
             @can('iphones_store')
                 <button class="btn btn-outline-primary btn-sm radius-8" data-bs-toggle="modal"
@@ -23,8 +23,8 @@
             </div>
         </div>
 
-        <div style="overflow: auto">
-            <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0" id="iphonesTable">
+        <div class="responsive-records-wrapper table-responsive">
+            <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records" id="iphonesTable">
                 <thead>
                     <tr>
                         <th class="text-center">{{ __('messages.id') }}</th>
@@ -130,21 +130,21 @@
                     res.data.forEach((iphone, i) => {
                         rows += `
                             <tr>
-                                <td>${i + 1}</td>
-                                <td>${escapeHtml(iphone.device_type)}</td>
-                                <td>${escapeHtml(iphone.device_details)}</td>
-                                <td>${escapeHtml(iphone.purchase_price_sar)}</td>
-                                <td>${escapeHtml(iphone.currency)}</td>
-                                <td>${escapeHtml(iphone.purchase_price_egp)}</td>
-                                <td>${escapeHtml(iphone.extra_expenses)}</td>
-                                <td>${escapeHtml(iphone.total_purchase_with_expenses)}</td>
-                                <td>${escapeHtml(iphone.sale_price_egp)}</td>
-                                <td>${escapeHtml(statusLabel(iphone.status))}</td>
-                                <td>${escapeHtml(iphone.financial_summary?.total_cost)}</td>
-                                <td>${escapeHtml(iphone.financial_summary?.net_profit)}</td>
-                                <td>${iphone.creator ? escapeHtml(iphone.creator.name) : ''}</td>
+                                <td data-label="{{ __('messages.id') }}">${i + 1}</td>
+                                <td class="mobile-primary" data-label="{{ __('messages.device_type') }}">${escapeHtml(iphone.device_type)}</td>
+                                <td class="mobile-muted" data-label="{{ __('messages.device_details') }}">${escapeHtml(iphone.device_details)}</td>
+                                <td class="mobile-muted mobile-hide" data-label="{{ __('messages.purchase_price_sar') }}">${escapeHtml(iphone.purchase_price_sar)}</td>
+                                <td class="mobile-muted mobile-hide" data-label="{{ __('messages.currency') }}">${escapeHtml(iphone.currency)}</td>
+                                <td data-label="{{ __('messages.purchase_price_egp') }}">${escapeHtml(iphone.purchase_price_egp)}</td>
+                                <td data-label="{{ __('messages.extra_expenses') }}">${escapeHtml(iphone.extra_expenses)}</td>
+                                <td data-label="{{ __('messages.total_purchase_with_expenses') }}">${escapeHtml(iphone.total_purchase_with_expenses)}</td>
+                                <td data-label="{{ __('messages.sale_price_egp') }}">${escapeHtml(iphone.sale_price_egp)}</td>
+                                <td data-label="{{ __('messages.status') }}">${escapeHtml(statusLabel(iphone.status))}</td>
+                                <td data-label="{{ __('messages.total_cost') }}">${escapeHtml(iphone.financial_summary?.total_cost)}</td>
+                                <td data-label="{{ __('messages.net_profit_after_sale') }}">${escapeHtml(iphone.financial_summary?.net_profit)}</td>
+                                <td class="mobile-muted mobile-hide" data-label="{{ __('messages.created_by') }}">${iphone.creator ? escapeHtml(iphone.creator.name) : ''}</td>
                                 @canany(['iphones_destroy','iphones_update','iphones_logs'])
-                                    <td>
+                                    <td class="mobile-actions" data-label="{{ __('messages.actions') }}">
                                         @can('iphones_logs')
                                             <button class="btn btn-outline-success btn-sm radius-8 addLogBtn"
                                                 data-id="${iphone.id}"
@@ -262,6 +262,7 @@
                 $('#logClientId option').prop('disabled', false);
                 $('#logClientId').prop('disabled', false).val('');
                 $('#logClientLabelHint').text('({{ __('messages.optional') }})');
+                $('#logClientHelperText').text('{{ __('messages.iphone_client_optional_helper') }}');
 
                 if (!saleClientId || $('#logActionType').val() === 'sale') {
                     return;
@@ -277,12 +278,14 @@
 
                 if ($('#logActionType').val() !== 'return') {
                     $('#logClientLabelHint').text('({{ __('messages.optional_same_sale_client') }})');
+                    $('#logClientHelperText').text('{{ __('messages.iphone_client_internal_or_sale_client_helper') }}');
                     return;
                 }
 
                 $('#logClientId').val(saleClientId).prop('disabled', true);
                 $('#lockedLogClientId').attr('name', 'client_id').val(saleClientId);
                 $('#logClientLabelHint').text('({{ __('messages.required') }})');
+                $('#logClientHelperText').text('{{ __('messages.iphone_client_return_helper') }}');
             }
 
             $('#logActionForm').submit(function(e) {
@@ -322,21 +325,21 @@
                     res.data.forEach((log, i) => {
                         rows += `
                             <tr>
-                                <td>${i + 1}</td>
-                                <td>${escapeHtml(actionTypeLabel(log.action_type))}</td>
-                                <td>${escapeHtml(log.amount)}</td>
-                                <td>${log.payment_way ? escapeHtml(log.payment_way.name) : ''}</td>
-                                <td>${log.client ? escapeHtml(log.client.name) : ''}</td>
-                                <td>${log.transaction_id ? '#' + escapeHtml(log.transaction_id) : ''}</td>
-                                <td>${escapeHtml(log.notes)}</td>
-                                <td>${log.creator ? escapeHtml(log.creator.name) : ''}</td>
-                                <td>${escapeHtml(log.created_at)}</td>
+                                <td data-label="{{ __('messages.id') }}">${i + 1}</td>
+                                <td class="mobile-primary" data-label="{{ __('messages.action_type') }}">${escapeHtml(actionTypeLabel(log.action_type))}</td>
+                                <td data-label="{{ __('messages.amount') }}">${escapeHtml(log.amount)}</td>
+                                <td data-label="{{ __('messages.payment_way') }}">${log.payment_way ? escapeHtml(log.payment_way.name) : ''}</td>
+                                <td data-label="{{ __('messages.client') }}">${log.client ? escapeHtml(log.client.name) : ''}</td>
+                                <td data-label="{{ __('messages.transaction') }}">${log.transaction_id ? '#' + escapeHtml(log.transaction_id) : ''}</td>
+                                <td class="mobile-muted" data-label="{{ __('messages.notes') }}">${escapeHtml(log.notes)}</td>
+                                <td class="mobile-muted" data-label="{{ __('messages.created_by') }}">${log.creator ? escapeHtml(log.creator.name) : ''}</td>
+                                <td class="mobile-muted" data-label="{{ __('messages.created_at') }}">${escapeHtml(log.created_at)}</td>
                             </tr>`;
                     });
 
                     $('#iphoneLogsContent').html(`
-                        <div style="overflow: auto">
-                            <table class="text-center table table-bordered table-sm mb-0">
+                        <div class="responsive-records-wrapper table-responsive">
+                            <table class="text-center table table-bordered table-sm mb-0 responsive-records">
                                 <thead>
                                     <tr>
                                         <th>{{ __('messages.id') }}</th>

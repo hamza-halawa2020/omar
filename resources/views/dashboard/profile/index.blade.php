@@ -3,9 +3,9 @@
 @section('content')
     @include('components.alert')
 
-    <div class=" mt-5">
+    <div class="profile-page mt-5">
         <div class="row justify-content-center">
-            <div class="col-md-8">
+            <div class="col-md-8 profile-card-column">
                 <div class="card">
                     <div class="card-header">
                         <div class="card-title">{{ __('messages.user_profile') }}</div>
@@ -50,7 +50,7 @@
                                     accept="image/*">
                                 <img id="imagePreview" class="preview-image" alt="{{ __('messages.image_preview') }}">
                             </div>
-                            <button type="submit" class="btn btn-primary">{{ __('messages.update_profile') }}</button>
+                            <button type="submit" class="btn btn-primary profile-submit-btn">{{ __('messages.update_profile') }}</button>
                         </form>
                         <div id="successMessage" class="alert alert-success mt-3" style="display: none;">
                             {{ __('messages.profile_updated_successfully') }}

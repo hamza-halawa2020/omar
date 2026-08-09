@@ -2,12 +2,12 @@
 
 @section('content')
     <div class="container">
-        <div class="d-flex justify-content-between mb-3">
+        <div class="d-flex justify-content-between mb-3 mobile-stack-header">
             <div class="fw-bold">{{ $association->name }}</div>
         </div>
 
         <div class="card my-3">
-            <div class="card-body d-flex justify-content-between">
+            <div class="card-body association-details-summary">
                 <p><strong>{{ __('messages.start_date') }}:</strong> {{ $association->start_date }}</p>
                 <p><strong>{{ __('messages.end_date') }}:</strong> {{ $association->end_date }}</p>
                 <p><strong>{{ __('messages.per_day') }}:</strong> {{ $association->per_day }}</p>
@@ -17,42 +17,43 @@
             </div>
         </div>
 
-        <div class="d-flex justify-content-between align-items-center my-3">
+        <div class="d-flex justify-content-between align-items-center my-3 mobile-stack-header">
             <div class="fw-bold">{{ __('messages.members_list') }}</div>
             <button class="btn btn-outline-primary btn-sm radius-8" data-bs-toggle="modal" data-bs-target="#addMemberModal">
                 {{ __('messages.add_member') }}
             </button>
         </div>
-        <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
-            <thead>
-                <tr>
-                    <th class="text-center">#</th>
-                    <th class="text-center">{{ __('messages.client_name') }}</th>
-                    <th class="text-center">{{ __('messages.payment_times') }}</th>
-                    <th class="text-center">{{ __('messages.is_recevied') }}</th>
-                    <th class="text-center">{{ __('messages.receive_date') }}</th>
-                    <th class="text-center">{{ __('messages.payout_order') }}</th>
-                    <th class="text-center">{{ __('messages.payment_status') }}</th>
-                    <th class="text-center">{{ __('messages.actions') }}</th>
-                </tr>
-            </thead>
-            <tbody id="membersTableBody">
-                @foreach ($association->members as $member)
-                {{-- @dd($member) --}}
-                    <tr data-id="{{ $member->id }}">
-                        <td>{{ $loop->iteration }}</td>
-                        <td>{{ $member->client->name }}</td>
-                        <td>{{ $member->payments->count() }}</td>
-                        <td>
+        <div class="responsive-records-wrapper table-responsive">
+            <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records">
+                <thead>
+                    <tr>
+                        <th class="text-center">#</th>
+                        <th class="text-center">{{ __('messages.client_name') }}</th>
+                        <th class="text-center">{{ __('messages.payment_times') }}</th>
+                        <th class="text-center">{{ __('messages.is_recevied') }}</th>
+                        <th class="text-center">{{ __('messages.receive_date') }}</th>
+                        <th class="text-center">{{ __('messages.payout_order') }}</th>
+                        <th class="text-center">{{ __('messages.payment_status') }}</th>
+                        <th class="text-center">{{ __('messages.actions') }}</th>
+                    </tr>
+                </thead>
+                <tbody id="membersTableBody">
+                    @foreach ($association->members as $member)
+                    {{-- @dd($member) --}}
+                        <tr data-id="{{ $member->id }}">
+                            <td data-label="#">{{ $loop->iteration }}</td>
+                            <td class="mobile-primary" data-label="{{ __('messages.client_name') }}">{{ $member->client->name }}</td>
+                            <td data-label="{{ __('messages.payment_times') }}">{{ $member->payments->count() }}</td>
+                            <td data-label="{{ __('messages.is_recevied') }}">
                             @if($member->has_received)
                                 {{ __('messages.yes') }}
                             @else
                                 {{ __('messages.not_yet') }}
                             @endif
                         </td>
-                        <td>{{ $member->receive_date }}</td>
-                        <td>{{ $member->payout_order }}</td>
-                        <td>
+                            <td data-label="{{ __('messages.receive_date') }}">{{ $member->receive_date }}</td>
+                            <td data-label="{{ __('messages.payout_order') }}">{{ $member->payout_order }}</td>
+                            <td data-label="{{ __('messages.payment_status') }}">
                             @php
                                 $totalPaid = $member->payments->sum('amount');
                                 $dueAmount = ceil($association->monthly_amount);
@@ -64,8 +65,8 @@
                                 {{-- {{ __('messages.' . $status) }} ({{ $totalPaid }} / {{ $dueAmount }}) --}}
                             </span>
                         </td>
-                        <td>
-                            <div class="d-flex justify-content-between gap-1">
+                            <td class="mobile-actions" data-label="{{ __('messages.actions') }}">
+                                <div class="d-flex justify-content-between gap-1">
                                 @if(!$member->has_received)
                                     <button data-id="{{ $member->id }}" data-client-name="{{ $member->client->name }}"
                                         data-amount="{{ ceil($association->monthly_amount) }}"
@@ -83,12 +84,13 @@
                                     data-id="{{ $member->id }}">
                                     {{ __('messages.delete') }}
                                 </button>
-                            </div>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
 
         <!-- Pay Member Modal -->
         <div class="modal fade" id="payMemberModal" tabindex="-1" aria-hidden="true">

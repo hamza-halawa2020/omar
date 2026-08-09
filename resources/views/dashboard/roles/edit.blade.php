@@ -17,7 +17,7 @@
 
             <div class="mb-3">
                 <label class="d-block mb-2">{{ __('messages.permissions') }}</label>
-                <div class="row">
+                <div class="row mobile-permissions-grid">
                     @foreach ($permissions as $permission)
                         <div class="d-flex col-md-3 col-sm-6 mb-2">
                             <div class="form-check">

@@ -4,7 +4,7 @@
 @include('components.alert')
 
 <div class="container">
-    <div class="d-flex justify-content-between mb-3">
+    <div class="d-flex justify-content-between mb-3 mobile-stack-header">
         <div class="fw-bold fs-5">{{ __('messages.associations') }}</div>
 
         @can('associations_store')
@@ -13,7 +13,8 @@
         @endcan
     </div>
 
-    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0" id="associationsTable">
+    <div class="responsive-records-wrapper table-responsive">
+    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records" id="associationsTable">
         <thead>
             <tr>
                 <th class="text-center">{{ __('messages.id') }}</th>
@@ -32,6 +33,7 @@
             {{-- Loaded by AJAX --}}
         </tbody>
     </table>
+    </div>
 </div>
 
 
@@ -48,6 +50,18 @@
     $(document).ready(function () {
         loadAssociations();
 
+        function valueOrEmpty(value) {
+            return value ?? '';
+        }
+
+        function escapeHtml(value) {
+            return String(valueOrEmpty(value)).replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
         function loadAssociations() {
             $.get("{{ route('associations.list') }}", function (res) {
                 if (res.status) {
@@ -55,15 +69,15 @@
                     res.data.forEach((assoc, i) => {
                         rows += `
                                 <tr>
-                                    <td>${i + 1}</td>
-                                    <td>${assoc.name}</td>
-                                    <td>${assoc.per_day}</td>
-                                    <td>${assoc.total_members}</td>
-                                    <td>${assoc.monthly_amount}</td>
-                                    <td>${assoc.status}</td>
-                                    <td>${assoc.creator ? assoc.creator.name : ''}</td>
+                                    <td data-label="{{ __('messages.id') }}">${i + 1}</td>
+                                    <td class="mobile-primary" data-label="{{ __('messages.name') }}">${escapeHtml(assoc.name)}</td>
+                                    <td data-label="{{ __('messages.per_day') }}">${escapeHtml(assoc.per_day)}</td>
+                                    <td data-label="{{ __('messages.total_members') }}">${escapeHtml(assoc.total_members)}</td>
+                                    <td data-label="{{ __('messages.monthly_amount') }}">${escapeHtml(assoc.monthly_amount)}</td>
+                                    <td data-label="{{ __('messages.status') }}">${escapeHtml(assoc.status)}</td>
+                                    <td class="mobile-muted mobile-hide" data-label="{{ __('messages.created_by') }}">${assoc.creator ? escapeHtml(assoc.creator.name) : ''}</td>
                                     @canany(['associations_update', 'associations_destroy', 'associations_details'])
-                                        <td>
+                                        <td class="mobile-actions" data-label="{{ __('messages.actions') }}">
                                             @can('associations_details')
                                                 <a href="/dashboard/associations/${assoc.id}/details" 
                                                 class="btn btn-outline-primary btn-sm radius-8">
@@ -73,19 +87,19 @@
                                             @can('associations_update')
                                                 <button class="btn btn-outline-primary btn-sm radius-8 editBtn"
                                                     data-id="${assoc.id}"
-                                                    data-name="${assoc.name}"
-                                                    data-name="${assoc.per_day}"
-                                                    data-total="${assoc.total_members}"
-                                                    data-amount="${assoc.monthly_amount}"
-                                                    data-status="${assoc.status}"
-                                                    data-start="${assoc.start_date}"
-                                                    data-end="${assoc.end_date}">
+                                                    data-name="${escapeHtml(assoc.name)}"
+                                                    data-per_day="${escapeHtml(assoc.per_day)}"
+                                                    data-total="${escapeHtml(assoc.total_members)}"
+                                                    data-amount="${escapeHtml(assoc.monthly_amount)}"
+                                                    data-status="${escapeHtml(assoc.status)}"
+                                                    data-start="${escapeHtml(assoc.start_date)}"
+                                                    data-end="${escapeHtml(assoc.end_date)}">
                                                     {{ __('messages.edit') }}
                                                 </button>
                                             @endcan
                                             @can('associations_destroy')
                                                 <button class="btn btn-outline-danger btn-sm radius-8 deleteBtn"
-                                                    data-id="${assoc.id}" data-name="${assoc.name}">
+                                                    data-id="${assoc.id}" data-name="${escapeHtml(assoc.name)}">
                                                     {{ __('messages.delete') }}
                                                 </button>
                                             @endcan

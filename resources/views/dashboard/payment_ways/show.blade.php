@@ -258,7 +258,7 @@
 
             <!-- Transactions Tab -->
             <div class="tab-pane fade show active" id="transactions">
-                <div class="d-flex justify-content-between align-items-center mb-3 gap-3">
+                <div class="d-flex justify-content-between align-items-center mb-3 gap-3 payment-way-filters">
                     <input type="text" id="searchTransactions" class="form-control w-50"
                         placeholder="{{ __('messages.search_transactions_by_notes_or_amount...') }}">
                     <select id="filterType" class="form-control w-25">
@@ -266,7 +266,7 @@
                         <option value="receive">{{ __('messages.receive') }}</option>
                         <option value="send">{{ __('messages.send') }}</option>
                     </select>
-                    <div class="d-flex align-items-center gap-2 mb-3">
+                    <div class="d-flex align-items-center gap-2 mb-3 payment-way-date-filter">
                         <button id="nextDay" class="btn btn-outline-primary">&rarr;</button>
                         <input type="text" id="dateRange" class="form-control w-auto" placeholder="Select date range">
                         <button id="prevDay" class="btn btn-outline-primary">&larr;</button>
@@ -274,8 +274,8 @@
                 </div>
 
                 <!-- Transactions Table -->
-                <div class="" style="overflow: auto">
-                    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">
+                <div class="responsive-records-wrapper table-responsive">
+                    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records">
                             <thead class="">
                                 <tr>
                                     <th class="text-center">{{ __('messages.actions') }}</th>
@@ -765,17 +765,17 @@
             }
 
             function formatDataTable(data) {
-                let html = '<div class="table-responsive"><table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">';
+                let html = '<div class="table-responsive responsive-records-wrapper"><table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records">';
                 html += '<thead class="text-center"><tr class="text-center"><th class="text-center">{{ __('messages.name') }}</th><th>{{ __('messages.details') }}</th></tr></thead><tbody>';
                 
                 Object.entries(data).forEach(([key, value]) => {
                     const label = formatLogFieldLabel(key);
                     if (typeof value === 'object' && value !== null) {
                         if (key === 'client' || key === 'product' || key === 'payment_way') {
-                            html += `<tr><td class="fw-semibold">${label}</td><td>${value.name || value.id || '{{ __('messages.not_specified') }}'}</td></tr>`;
+                            html += `<tr><td class="fw-semibold mobile-primary" data-label="{{ __('messages.name') }}">${label}</td><td data-label="{{ __('messages.details') }}">${value.name || value.id || '{{ __('messages.not_specified') }}'}</td></tr>`;
                         }
                     } else {
-                        html += `<tr><td class="fw-semibold">${label}</td><td>${value ?? '{{ __('messages.not_specified') }}'}</td></tr>`;
+                        html += `<tr><td class="fw-semibold mobile-primary" data-label="{{ __('messages.name') }}">${label}</td><td data-label="{{ __('messages.details') }}">${value ?? '{{ __('messages.not_specified') }}'}</td></tr>`;
                     }
                 });
                 
@@ -826,7 +826,7 @@
                     return `<div class="alert alert-info py-2 px-3 mb-0">{{ __('messages.no_changes_detected') }}</div>`;
                 }
 
-                let html = '<div class="table-responsive"><table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0">';
+                let html = '<div class="table-responsive responsive-records-wrapper"><table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records">';
 
                 html += `
                     <thead class="text-center">
@@ -858,9 +858,9 @@
 
                     html += `
                         <tr>
-                            <td class="fw-semibold">${change.label}</td>
-                            <td class="text-danger">${escapeHtml(oldDisplay)}</td>
-                            <td class="text-success">${escapeHtml(newDisplay)}</td>
+                            <td class="fw-semibold mobile-primary" data-label="{{ __('messages.name') }}">${change.label}</td>
+                            <td class="text-danger" data-label="{{ __('messages.old_values') }}">${escapeHtml(oldDisplay)}</td>
+                            <td class="text-success" data-label="{{ __('messages.new_values') }}">${escapeHtml(newDisplay)}</td>
                         </tr>
                     `;
                 });
@@ -1035,21 +1035,21 @@
                     
                     txHtml += `
                         <tr>
-                            <td>${actionsHtml}</td>
-                            <td data-type="${tx.type}">
+                            <td class="mobile-actions" data-label="{{ __('messages.actions') }}">${actionsHtml}</td>
+                            <td class="mobile-primary" data-label="{{ __('messages.type') }}" data-type="${tx.type}">
                                 <span class="badge bg-${tx.type === 'receive' ? 'success' : 'danger'}">${translations[tx.type] ?? tx.type}</span>
                                 ${tx.is_edited ? '<span class="badge bg-warning text-dark ms-1">{{ __('messages.edited') }}</span>' : ''}
                             </td>
-                            <td>${tx.amount}</td>
-                            <td>${tx.commission}</td>
-                            <td>${tx.client?.name ?? ''}</td>
-                            <td>${tx.balance_before_transaction}</td>
-                            <td>${tx.balance_after_transaction}</td>
-                            <td>${tx.created_at || ''}</td>
-                            <td>${tx.updated_at || ''}</td>
-                            <td>${tx.creator?.name || ''}</td>
-                            <td>${tx.notes || ''}</td>
-                            <td>${attachmentHtml}</td>
+                            <td data-label="{{ __('messages.amount') }}">${tx.amount}</td>
+                            <td data-label="{{ __('messages.commission') }}">${tx.commission}</td>
+                            <td data-label="{{ __('messages.client') }}">${tx.client?.name ?? ''}</td>
+                            <td data-label="{{ __('messages.balance_before_transaction') }}">${tx.balance_before_transaction}</td>
+                            <td data-label="{{ __('messages.balance_after_transaction') }}">${tx.balance_after_transaction}</td>
+                            <td class="mobile-muted" data-label="{{ __('messages.created_at') }}">${tx.created_at || ''}</td>
+                            <td class="mobile-muted mobile-hide" data-label="{{ __('messages.last_update') }}">${tx.updated_at || ''}</td>
+                            <td class="mobile-muted mobile-hide" data-label="{{ __('messages.creator') }}">${tx.creator?.name || ''}</td>
+                            <td class="mobile-muted" data-label="{{ __('messages.notes') }}">${tx.notes || ''}</td>
+                            <td data-label="{{ __('messages.attachment') }}">${attachmentHtml}</td>
                         </tr>
                     `;
                 });
@@ -1085,9 +1085,9 @@
                         dataDetails = `
                             <div class="mt-2">
                                 <strong class="">{{ __('messages.changes') }}:</strong>
-                                <table class="table table-bordered table-sm table bordered-table sm-table mb-0">
+                                <table class="table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records">
                                     <tbody>                                      
-                                        ${Object.entries(log.data).map(([key, value]) => `<tr><td class="">${fieldLabels[key] || key}</td><td>${value || ''}</td></tr>`).join('')}
+                                        ${Object.entries(log.data).map(([key, value]) => `<tr><td class="mobile-primary" data-label="{{ __('messages.name') }}">${fieldLabels[key] || key}</td><td data-label="{{ __('messages.details') }}">${value || ''}</td></tr>`).join('')}
                                     </tbody>
                                 </table>
                             </div>

@@ -4,7 +4,7 @@
 @include('components.alert')
 
 <div class="container">
-    <div class="d-flex justify-content-between mb-3">
+    <div class="d-flex justify-content-between mb-3 mobile-stack-header">
         <div class="fw-bold fs-5">{{ __('messages.clients') }}</div>
         @can('clients_store')
             <button class="btn btn-outline-primary btn-sm radius-8" data-bs-toggle="modal"
@@ -19,7 +19,8 @@
         </div>
     </div>
 
-    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0" id="clientsTable">
+    <div class="responsive-records-wrapper table-responsive">
+    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records" id="clientsTable">
         <thead>
             <tr>
                 <th class="text-center">{{ __('messages.id') }}</th>
@@ -36,6 +37,7 @@
             {{-- Data will be loaded via AJAX --}}
         </tbody>
     </table>
+    </div>
 </div>
 
 <!-- Create Modal -->
@@ -62,13 +64,13 @@
                     res.data.forEach((client, i) => {
                         rows += `
                             <tr>
-                                <td>${i + 1}</td>
-                                <td>${client.name}</td>
-                                <td>${client.phone_number}</td>
-                                <td>${client.debt}</td>
-                                <td>${client.creator ? client.creator.name : ''}</td>
+                                <td data-label="{{ __('messages.id') }}">${i + 1}</td>
+                                <td class="mobile-primary" data-label="{{ __('messages.name') }}">${client.name}</td>
+                                <td data-label="{{ __('messages.phone_number') }}">${client.phone_number}</td>
+                                <td data-label="{{ __('messages.debt') }}">${client.debt}</td>
+                                <td class="mobile-muted mobile-hide" data-label="{{ __('messages.created_by') }}">${client.creator ? client.creator.name : ''}</td>
                                 @canany(['clients_show', 'clients_update', 'clients_destroy'])   
-                                    <td>
+                                    <td class="mobile-actions" data-label="{{ __('messages.actions') }}">
                                         @can('clients_show')   
                                             <a href="{{ url('dashboard/clients') }}/${client.id}" class="btn btn-outline-success btn-sm radius-8 btn-sm">{{ __('messages.details') }}</a>
                                         @endcan

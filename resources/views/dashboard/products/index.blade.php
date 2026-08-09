@@ -4,7 +4,7 @@
     @include('components.alert')
 
     <div class="container">
-        <div class="d-flex justify-content-between mb-3">
+        <div class="d-flex justify-content-between mb-3 mobile-stack-header">
             <div class="fw-bold fs-5">{{ __('messages.products') }}</div>
             @can('products_store')
                 <button class="btn btn-outline-primary btn-sm radius-8" data-bs-toggle="modal"
@@ -32,8 +32,8 @@
             </div>
         </div>
 
-        <div style="overflow: auto">
-            <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0" id="productsTable">
+        <div class="responsive-records-wrapper table-responsive">
+            <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records" id="productsTable">
                 <thead>
                     <tr>
                         <th class="text-center">{{ __('messages.id') }}</th>
@@ -78,6 +78,18 @@
                 loadproducts();
             });
 
+            function valueOrEmpty(value) {
+                return value ?? '';
+            }
+
+            function escapeHtml(value) {
+                return String(valueOrEmpty(value)).replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
+            }
+
             function loadproducts() {
                 let search = $('#searchInput').val();
                 let code = $('#codeFilter').val();
@@ -92,39 +104,41 @@
                         let rows = '';
                         let parentOptions = '<option value="">{{ __('messages.none') }}</option>';
                         res.data.forEach((cat, i) => {
+                            let imageHtml = cat.image ? `<img src="/${escapeHtml(cat.image)}" width="50" class="rounded">` : '';
                             rows += `
                 <tr>
-                    <td>${i+1}</td>
-                    <td>${cat.name}</td>
-                    <td>${cat.code}</td>
-                    <td><img src="/${cat.image}" width="50" class="rounded"></td>
-                    <td>${cat.description}</td>
+                    <td data-label="{{ __('messages.id') }}">${i+1}</td>
+                    <td class="mobile-primary" data-label="{{ __('messages.name') }}">${escapeHtml(cat.name)}</td>
+                    <td data-label="{{ __('messages.code') }}">${escapeHtml(cat.code)}</td>
+                    <td class="mobile-muted mobile-hide" data-label="{{ __('messages.image') }}">${imageHtml}</td>
+                    <td class="mobile-muted" data-label="{{ __('messages.description') }}">${escapeHtml(cat.description)}</td>
                     <td class="purchase-price" 
-                        data-real="${cat.purchase_price}" 
-                        data-fake="${cat.sale_price}" 
+                        data-label="{{ __('messages.purchase_price') }}"
+                        data-real="${escapeHtml(cat.purchase_price)}" 
+                        data-fake="${escapeHtml(cat.sale_price)}" 
                         data-state="fake">
-                        ${cat.sale_price}
+                        ${escapeHtml(cat.sale_price)}
                     </td>
-                                    <td>${cat.sale_price}</td>
-                    <td>${cat.stock}</td>
-                    <td>${cat.creator ? cat.creator.name : ''}</td>
+                    <td data-label="{{ __('messages.sale_price') }}">${escapeHtml(cat.sale_price)}</td>
+                    <td data-label="{{ __('messages.stock') }}">${escapeHtml(cat.stock)}</td>
+                    <td class="mobile-muted mobile-hide" data-label="{{ __('messages.created_by') }}">${cat.creator ? escapeHtml(cat.creator.name) : ''}</td>
                     @canany(['products_destroy','products_update','products_show'])
-                        <td>
+                        <td class="mobile-actions" data-label="{{ __('messages.actions') }}">
                             @can('products_show')
                                 <a href="/dashboard/products/${cat.id}/details" class="btn btn-outline-success btn-sm radius-8">{{ __('messages.details') }}</a>
                             @endcan
                             @can('products_update')
                                 <button class="btn btn-outline-primary btn-sm radius-8 editBtn" 
                                 data-id="${cat.id}" 
-                                data-name="${cat.name}" 
-                                data-code="${cat.code}" 
-                                data-description="${cat.description}" 
-                                data-purchase_price="${cat.purchase_price}" 
-                                data-sale_price="${cat.sale_price}" 
-                                data-stock="${cat.stock}">{{ __('messages.edit') }}</button>
+                                data-name="${escapeHtml(cat.name)}" 
+                                data-code="${escapeHtml(cat.code)}" 
+                                data-description="${escapeHtml(cat.description)}" 
+                                data-purchase_price="${escapeHtml(cat.purchase_price)}" 
+                                data-sale_price="${escapeHtml(cat.sale_price)}" 
+                                data-stock="${escapeHtml(cat.stock)}">{{ __('messages.edit') }}</button>
                             @endcan
                             @can('products_destroy')
-                                <button class="btn btn-outline-danger btn-sm radius-8 deleteBtn" data-id="${cat.id}" data-name="${cat.name}">{{ __('messages.delete') }}</button>
+                                <button class="btn btn-outline-danger btn-sm radius-8 deleteBtn" data-id="${cat.id}" data-name="${escapeHtml(cat.name)}">{{ __('messages.delete') }}</button>
                             @endcan
                         </td>
                     @endcan
