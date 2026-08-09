@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Tenant;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -10,7 +11,19 @@ class PermissionSeeder extends Seeder
 {
     public function run()
     {
+        if (! tenancy()->initialized) {
+            Tenant::query()->get()->each(function (Tenant $tenant) {
+                $tenant->run(fn () => $this->seedTenantPermissions());
+            });
 
+            return;
+        }
+
+        $this->seedTenantPermissions();
+    }
+
+    private function seedTenantPermissions(): void
+    {
         $permissions = [
             'categories_index',
             'categories_store',
