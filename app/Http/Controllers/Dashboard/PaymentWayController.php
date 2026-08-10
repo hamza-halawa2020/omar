@@ -18,6 +18,7 @@ class PaymentWayController extends BaseController
         $this->middleware('check.permission:payment_ways_show')->only('show', 'showList');
         $this->middleware('check.permission:payment_ways_update')->only('update');
         $this->middleware('check.permission:payment_ways_destroy')->only('destroy');
+        $this->middleware('check.permission:payment_ways_reorder')->only('reorder');
     }
 
     public function index()
@@ -72,8 +73,23 @@ class PaymentWayController extends BaseController
 
     public function reorder(Request $request)
     {
+        if (! $request->user()?->hasRole('Super admin')) {
+            return response()->json(['status' => false, 'message' => __('messages.unauthorized')], 403);
+        }
+
+        if ($this->isMobileRequest($request)) {
+            return response()->json(['status' => false, 'message' => __('messages.reorder_desktop_only')], 403);
+        }
+
         $this->paymentWayService->reorder((array) $request->input('order', []));
 
         return response()->json(['status' => true, 'message' => 'Order updated successfully']);
+    }
+
+    private function isMobileRequest(Request $request): bool
+    {
+        $userAgent = (string) $request->userAgent();
+
+        return (bool) preg_match('/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile/i', $userAgent);
     }
 }

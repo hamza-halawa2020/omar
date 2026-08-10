@@ -55,6 +55,8 @@
 @push('scripts')
     <script>
         $(document).ready(function () {
+            const canReorderPaymentWays = @can('payment_ways_reorder') true @else false @endcan;
+
             // Add loading animation
             function showLoading() {
                 $('#paymentWaysContainer').html(`
@@ -603,12 +605,26 @@
                 $('#statsCards').html(statsHtml);
             }
 
-         
+            const mobileSortableQuery = window.matchMedia('(max-width: 767.98px), (pointer: coarse)');
+
+            function isMobileSortableDisabled() {
+                return mobileSortableQuery.matches;
+            }
+
+            function destroySortable(container) {
+                if (container && container.sortable) {
+                    container.sortable.destroy();
+                    container.sortable = null;
+                }
+            }
+
             function initSortable() {
                 const container = document.getElementById('paymentWaysContainer');
 
-                if (container.sortable) {
-                    container.sortable.destroy();
+                destroySortable(container);
+
+                if (!canReorderPaymentWays || !container || isMobileSortableDisabled() || typeof Sortable === 'undefined') {
+                    return;
                 }
 
                 Sortable.create(container, {
@@ -652,6 +668,16 @@
                 });
 
                 container.sortable = Sortable.get(container);
+            }
+
+            function handleSortableViewportChange() {
+                initSortable();
+            }
+
+            if (typeof mobileSortableQuery.addEventListener === 'function') {
+                mobileSortableQuery.addEventListener('change', handleSortableViewportChange);
+            } else if (typeof mobileSortableQuery.addListener === 'function') {
+                mobileSortableQuery.addListener(handleSortableViewportChange);
             }
 
             // Create

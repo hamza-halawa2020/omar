@@ -50,6 +50,7 @@ class PermissionSeeder extends Seeder
             'payment_ways_show',
             'payment_ways_update',
             'payment_ways_destroy',
+            'payment_ways_reorder',
 
             'payment_way_logs_index',
 
