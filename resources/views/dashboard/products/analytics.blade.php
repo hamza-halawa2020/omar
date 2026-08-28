@@ -15,6 +15,17 @@
             box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
         }
 
+        .product-analytics-page,
+        .product-analytics-page .card,
+        .product-analytics-page .card-body {
+            min-width: 0;
+        }
+
+        .product-analytics-page {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
         .product-analytics-filter .card-body {
             padding: 20px;
         }
@@ -141,19 +152,69 @@
             white-space: nowrap;
         }
 
+        .product-analytics-page .summary-value {
+            font-size: 28px;
+            line-height: 1.25;
+            overflow-wrap: anywhere;
+        }
+
+        .product-analytics-page .chart-box {
+            height: 280px;
+            min-width: 0;
+        }
+
+        .product-analytics-page .table-responsive {
+            max-width: 100%;
+        }
+
         @media (max-width: 767.98px) {
+            .product-analytics-page {
+                padding-inline: 0 !important;
+            }
+
+            .product-analytics-page > .d-flex {
+                align-items: stretch !important;
+                gap: 10px;
+            }
+
+            .product-analytics-filter .card-body,
+            .product-analytics-page .card-body {
+                padding: 14px;
+            }
+
             .product-analytics-filter .product-filter-grid {
                 grid-template-columns: 1fr;
+                gap: 12px;
             }
 
             .product-analytics-filter .analytics-filter-actions {
                 grid-template-columns: 1fr;
             }
+
+            .product-analytics-page .summary-value {
+                font-size: 24px;
+            }
+
+            .product-analytics-page .chart-box {
+                height: 220px;
+            }
+
+            .product-analytics-page .card-title {
+                font-size: 15px;
+            }
         }
 
-        @media (min-width: 768px) and (max-width: 991.98px) {
+        @media (min-width: 768px) and (max-width: 1199.98px) {
             .product-analytics-filter .product-filter-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .product-analytics-filter .analytics-filter-actions {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .product-analytics-page .chart-box {
+                height: 250px;
             }
         }
     </style>
@@ -205,7 +266,7 @@
                 <div class="card h-100">
                     <div class="card-body">
                         <div class="text-muted mb-1">{{ __('messages.total_products_sales') }}</div>
-                        <div class="h4 mb-0">{{ $formatMoney($totals['sales_amount']) }}</div>
+                        <div class="h4 mb-0 summary-value">{{ $formatMoney($totals['sales_amount']) }}</div>
                     </div>
                 </div>
             </div>
@@ -213,7 +274,7 @@
                 <div class="card h-100">
                     <div class="card-body">
                         <div class="text-muted mb-1">{{ __('messages.total_sales_costs') }}</div>
-                        <div class="h4 mb-0">{{ $formatMoney($totals['sales_cost']) }}</div>
+                        <div class="h4 mb-0 summary-value">{{ $formatMoney($totals['sales_cost']) }}</div>
                     </div>
                 </div>
             </div>
@@ -221,7 +282,7 @@
                 <div class="card h-100">
                     <div class="card-body">
                         <div class="text-muted mb-1">{{ __('messages.net_profit_loss') }}</div>
-                        <div class="h4 mb-0 {{ $totals['net_profit'] >= 0 ? 'text-success' : 'text-danger' }}">
+                        <div class="h4 mb-0 summary-value {{ $totals['net_profit'] >= 0 ? 'text-success' : 'text-danger' }}">
                             {{ $formatMoney($totals['net_profit']) }}
                         </div>
                     </div>
@@ -231,7 +292,7 @@
                 <div class="card h-100">
                     <div class="card-body">
                         <div class="text-muted mb-1">{{ __('messages.profit_margin') }}</div>
-                        <div class="h4 mb-0">{{ number_format($totals['profit_margin'], 2) }}%</div>
+                        <div class="h4 mb-0 summary-value">{{ number_format($totals['profit_margin'], 2) }}%</div>
                     </div>
                 </div>
             </div>
@@ -245,7 +306,7 @@
                             <div class="card-title mb-0">{{ __('messages.products_profit_loss') }}</div>
                             <span class="badge bg-primary">{{ $formatNumber($totals['sold_quantity']) }} {{ __('messages.quantity') }}</span>
                         </div>
-                        <div style="height: 280px;">
+                        <div class="chart-box">
                             <canvas id="productProfitChart"></canvas>
                         </div>
                     </div>
