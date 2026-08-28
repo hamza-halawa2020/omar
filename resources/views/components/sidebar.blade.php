@@ -61,7 +61,7 @@
                 </li>
             @endcan
 
-            @can('iphones_index')
+            {{-- @can('iphones_index')
                 <li>
                     <a href="{{ route('iphones.index') }}"
                         class="d-flex align-items-center gap-2 {{ Route::is('iphones.*') ? 'active-page' : '' }}">
@@ -69,7 +69,7 @@
                         <span>{{ __('messages.iphones') }}</span>
                     </a>
                 </li>
-            @endcan
+            @endcan --}}
 
             @can('installments_index')
                 <li>
