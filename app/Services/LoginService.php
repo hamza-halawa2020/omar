@@ -79,7 +79,7 @@ class LoginService
             ]);
         }
 
-        CreateBackup::dispatchAfterResponse();
+        // CreateBackup::dispatchAfterResponse();
 
         return redirect()->intended('/dashboard');
     }
@@ -98,7 +98,7 @@ class LoginService
             return response()->json(['status' => true, 'message' => __('messages.logged_out_successfully')]);
         }
 
-        CreateBackup::dispatchAfterResponse();
+        // CreateBackup::dispatchAfterResponse();
 
         return redirect()->route('login');
     }
