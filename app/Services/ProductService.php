@@ -59,12 +59,24 @@ class ProductService
     public function details(int $id): array
     {
         $product = Product::findOrFail($id);
+        $transactions = $product->transactions->map(function ($transaction) use ($product) {
+            $quantity = (int) ($transaction->quantity ?? 1);
+            $purchasePrice = (float) ($product->purchase_price ?? 0);
+            $cost = $transaction->type === 'receive' ? $quantity * $purchasePrice : 0;
+
+            $transaction->sale_cost = $cost;
+            $transaction->sale_profit = $transaction->type === 'receive'
+                ? (float) $transaction->amount + (float) $transaction->commission - $cost
+                : null;
+
+            return $transaction;
+        });
 
         return [
             'product' => $product,
             'totalCost' => $product->stock * $product->purchase_price,
             'installmentContracts' => $product->installmentContracts,
-            'transactions' => $product->transactions,
+            'transactions' => $transactions,
         ];
     }
 

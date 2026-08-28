@@ -73,6 +73,9 @@
                             <th class="text-center">{{ __('messages.amount') }}</th>
                             <th class="text-center">{{ __('messages.commission') }}</th>
                             <th class="text-center">{{ __('messages.quantity') }}</th>
+                            <th class="text-center">{{ __('messages.sale_cost') }}</th>
+                            <th class="text-center">{{ __('messages.net_profit_loss') }}</th>
+                            <th class="text-center">{{ __('messages.status') }}</th>
                             <th class="text-center">{{ __('messages.notes') }}</th>
                             <th class="text-center">{{ __('messages.type') }}</th>
                         </tr>
@@ -82,9 +85,28 @@
                         @foreach ($transactions as $index => $contract)
                             <tr>
                                 <td data-label="#">{{ $index + 1 }}</td>
-                                <td class="mobile-primary" data-label="{{ __('messages.amount') }}">{{ $contract->amount ?? '' }}</td>
-                                <td data-label="{{ __('messages.commission') }}">{{ $contract->commission ?? '' }}</td> 
-                                <td data-label="{{ __('messages.quantity') }}">{{ $contract->quantity ?? '' }}</td> 
+                                <td class="mobile-primary" data-label="{{ __('messages.amount') }}">{{ number_format($contract->amount ?? 0, 2) }}</td>
+                                <td data-label="{{ __('messages.commission') }}">{{ number_format($contract->commission ?? 0, 2) }}</td> 
+                                <td data-label="{{ __('messages.quantity') }}">{{ $contract->quantity ?? 1 }}</td> 
+                                <td data-label="{{ __('messages.sale_cost') }}">
+                                    {{ $contract->type == 'receive' ? number_format($contract->sale_cost, 2) : '-' }}
+                                </td>
+                                <td data-label="{{ __('messages.net_profit_loss') }}" class="{{ $contract->type == 'receive' ? ($contract->sale_profit >= 0 ? 'text-success' : 'text-danger') : '' }}">
+                                    {{ $contract->type == 'receive' ? number_format($contract->sale_profit, 2) : '-' }}
+                                </td>
+                                <td data-label="{{ __('messages.status') }}">
+                                    @if ($contract->type == 'receive')
+                                        @if ($contract->sale_profit > 0)
+                                            <span class="badge bg-success">{{ __('messages.profit') }}</span>
+                                        @elseif ($contract->sale_profit < 0)
+                                            <span class="badge bg-danger">{{ __('messages.loss') }}</span>
+                                        @else
+                                            <span class="badge bg-secondary">{{ __('messages.break_even') }}</span>
+                                        @endif
+                                    @else
+                                        <span class="badge bg-info">{{ __('messages.stock_purchase') }}</span>
+                                    @endif
+                                </td>
                                 <td class="mobile-muted" data-label="{{ __('messages.notes') }}">{{ $contract->notes ?? '' }}</td> 
                                 <td data-label="{{ __('messages.type') }}">
                                     @if ($contract->type == 'receive')

@@ -9,6 +9,7 @@ use App\Http\Controllers\Dashboard\InstallmentContractController;
 use App\Http\Controllers\Dashboard\IphoneController;
 use App\Http\Controllers\Dashboard\LoginController;
 use App\Http\Controllers\Dashboard\PaymentWayController;
+use App\Http\Controllers\Dashboard\ProductAnalyticsController;
 use App\Http\Controllers\Dashboard\ProductController;
 use App\Http\Controllers\Dashboard\ProfileController;
 use App\Http\Controllers\Dashboard\RoleController;
@@ -41,6 +42,7 @@ Route::prefix('dashboard')->middleware(['auth.or_impersonate', 'tenancy'])->grou
     Route::delete('categories/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 
     Route::get('products', [ProductController::class, 'index'])->name('products.index');
+    Route::get('products/analytics', [ProductAnalyticsController::class, 'index'])->name('products.analytics');
     Route::get('products/list', [ProductController::class, 'list'])->name('products.list');
     Route::post('products', [ProductController::class, 'store'])->name('products.store');
     Route::put('products/{id}', [ProductController::class, 'update'])->name('products.update');

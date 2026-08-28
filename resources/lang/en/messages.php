@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 return [
     'create_category' => 'Create Category',
@@ -640,7 +640,28 @@ return [
     'iphone_status_maintenance' => 'Maintenance',
     'action_type' => 'Action Type',
     'total_cost' => 'Total Cost',
-    'admin' => [
+    'product_sales_analysis' => 'Product Sales Analysis',
+    'all_products' => 'All Products',
+    'total_product_sales' => 'Total Product Sales',
+    'total_products_sales' => 'Total Products Sales',
+    'total_sales_cost' => 'Total Sales Cost',
+    'total_sales_costs' => 'Total Sales Costs',
+    'net_profit_loss' => 'Net Profit / Loss',
+    'profit_margin' => 'Profit Margin',
+    'products_profit_loss' => 'Products Profit / Loss',
+    'period_summary' => 'Period Summary',
+    'products_count' => 'Products Count',
+    'sales_count' => 'Sales Count',
+    'gross_profit_before_commission' => 'Gross Profit Before Commission',
+    'stock_purchase_transactions' => 'Stock Purchase Transactions',
+    'product_performance' => 'Product Performance',
+    'sold_quantity' => 'Sold Quantity',
+    'sales_transactions_profit' => 'Sales Transactions Profit',
+    'sale_cost' => 'Sale Cost',
+    'profit' => 'Profit',
+    'loss' => 'Loss',
+    'break_even' => 'Break Even',
+    'stock_purchase' => 'Stock Purchase',    'admin' => [
         'admin_panel' => 'Admin Panel',
         'admin_panel_short' => 'Admin',
         'admin_dashboard' => 'Admin Dashboard',

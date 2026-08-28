@@ -47,9 +47,16 @@
             @can('products_index')
                 <li>
                     <a href="{{ route('products.index') }}"
-                        class="d-flex align-items-center gap-2 {{ Route::is('products.*') ? 'active-page' : '' }}">
+                        class="d-flex align-items-center gap-2 {{ Route::is('products.index') || Route::is('products.details') ? 'active-page' : '' }}">
                         <iconify-icon icon="mdi:package-variant-closed" class="menu-icon"></iconify-icon>
                         <span>{{ __('messages.products') }}</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('products.analytics') }}"
+                        class="d-flex align-items-center gap-2 {{ Route::is('products.analytics') ? 'active-page' : '' }}">
+                        <iconify-icon icon="mdi:chart-box-outline" class="menu-icon"></iconify-icon>
+                        <span>{{ __('messages.product_sales_analysis') }}</span>
                     </a>
                 </li>
             @endcan
