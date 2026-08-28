@@ -10,36 +10,123 @@
     @endphp
 
     <style>
-        .product-analytics-page .product-filter-col .select2,
-        .product-analytics-page .product-filter-col .select2-container,
-        .product-analytics-page .product-filter-col .selection,
-        .product-analytics-page .product-filter-col .select2-selection {
+        .product-analytics-filter {
+            border: 0;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+        }
+
+        .product-analytics-filter .card-body {
+            padding: 20px;
+        }
+
+        .product-analytics-filter .product-filter-grid {
+            display: grid;
+            grid-template-columns: minmax(140px, 1fr) minmax(140px, 1fr) minmax(260px, 2fr) minmax(220px, auto);
+            gap: 16px;
+            align-items: end;
+        }
+
+        .product-analytics-filter .product-filter-grid > * {
+            min-width: 0;
+        }
+
+        .product-analytics-filter .filter-field {
+            display: grid;
+            grid-template-rows: 18px 46px;
+            row-gap: 8px;
+            align-content: end;
+            height: 100%;
+        }
+
+        .product-analytics-filter .form-label {
+            color: #334155;
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 18px;
+            margin-bottom: 0;
+        }
+
+        .product-analytics-filter .form-control,
+        .product-analytics-filter .form-select {
+            min-height: 46px;
+            border-color: #d8dee8;
+            border-radius: 8px;
+            box-shadow: none;
+        }
+
+        .product-analytics-filter .form-control:focus,
+        .product-analytics-filter .form-select:focus,
+        .product-analytics-filter .select2-container--default.select2-container--focus .select2-selection--single {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .product-analytics-filter .product-filter-col .select2,
+        .product-analytics-filter .product-filter-col .select2-container,
+        .product-analytics-filter .product-filter-col .selection,
+        .product-analytics-filter .product-filter-col .select2-selection {
             display: block;
             width: 100% !important;
         }
 
-        .product-analytics-page .select2-container .select2-selection--single {
+        .product-analytics-filter .product-filter-col .select2-container {
+            grid-row: 2;
+        }
+
+        .product-analytics-filter .select2-container .select2-selection--single {
             width: 100%;
-            height: 48px;
-            min-height: 48px;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
+            height: 46px;
+            min-height: 46px;
+            border: 1px solid #d8dee8;
+            border-radius: 8px;
         }
 
-        .product-analytics-page .select2-container .select2-selection__rendered {
+        .product-analytics-filter .select2-container .select2-selection__rendered {
             display: block;
             width: 100% !important;
-            line-height: 46px;
-            padding-inline-start: 12px;
-            padding-inline-end: 32px;
+            line-height: 44px;
+            padding-inline-start: 14px;
+            padding-inline-end: 36px;
         }
 
-        .product-analytics-page .select2-container .select2-selection__arrow {
-            height: 46px;
+        .product-analytics-filter .select2-container .select2-selection__arrow {
+            height: 44px;
         }
 
-        .product-analytics-page .select2-search__field {
+        .product-analytics-filter .select2-search__field {
             width: 100% !important;
+        }
+
+        .product-analytics-filter .analytics-filter-actions {
+            display: grid;
+            grid-template-columns: minmax(120px, 1fr) minmax(110px, auto);
+            gap: 10px;
+        }
+
+        .product-analytics-filter .analytics-filter-actions .btn {
+            min-height: 46px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 767.98px) {
+            .product-analytics-filter .product-filter-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .product-analytics-filter .analytics-filter-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (min-width: 768px) and (max-width: 991.98px) {
+            .product-analytics-filter .product-filter-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
         }
     </style>
 
@@ -49,18 +136,18 @@
             <a href="{{ route('products.index') }}" class="btn btn-secondary btn-sm">{{ __('messages.products') }}</a>
         </div>
 
-        <div class="card mb-3">
+        <div class="card mb-3 product-analytics-filter">
             <div class="card-body">
-                <form action="{{ route('products.analytics') }}" method="GET" class="row g-3">
-                    <div class="col-12 col-md-3 col-xl-2">
+                <form action="{{ route('products.analytics') }}" method="GET" class="product-filter-grid">
+                    <div class="filter-field">
                         <label for="from_date" class="form-label">{{ __('messages.from_date') }}</label>
                         <input type="date" class="form-control" id="from_date" name="from_date" value="{{ $fromDate }}">
                     </div>
-                    <div class="col-12 col-md-3 col-xl-2">
+                    <div class="filter-field">
                         <label for="to_date" class="form-label">{{ __('messages.to_date') }}</label>
                         <input type="date" class="form-control" id="to_date" name="to_date" value="{{ $toDate }}">
                     </div>
-                    <div class="col-12 col-md-4 col-xl-5 product-filter-col">
+                    <div class="filter-field product-filter-col">
                         <label for="product_id" class="form-label">{{ __('messages.product') }}</label>
                         <select name="product_id" id="product_id" class="form-select product-search-select w-100" style="width: 100%;">
                             <option value="">{{ __('messages.all_products') }}</option>
@@ -71,9 +158,15 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-12 col-md-2 col-xl-3 d-flex align-items-end gap-2 mobile-filter-actions">
-                        <button type="submit" class="btn btn-primary w-100">{{ __('messages.filter') }}</button>
-                        <a href="{{ route('products.analytics') }}" class="btn btn-secondary">{{ __('messages.reset') }}</a>
+                    <div class="analytics-filter-actions mobile-filter-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <iconify-icon icon="mdi:filter-outline"></iconify-icon>
+                            {{ __('messages.filter') }}
+                        </button>
+                        <a href="{{ route('products.analytics') }}" class="btn btn-outline-secondary">
+                            <iconify-icon icon="mdi:refresh"></iconify-icon>
+                            {{ __('messages.reset') }}
+                        </a>
                     </div>
                 </form>
             </div>
