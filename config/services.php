@@ -31,4 +31,8 @@ return [
         ],
     ],
 
+    'whatsapp_bot' => [
+        'base_url' => env('WHATSAPP_BOT_BASE_URL', 'http://localhost:3000'),
+    ],
+
 ];

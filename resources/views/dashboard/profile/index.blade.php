@@ -27,6 +27,12 @@
                                     value="{{ auth()->user()->email }}">
                             </div>
 
+                            <div class="mb-3">
+                                <label for="whatsapp_api_token" class="form-label">WhatsApp API Token</label>
+                                <input type="text" class="form-control" id="whatsapp_api_token" name="whatsapp_api_token"
+                                    value="{{ auth()->user()->whatsapp_api_token }}" placeholder="Enter your WhatsApp API Token">
+                            </div>
+
                             <div class="position-relative mb-20">
                                 <div class="icon-field">
                                     <span class="icon top-50 translate-middle-y">

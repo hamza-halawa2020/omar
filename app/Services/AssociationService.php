@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Services\WhatsAppService;
 
 class AssociationService
 {
@@ -27,9 +28,12 @@ class AssociationService
 
     public function list(): Collection
     {
-        return Association::with(['members.client' => function ($query) {
-            $query->where('type', 'client');
-        }, 'creator'])->get();
+        return Association::with([
+            'members.client' => function ($query) {
+                $query->where('type', 'client');
+            },
+            'creator'
+        ])->get();
     }
 
     public function details(int $id): array
@@ -201,6 +205,10 @@ class AssociationService
                     ],
                 ]);
 
+                if ($member->client) {
+                    app(WhatsAppService::class)->sendTransactionMessage($member->client, $data['amount'], 'receive', ['association' => $association->name]);
+                }
+
                 return ['payment' => $payment, 'transaction' => $transaction];
             });
         });
@@ -272,6 +280,10 @@ class AssociationService
                         ],
                     ],
                 ]);
+
+                if ($member->client) {
+                    app(WhatsAppService::class)->sendTransactionMessage($member->client, $totalReceived, 'send', ['association_payout' => $association->name]);
+                }
 
                 return ['member' => $member->fresh(), 'transaction' => $transaction];
             });

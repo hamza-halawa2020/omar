@@ -733,4 +733,13 @@ return [
         'user_deleted' => 'تم حذف المستخدم بنجاح.',
         'duplicate_transaction_in_progress' => 'هناك معاملة مكررة قيد المعالجة. يرجى الانتظار حتى اكتمال المعاملة الحالية قبل محاولة إرسال معاملة جديدة.',
     ],
+
+    'whatsapp_msg_greeting' => 'مرحباً :name،',
+    'whatsapp_msg_send' => 'تم تحويل مبلغ بقيمة :amount بنجاح.',
+    'whatsapp_msg_receive' => 'تم استلام مبلغ بقيمة :amount بنجاح.',
+    'whatsapp_msg_product' => ' مقابل شراء منتج: :product.',
+    'whatsapp_msg_installment' => ' كدفعة قسط.',
+    'whatsapp_msg_association' => ' كدفعة لجمعية: :association.',
+    'whatsapp_msg_association_payout' => ' كاستلام لجمعية: :association.',
+    'whatsapp_msg_balance' => 'رصيد حسابك الحالي هو: :balance',
 ];

@@ -17,9 +17,10 @@ class UpdateProfileRequest extends FormRequest
 
         return [
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email,' . $userId,
+            'email' => 'required|email|max:255|unique:central.users,email,' . $userId,
             'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'password' => 'nullable|min:8',
+            'whatsapp_api_token' => 'nullable|string',
         ];
     }
 }

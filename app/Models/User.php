@@ -104,6 +104,7 @@ class User extends Authenticatable
         'password',
         'tenant_id',
         'is_active',
+        'whatsapp_api_token',
     ];
 
     /**

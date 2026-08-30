@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Services\WhatsAppService;
 
 class InstallmentContractService
 {
@@ -29,9 +30,14 @@ class InstallmentContractService
 
     public function list(): Collection
     {
-        return InstallmentContract::with(['client' => function ($query) {
-            $query->where('type', 'client');
-        }, 'product', 'creator', 'installments'])->latest()->get();
+        return InstallmentContract::with([
+            'client' => function ($query) {
+                $query->where('type', 'client');
+            },
+            'product',
+            'creator',
+            'installments'
+        ])->latest()->get();
     }
 
     public function store(array $data): InstallmentContract
@@ -74,16 +80,26 @@ class InstallmentContractService
 
     public function show(int $id): InstallmentContract
     {
-        return InstallmentContract::with(['client' => function ($query) {
-            $query->where('type', 'client');
-        }, 'product', 'creator', 'installments.payments.paid_by'])->findOrFail($id);
+        return InstallmentContract::with([
+            'client' => function ($query) {
+                $query->where('type', 'client');
+            },
+            'product',
+            'creator',
+            'installments.payments.paid_by'
+        ])->findOrFail($id);
     }
 
     public function showPage(int $id): array
     {
-        $contract = InstallmentContract::with(['client' => function ($query) {
-            $query->where('type', 'client');
-        }, 'product', 'creator', 'installments.payments'])->findOrFail($id);
+        $contract = InstallmentContract::with([
+            'client' => function ($query) {
+                $query->where('type', 'client');
+            },
+            'product',
+            'creator',
+            'installments.payments'
+        ])->findOrFail($id);
 
         $paymentWays = PaymentWay::all();
 
@@ -98,7 +114,7 @@ class InstallmentContractService
 
             $recalculate = isset($data['product_price']) || isset($data['down_payment']) || isset($data['interest_rate']) || isset($data['installment_count']) || isset($data['start_date']);
 
-            if (! $recalculate) {
+            if (!$recalculate) {
                 $contract->update($data);
 
                 return $contract->load('installments');
@@ -212,6 +228,10 @@ class InstallmentContractService
                         ],
                     ],
                 ]);
+
+                if ($client) {
+                    app(WhatsAppService::class)->sendTransactionMessage($client, $data['amount'], 'receive', ['installment' => true]);
+                }
 
                 return [
                     'installment' => $installment->load('payments'),

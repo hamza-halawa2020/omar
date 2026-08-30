@@ -733,4 +733,13 @@ return [
         'user_created' => 'User created successfully.',
         'user_deleted' => 'User deleted successfully.',
     ],
+
+    'whatsapp_msg_greeting' => 'Hello :name,',
+    'whatsapp_msg_send' => 'An amount of :amount has been transferred successfully.',
+    'whatsapp_msg_receive' => 'An amount of :amount has been received successfully.',
+    'whatsapp_msg_product' => ' for the purchase of product: :product.',
+    'whatsapp_msg_installment' => ' for installment payment.',
+    'whatsapp_msg_association' => ' for association: :association.',
+    'whatsapp_msg_association_payout' => ' as a payout from association: :association.',
+    'whatsapp_msg_balance' => 'Your current balance is: :balance',
 ];

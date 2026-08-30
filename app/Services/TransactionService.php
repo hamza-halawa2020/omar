@@ -13,6 +13,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Services\WhatsAppService;
 
 class TransactionService
 {
@@ -52,8 +53,8 @@ class TransactionService
                 : null;
             $quantity = $data['quantity'] ?? 1;
 
-            $client = ! empty($data['client_id']) ? Client::findOrFail($data['client_id']) : null;
-            $product = ! empty($data['product_id']) ? Product::findOrFail($data['product_id']) : null;
+            $client = !empty($data['client_id']) ? Client::findOrFail($data['client_id']) : null;
+            $product = !empty($data['product_id']) ? Product::findOrFail($data['product_id']) : null;
             $total = $data['amount'] + ($data['commission'] ?? 0);
 
             return DB::transaction(function () use ($data, $client, $product, $quantity, $total) {
@@ -61,7 +62,7 @@ class TransactionService
                 $monthlyLimit = $this->lockedCurrentMonthlyLimit($paymentWay);
                 $this->assertPaymentWayCanHandleTransaction($paymentWay, $monthlyLimit, $data['type'], $data['amount'], $total);
 
-                $transaction = Transaction::create(array_filter($data, fn ($value) => $value !== null));
+                $transaction = Transaction::create(array_filter($data, fn($value) => $value !== null));
 
                 $transaction->balance_before_transaction = $paymentWay->balance;
                 if ($data['type'] === 'send') {
@@ -78,7 +79,7 @@ class TransactionService
                         $product->increment('stock', $quantity);
                     }
 
-                    if ($client && ! $product) {
+                    if ($client && !$product) {
                         $client->source_model = $transaction;
                         $client->log_description = __('messages.transaction_created_successfully');
                         $client->increment('debt', $data['amount']);
@@ -94,7 +95,7 @@ class TransactionService
                         $product->decrement('stock', $quantity);
                     }
 
-                    if ($client && ! $product) {
+                    if ($client && !$product) {
                         $client->source_model = $transaction;
                         $client->log_description = __('messages.transaction_created_successfully');
                         $client->decrement('debt', $data['amount']);
@@ -138,6 +139,13 @@ class TransactionService
                     ],
                 ]);
 
+                if ($client) {
+                    $context = [];
+                    if ($product)
+                        $context['product'] = $product->name;
+                    app(WhatsAppService::class)->sendTransactionMessage($client, $data['amount'], $data['type'], $context);
+                }
+
                 return $transaction->load(['paymentWay', 'client', 'creator']);
             });
         });
@@ -171,8 +179,8 @@ class TransactionService
 
         $oldClient = $transaction->client_id ? Client::findOrFail($transaction->client_id) : null;
         $oldProduct = $transaction->product_id ? Product::findOrFail($transaction->product_id) : null;
-        $newClient = ! empty($resolvedData['client_id']) ? Client::findOrFail($resolvedData['client_id']) : null;
-        $newProduct = ! empty($resolvedData['product_id']) ? Product::findOrFail($resolvedData['product_id']) : null;
+        $newClient = !empty($resolvedData['client_id']) ? Client::findOrFail($resolvedData['client_id']) : null;
+        $newProduct = !empty($resolvedData['product_id']) ? Product::findOrFail($resolvedData['product_id']) : null;
 
         $oldPaymentWay = PaymentWay::findOrFail($transaction->payment_way_id);
         $newPaymentWay = PaymentWay::findOrFail($resolvedData['payment_way_id']);
@@ -181,21 +189,7 @@ class TransactionService
         $newQuantity = (int) ($resolvedData['quantity'] ?? 1);
         $oldQuantity = $transaction->quantity ?? 1;
 
-        return DB::transaction(function () use (
-            $transaction,
-            $resolvedData,
-            $oldData,
-            $oldClient,
-            $oldProduct,
-            $newClient,
-            $newProduct,
-            $newPaymentWay,
-            $oldPaymentWay,
-            $oldTotal,
-            $newTotal,
-            $newQuantity,
-            $oldQuantity
-        ) {
+        return DB::transaction(function () use ($transaction, $resolvedData, $oldData, $oldClient, $oldProduct, $newClient, $newProduct, $newPaymentWay, $oldPaymentWay, $oldTotal, $newTotal, $newQuantity, $oldQuantity) {
             $this->reverseTransactionEffects(
                 type: $transaction->type,
                 amount: (float) $transaction->amount,
@@ -288,13 +282,12 @@ class TransactionService
         ?Client $client,
         ?Product $product,
         int $quantity
-    ): void
-    {
+    ): void {
         if ($type === 'send') {
             if ($product) {
                 $product->decrement('stock', $quantity);
             }
-            if ($client && ! $product) {
+            if ($client && !$product) {
                 $client->source_model = $sourceTransaction;
                 $client->log_description = __('messages.transaction_reversal');
                 $client->decrement('debt', $amount);
@@ -311,7 +304,7 @@ class TransactionService
             if ($product) {
                 $product->increment('stock', $quantity);
             }
-            if ($client && ! $product) {
+            if ($client && !$product) {
                 $client->source_model = $sourceTransaction;
                 $client->log_description = __('messages.transaction_reversal');
                 $client->increment('debt', $amount);
@@ -336,13 +329,12 @@ class TransactionService
         ?Client $client,
         ?Product $product,
         int $quantity
-    ): void
-    {
+    ): void {
         if ($type === 'send') {
             if ($product) {
                 $product->increment('stock', $quantity);
             }
-            if ($client && ! $product) {
+            if ($client && !$product) {
                 $client->source_model = $sourceTransaction;
                 $client->log_description = __('messages.transaction_updated_successfully');
                 $client->increment('debt', $amount);
@@ -359,7 +351,7 @@ class TransactionService
             if ($product) {
                 $product->decrement('stock', $quantity);
             }
-            if ($client && ! $product) {
+            if ($client && !$product) {
                 $client->source_model = $sourceTransaction;
                 $client->log_description = __('messages.transaction_updated_successfully');
                 $client->decrement('debt', $amount);
