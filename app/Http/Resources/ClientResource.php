@@ -18,6 +18,8 @@ class ClientResource extends JsonResource
             'name' => $this->name,
             'type' => $this->type,
             'phone_number' => $this->phone_number,
+            'country_code' => $this->country_code,
+            'full_phone_number' => $this->full_phone_number,
             'debt' => ceil($this->debt),
             'original_debt' => ceil($originalDebt),
             'totalInstallments' => ceil($totalInstallments),

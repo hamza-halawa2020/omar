@@ -9,6 +9,9 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
+use libphonenumber\NumberParseException;
+use libphonenumber\PhoneNumberUtil;
 
 class ClientService
 {
@@ -78,6 +81,7 @@ class ClientService
     public function store(array $data): Client
     {
         $data['created_by'] = Auth::id();
+        $data = $this->normalizePhoneData($data);
 
         return Client::create($data);
     }
@@ -112,6 +116,7 @@ class ClientService
         $this->guardClientHasNoRelations($client, __('messages.cannot_update_client_with_transactions'));
 
         $client->log_description = __('messages.manual_update');
+        $data = $this->normalizePhoneData($data);
         $client->update($data);
 
         return $client;
@@ -132,8 +137,50 @@ class ClientService
 
         $query->where(function ($q) use ($search) {
             $q->where('name', 'like', "%{$search}%")
+                ->orWhere('country_code', 'like', "%{$search}%")
                 ->orWhere('phone_number', 'like', "%{$search}%");
         });
+    }
+
+    private function normalizePhoneData(array $data): array
+    {
+        if (empty($data['phone_number'])) {
+            $data['phone_number'] = null;
+            $data['country_code'] = null;
+
+            return $data;
+        }
+
+        $countryCode = $data['country_code'] ?? '+20';
+        $digitsOnlyCountryCode = preg_replace('/\D+/', '', $countryCode);
+        $digitsOnlyPhoneNumber = preg_replace('/\D+/', '', $data['phone_number']);
+
+        if (! $digitsOnlyCountryCode || ! $digitsOnlyPhoneNumber) {
+            throw ValidationException::withMessages([
+                'phone_number' => __('validation.regex', ['attribute' => __('messages.phone_number')]),
+            ]);
+        }
+
+        $phoneUtil = PhoneNumberUtil::getInstance();
+
+        try {
+            $phoneNumber = $phoneUtil->parse('+' . $digitsOnlyCountryCode . $digitsOnlyPhoneNumber, null);
+        } catch (NumberParseException) {
+            throw ValidationException::withMessages([
+                'phone_number' => __('validation.regex', ['attribute' => __('messages.phone_number')]),
+            ]);
+        }
+
+        if (! $phoneUtil->isValidNumber($phoneNumber)) {
+            throw ValidationException::withMessages([
+                'phone_number' => __('validation.regex', ['attribute' => __('messages.phone_number')]),
+            ]);
+        }
+
+        $data['country_code'] = '+' . $phoneNumber->getCountryCode();
+        $data['phone_number'] = $phoneUtil->getNationalSignificantNumber($phoneNumber);
+
+        return $data;
     }
 
     private function guardClientHasNoRelations(Client $client, string $message): void

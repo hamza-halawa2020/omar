@@ -66,7 +66,7 @@
                             <tr>
                                 <td data-label="{{ __('messages.id') }}">${i + 1}</td>
                                 <td class="mobile-primary" data-label="{{ __('messages.name') }}">${client.name}</td>
-                                <td data-label="{{ __('messages.phone_number') }}">${client.phone_number}</td>
+                                <td data-label="{{ __('messages.phone_number') }}">${client.full_phone_number || client.phone_number || ''}</td>
                                 <td data-label="{{ __('messages.debt') }}">${client.debt}</td>
                                 <td class="mobile-muted mobile-hide" data-label="{{ __('messages.created_by') }}">${client.creator ? client.creator.name : ''}</td>
                                 @canany(['clients_show', 'clients_update', 'clients_destroy'])   
@@ -79,6 +79,7 @@
                                                 data-id="${client.id}" 
                                                 data-type="${client.type}"
                                                 data-name="${client.name}" 
+                                                data-country_code="${client.country_code || '+20'}"
                                                 data-phone_number="${client.phone_number}" 
                                                 data-debt="${client.debt}">
                                                 {{ __('messages.edit') }}
@@ -118,11 +119,13 @@
             let id = $(this).data('id');
             let name = $(this).data('name');
             let phone_number = $(this).data('phone_number');
+            let country_code = $(this).data('country_code');
             let type = $(this).data('type');
             let debt = $(this).data('debt');
 
             $('#editId').val(id);
             $('#editName').val(name);
+            $('#editCountryCode').val(country_code || '+20');
             $('#editPhoneNumber').val(phone_number);
             $('#editDebt').val(debt);
             $('#editTypeId').val(type);

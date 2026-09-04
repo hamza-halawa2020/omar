@@ -8,6 +8,7 @@ use App\Http\Resources\ClientResource;
 use App\Services\ClientService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
+use libphonenumber\PhoneNumberUtil;
 
 class ClientController extends BaseController
 {
@@ -26,27 +27,37 @@ class ClientController extends BaseController
 
     public function index()
     {
-        return view('dashboard.clients.index');
+        return view('dashboard.clients.index', [
+            'countryCodeOptions' => $this->countryCodeOptions(),
+        ]);
     }
 
     public function debts()
     {
-        return view('dashboard.clients.debts');
+        return view('dashboard.clients.debts', [
+            'countryCodeOptions' => $this->countryCodeOptions(),
+        ]);
     }
 
     public function merchants()
     {
-        return view('dashboard.clients.merchants');
+        return view('dashboard.clients.merchants', [
+            'countryCodeOptions' => $this->countryCodeOptions(),
+        ]);
     }
 
     public function client_installments()
     {
-        return view('dashboard.clients.client_installments');
+        return view('dashboard.clients.client_installments', [
+            'countryCodeOptions' => $this->countryCodeOptions(),
+        ]);
     }
 
     public function client_creditor()
     {
-        return view('dashboard.clients.client_creditor');
+        return view('dashboard.clients.client_creditor', [
+            'countryCodeOptions' => $this->countryCodeOptions(),
+        ]);
     }
 
     public function list(Request $request)
@@ -129,5 +140,24 @@ class ClientController extends BaseController
         // event(new CreateBackup);
 
         return response()->json(['status' => true, 'message' => __('messages.client_deleted_successfully')]);
+    }
+
+    private function countryCodeOptions(): array
+    {
+        $phoneUtil = PhoneNumberUtil::getInstance();
+        $options = [];
+
+        foreach ($phoneUtil->getSupportedRegions() as $region) {
+            $code = '+' . $phoneUtil->getCountryCodeForRegion($region);
+            $options[] = [
+                'region' => $region,
+                'code' => $code,
+                'label' => "{$code} ({$region})",
+            ];
+        }
+
+        usort($options, fn (array $a, array $b) => [$a['code'], $a['region']] <=> [$b['code'], $b['region']]);
+
+        return $options;
     }
 }

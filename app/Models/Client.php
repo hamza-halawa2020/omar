@@ -11,6 +11,7 @@ class Client extends Model
     protected $fillable = [
         'name',
         'phone_number',
+        'country_code',
         'debt',
         'created_by',
         'type' //client, merchant
@@ -19,6 +20,15 @@ class Client extends Model
     protected $casts = [
         'debt' => 'decimal:2',
     ];
+
+    public function getFullPhoneNumberAttribute(): ?string
+    {
+        if (! $this->phone_number) {
+            return null;
+        }
+
+        return trim(($this->country_code ?? '') . $this->phone_number);
+    }
 
     public function creator()
     {

@@ -149,6 +149,6 @@ class WhatsAppService
 
         $message = "{$greeting}\n{$action}{$reason}\n{$balance}";
 
-        return $this->sendMessage($client->phone_number, $message);
+        return $this->sendMessage($client->full_phone_number ?? $client->phone_number, $message);
     }
 }

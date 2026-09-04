@@ -177,7 +177,7 @@
 
                         // Update client info
                         $('#clientName').text(client.name);
-                        $('#clientPhone').text(client.phone_number || '{{ __('messages.unknown') }}');
+                        $('#clientPhone').text(client.full_phone_number || client.phone_number || '{{ __('messages.unknown') }}');
                         $('#clientDebt').text(parseFloat(client.debt || 0));
                         $('#clientCreator').text(client.creator ? client.creator.name :'{{ __('messages.unknown') }}');
                         $('#clientCreatedAt').text(client.created_at);

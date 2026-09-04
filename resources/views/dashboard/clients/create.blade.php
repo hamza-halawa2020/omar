@@ -15,7 +15,20 @@
                     </div>
                     <div class="mb-3">
                         <label>{{ __('messages.phone_number') }}</label>
-                        <input type="text" name="phone_number" class="form-control" required>
+                        <div class="row g-2">
+                            <div class="col-4">
+                                <select name="country_code" class="form-control" required>
+                                    @foreach ($countryCodeOptions as $countryCode)
+                                        <option value="{{ $countryCode['code'] }}" @selected($countryCode['code'] === '+20')>
+                                            {{ $countryCode['label'] }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-8">
+                                <input type="text" name="phone_number" class="form-control" required>
+                            </div>
+                        </div>
                     </div>
 
                       <div class="mb-3">

@@ -40,6 +40,7 @@ return [
     'wallet' => 'محفظة',
     'balance_machine' => 'آلة الرصيد',
     'phone_number' => 'رقم الهاتف',
+    'country_code' => 'كود الدولة',
     'send_limit' => 'حد الارسال',
     'receive_limit' => 'حد الاستلام',
     'balance' => 'الرصيد',

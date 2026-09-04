@@ -40,6 +40,7 @@ return [
     'wallet' => 'Wallet',
     'balance_machine' => 'Balance Machine',
     'phone_number' => 'Phone Number',
+    'country_code' => 'Country Code',
     'send_limit' => 'Send Limit',
     'receive_limit' => 'Receive Limit',
     'balance' => 'Balance',
