@@ -227,9 +227,18 @@
                     return;
                 }
 
-                let salePrice = $(this).find(':selected').data('sale-price');
+                let salePrice = parseFloat($(this).find(':selected').data('sale-price') || 0);
                 if (salePrice !== undefined && salePrice !== '') {
-                    $('#amount').val(parseFloat(salePrice || 0));
+                    let qty = parseFloat($('#quantity').val()) || 1;
+                    $('#amount').val((salePrice * qty).toFixed(2));
+                }
+            });
+
+            $('#quantity').on('input', function () {
+                let salePrice = parseFloat($('#product_id').find(':selected').data('sale-price') || 0);
+                let qty = parseFloat($(this).val()) || 1;
+                if (salePrice > 0) {
+                    $('#amount').val((salePrice * qty).toFixed(2));
                 }
             });
 
