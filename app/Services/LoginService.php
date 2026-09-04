@@ -26,17 +26,6 @@ class LoginService
         $password = $request->input('password');
         $remember = $request->boolean('remember');
 
-        // Extract domain from email and find tenant
-        $domain = Str::after($email, '@');
-        $tenant = Tenant::on('central')->where('domain', $domain)->first();
-
-        if (! $tenant) {
-            if ($request->wantsJson()) {
-                return response()->json(['status' => false, 'message' => __('messages.invalid_credentials')], 401);
-            }
-            return back()->withErrors(['login' => __('messages.invalid_credentials')])->withInput();
-        }
-
         if (! Auth::guard('web')->attempt(['email' => $email, 'password' => $password], $remember)) {
             if ($request->wantsJson()) {
                 return response()->json(['status' => false, 'message' => __('messages.invalid_credentials')], 401);
@@ -44,16 +33,20 @@ class LoginService
             return back()->withErrors(['login' => __('messages.invalid_credentials')])->withInput();
         }
 
-        // Make sure user belongs to this tenant
-        if (Auth::guard('web')->user()->tenant_id !== $tenant->id) {
+        $user = Auth::guard('web')->user();
+        $tenant = Tenant::on('central')->find($user->tenant_id);
+
+        if (! $tenant) {
             Auth::guard('web')->logout();
+
             if ($request->wantsJson()) {
-                return response()->json(['status' => false, 'message' => __('messages.invalid_credentials')], 401);
+                return response()->json(['status' => false, 'message' => __('messages.company_not_found')], 401);
             }
-            return back()->withErrors(['login' => __('messages.invalid_credentials')])->withInput();
+
+            return back()->withErrors(['login' => __('messages.company_not_found')])->withInput();
         }
 
-        if (! Auth::guard('web')->user()->is_active) {
+        if (! $user->is_active) {
             Auth::guard('web')->logout();
 
             if ($request->wantsJson()) {
@@ -68,8 +61,6 @@ class LoginService
         session(['tenant_id' => $tenant->id]);
 
         tenancy()->initialize($tenant);
-
-        $user = Auth::guard('web')->user();
 
         if ($request->wantsJson()) {
             return response()->json([

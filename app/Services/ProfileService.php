@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class ProfileService
 {
@@ -29,6 +30,10 @@ class ProfileService
                 $validated['password'] = Hash::make($validated['password']);
             } else {
                 unset($validated['password']);
+            }
+
+            if (! empty($validated['email'])) {
+                $validated['email'] = Str::lower($validated['email']);
             }
 
             $user->update($validated);
