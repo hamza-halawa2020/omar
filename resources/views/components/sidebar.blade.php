@@ -14,15 +14,6 @@
     <div class="sidebar-menu-area">
         <ul class="sidebar-menu" id="sidebar-menu">
 
-            @can('categories_index')
-                <li>
-                    <a href="{{ route('categories.index') }}"
-                        class="d-flex align-items-center gap-2 {{ Route::is('categories.*') ? 'active-page' : '' }}">
-                        <iconify-icon icon="mdi:folder-outline" class="menu-icon"></iconify-icon>
-                        <span>{{ __('messages.categories') }}</span>
-                    </a>
-                </li>
-            @endcan
             
             @can('transactions_index')
                 <li>

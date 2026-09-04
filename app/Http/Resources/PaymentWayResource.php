@@ -20,10 +20,6 @@ class PaymentWayResource extends JsonResource
 
         return [
             'id' => $this->id,
-            'category_id' => $this->category_id,
-            'sub_category_id' => $this->sub_category_id,
-            'category' => new CategoryResource($this->whenLoaded('category')),
-            'subCategory' => new CategoryResource($this->whenLoaded('subCategory')),
             'name' => $this->name,
             'type' => $this->type,
             'phone_number' => $this->phone_number,

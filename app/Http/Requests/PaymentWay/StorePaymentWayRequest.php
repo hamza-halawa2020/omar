@@ -14,8 +14,6 @@ class StorePaymentWayRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'category_id' => 'required|exists:categories,id',
-            'sub_category_id' => 'nullable|exists:categories,id',
             'name' => 'required|string|max:255',
             'type' => 'required|in:cash,wallet,balance_machine',
             'phone_number' => 'nullable|string|max:20',

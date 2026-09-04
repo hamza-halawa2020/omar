@@ -9,8 +9,6 @@ class PaymentWay extends Model
     protected $table = 'payment_ways';
 
     protected $fillable = [
-        'category_id',
-        'sub_category_id',
         'name',
         'type',     // cash, wallet, balance_machine
         'phone_number',
@@ -27,16 +25,6 @@ class PaymentWay extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
-    }
-
-    public function category()
-    {
-        return $this->belongsTo(Category::class, 'category_id');
-    }
-
-    public function subCategory()
-    {
-        return $this->belongsTo(Category::class, 'sub_category_id');
     }
 
     public function transactions()

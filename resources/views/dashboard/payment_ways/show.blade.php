@@ -228,14 +228,6 @@
                                     <label class=" small d-block mb-1">{{ __('messages.phone_number') }}</label>
                                     <p class="fw-semibold mb-0" id="paymentWayPhone">-</p>
                                 </div>
-                                <div class="mb-3">
-                                    <label class=" small d-block mb-1">{{ __('messages.category') }}</label>
-                                    <p class="fw-semibold mb-0" id="paymentWayCategory">-</p>
-                                </div>
-                                <div class="mb-3">
-                                    <label class=" small d-block mb-1">{{ __('messages.sub_category') }}</label>
-                                    <p class="fw-semibold mb-0" id="paymentWaySubCategory">-</p>
-                                </div>
                             </div>
                             <div class="col-12 col-md-6">
                                 <div class="mb-3">
@@ -1060,8 +1052,6 @@
                 $("#paymentWayName").text(data.name || '');
                 $("#paymentWayType").text(data.type ? data.type.charAt(0).toUpperCase() + data.type.slice(1) : '');
                 $("#paymentWayPhone").text(data.phone_number || '');
-                $("#paymentWayCategory").text(data.category?.name || '');
-                $("#paymentWaySubCategory").text(data.subCategory?.name || '');
                 $("#paymentWayBalance").text(data.balance || 0);
                 $("#paymentWayCreator").text(data.creator?.name || '');
                 $("#paymentWayCreatedAt").text(data.created_at || '');
@@ -1162,8 +1152,6 @@
                     receive_limit: "{{ __('messages.receive_limit') }}",
                     sub_category_id: "{{ __('messages.sub_category_id') }}",
                     creator: "{{ __('messages.creator') }}",
-                    category: "{{ __('messages.category') }}",
-                    sub_category: "{{ __('messages.sub_category') }}",
                 };
 
                 data.logs.forEach(log => {

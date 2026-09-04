@@ -258,57 +258,6 @@
                         
             });
 
-            $('#createCategorySelect').on('change', function () {
-                let categoryId = $(this).val();
-                if (categoryId) {
-                    $.ajax({
-                        url: "{{ url('dashboard/sub-categories') }}/" + categoryId,
-                        type: 'GET',
-                        success: function (res) {
-                            $('#createSubCategorySelect').html(
-                                '<option value="">{{ __('messages.select_sub_category') }}</option>'
-                            );
-                            res.forEach(function (sub) {
-                                $('#createSubCategorySelect').append(
-                                    `<option value="${sub.id}">${sub.name}</option>`
-                                );
-                            });
-                        },
-                        error: function (err) {
-                            showToast('{{ __('messages.something_went_wrong') }}', 'error');
-                        }
-                    });
-                } else {
-                    $('#createSubCategorySelect').html(
-                        '<option value="">{{ __('messages.select_sub_category') }}</option>');
-                }
-            });
-
-            $('#editCategorySelect').on('change', function () {
-                let categoryId = $(this).val();
-                if (categoryId) {
-                    $.ajax({
-                        url: "{{ url('dashboard/sub-categories') }}/" + categoryId,
-                        type: 'GET',
-                        success: function (res) {
-                            $('#editSubCategorySelect').html(
-                                '<option value="">{{ __('messages.select_sub_category') }}</option>'
-                            );
-                            res.forEach(function (sub) {
-                                $('#editSubCategorySelect').append(
-                                    `<option value="${sub.id}">${sub.name}</option>`
-                                );
-                            });
-                        },
-                        error: function (err) {
-                            showToast('{{ __('messages.something_went_wrong') }}', 'error');
-                        }
-                    });
-                } else {
-                    $('#editSubCategorySelect').html(
-                        '<option value="">{{ __('messages.select_sub_category') }}</option>');
-                }
-            });
 
             $('#receiveForm').submit(function (e) {
                 e.preventDefault();
@@ -351,7 +300,6 @@
                         let cards = '';
                         res.data.sort((a, b) => (a.position || 0) - (b.position || 0));
                         res.data.forEach((way, i) => {
-                            let categoryId = way.category_id || (way.category ? way.category.id : '');
                             let clientType = way.client_type;
 
                             let clientTypeText = '';
@@ -367,7 +315,6 @@
                                 clientTypeBadge = 'bg-warning';
                             }
 
-                            let subCategoryId = way.sub_category_id || (way.sub_category ? way.sub_category.id : '');
                             let limits = way.monthly_limits || {};
                             let monthName = limits.month_name || '';
                             
@@ -535,9 +482,7 @@
                                                             data-phone="${way.phone_number ?? ''}"
                                                             data-receive-limit="${way.receive_limit ?? 0}"
                                                             data-send-limit="${way.send_limit ?? 0}"
-                                                            data-balance="${way.balance ?? 0}"
-                                                            data-category-id="${categoryId}"
-                                                            data-sub-category-id="${subCategoryId}">
+                                                            data-balance="${way.balance ?? 0}">
                                                         <i class="fas fa-edit me-1"></i>
                                                         {{ __('messages.edit') }}
                                                     </button>
@@ -752,32 +697,6 @@
                 $('#editPhone').val($(this).data('phone'));
                 $('#editReceiveLimit').val($(this).data('receive-limit'));
                 $('#editSendLimit').val($(this).data('send-limit'));
-                $('#editCategorySelect').val($(this).data('categoryId'));
-
-                let categoryId = $(this).data('categoryId');
-                let subCategoryId = $(this).data('subCategoryId');
-                if (categoryId) {
-                    $.ajax({
-                        url: "{{ url('dashboard/sub-categories') }}/" + categoryId,
-                        type: 'GET',
-                        success: function (res) {
-                            $('#editSubCategorySelect').html(
-                                '<option value="">{{ __('messages.select_sub_category') }}</option>'
-                            );
-                            res.forEach(function (sub) {
-                                $('#editSubCategorySelect').append(
-                                    `<option value="${sub.id}" ${sub.id == subCategoryId ? 'selected' : ''}>${sub.name}</option>`
-                                );
-                            });
-                        },
-                        error: function (err) {
-                            showToast('{{ __('messages.something_went_wrong') }}', 'error');
-                        }
-                    });
-                } else {
-                    $('#editSubCategorySelect').html(
-                        '<option value="">{{ __('messages.select_sub_category') }}</option>');
-                }
 
                 toggleFields($(this).data('type'), '.phone_limit_group_edit');
                 $('#editModal').modal('show');

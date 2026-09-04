@@ -11,21 +11,6 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label>{{ __('messages.category') }}</label>
-                        <select name="category_id" id="editCategorySelect" class="form-control" required>
-                            <option value="">{{ __('messages.select_category') }}</option>
-                            @foreach ($categories as $item)
-                                <option value="{{ $item->id }}">{{ $item->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label>{{ __('messages.sub_category') }}</label>
-                        <select name="sub_category_id" id="editSubCategorySelect" class="form-control">
-                            <option value="">{{ __('messages.select_sub_category') }}</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
                         <label>{{ __('messages.name') }}</label>
                         <input type="text" name="name" id="editName" class="form-control" required>
                     </div>

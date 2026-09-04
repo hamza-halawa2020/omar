@@ -26,11 +26,6 @@ class PaymentWayController extends BaseController
         return view('dashboard.payment_ways.index', $this->paymentWayService->indexData());
     }
 
-    public function getSubCategoryOnCategory($id)
-    {
-        return response()->json($this->paymentWayService->getSubCategories((int) $id));
-    }
-
     public function list()
     {
         $paymentWays = $this->paymentWayService->list();

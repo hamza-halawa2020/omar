@@ -68,8 +68,6 @@ Route::prefix('dashboard')->middleware(['auth.or_impersonate', 'tenancy'])->grou
 
     Route::get('payment-ways', [PaymentWayController::class, 'index'])->name('payment_ways.index');
 
-    Route::get('sub-categories/{id}', [PaymentWayController::class, 'getSubCategoryOnCategory'])->name('getSubCategoryOnCategory');
-
     Route::post('payment-ways/reorder', [PaymentWayController::class, 'reorder'])->name('payment_ways.reorder');
 
     Route::get('payment-ways/list', [PaymentWayController::class, 'list'])->name('payment_ways.list');

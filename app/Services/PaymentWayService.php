@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Category;
 use App\Models\PaymentWay;
 use App\Services\Concerns\BuildsPaymentWayLogData;
 use App\Services\Concerns\HandlesWalletMonthlyLimits;
@@ -20,17 +19,12 @@ class PaymentWayService
 
     public function indexData(): array
     {
-        return ['categories' => Category::where('parent_id', null)->get()];
-    }
-
-    public function getSubCategories(int $id): Collection
-    {
-        return Category::where('parent_id', $id)->get();
+        return [];
     }
 
     public function list(): Collection
     {
-        return PaymentWay::with(['category', 'subCategory', 'creator', 'monthlyLimits'])
+        return PaymentWay::with(['creator', 'monthlyLimits'])
             ->orderBy('position', 'asc')
             ->get();
     }
@@ -52,7 +46,7 @@ class PaymentWayService
     public function showList(int $id, string $timeFilter = 'today', ?string $startDate = null, ?string $endDate = null): array
     {
         $paymentWay = PaymentWay::with([
-            'category', 'subCategory', 'creator', 'transactions.client',
+            'creator', 'transactions.client',
             'transactions.product', 'transactions.installmentPayment', 'logs', 'monthlyLimits',
         ])->findOrFail($id);
 
