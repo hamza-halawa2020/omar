@@ -19,7 +19,7 @@
                         <label>{{ __('messages.phone_number') }}</label>
                         <div class="row g-2">
                             <div class="col-4">
-                                <select name="country_code" id="editCountryCode" class="form-control" required>
+                                <select name="country_code" id="editCountryCode" class="form-control country-code-select" required>
                                     @foreach ($countryCodeOptions as $countryCode)
                                         <option value="{{ $countryCode['code'] }}">{{ $countryCode['label'] }}</option>
                                     @endforeach
@@ -54,3 +54,35 @@
         </form>
     </div>
 </div>
+
+@once
+    @push('scripts')
+        <script>
+            $(document).ready(function () {
+                function initializeCountryCodeSelect($select, $modal) {
+                    if (!$.fn.select2 || !$select.length) {
+                        return;
+                    }
+
+                    if ($select.hasClass('select2-hidden-accessible')) {
+                        $select.select2('destroy');
+                    }
+
+                    $select.select2({
+                        width: '100%',
+                        dropdownParent: $modal,
+                        dir: $('html').attr('dir') || 'rtl'
+                    });
+                }
+
+                $('#createModal').on('shown.bs.modal', function () {
+                    initializeCountryCodeSelect($('#createCountryCode'), $('#createModal'));
+                });
+
+                $('#editModal').on('shown.bs.modal', function () {
+                    initializeCountryCodeSelect($('#editCountryCode'), $('#editModal'));
+                });
+            });
+        </script>
+    @endpush
+@endonce

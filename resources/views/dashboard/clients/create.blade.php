@@ -17,7 +17,7 @@
                         <label>{{ __('messages.phone_number') }}</label>
                         <div class="row g-2">
                             <div class="col-4">
-                                <select name="country_code" class="form-control" required>
+                                <select name="country_code" id="createCountryCode" class="form-control country-code-select" required>
                                     @foreach ($countryCodeOptions as $countryCode)
                                         <option value="{{ $countryCode['code'] }}" @selected($countryCode['code'] === '+20')>
                                             {{ $countryCode['label'] }}
