@@ -381,7 +381,7 @@
                     return $(
                         `<div>
                             <div style="font-weight:500;overflow-wrap:anywhere">${product.text}</div>
-                            <small style="opacity:.7">{{ __('messages.sale_price') }}: ${parseFloat($el.data('sale-price') || 0).toFixed(2)} &nbsp;|&nbsp; {{ __('messages.stock') }}: ${$el.data('stock') || 0}</small>
+                            <small style="opacity:.7">{{ __('messages.purchase_price') }}: ${parseFloat($el.data('purchase-price') || 0).toFixed(2)} &nbsp;|&nbsp; {{ __('messages.sale_price') }}: ${parseFloat($el.data('sale-price') || 0).toFixed(2)} &nbsp;|&nbsp; {{ __('messages.stock') }}: ${$el.data('stock') || 0}</small>
                         </div>`
                     );
                 }
@@ -416,7 +416,7 @@
                     return $(
                         `<div>
                             <div style="font-weight:500;overflow-wrap:anywhere">${product.text}</div>
-                            <small style="opacity:.7">{{ __('messages.sale_price') }}: ${parseFloat($el.data('sale-price') || 0).toFixed(2)} &nbsp;|&nbsp; {{ __('messages.stock') }}: ${$el.data('stock') || 0}</small>
+                            <small style="opacity:.7">{{ __('messages.purchase_price') }}: ${parseFloat($el.data('purchase-price') || 0).toFixed(2)} &nbsp;|&nbsp; {{ __('messages.sale_price') }}: ${parseFloat($el.data('sale-price') || 0).toFixed(2)} &nbsp;|&nbsp; {{ __('messages.stock') }}: ${$el.data('stock') || 0}</small>
                         </div>`
                     );
                 }
@@ -500,7 +500,7 @@
                         res.data.forEach(function (product) {
                             let productCode = product.code ? ` [${product.code}]` : '';
                             productOptions +=
-                                `<option value="${product.id}" data-sale-price="${product.sale_price || 0}" data-stock="${product.stock || 0}">${product.name}${productCode}</option>`;
+                                `<option value="${product.id}" data-purchase-price="${product.purchase_price || 0}" data-sale-price="${product.sale_price || 0}" data-stock="${product.stock || 0}">${product.name}${productCode}</option>`;
                         });
                         $('#product_id').html(productOptions).val('').trigger('change');
                         initializeProductSelect2();
@@ -510,49 +510,66 @@
                 });
             }
 
+            function getSelectedProductPrice() {
+                const $selectedProduct = $('#product_id').find(':selected');
+                const type = $('#receiveForm input[name="type"]').val();
+                const priceKey = type === 'send' ? 'purchase-price' : 'sale-price';
+
+                return parseFloat($selectedProduct.data(priceKey) || 0);
+            }
+
+            function updateTransactionAmountFromProduct() {
+                let productPrice = getSelectedProductPrice();
+                if (productPrice > 0) {
+                    let qty = parseFloat($('#quantity').val()) || 1;
+                    $('#amount').val((productPrice * qty).toFixed(2));
+                }
+            }
+
             $('#product_id').on('select2:select change', function (event) {
                 if (event.type === 'change' && $(this).hasClass('select2-hidden-accessible')) {
                     return;
                 }
 
-                let salePrice = parseFloat($(this).find(':selected').data('sale-price') || 0);
-                if (salePrice > 0) {
-                    let qty = parseFloat($('#quantity').val()) || 1;
-                    $('#amount').val((salePrice * qty).toFixed(2));
-                }
+                updateTransactionAmountFromProduct();
             });
 
             $('#quantity').on('input', function () {
-                let salePrice = parseFloat($('#product_id').find(':selected').data('sale-price') || 0);
-                let qty = parseFloat($(this).val()) || 1;
-                if (salePrice > 0) {
-                    $('#amount').val((salePrice * qty).toFixed(2));
-                }
+                updateTransactionAmountFromProduct();
             });
 
             $('#product_id').on('select2:clear', function () {
                 $('#amount').val('');
             });
 
+            function getSelectedEditProductPrice() {
+                const $selectedProduct = $('#editProductId').find(':selected');
+                const priceKey = $('#editType').val() === 'send' ? 'purchase-price' : 'sale-price';
+
+                return parseFloat($selectedProduct.data(priceKey) || 0);
+            }
+
+            function updateEditTransactionAmountFromProduct() {
+                let productPrice = getSelectedEditProductPrice();
+                if (productPrice > 0) {
+                    let qty = parseFloat($('#editQuantity').val()) || 1;
+                    $('#editAmount').val((productPrice * qty).toFixed(2));
+                }
+            }
+
             $('#editProductId').on('select2:select change', function (event) {
                 if (event.type === 'change' && $(this).hasClass('select2-hidden-accessible')) {
                     return;
                 }
 
-                let salePrice = parseFloat($(this).find(':selected').data('sale-price') || 0);
-                if (salePrice > 0) {
-                    let qty = parseFloat($('#editQuantity').val()) || 1;
-                    $('#editAmount').val((salePrice * qty).toFixed(2));
-                }
+                updateEditTransactionAmountFromProduct();
             });
 
             $('#editQuantity').on('input', function () {
-                let salePrice = parseFloat($('#editProductId').find(':selected').data('sale-price') || 0);
-                let qty = parseFloat($(this).val()) || 1;
-                if (salePrice > 0) {
-                    $('#editAmount').val((salePrice * qty).toFixed(2));
-                }
+                updateEditTransactionAmountFromProduct();
             });
+
+            $('#editType').on('change', updateEditTransactionAmountFromProduct);
 
             $('#editProductId').on('select2:clear', function () {
                 $('#editAmount').val('');
@@ -793,7 +810,7 @@
                         let options = '<option value="">{{ __('messages.select_product') }}</option>';
                         res.data.forEach(function (product) {
                             let productCode = product.code ? ` [${product.code}]` : '';
-                            options += `<option value="${product.id}" data-sale-price="${product.sale_price || 0}" data-stock="${product.stock || 0}">${product.name}${productCode}</option>`;
+                            options += `<option value="${product.id}" data-purchase-price="${product.purchase_price || 0}" data-sale-price="${product.sale_price || 0}" data-stock="${product.stock || 0}">${product.name}${productCode}</option>`;
                         });
                         $('#editProductId').html(options);
                         initializeEditProductSelect2();

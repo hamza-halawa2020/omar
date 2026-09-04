@@ -131,7 +131,7 @@
                     return $(
                         `<div>
                             <div style="font-weight:500;overflow-wrap:anywhere">${product.text}</div>
-                            <small style="opacity:.7">{{ __('messages.sale_price') }}: ${parseFloat($el.data('sale-price') || 0).toFixed(2)} &nbsp;|&nbsp; {{ __('messages.stock') }}: ${$el.data('stock') || 0}</small>
+                            <small style="opacity:.7">{{ __('messages.purchase_price') }}: ${parseFloat($el.data('purchase-price') || 0).toFixed(2)} &nbsp;|&nbsp; {{ __('messages.sale_price') }}: ${parseFloat($el.data('sale-price') || 0).toFixed(2)} &nbsp;|&nbsp; {{ __('messages.stock') }}: ${$el.data('stock') || 0}</small>
                         </div>`
                     );
                 }
@@ -212,7 +212,7 @@
                         res.data.forEach(function (product) {
                             let productCode = product.code ? ` [${product.code}]` : '';
                             productOptions +=
-                                `<option value="${product.id}" data-sale-price="${product.sale_price || 0}" data-stock="${product.stock || 0}">${product.name}${productCode}</option>`;
+                                `<option value="${product.id}" data-purchase-price="${product.purchase_price || 0}" data-sale-price="${product.sale_price || 0}" data-stock="${product.stock || 0}">${product.name}${productCode}</option>`;
                         });
                         $('#product_id').html(productOptions).val('').trigger('change');
                         initializeProductSelect2();
@@ -222,24 +222,32 @@
                 });
             }
 
+            function getSelectedProductPrice() {
+                const $selectedProduct = $('#product_id').find(':selected');
+                const type = $('#receiveForm input[name="type"]').val();
+                const priceKey = type === 'send' ? 'purchase-price' : 'sale-price';
+
+                return parseFloat($selectedProduct.data(priceKey) || 0);
+            }
+
+            function updateTransactionAmountFromProduct() {
+                let productPrice = getSelectedProductPrice();
+                if (productPrice > 0) {
+                    let qty = parseFloat($('#quantity').val()) || 1;
+                    $('#amount').val((productPrice * qty).toFixed(2));
+                }
+            }
+
             $('#product_id').on('select2:select change', function (event) {
                 if (event.type === 'change' && $(this).hasClass('select2-hidden-accessible')) {
                     return;
                 }
 
-                let salePrice = parseFloat($(this).find(':selected').data('sale-price') || 0);
-                if (salePrice !== undefined && salePrice !== '') {
-                    let qty = parseFloat($('#quantity').val()) || 1;
-                    $('#amount').val((salePrice * qty).toFixed(2));
-                }
+                updateTransactionAmountFromProduct();
             });
 
             $('#quantity').on('input', function () {
-                let salePrice = parseFloat($('#product_id').find(':selected').data('sale-price') || 0);
-                let qty = parseFloat($(this).val()) || 1;
-                if (salePrice > 0) {
-                    $('#amount').val((salePrice * qty).toFixed(2));
-                }
+                updateTransactionAmountFromProduct();
             });
 
             $('#product_id').on('select2:clear', function () {
