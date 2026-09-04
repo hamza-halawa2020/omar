@@ -139,12 +139,15 @@ class TransactionService
                     ],
                 ]);
 
+                $whatsapp = null;
                 if ($client) {
                     $context = [];
                     if ($product)
                         $context['product'] = $product->name;
-                    app(WhatsAppService::class)->sendTransactionMessage($client, $data['amount'], $data['type'], $context);
+                    $whatsapp = app(WhatsAppService::class)->sendTransactionMessage($client, $data['amount'], $data['type'], $context);
                 }
+
+                $transaction->setAttribute('whatsapp', $whatsapp);
 
                 return $transaction->load(['paymentWay', 'client', 'creator']);
             });

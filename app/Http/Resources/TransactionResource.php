@@ -32,6 +32,7 @@ class TransactionResource extends JsonResource
             'is_edited' => $this->updated_at && $this->created_at && $this->updated_at->ne($this->created_at),
             'client' => new ClientResource($this->whenLoaded('client')),
             'product' => new ProductResource($this->whenLoaded('product')),
+            'whatsapp' => $this->when(isset($this->whatsapp), $this->whatsapp),
             // 'installmentPayment' => new InstallmentPaymentResource($this->whenLoaded('installmentPayment')),
             'installmentPayment' => InstallmentPaymentResource::collection($this->whenLoaded('installmentPayment')),
 

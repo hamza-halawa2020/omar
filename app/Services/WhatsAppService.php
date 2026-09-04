@@ -30,18 +30,99 @@ class WhatsAppService
                 'Content-Type' => 'application/json',
             ])->post($this->baseUrl . '/api/external/messages/send', ['phone' => $phone, 'message' => $message]);
 
+            $body = $response->json() ?? [];
+            $body = $this->withWalletBalance($token, $body);
+
             if ($response->successful()) {
-                return $response->json();
+                return array_merge([
+                    'success' => true,
+                    'sent' => true,
+                    'status_code' => $response->status(),
+                ], $body);
             }
 
             Log::error('WhatsApp message failed', ['status' => $response->status(), 'body' => $response->body(), 'phone' => $phone]);
 
-            return null;
+            return array_merge([
+                'success' => false,
+                'sent' => false,
+                'status_code' => $response->status(),
+                'error' => $body['error'] ?? 'WhatsApp message failed',
+            ], $body);
         } catch (Exception $e) {
             Log::error('WhatsApp message exception', ['error' => $e->getMessage(), 'phone' => $phone]);
 
-            throw $e;
+            return [
+                'success' => false,
+                'sent' => false,
+                'error' => $e->getMessage(),
+            ];
         }
+    }
+
+    public function getStatus(): array
+    {
+        $token = auth()->user()->whatsapp_api_token;
+
+        if (!$token) {
+            return [
+                'success' => false,
+                'error' => __('messages.whatsapp_api_token_missing'),
+            ];
+        }
+
+        try {
+            $response = Http::withHeaders([
+                'X-API-Token' => $token,
+                'Content-Type' => 'application/json',
+            ])->get($this->baseUrl . '/api/external/wallet');
+
+            $body = $response->json() ?? [];
+
+            return array_merge([
+                'success' => $response->successful(),
+                'status_code' => $response->status(),
+                'error' => $body['error'] ?? null,
+            ], $body);
+        } catch (Exception $e) {
+            Log::warning('WhatsApp status lookup failed', ['error' => $e->getMessage()]);
+
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+
+    private function withWalletBalance(string $token, array $body): array
+    {
+        if (array_key_exists('remainingPoints', $body)) {
+            return $body;
+        }
+
+        try {
+            $walletResponse = Http::withHeaders([
+                'X-API-Token' => $token,
+                'Content-Type' => 'application/json',
+            ])->get($this->baseUrl . '/api/external/wallet');
+
+            if (! $walletResponse->successful()) {
+                return $body;
+            }
+
+            $walletBody = $walletResponse->json() ?? [];
+            $points = $walletBody['remainingPoints']
+                ?? $walletBody['walletPoints']
+                ?? data_get($walletBody, 'wallet.walletPoints');
+
+            if ($points !== null) {
+                $body['remainingPoints'] = $points;
+            }
+        } catch (Exception $e) {
+            Log::warning('WhatsApp wallet balance lookup failed', ['error' => $e->getMessage()]);
+        }
+
+        return $body;
     }
 
     public function sendTransactionMessage($client, $amount, $type, $context = [])
@@ -68,10 +149,6 @@ class WhatsAppService
 
         $message = "{$greeting}\n{$action}{$reason}\n{$balance}";
 
-        try {
-            $this->sendMessage($client->phone_number, $message);
-        } catch (Exception $e) {
-            Log::error('Failed to send WhatsApp message to client: ' . $e->getMessage());
-        }
+        return $this->sendMessage($client->phone_number, $message);
     }
 }

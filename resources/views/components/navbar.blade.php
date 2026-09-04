@@ -16,6 +16,22 @@
                             <i class="ri-whatsapp-line"></i> WhatsApp
                         </a>
                     </div>
+                    @if (Auth::user()?->whatsapp_api_token)
+                        <div id="whatsappSenderStatus" class="d-flex flex-wrap align-items-center gap-2">
+                            <span class="badge bg-primary-100 text-primary-600 px-3 py-2 fw-semibold"
+                                style="font-size: 0.95rem; line-height: 1.2;">
+                                {{ __('messages.whatsapp_points') }}:
+                                <strong data-whatsapp-points>...</strong>
+                            </span>
+                            <span class="badge bg-warning-100 text-warning-600 px-3 py-2 fw-semibold"
+                                style="font-size: 0.95rem; line-height: 1.2;">
+                                {{ __('messages.whatsapp_daily_remaining') }}:
+                                <strong data-whatsapp-daily-remaining>...</strong>
+                                /
+                                <span data-whatsapp-daily-limit>...</span>
+                            </span>
+                        </div>
+                    @endif
                 @endcan
 
             </div>
@@ -69,3 +85,27 @@
         </div>
     </div>
 </div>
+
+@if (Auth::user()?->whatsapp_api_token)
+    @push('scripts')
+        <script>
+            $(function () {
+                const $status = $('#whatsappSenderStatus');
+                if (!$status.length) {
+                    return;
+                }
+
+                $.get("{{ route('dashboard.whatsapp.status') }}")
+                    .done(function (res) {
+                        const data = res.data || {};
+                        $status.find('[data-whatsapp-points]').text(data.walletPoints ?? 0);
+                        $status.find('[data-whatsapp-daily-remaining]').text(data.remainingDailyLimit ?? '-');
+                        $status.find('[data-whatsapp-daily-limit]').text(data.dailyLimit || '{{ __('messages.no') }}');
+                    })
+                    .fail(function () {
+                        $status.addClass('d-none');
+                    });
+            });
+        </script>
+    @endpush
+@endif

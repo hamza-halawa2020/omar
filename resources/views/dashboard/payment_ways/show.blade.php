@@ -622,7 +622,7 @@
                     success: function (res) {
                         if (res.status) {
                             $('#transactionModal').modal('hide');
-                            showToast('{{ __('messages.transaction_created_successfully') }}', 'success');
+                            showToast(res.message || '{{ __('messages.transaction_created_successfully') }}', 'success');
                             $('#receiveForm')[0].reset();
                             $('#commission').val(0);
                             $('#client_id, #product_id').val('').trigger('change');

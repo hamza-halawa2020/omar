@@ -14,6 +14,7 @@ use App\Http\Controllers\Dashboard\ProductController;
 use App\Http\Controllers\Dashboard\ProfileController;
 use App\Http\Controllers\Dashboard\RoleController;
 use App\Http\Controllers\Dashboard\TransactionController;
+use App\Http\Controllers\Dashboard\WhatsAppStatusController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
@@ -35,6 +36,7 @@ Route::prefix('dashboard')->middleware(['auth.or_impersonate', 'tenancy'])->grou
 
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard.index');
     Route::get('/analytics', [DashboardController::class, 'analytics'])->name('dashboard.analytics');
+    Route::get('/whatsapp/status', WhatsAppStatusController::class)->name('dashboard.whatsapp.status');
     Route::get('categories', [CategoryController::class, 'index'])->name('categories.index');
     Route::get('categories/list', [CategoryController::class, 'list'])->name('categories.list');
     Route::post('categories', [CategoryController::class, 'store'])->name('categories.store');
