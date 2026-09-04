@@ -147,7 +147,13 @@ class ClientController extends BaseController
         $phoneUtil = PhoneNumberUtil::getInstance();
         $options = [];
 
+        $hiddenRegions = ['IL'];
+
         foreach ($phoneUtil->getSupportedRegions() as $region) {
+            if (in_array($region, $hiddenRegions, true)) {
+                continue;
+            }
+
             $code = '+' . $phoneUtil->getCountryCodeForRegion($region);
             $options[] = [
                 'region' => $region,
