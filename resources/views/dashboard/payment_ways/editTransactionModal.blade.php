@@ -21,7 +21,7 @@
                     <div class="mb-3">
                         <label for="editProductId" class="form-label">{{ __('messages.product') }}</label>
                         <div class="d-flex gap-3 justify-content-stretch">
-                            <select name="product_id" id="editProductId" class="form-select">
+                            <select name="product_id" id="editProductId" class="form-select" data-placeholder="{{ __('messages.select_product') }}">
                                 <option value="">{{ __('messages.select_product') }}</option>
                             </select>
                             <input type="number" name="quantity" id="editQuantity" placeholder="{{ __('messages.quantity') }}" class="form-control">

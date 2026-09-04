@@ -111,6 +111,31 @@
 
             initializeClientSelect2();
 
+            function initializeProductSelect2() {
+                if (!$.fn.select2) {
+                    return;
+                }
+
+                const $productSelect = $('#product_id');
+                if (!$productSelect.length) {
+                    return;
+                }
+
+                if ($productSelect.hasClass('select2-hidden-accessible')) {
+                    $productSelect.select2('destroy');
+                }
+
+                $productSelect.select2({
+                    width: '100%',
+                    allowClear: true,
+                    placeholder: "{{ __('messages.select_product') }}",
+                    dropdownParent: $('#transactionModal'),
+                    dir: $('html').attr('dir') || 'rtl'
+                });
+            }
+
+            initializeProductSelect2();
+
             const clientsCache = {};
 
             function renderClientOptions(clients) {
@@ -173,15 +198,32 @@
                     if (res.status) {
                         let productOptions = '<option value="">{{ __('messages.select_product') }}</option>';
                         res.data.forEach(function (product) {
+                            let productCode = product.code ? ` [${product.code}]` : '';
                             productOptions +=
-                                `<option value="${product.id}">${product.name} ({{ __('messages.sale_price') }}: ${parseFloat(product.sale_price || 0).toFixed(2)}) ({{ __('messages.stock') }}: ${product.stock || 0})</option>`;
+                                `<option value="${product.id}" data-sale-price="${product.sale_price || 0}">${product.name}${productCode} ({{ __('messages.sale_price') }}: ${parseFloat(product.sale_price || 0).toFixed(2)}) ({{ __('messages.stock') }}: ${product.stock || 0})</option>`;
                         });
-                        $('#product_id').html(productOptions);
+                        $('#product_id').html(productOptions).val('').trigger('change');
+                        initializeProductSelect2();
                     } else {
                         showToast('{{ __('messages.something_went_wrong') }}', 'error');
                     }
                 });
             }
+
+            $('#product_id').on('select2:select change', function (event) {
+                if (event.type === 'change' && $(this).hasClass('select2-hidden-accessible')) {
+                    return;
+                }
+
+                let salePrice = $(this).find(':selected').data('sale-price');
+                if (salePrice !== undefined && salePrice !== '') {
+                    $('#amount').val(parseFloat(salePrice || 0));
+                }
+            });
+
+            $('#product_id').on('select2:clear', function () {
+                $('#amount').val('');
+            });
 
             $(document).on('click', '.receiveBtn, .sendBtn', function () {
                 // Add button loading state
@@ -281,6 +323,7 @@
                             $('#transactionModal').modal('hide');
                             showToast('{{ __('messages.transaction_created_successfully') }}', 'success');
                             $('#receiveForm')[0].reset();
+                            $('#client_id, #product_id').val('').trigger('change');
                             loadPaymentWays();
                         } else {
                             showToast(res.message || '{{ __('messages.something_went_wrong') }}', 'error');

@@ -369,6 +369,55 @@
 
             initializeClientSelect2();
 
+            function initializeProductSelect2() {
+                if (!$.fn.select2) {
+                    return;
+                }
+
+                const $productSelect = $('#product_id');
+                if (!$productSelect.length) {
+                    return;
+                }
+
+                if ($productSelect.hasClass('select2-hidden-accessible')) {
+                    $productSelect.select2('destroy');
+                }
+
+                $productSelect.select2({
+                    width: '100%',
+                    allowClear: true,
+                    placeholder: "{{ __('messages.select_product') }}",
+                    dropdownParent: $('#transactionModal'),
+                    dir: $('html').attr('dir') || 'rtl'
+                });
+            }
+
+            function initializeEditProductSelect2() {
+                if (!$.fn.select2) {
+                    return;
+                }
+
+                const $productSelect = $('#editProductId');
+                if (!$productSelect.length) {
+                    return;
+                }
+
+                if ($productSelect.hasClass('select2-hidden-accessible')) {
+                    $productSelect.select2('destroy');
+                }
+
+                $productSelect.select2({
+                    width: '100%',
+                    allowClear: true,
+                    placeholder: "{{ __('messages.select_product') }}",
+                    dropdownParent: $('#editTransactionModal'),
+                    dir: $('html').attr('dir') || 'rtl'
+                });
+            }
+
+            initializeProductSelect2();
+            initializeEditProductSelect2();
+
             const clientsCache = {};
 
             function renderClientOptions(clients) {
@@ -433,15 +482,47 @@
                     if (res.status) {
                         let productOptions = '<option value="">{{ __('messages.select_product') }}</option>';
                         res.data.forEach(function (product) {
+                            let productCode = product.code ? ` [${product.code}]` : '';
                             productOptions +=
-                                `<option value="${product.id}">${product.name} ({{ __('messages.sale_price') }}: ${parseFloat(product.sale_price || 0).toFixed(2)}) ({{ __('messages.stock') }}: ${product.stock || 0})</option>`;
+                                `<option value="${product.id}" data-sale-price="${product.sale_price || 0}">${product.name}${productCode} ({{ __('messages.sale_price') }}: ${parseFloat(product.sale_price || 0).toFixed(2)}) ({{ __('messages.stock') }}: ${product.stock || 0})</option>`;
                         });
-                        $('#product_id').html(productOptions);
+                        $('#product_id').html(productOptions).val('').trigger('change');
+                        initializeProductSelect2();
                     } else {
                         showToast('{{ __('messages.something_went_wrong') }}', 'error');
                     }
                 });
             }
+
+            $('#product_id').on('select2:select change', function (event) {
+                if (event.type === 'change' && $(this).hasClass('select2-hidden-accessible')) {
+                    return;
+                }
+
+                let salePrice = $(this).find(':selected').data('sale-price');
+                if (salePrice !== undefined && salePrice !== '') {
+                    $('#amount').val(parseFloat(salePrice || 0));
+                }
+            });
+
+            $('#product_id').on('select2:clear', function () {
+                $('#amount').val('');
+            });
+
+            $('#editProductId').on('select2:select change', function (event) {
+                if (event.type === 'change' && $(this).hasClass('select2-hidden-accessible')) {
+                    return;
+                }
+
+                let salePrice = $(this).find(':selected').data('sale-price');
+                if (salePrice !== undefined && salePrice !== '') {
+                    $('#editAmount').val(parseFloat(salePrice || 0));
+                }
+            });
+
+            $('#editProductId').on('select2:clear', function () {
+                $('#editAmount').val('');
+            });
 
             // Send/Receive button handlers
             $(document).on('click', '.receiveBtn, .sendBtn', function () {
@@ -490,6 +571,7 @@
                             $('#transactionModal').modal('hide');
                             showToast('{{ __('messages.transaction_created_successfully') }}', 'success');
                             $('#receiveForm')[0].reset();
+                            $('#client_id, #product_id').val('').trigger('change');
                             // Refresh the payment way data
                             let currentDateRange = $("#dateRange").val();
                             if (currentDateRange) {
@@ -546,7 +628,7 @@
                 setTimeout(() => {
                     $('#editPaymentWayId').val(paymentWayId);
                     $('#editClientId').val(clientId);
-                    $('#editProductId').val(productId);
+                    $('#editProductId').val(productId).trigger('change');
                 }, 500);
 
                 // Show current attachment
@@ -673,9 +755,11 @@
                     if (res.status) {
                         let options = '<option value="">{{ __('messages.select_product') }}</option>';
                         res.data.forEach(function (product) {
-                            options += `<option value="${product.id}">${product.name} ({{ __('messages.sale_price') }}: ${parseFloat(product.sale_price || 0).toFixed(2)}) ({{ __('messages.stock') }}: ${product.stock || 0})</option>`;
+                            let productCode = product.code ? ` [${product.code}]` : '';
+                            options += `<option value="${product.id}" data-sale-price="${product.sale_price || 0}">${product.name}${productCode} ({{ __('messages.sale_price') }}: ${parseFloat(product.sale_price || 0).toFixed(2)}) ({{ __('messages.stock') }}: ${product.stock || 0})</option>`;
                         });
                         $('#editProductId').html(options);
+                        initializeEditProductSelect2();
                     }
                 });
             }

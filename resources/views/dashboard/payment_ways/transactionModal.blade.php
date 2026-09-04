@@ -124,7 +124,7 @@
                     <div class="mb-3">
                         <label for="product_id" class="form-label">{{ __('messages.product') }}</label>
                         <div class="d-flex gap-3 justify-content-stretch">
-                            <select name="product_id" id="product_id" class="form-select">
+                            <select name="product_id" id="product_id" class="form-select" data-placeholder="{{ __('messages.select_product') }}">
                                 <option value="">{{ __('messages.select_product') }}</option>
                             </select>
 
