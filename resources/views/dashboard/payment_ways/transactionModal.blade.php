@@ -164,39 +164,30 @@
                     </div>
                     <div class="mb-3">
                         <label for="product_id" class="form-label">{{ __('messages.product') }}</label>
-                        <div class="transaction-product-row">
-                            <div class="transaction-product-select">
-                                <select name="product_id" id="product_id" class="form-select" data-placeholder="{{ __('messages.select_product') }}">
-                                    <option value="">{{ __('messages.select_product') }}</option>
-                                </select>
-                            </div>
-
-                            <input type="number" name="quantity" id="quantity" placeholder="{{ __('messages.quantity') }}" class="form-control">
-                        </div>
-
+                        <select name="product_id" id="product_id" class="form-select" data-placeholder="{{ __('messages.select_product') }}">
+                            <option value="">{{ __('messages.select_product') }}</option>
+                        </select>
                     </div>
-
-
+                    <div class="mb-3">
+                        <label for="quantity" class="form-label">{{ __('messages.quantity') }}</label>
+                        <input type="number" name="quantity" id="quantity" placeholder="{{ __('messages.quantity') }}" class="form-control">
+                    </div>
                     <div class="mb-3">
                         <label for="amount" class="form-label">{{ __('messages.amount') }}</label>
                         <input type="number" name="amount" id="amount" class="form-control" required>
                     </div>
-
                     <div class="mb-3">
                         <label for="commission" class="form-label">{{ __('messages.commission') }}</label>
                         <input required type="number" name="commission" id="commission" class="form-control" value="0">
                     </div>
-
                     <div class="mb-3">
                         <label for="notes" class="form-label">{{ __('messages.notes') }}</label>
                         <textarea name="notes" id="notes" class="form-control"></textarea>
                     </div>
-
                     <div class="mb-3">
                         <label for="attachment" class="form-label">{{ __('messages.attachment') }}</label>
                         <input type="file" name="attachment" id="attachment" class="form-control">
                     </div>
-
 
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-outline-success btn-sm">{{ __('messages.save') }}</button>

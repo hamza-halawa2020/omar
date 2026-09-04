@@ -375,12 +375,24 @@
                     $productSelect.select2('destroy');
                 }
 
+                function formatProduct(product) {
+                    if (!product.id) return product.text;
+                    const $el = $(product.element);
+                    return $(
+                        `<div>
+                            <div style="font-weight:500;overflow-wrap:anywhere">${product.text}</div>
+                            <small style="opacity:.7">{{ __('messages.sale_price') }}: ${parseFloat($el.data('sale-price') || 0).toFixed(2)} &nbsp;|&nbsp; {{ __('messages.stock') }}: ${$el.data('stock') || 0}</small>
+                        </div>`
+                    );
+                }
+
                 $productSelect.select2({
                     width: '100%',
                     allowClear: true,
                     placeholder: "{{ __('messages.select_product') }}",
                     dropdownParent: $('#transactionModal'),
-                    dir: $('html').attr('dir') || 'rtl'
+                    dir: $('html').attr('dir') || 'rtl',
+                    templateResult: formatProduct
                 });
             }
 
@@ -398,12 +410,24 @@
                     $productSelect.select2('destroy');
                 }
 
+                function formatEditProduct(product) {
+                    if (!product.id) return product.text;
+                    const $el = $(product.element);
+                    return $(
+                        `<div>
+                            <div style="font-weight:500;overflow-wrap:anywhere">${product.text}</div>
+                            <small style="opacity:.7">{{ __('messages.sale_price') }}: ${parseFloat($el.data('sale-price') || 0).toFixed(2)} &nbsp;|&nbsp; {{ __('messages.stock') }}: ${$el.data('stock') || 0}</small>
+                        </div>`
+                    );
+                }
+
                 $productSelect.select2({
                     width: '100%',
                     allowClear: true,
                     placeholder: "{{ __('messages.select_product') }}",
                     dropdownParent: $('#editTransactionModal'),
-                    dir: $('html').attr('dir') || 'rtl'
+                    dir: $('html').attr('dir') || 'rtl',
+                    templateResult: formatEditProduct
                 });
             }
 
@@ -476,7 +500,7 @@
                         res.data.forEach(function (product) {
                             let productCode = product.code ? ` [${product.code}]` : '';
                             productOptions +=
-                                `<option value="${product.id}" data-sale-price="${product.sale_price || 0}">${product.name}${productCode} ({{ __('messages.sale_price') }}: ${parseFloat(product.sale_price || 0).toFixed(2)}) ({{ __('messages.stock') }}: ${product.stock || 0})</option>`;
+                                `<option value="${product.id}" data-sale-price="${product.sale_price || 0}" data-stock="${product.stock || 0}">${product.name}${productCode}</option>`;
                         });
                         $('#product_id').html(productOptions).val('').trigger('change');
                         initializeProductSelect2();
@@ -751,7 +775,7 @@
                         let options = '<option value="">{{ __('messages.select_product') }}</option>';
                         res.data.forEach(function (product) {
                             let productCode = product.code ? ` [${product.code}]` : '';
-                            options += `<option value="${product.id}" data-sale-price="${product.sale_price || 0}">${product.name}${productCode} ({{ __('messages.sale_price') }}: ${parseFloat(product.sale_price || 0).toFixed(2)}) ({{ __('messages.stock') }}: ${product.stock || 0})</option>`;
+                            options += `<option value="${product.id}" data-sale-price="${product.sale_price || 0}" data-stock="${product.stock || 0}">${product.name}${productCode}</option>`;
                         });
                         $('#editProductId').html(options);
                         initializeEditProductSelect2();

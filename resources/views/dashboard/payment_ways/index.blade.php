@@ -18,7 +18,7 @@
                                 <p class="mb-0 opacity-75">{{ __('messages.payment_ways_management') }}</p>
                             </div>
                             @can('payment_ways_store')
-                                <button class="btn btn-lg rounded-pill px-3 shadow-sm" 
+                                <button class="btn bg-success btn-lg rounded-pill px-3 shadow-sm" 
                                         data-bs-toggle="modal" data-bs-target="#createModal">
                                     <i class="fas fa-plus me-2"></i>
                                     {{ __('messages.create_payment_way') }}
@@ -125,12 +125,24 @@
                     $productSelect.select2('destroy');
                 }
 
+                function formatProduct(product) {
+                    if (!product.id) return product.text;
+                    const $el = $(product.element);
+                    return $(
+                        `<div>
+                            <div style="font-weight:500;overflow-wrap:anywhere">${product.text}</div>
+                            <small style="opacity:.7">{{ __('messages.sale_price') }}: ${parseFloat($el.data('sale-price') || 0).toFixed(2)} &nbsp;|&nbsp; {{ __('messages.stock') }}: ${$el.data('stock') || 0}</small>
+                        </div>`
+                    );
+                }
+
                 $productSelect.select2({
                     width: '100%',
                     allowClear: true,
                     placeholder: "{{ __('messages.select_product') }}",
                     dropdownParent: $('#transactionModal'),
-                    dir: $('html').attr('dir') || 'rtl'
+                    dir: $('html').attr('dir') || 'rtl',
+                    templateResult: formatProduct
                 });
             }
 
@@ -200,7 +212,7 @@
                         res.data.forEach(function (product) {
                             let productCode = product.code ? ` [${product.code}]` : '';
                             productOptions +=
-                                `<option value="${product.id}" data-sale-price="${product.sale_price || 0}">${product.name}${productCode} ({{ __('messages.sale_price') }}: ${parseFloat(product.sale_price || 0).toFixed(2)}) ({{ __('messages.stock') }}: ${product.stock || 0})</option>`;
+                                `<option value="${product.id}" data-sale-price="${product.sale_price || 0}" data-stock="${product.stock || 0}">${product.name}${productCode}</option>`;
                         });
                         $('#product_id').html(productOptions).val('').trigger('change');
                         initializeProductSelect2();
