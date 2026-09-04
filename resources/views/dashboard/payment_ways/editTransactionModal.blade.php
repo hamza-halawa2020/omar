@@ -52,7 +52,7 @@
 
                     <div class="mb-3">
                         <label for="editCommission" class="form-label">{{ __('messages.commission') }}</label>
-                        <input type="number" required name="commission" id="editCommission" class="form-control">
+                        <input type="number" required name="commission" id="editCommission" class="form-control" value="0">
                     </div>
 
                     <div class="mb-3">

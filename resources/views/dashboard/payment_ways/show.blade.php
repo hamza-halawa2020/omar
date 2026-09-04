@@ -538,6 +538,8 @@
                 $('#receiveForm input[name="payment_way_id"], #receiveForm input[name="type"]').remove();
                 let type = $(this).hasClass('receiveBtn') ? 'receive' : 'send';
 
+                $('#commission').val(0);
+
                 $('#receiveForm').append(`
                     <input type="hidden" name="payment_way_id" value="${id}">
                     <input type="hidden" name="type" value="${type}">
@@ -571,6 +573,7 @@
                             $('#transactionModal').modal('hide');
                             showToast('{{ __('messages.transaction_created_successfully') }}', 'success');
                             $('#receiveForm')[0].reset();
+                            $('#commission').val(0);
                             $('#client_id, #product_id').val('').trigger('change');
                             // Refresh the payment way data
                             let currentDateRange = $("#dateRange").val();
@@ -611,7 +614,7 @@
                 $('#editTransactionId').val(transactionId);
                 $('#editType').val(type);
                 $('#editAmount').val(amount);
-                $('#editCommission').val(commission);
+                $('#editCommission').val(commission || 0);
                 $('#editNotes').val(notes);
                 $('#editQuantity').val(quantity);
 

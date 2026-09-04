@@ -235,6 +235,8 @@
                 let type = $(this).hasClass('receiveBtn') ? 'receive' : 'send';
                 let paymentWayId = $(this).data('id');
 
+                $('#commission').val(0);
+
                 $('#receiveForm').append(`
                         <input type="hidden" name="payment_way_id" value="${paymentWayId}">
                         <input type="hidden" name="type" value="${type}">
@@ -323,6 +325,7 @@
                             $('#transactionModal').modal('hide');
                             showToast('{{ __('messages.transaction_created_successfully') }}', 'success');
                             $('#receiveForm')[0].reset();
+                            $('#commission').val(0);
                             $('#client_id, #product_id').val('').trigger('change');
                             loadPaymentWays();
                         } else {

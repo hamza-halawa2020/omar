@@ -184,7 +184,7 @@
 
                     <div class="mb-3">
                         <label for="commission" class="form-label">{{ __('messages.commission') }}</label>
-                        <input required type="number" name="commission" id="commission" class="form-control">
+                        <input required type="number" name="commission" id="commission" class="form-control" value="0">
                     </div>
 
                     <div class="mb-3">
