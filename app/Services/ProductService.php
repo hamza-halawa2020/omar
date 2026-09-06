@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Product;
+use App\Models\Transaction;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Http\Exceptions\HttpResponseException;
@@ -59,14 +60,20 @@ class ProductService
     public function details(int $id): array
     {
         $product = Product::findOrFail($id);
-        $transactions = $product->transactions->map(function ($transaction) use ($product) {
-            $quantity = (int) ($transaction->quantity ?? 1);
+        $transactions = Transaction::with(['products.product', 'paymentWay', 'client'])
+            ->whereHas('products', fn ($query) => $query->where('product_id', $product->id))
+            ->latest()
+            ->get()
+            ->map(function ($transaction) use ($product) {
+            $line = $transaction->products->firstWhere('product_id', $product->id);
+            $quantity = (int) ($line->quantity ?? 1);
             $purchasePrice = (float) ($product->purchase_price ?? 0);
             $cost = $transaction->type === 'receive' ? $quantity * $purchasePrice : 0;
 
+            $transaction->quantity = $quantity;
             $transaction->sale_cost = $cost;
             $transaction->sale_profit = $transaction->type === 'receive'
-                ? (float) $transaction->amount + (float) $transaction->commission - $cost
+                ? (float) ($line->total ?? $transaction->amount) + (float) $transaction->commission - $cost
                 : null;
 
             return $transaction;

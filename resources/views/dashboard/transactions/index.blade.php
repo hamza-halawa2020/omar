@@ -50,7 +50,13 @@
                                 <td class="mobile-primary" data-label="{{ __('messages.type') }}">{{ $transaction->type == 'send' ? __('messages.send') : __('messages.receive') }}</td>
                                 <td data-label="{{ __('messages.amount') }}">{{ number_format($transaction->amount, 2) }}</td>
                                 <td data-label="{{ __('messages.client') }}">{{ optional($transaction->client)->name ?? '-' }}</td>
-                                <td class="mobile-muted mobile-hide" data-label="{{ __('messages.product') }}">{{ optional($transaction->product)->name ?? '-' }}</td>
+                                <td class="mobile-muted mobile-hide" data-label="{{ __('messages.product') }}">
+                                    @if ($transaction->products->isNotEmpty())
+                                        {{ $transaction->products->map(fn ($item) => optional($item->product)->name . ' x' . $item->quantity)->implode(', ') }}
+                                    @else
+                                        {{ optional($transaction->product)->name ?? '-' }}
+                                    @endif
+                                </td>
                                 <td data-label="{{ __('messages.payment_way') }}">{{ optional($transaction->paymentWay)->name ?? '-' }}</td>
                                 <td class="mobile-muted mobile-hide" data-label="{{ __('messages.created_by') }}">{{ optional($transaction->creator)->name ?? '-' }}</td>
                                 <td class="mobile-muted" data-label="{{ __('messages.created_at') }}">{{ $transaction->created_at->format('Y-m-d H:i') }}</td>

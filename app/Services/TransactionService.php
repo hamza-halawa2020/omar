@@ -29,7 +29,7 @@ class TransactionService
         $fromDate = $request->get('from_date', now()->isoFormat('YYYY-MM-DD'));
         $toDate = $request->get('to_date', now()->isoFormat('YYYY-MM-DD'));
 
-        $transactions = Transaction::with(['paymentWay', 'client', 'creator', 'logs'])
+        $transactions = Transaction::with(['paymentWay', 'client', 'creator', 'logs', 'products.product'])
             ->whereDate('created_at', '>=', $fromDate)
             ->whereDate('created_at', '<=', $toDate)
             ->latest()
@@ -40,7 +40,7 @@ class TransactionService
 
     public function list(): Collection
     {
-        return Transaction::with(['paymentWay', 'client', 'creator', 'logs'])->latest()->get();
+        return Transaction::with(['paymentWay', 'client', 'creator', 'logs', 'products.product'])->latest()->get();
     }
 
     public function store(array $data, Request $request): Transaction
@@ -51,13 +51,17 @@ class TransactionService
             $data['attachment'] = $request->hasFile('attachment')
                 ? $this->fileService->storePublicFile($request->file('attachment'), 'uploads/transactions')
                 : null;
-            $quantity = $data['quantity'] ?? 1;
+            $productItems = $this->resolveProductItems($data);
+            $firstProductItem = $productItems->first();
+
+            $data['product_id'] = $firstProductItem['product']->id ?? null;
+            $data['quantity'] = $firstProductItem['quantity'] ?? null;
 
             $client = !empty($data['client_id']) ? Client::findOrFail($data['client_id']) : null;
-            $product = !empty($data['product_id']) ? Product::findOrFail($data['product_id']) : null;
             $total = $data['amount'] + ($data['commission'] ?? 0);
+            unset($data['products']);
 
-            return DB::transaction(function () use ($data, $client, $product, $quantity, $total) {
+            return DB::transaction(function () use ($data, $client, $productItems, $total) {
                 $paymentWay = $this->lockedPaymentWay($data['payment_way_id']);
                 $monthlyLimit = $this->lockedCurrentMonthlyLimit($paymentWay);
                 $this->assertPaymentWayCanHandleTransaction($paymentWay, $monthlyLimit, $data['type'], $data['amount'], $total);
@@ -75,11 +79,9 @@ class TransactionService
                 $transaction->save();
 
                 if ($data['type'] === 'send') {
-                    if ($product) {
-                        $product->increment('stock', $quantity);
-                    }
+                    $this->createProductLines($transaction, $productItems, $data['type']);
 
-                    if ($client && !$product) {
+                    if ($client && $productItems->isEmpty()) {
                         $client->source_model = $transaction;
                         $client->log_description = __('messages.transaction_created_successfully');
                         $client->increment('debt', $data['amount']);
@@ -91,11 +93,9 @@ class TransactionService
                         $monthlyLimit->increment('send_used', $data['amount']);
                     }
                 } elseif ($data['type'] === 'receive') {
-                    if ($product) {
-                        $product->decrement('stock', $quantity);
-                    }
+                    $this->createProductLines($transaction, $productItems, $data['type']);
 
-                    if ($client && !$product) {
+                    if ($client && $productItems->isEmpty()) {
                         $client->source_model = $transaction;
                         $client->log_description = __('messages.transaction_created_successfully');
                         $client->decrement('debt', $data['amount']);
@@ -124,11 +124,7 @@ class TransactionService
                             'id' => optional($client)->id,
                             'name' => optional($client)->name,
                         ],
-                        'product' => [
-                            'id' => optional($product)->id,
-                            'name' => optional($product)->name,
-                            'debt' => optional($product)->debt,
-                        ],
+                        'products' => $this->productItemsForLog($productItems),
                         'payment_way' => [
                             'id' => $paymentWay->id,
                             'name' => $paymentWay->name,
@@ -142,26 +138,114 @@ class TransactionService
                 $whatsapp = null;
                 if ($client) {
                     $context = [];
-                    if ($product)
-                        $context['product'] = $product->name;
+                    if ($productItems->isNotEmpty()) {
+                        $context['product'] = $productItems
+                            ->map(fn (array $item) => $item['product']->name . ' x' . $item['quantity'])
+                            ->implode(', ');
+                    }
                     $whatsapp = app(WhatsAppService::class)->sendTransactionMessage($client, $data['amount'], $data['type'], $context);
                 }
 
                 $transaction->setAttribute('whatsapp', $whatsapp);
 
-                return $transaction->load(['paymentWay', 'client', 'creator']);
+                return $transaction->load(['paymentWay', 'client', 'creator', 'products.product']);
             });
         });
     }
 
     public function show(int $id): Transaction
     {
-        return Transaction::with(['paymentWay', 'client', 'product', 'creator', 'logs'])->findOrFail($id);
+        return Transaction::with(['paymentWay', 'client', 'product', 'products.product', 'creator', 'logs'])->findOrFail($id);
+    }
+
+    private function resolveProductItems(array $data)
+    {
+        $items = collect($data['products'] ?? [])
+            ->filter(fn (array $item) => !empty($item['product_id']))
+            ->groupBy(fn (array $item) => (int) $item['product_id'])
+            ->map(fn ($items, int $productId) => [
+                'product_id' => $productId,
+                'quantity' => $items->sum(fn (array $item) => max((int) ($item['quantity'] ?? 1), 1)),
+            ])
+            ->map(function (array $item) use ($data) {
+                $product = Product::findOrFail($item['product_id']);
+                $quantity = (int) $item['quantity'];
+                $unitPrice = (float) ($data['type'] === 'send' ? $product->purchase_price : $product->sale_price);
+
+                return [
+                    'product' => $product,
+                    'quantity' => $quantity,
+                    'unit_price' => $unitPrice,
+                    'total' => $unitPrice * $quantity,
+                ];
+            })
+            ->values();
+
+        if ($items->isEmpty() && !empty($data['product_id'])) {
+            $product = Product::findOrFail($data['product_id']);
+            $quantity = max((int) ($data['quantity'] ?? 1), 1);
+            $unitPrice = (float) ($data['type'] === 'send' ? $product->purchase_price : $product->sale_price);
+
+            $items->push([
+                'product' => $product,
+                'quantity' => $quantity,
+                'unit_price' => $unitPrice,
+                'total' => $unitPrice * $quantity,
+            ]);
+        }
+
+        return $items;
+    }
+
+    private function createProductLines(Transaction $transaction, $productItems, string $type): void
+    {
+        foreach ($productItems as $item) {
+            $transaction->products()->create([
+                'product_id' => $item['product']->id,
+                'quantity' => $item['quantity'],
+                'unit_price' => $item['unit_price'],
+                'total' => $item['total'],
+            ]);
+
+            if ($type === 'send') {
+                $item['product']->increment('stock', $item['quantity']);
+            } elseif ($type === 'receive') {
+                $item['product']->decrement('stock', $item['quantity']);
+            }
+        }
+    }
+
+    private function productItemsForLog($productItems): array
+    {
+        return $productItems
+            ->map(fn (array $item) => [
+                'id' => $item['product']->id,
+                'name' => $item['product']->name,
+                'quantity' => $item['quantity'],
+                'unit_price' => $item['unit_price'],
+                'total' => $item['total'],
+            ])
+            ->all();
+    }
+
+    private function reverseProductLineEffects($productItems, string $type): void
+    {
+        foreach ($productItems as $item) {
+            if (! $item->product) {
+                continue;
+            }
+
+            if ($type === 'send') {
+                $item->product->decrement('stock', $item->quantity);
+            } elseif ($type === 'receive') {
+                $item->product->increment('stock', $item->quantity);
+            }
+        }
     }
 
     public function update(int $id, array $data, Request $request): Transaction
     {
-        $transaction = Transaction::findOrFail($id);
+        $transaction = Transaction::with('products.product')->findOrFail($id);
         $oldData = $this->buildOldData($transaction);
 
         $resolvedData = array_merge([
@@ -175,6 +259,12 @@ class TransactionService
             'quantity' => $transaction->quantity ?? 1,
         ], $data);
 
+        $newProductItems = $this->resolveProductItems($resolvedData);
+        $firstProductItem = $newProductItems->first();
+        $resolvedData['product_id'] = $firstProductItem['product']->id ?? null;
+        $resolvedData['quantity'] = $firstProductItem['quantity'] ?? null;
+        unset($resolvedData['products']);
+
         if ($request->hasFile('attachment')) {
             $this->fileService->deletePublicFile($transaction->attachment);
             $resolvedData['attachment'] = $this->fileService->storePublicFile($request->file('attachment'), 'uploads/transactions');
@@ -184,6 +274,7 @@ class TransactionService
         $oldProduct = $transaction->product_id ? Product::findOrFail($transaction->product_id) : null;
         $newClient = !empty($resolvedData['client_id']) ? Client::findOrFail($resolvedData['client_id']) : null;
         $newProduct = !empty($resolvedData['product_id']) ? Product::findOrFail($resolvedData['product_id']) : null;
+        $oldProductItems = $transaction->products;
 
         $oldPaymentWay = PaymentWay::findOrFail($transaction->payment_way_id);
         $newPaymentWay = PaymentWay::findOrFail($resolvedData['payment_way_id']);
@@ -192,20 +283,26 @@ class TransactionService
         $newQuantity = (int) ($resolvedData['quantity'] ?? 1);
         $oldQuantity = $transaction->quantity ?? 1;
 
-        return DB::transaction(function () use ($transaction, $resolvedData, $oldData, $oldClient, $oldProduct, $newClient, $newProduct, $newPaymentWay, $oldPaymentWay, $oldTotal, $newTotal, $newQuantity, $oldQuantity) {
+        return DB::transaction(function () use ($transaction, $resolvedData, $oldData, $oldClient, $oldProduct, $oldProductItems, $newClient, $newProduct, $newProductItems, $newPaymentWay, $oldPaymentWay, $oldTotal, $newTotal, $newQuantity, $oldQuantity) {
+            if ($oldProductItems->isNotEmpty()) {
+                $this->reverseProductLineEffects($oldProductItems, $transaction->type);
+            }
+
             $this->reverseTransactionEffects(
                 type: $transaction->type,
                 amount: (float) $transaction->amount,
                 total: $oldTotal,
                 paymentWay: $oldPaymentWay,
                 sourceTransaction: $transaction,
-                client: $oldClient,
-                product: $oldProduct,
+                client: $oldProductItems->isNotEmpty() ? null : $oldClient,
+                product: $oldProductItems->isNotEmpty() ? null : $oldProduct,
                 quantity: $oldQuantity
             );
 
             $balanceBeforeTransaction = $newPaymentWay->fresh()->balance;
             $transaction->update($resolvedData);
+            $transaction->products()->delete();
+            $this->createProductLines($transaction, $newProductItems, $resolvedData['type']);
 
             $this->applyTransactionEffects(
                 type: $resolvedData['type'],
@@ -213,8 +310,8 @@ class TransactionService
                 total: $newTotal,
                 paymentWay: $newPaymentWay,
                 sourceTransaction: $transaction,
-                client: $newClient,
-                product: $newProduct,
+                client: $newProductItems->isNotEmpty() ? null : $newClient,
+                product: $newProductItems->isNotEmpty() ? null : $newProduct,
                 quantity: $newQuantity
             );
 
@@ -247,10 +344,7 @@ class TransactionService
                         'id' => optional($newClient)->id,
                         'name' => optional($newClient)->name,
                     ],
-                    'product' => [
-                        'id' => optional($newProduct)->id,
-                        'name' => optional($newProduct)->name,
-                    ],
+                    'products' => $this->productItemsForLog($newProductItems),
                     'payment_way' => [
                         'id' => $newPaymentWay->id,
                         'name' => $newPaymentWay->name,
@@ -272,7 +366,7 @@ class TransactionService
                 ],
             ]);
 
-            return $transaction->load(['paymentWay', 'client', 'creator', 'logs']);
+            return $transaction->load(['paymentWay', 'client', 'creator', 'logs', 'products.product']);
         });
     }
 

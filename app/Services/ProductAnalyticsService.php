@@ -32,8 +32,9 @@ class ProductAnalyticsService
     private function productRows(string $fromDate, string $toDate, ?int $productId): Collection
     {
         $query = Product::query()
+            ->leftJoin('transaction_products', 'products.id', '=', 'transaction_products.product_id')
             ->leftJoin('transactions', function ($join) use ($fromDate, $toDate) {
-                $join->on('products.id', '=', 'transactions.product_id')
+                $join->on('transaction_products.transaction_id', '=', 'transactions.id')
                     ->whereDate('transactions.created_at', '>=', $fromDate)
                     ->whereDate('transactions.created_at', '<=', $toDate);
             })
@@ -46,17 +47,17 @@ class ProductAnalyticsService
                 'products.sale_price',
                 'products.stock',
             ])
-            ->selectRaw('COUNT(transactions.id) as total_transactions')
+            ->selectRaw('COUNT(DISTINCT transactions.id) as total_transactions')
             ->selectRaw("SUM(CASE WHEN transactions.type = 'receive' THEN 1 ELSE 0 END) as sales_count")
-            ->selectRaw("SUM(CASE WHEN transactions.type = 'receive' THEN COALESCE(transactions.quantity, 1) ELSE 0 END) as sold_quantity")
-            ->selectRaw("SUM(CASE WHEN transactions.type = 'receive' THEN COALESCE(transactions.amount, 0) ELSE 0 END) as sales_amount")
+            ->selectRaw("SUM(CASE WHEN transactions.type = 'receive' THEN COALESCE(transaction_products.quantity, 1) ELSE 0 END) as sold_quantity")
+            ->selectRaw("SUM(CASE WHEN transactions.type = 'receive' THEN COALESCE(transaction_products.total, 0) ELSE 0 END) as sales_amount")
             ->selectRaw("SUM(CASE WHEN transactions.type = 'receive' THEN COALESCE(transactions.commission, 0) ELSE 0 END) as sales_commission")
-            ->selectRaw("SUM(CASE WHEN transactions.type = 'receive' THEN COALESCE(transactions.quantity, 1) * COALESCE(products.purchase_price, 0) ELSE 0 END) as sales_cost")
+            ->selectRaw("SUM(CASE WHEN transactions.type = 'receive' THEN COALESCE(transaction_products.quantity, 1) * COALESCE(products.purchase_price, 0) ELSE 0 END) as sales_cost")
             ->selectRaw("SUM(CASE WHEN transactions.type = 'send' THEN 1 ELSE 0 END) as purchase_count")
-            ->selectRaw("SUM(CASE WHEN transactions.type = 'send' THEN COALESCE(transactions.quantity, 1) ELSE 0 END) as purchased_quantity")
-            ->selectRaw("SUM(CASE WHEN transactions.type = 'send' THEN COALESCE(transactions.amount, 0) ELSE 0 END) as purchase_amount")
+            ->selectRaw("SUM(CASE WHEN transactions.type = 'send' THEN COALESCE(transaction_products.quantity, 1) ELSE 0 END) as purchased_quantity")
+            ->selectRaw("SUM(CASE WHEN transactions.type = 'send' THEN COALESCE(transaction_products.total, 0) ELSE 0 END) as purchase_amount")
             ->groupBy('products.id', 'products.name', 'products.code', 'products.purchase_price', 'products.sale_price', 'products.stock')
-            ->orderByDesc(DB::raw("(SUM(CASE WHEN transactions.type = 'receive' THEN COALESCE(transactions.amount, 0) + COALESCE(transactions.commission, 0) - (COALESCE(transactions.quantity, 1) * COALESCE(products.purchase_price, 0)) ELSE 0 END))"));
+            ->orderByDesc(DB::raw("(SUM(CASE WHEN transactions.type = 'receive' THEN COALESCE(transaction_products.total, 0) + COALESCE(transactions.commission, 0) - (COALESCE(transaction_products.quantity, 1) * COALESCE(products.purchase_price, 0)) ELSE 0 END))"));
 
         if (! $productId) {
             $query->havingRaw('COUNT(transactions.id) > 0');
@@ -103,22 +104,27 @@ class ProductAnalyticsService
     private function salesTransactions(string $fromDate, string $toDate, ?int $productId): LengthAwarePaginator
     {
         return Transaction::query()
-            ->with(['product', 'paymentWay', 'client'])
+            ->with(['product', 'products.product', 'paymentWay', 'client'])
             ->where('type', 'receive')
-            ->whereNotNull('product_id')
+            ->whereHas('products', fn ($query) => $query->when($productId, fn ($query) => $query->where('product_id', $productId)))
             ->whereDate('created_at', '>=', $fromDate)
             ->whereDate('created_at', '<=', $toDate)
-            ->when($productId, fn ($query) => $query->where('product_id', $productId))
             ->latest()
             ->paginate(25)
-            ->through(function (Transaction $transaction) {
-                $quantity = (int) ($transaction->quantity ?? 1);
-                $purchasePrice = (float) optional($transaction->product)->purchase_price;
-                $cost = $quantity * $purchasePrice;
+            ->through(function (Transaction $transaction) use ($productId) {
+                $items = $transaction->products;
+
+                if ($productId) {
+                    $items = $items->where('product_id', $productId);
+                }
+
+                $quantity = (int) $items->sum('quantity');
+                $cost = (float) $items->sum(fn ($item) => $item->quantity * (float) optional($item->product)->purchase_price);
+                $amount = (float) $items->sum('total');
 
                 $transaction->analytics_quantity = $quantity;
                 $transaction->analytics_cost = $cost;
-                $transaction->analytics_profit = (float) $transaction->amount + (float) $transaction->commission - $cost;
+                $transaction->analytics_profit = $amount + (float) $transaction->commission - $cost;
 
                 return $transaction;
             });

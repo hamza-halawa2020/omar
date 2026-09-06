@@ -48,6 +48,11 @@ class Transaction extends Model
         return $this->belongsTo(Product::class, 'product_id');
     }
 
+    public function products()
+    {
+        return $this->hasMany(TransactionProduct::class, 'transaction_id');
+    }
+
     public function installmentPayment()
     {
         return $this->hasMany(InstallmentPayment::class, 'transaction_id');

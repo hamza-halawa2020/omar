@@ -47,10 +47,10 @@ class PaymentWayService
     {
         $paymentWay = PaymentWay::with([
             'creator', 'transactions.client',
-            'transactions.product', 'transactions.installmentPayment', 'logs', 'monthlyLimits',
+            'transactions.product', 'transactions.products.product', 'transactions.installmentPayment', 'logs', 'monthlyLimits',
         ])->findOrFail($id);
 
-        $transactions = $paymentWay->transactions()->with(['client', 'product', 'installmentPayment']);
+        $transactions = $paymentWay->transactions()->with(['client', 'product', 'products.product', 'installmentPayment']);
         try {
             if ($timeFilter === 'custom' && $startDate && $endDate) {
                 $transactions->whereBetween('created_at', [Carbon::parse($startDate)->startOfDay(), Carbon::parse($endDate)->endOfDay()]);

@@ -274,6 +274,7 @@
                                     <th class="text-center">{{ __('messages.type') }}</th>
                                     <th class="text-center">{{ __('messages.amount') }}</th>
                                     <th class="text-center">{{ __('messages.commission') }}</th>
+                                    <th class="text-center">{{ __('messages.product') }}</th>
                                     <th class="text-center">{{ __('messages.client') }}</th>
                                     <th class="text-center">{{ __('messages.balance_before_transaction') }}</th>
                                     <th class="text-center">{{ __('messages.balance_after_transaction') }}</th>
@@ -361,38 +362,103 @@
 
             initializeClientSelect2();
 
-            function initializeProductSelect2() {
+            let productOptionsHtml = '<option value="">{{ __('messages.select_product') }}</option>';
+            let transactionProductIndex = 0;
+
+            function initializeProductSelect2($scope = $('#transactionProductsList')) {
                 if (!$.fn.select2) {
                     return;
                 }
 
-                const $productSelect = $('#product_id');
-                if (!$productSelect.length) {
+                const $productSelects = $scope.find('.product-select');
+                if (!$productSelects.length) {
                     return;
-                }
-
-                if ($productSelect.hasClass('select2-hidden-accessible')) {
-                    $productSelect.select2('destroy');
                 }
 
                 function formatProduct(product) {
                     if (!product.id) return product.text;
                     const $el = $(product.element);
                     return $(
-                        `<div>
-                            <div style="font-weight:500;overflow-wrap:anywhere">${product.text}</div>
-                            <small style="opacity:.7">{{ __('messages.purchase_price') }}: ${parseFloat($el.data('purchase-price') || 0).toFixed(2)} &nbsp;|&nbsp; {{ __('messages.sale_price') }}: ${parseFloat($el.data('sale-price') || 0).toFixed(2)} &nbsp;|&nbsp; {{ __('messages.stock') }}: ${$el.data('stock') || 0}</small>
+                        `<div class="transaction-product-option">
+                            <div class="transaction-product-option__name" style="font-weight:500">${product.text}</div>
+                            <small class="transaction-product-option__meta">{{ __('messages.purchase_price') }}: ${parseFloat($el.data('purchase-price') || 0).toFixed(2)} | {{ __('messages.sale_price') }}: ${parseFloat($el.data('sale-price') || 0).toFixed(2)} | {{ __('messages.stock') }}: ${$el.data('stock') || 0}</small>
                         </div>`
                     );
                 }
 
-                $productSelect.select2({
-                    width: '100%',
-                    allowClear: true,
-                    placeholder: "{{ __('messages.select_product') }}",
-                    dropdownParent: $('#transactionModal'),
-                    dir: $('html').attr('dir') || 'rtl',
-                    templateResult: formatProduct
+                function formatProductSelection(product) {
+                    return $(`<span class="transaction-product-selection">${product.text || ''}</span>`);
+                }
+
+                $productSelects.each(function () {
+                    const $select = $(this);
+
+                    if ($select.hasClass('select2-hidden-accessible')) {
+                        $select.select2('destroy');
+                    }
+
+                    $select.select2({
+                        width: '100%',
+                        allowClear: true,
+                        placeholder: "{{ __('messages.select_product') }}",
+                        dropdownParent: $('#transactionModal'),
+                        dir: $('html').attr('dir') || 'rtl',
+                        templateResult: formatProduct,
+                        templateSelection: formatProductSelection
+                    });
+                });
+            }
+
+            function buildProductRow(index) {
+                return `
+                    <div class="transaction-product-row" data-product-row>
+                        <div class="transaction-product-select">
+                            <label class="form-label small">{{ __('messages.product') }}</label>
+                            <select name="products[${index}][product_id]" class="form-select product-select" data-placeholder="{{ __('messages.select_product') }}">
+                                ${productOptionsHtml}
+                            </select>
+                        </div>
+                        <div class="transaction-product-quantity">
+                            <label class="form-label small">{{ __('messages.quantity') }}</label>
+                            <input type="number" name="products[${index}][quantity]" min="1" value="1" placeholder="{{ __('messages.quantity') }}" class="form-control product-quantity">
+                        </div>
+                        <button type="button" class="btn btn-outline-danger btn-sm transaction-product-remove" data-remove-product>
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+            }
+
+            function resetTransactionProducts() {
+                transactionProductIndex = 0;
+                $('#transactionProductsList').html(buildProductRow(transactionProductIndex));
+                $('#transactionProductsList [data-remove-product]').prop('disabled', true);
+                initializeProductSelect2();
+                syncProductSelections();
+            }
+
+            function selectedProductIds() {
+                return $('.product-select').map(function () {
+                    return $(this).val();
+                }).get().filter(Boolean);
+            }
+
+            function syncProductSelections() {
+                const selectedIds = selectedProductIds();
+
+                $('.product-select').each(function () {
+                    const $select = $(this);
+                    const currentValue = $select.val();
+
+                    $select.find('option').each(function () {
+                        const optionValue = $(this).attr('value');
+                        const shouldDisable = optionValue && optionValue !== currentValue && selectedIds.includes(optionValue);
+                        $(this).prop('disabled', shouldDisable);
+                    });
+
+                    if ($select.hasClass('select2-hidden-accessible')) {
+                        $select.trigger('change.select2');
+                    }
                 });
             }
 
@@ -502,16 +568,20 @@
                             productOptions +=
                                 `<option value="${product.id}" data-purchase-price="${product.purchase_price || 0}" data-sale-price="${product.sale_price || 0}" data-stock="${product.stock || 0}">${product.name}${productCode}</option>`;
                         });
-                        $('#product_id').html(productOptions).val('').trigger('change');
+                        productOptionsHtml = productOptions;
+                        $('.product-select').each(function () {
+                            $(this).html(productOptionsHtml).val('').trigger('change');
+                        });
                         initializeProductSelect2();
+                        syncProductSelections();
                     } else {
                         showToast('{{ __('messages.something_went_wrong') }}', 'error');
                     }
                 });
             }
 
-            function getSelectedProductPrice() {
-                const $selectedProduct = $('#product_id').find(':selected');
+            function getSelectedProductPrice($row) {
+                const $selectedProduct = $row.find('.product-select').find(':selected');
                 const type = $('#receiveForm input[name="type"]').val();
                 const priceKey = type === 'send' ? 'purchase-price' : 'sale-price';
 
@@ -519,27 +589,53 @@
             }
 
             function updateTransactionAmountFromProduct() {
-                let productPrice = getSelectedProductPrice();
-                if (productPrice > 0) {
-                    let qty = parseFloat($('#quantity').val()) || 1;
-                    $('#amount').val((productPrice * qty).toFixed(2));
-                }
+                let total = 0;
+                $('#transactionProductsList [data-product-row]').each(function () {
+                    const $row = $(this);
+                    const productPrice = getSelectedProductPrice($row);
+                    const qty = parseFloat($row.find('.product-quantity').val()) || 1;
+                    total += productPrice * qty;
+                });
+
+                $('#amount').val(total > 0 ? total.toFixed(2) : '');
             }
 
-            $('#product_id').on('select2:select change', function (event) {
+            $(document).on('select2:select change', '.product-select', function (event) {
                 if (event.type === 'change' && $(this).hasClass('select2-hidden-accessible')) {
                     return;
                 }
 
+                syncProductSelections();
                 updateTransactionAmountFromProduct();
             });
 
-            $('#quantity').on('input', function () {
+            $(document).on('input', '.product-quantity', function () {
                 updateTransactionAmountFromProduct();
             });
 
-            $('#product_id').on('select2:clear', function () {
-                $('#amount').val('');
+            $(document).on('select2:clear', '.product-select', function () {
+                syncProductSelections();
+                updateTransactionAmountFromProduct();
+            });
+
+            $('#addTransactionProduct').on('click', function () {
+                transactionProductIndex += 1;
+                const $row = $(buildProductRow(transactionProductIndex));
+                $('#transactionProductsList').append($row);
+                $('#transactionProductsList [data-remove-product]').prop('disabled', $('#transactionProductsList [data-product-row]').length === 1);
+                initializeProductSelect2($row);
+                syncProductSelections();
+            });
+
+            $(document).on('click', '[data-remove-product]', function () {
+                if ($('#transactionProductsList [data-product-row]').length === 1) {
+                    return;
+                }
+
+                $(this).closest('[data-product-row]').remove();
+                $('#transactionProductsList [data-remove-product]').prop('disabled', $('#transactionProductsList [data-product-row]').length === 1);
+                syncProductSelections();
+                updateTransactionAmountFromProduct();
             });
 
             function getSelectedEditProductPrice() {
@@ -590,6 +686,7 @@
                 let type = $(this).hasClass('receiveBtn') ? 'receive' : 'send';
 
                 $('#commission').val(0);
+                resetTransactionProducts();
 
                 $('#receiveForm').append(`
                     <input type="hidden" name="payment_way_id" value="${id}">
@@ -625,7 +722,8 @@
                             showToast(res.message || '{{ __('messages.transaction_created_successfully') }}', 'success');
                             $('#receiveForm')[0].reset();
                             $('#commission').val(0);
-                            $('#client_id, #product_id').val('').trigger('change');
+                            $('#client_id').val('').trigger('change');
+                            resetTransactionProducts();
                             // Refresh the payment way data
                             let currentDateRange = $("#dateRange").val();
                             if (currentDateRange) {
@@ -1137,6 +1235,9 @@
                 let txHtml = "";
                 data.transactions.forEach(tx => {
                     const canViewLogs = Boolean(tx.is_edited);
+                    const productsText = tx.products && tx.products.length
+                        ? tx.products.map(item => `${item.product?.name ?? ''} x${item.quantity}`).join(', ')
+                        : (tx.product?.name ?? '');
                     let attachmentHtml = tx.attachment ?`<a href="${tx.attachment}" target="_blank" class="text-primary">View</a>` : '';
                     if (tx.attachment && /\.(jpg|jpeg|png|gif)$/i.test(tx.attachment)) {
                         attachmentHtml =`<a href="${tx.attachment}" target="_blank"><img src="${tx.attachment}" alt="Attachment" class="img-thumbnail" style="max-width: 50px; max-height: 50px;"></a>`;
@@ -1178,6 +1279,7 @@
                             </td>
                             <td data-label="{{ __('messages.amount') }}">${tx.amount}</td>
                             <td data-label="{{ __('messages.commission') }}">${tx.commission}</td>
+                            <td data-label="{{ __('messages.product') }}">${productsText}</td>
                             <td data-label="{{ __('messages.client') }}">${tx.client?.name ?? ''}</td>
                             <td data-label="{{ __('messages.balance_before_transaction') }}">${tx.balance_before_transaction}</td>
                             <td data-label="{{ __('messages.balance_after_transaction') }}">${tx.balance_after_transaction}</td>

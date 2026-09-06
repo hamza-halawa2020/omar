@@ -15,8 +15,11 @@ class UpdateTransactionRequest extends FormRequest
     {
         return [
             'client_id' => 'nullable',
-            'quantity' => 'nullable',
-            'product_id' => 'nullable',
+            'quantity' => 'nullable|integer|min:1',
+            'product_id' => 'nullable|exists:products,id',
+            'products' => 'nullable|array',
+            'products.*.product_id' => 'nullable|distinct|exists:products,id',
+            'products.*.quantity' => 'nullable|integer|min:1',
             'payment_way_id' => 'sometimes|nullable|exists:payment_ways,id',
             'type'            => 'required|in:send,receive',
             'amount'          => 'required|numeric|min:0',

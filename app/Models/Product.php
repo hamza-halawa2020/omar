@@ -33,4 +33,9 @@ class Product extends Model
     {
         return $this->hasMany(Transaction::class, 'product_id')->latest();
     }
+
+    public function transactionProducts()
+    {
+        return $this->hasMany(TransactionProduct::class, 'product_id')->latest();
+    }
 }

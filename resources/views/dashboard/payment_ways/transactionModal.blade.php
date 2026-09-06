@@ -40,6 +40,8 @@
             line-height: 1.5;
             padding: 0;
             color: var(--tm-select-text);
+            display: block;
+            max-width: 100%;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -108,7 +110,31 @@
         #editTransactionModal .select2-results__option {
             color: var(--tm-select-text);
             padding: 0.5rem 0.75rem;
+            white-space: normal;
             overflow-wrap: anywhere;
+        }
+
+        .transaction-product-option,
+        .transaction-product-selection {
+            display: block;
+            max-width: 100%;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .transaction-product-option__name,
+        .transaction-product-option__meta {
+            display: block;
+            max-width: 100%;
+            min-width: 0;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+
+        .transaction-product-option__meta {
+            opacity: 0.7;
+            line-height: 1.4;
         }
 
         #transactionModal .select2-container--default .select2-results__option--selected,
@@ -125,19 +151,40 @@
 
         .transaction-product-row {
             display: grid;
-            grid-template-columns: minmax(0, 1fr) minmax(7.5rem, 10rem);
-            gap: 1rem;
-            align-items: start;
+            grid-template-columns: minmax(0, 1fr) minmax(6.5rem, 8rem) 2.375rem;
+            gap: 0.75rem;
+            align-items: end;
+            padding: 0.75rem;
+            border: 1px solid var(--neutral-200);
+            border-radius: 0.5rem;
+            background-color: var(--neutral-50);
         }
 
         .transaction-product-row .transaction-product-select {
             min-width: 0;
+            overflow: hidden;
+        }
+
+        .transaction-product-quantity {
+            min-width: 0;
+        }
+
+        .transaction-product-remove {
+            width: 38px;
+            height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         @media (max-width: 575.98px) {
             .transaction-product-row {
-                grid-template-columns: 1fr;
+                grid-template-columns: minmax(0, 1fr) 2.375rem;
                 gap: 0.75rem;
+            }
+
+            .transaction-product-select {
+                grid-column: 1 / -1;
             }
         }
     </style>
@@ -163,14 +210,30 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="product_id" class="form-label">{{ __('messages.product') }}</label>
-                        <select name="product_id" id="product_id" class="form-select" data-placeholder="{{ __('messages.select_product') }}">
-                            <option value="">{{ __('messages.select_product') }}</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="quantity" class="form-label">{{ __('messages.quantity') }}</label>
-                        <input type="number" name="quantity" id="quantity" placeholder="{{ __('messages.quantity') }}" class="form-control">
+                        <div class="d-flex justify-content-between align-items-center gap-2 mb-2">
+                            <label class="form-label mb-0">{{ __('messages.products') }}</label>
+                            <button type="button" class="btn btn-outline-primary btn-sm" id="addTransactionProduct">
+                                <i class="fas fa-plus me-1"></i>
+                                {{ __('messages.add_product') }}
+                            </button>
+                        </div>
+                        <div id="transactionProductsList" class="d-flex flex-column gap-2">
+                            <div class="transaction-product-row" data-product-row>
+                                <div class="transaction-product-select">
+                                    <label class="form-label small">{{ __('messages.product') }}</label>
+                                    <select name="products[0][product_id]" class="form-select product-select" data-placeholder="{{ __('messages.select_product') }}">
+                                        <option value="">{{ __('messages.select_product') }}</option>
+                                    </select>
+                                </div>
+                                <div class="transaction-product-quantity">
+                                    <label class="form-label small">{{ __('messages.quantity') }}</label>
+                                    <input type="number" name="products[0][quantity]" min="1" value="1" placeholder="{{ __('messages.quantity') }}" class="form-control product-quantity">
+                                </div>
+                                <button type="button" class="btn btn-outline-danger btn-sm transaction-product-remove" data-remove-product disabled>
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label for="amount" class="form-label">{{ __('messages.amount') }}</label>
