@@ -11,19 +11,19 @@
                 </button>
 
                 @can('whatsapp_index')
-                    <div class="bg-success text-white px-3 py-2 rounded text-center">
+                    <div class="navbar-whatsapp-link bg-success text-white px-3 py-2 rounded text-center">
                         <a href="https://web.whatsapp.com/" target="_blank" class="text-white text-decoration-none fw-bold">
                             <i class="ri-whatsapp-line"></i> WhatsApp
                         </a>
                     </div>
                     @if (Auth::user()?->whatsapp_api_token)
                         <div id="whatsappSenderStatus" class="d-flex flex-wrap align-items-center gap-2">
-                            <span class="badge bg-primary-100 text-primary-600 px-3 py-2 fw-semibold"
+                            <span class="navbar-status-badge badge bg-primary-100 text-primary-600 px-3 py-2 fw-semibold"
                                 style="font-size: 0.95rem; line-height: 1.2;">
                                 {{ __('messages.whatsapp_points') }}:
                                 <strong data-whatsapp-points>...</strong>
                             </span>
-                            <span class="badge bg-warning-100 text-warning-600 px-3 py-2 fw-semibold"
+                            <span class="navbar-status-badge badge bg-warning-100 text-warning-600 px-3 py-2 fw-semibold"
                                 style="font-size: 0.95rem; line-height: 1.2;">
                                 {{ __('messages.whatsapp_daily_remaining') }}:
                                 <strong data-whatsapp-daily-remaining>...</strong>
