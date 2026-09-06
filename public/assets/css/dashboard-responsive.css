@@ -53,7 +53,31 @@
 
     .navbar-header > .row {
         --bs-gutter-x: 10px;
+        align-items: flex-start;
         gap: 8px 0;
+    }
+
+    .navbar-header-start {
+        flex: 1 1 auto;
+        max-width: calc(100% - 108px);
+    }
+
+    .navbar-header-end {
+        flex: 0 0 auto;
+    }
+
+    .navbar-header-actions,
+    .navbar-header-account {
+        min-width: 0;
+    }
+
+    #whatsappSenderStatus {
+        max-width: 100%;
+    }
+
+    #whatsappSenderStatus .badge {
+        max-width: 100%;
+        white-space: normal;
     }
 
     .sidebar-mobile-toggle,
@@ -186,15 +210,44 @@
     }
 
     .navbar-header .row {
-        flex-wrap: nowrap;
+        flex-wrap: wrap;
     }
 
-    .navbar-header .col-auto {
+    .navbar-header-start,
+    .navbar-header-end {
         min-width: 0;
     }
 
-    .navbar-header .d-flex.flex-wrap {
+    .navbar-header-start {
+        flex: 1 1 calc(100% - 96px);
+        max-width: none;
+    }
+
+    .navbar-header-end {
+        flex: 0 0 auto;
+        margin-inline-start: auto;
+    }
+
+    .navbar-header-actions {
+        align-items: flex-start !important;
+        max-width: 100%;
+    }
+
+    .navbar-header .d-flex.flex-wrap,
+    .navbar-header-actions,
+    .navbar-header-account {
         gap: 8px !important;
+    }
+
+    #whatsappSenderStatus {
+        flex: 1 0 100%;
+        gap: 6px !important;
+    }
+
+    #whatsappSenderStatus .badge {
+        font-size: 0.78rem !important;
+        line-height: 1.35 !important;
+        padding: 6px 8px !important;
     }
 
     .navbar-header .bg-success {
