@@ -419,12 +419,13 @@
                                 ${productOptionsHtml}
                             </select>
                         </div>
+                        <div class="transaction-product-details" data-product-details></div>
                         <div class="transaction-product-quantity">
                             <label class="form-label small">{{ __('messages.quantity') }}</label>
                             <input type="number" name="products[${index}][quantity]" min="1" value="1" placeholder="{{ __('messages.quantity') }}" class="form-control product-quantity">
                         </div>
                         <div class="transaction-product-unit-price">
-                            <label class="form-label small">{{ __('messages.purchase_price') }}</label>
+                            <label class="form-label small product-unit-price-label">{{ __('messages.purchase_price') }}</label>
                             <input type="number" name="products[${index}][unit_price]" min="0" step="0.01" placeholder="{{ __('messages.purchase_price') }}" class="form-control product-unit-price">
                         </div>
                         <div class="transaction-product-batch">
@@ -446,6 +447,25 @@
                 $('#transactionProductsList [data-remove-product]').prop('disabled', true);
                 initializeProductSelect2();
                 syncProductSelections();
+            }
+
+            function currentTransactionType() {
+                return $('#receiveForm input[name="type"]').val();
+            }
+
+            function currentUnitPriceLabel() {
+                return currentTransactionType() === 'send'
+                    ? '{{ __('messages.purchase_price') }}'
+                    : '{{ __('messages.sale_price') }}';
+            }
+
+            function syncUnitPriceLabels() {
+                const label = currentUnitPriceLabel();
+
+                $('#transactionProductsList [data-product-row]').each(function () {
+                    $(this).find('.product-unit-price-label').text(label);
+                    $(this).find('.product-unit-price').attr('placeholder', label);
+                });
             }
 
             function selectedProductIds() {
@@ -608,7 +628,7 @@
 
             function updateBatchSelect($row) {
                 const productId = $row.find('.product-select').val();
-                const type = $('#receiveForm input[name="type"]').val();
+                const type = currentTransactionType();
                 const $batchSelect = $row.find('.product-batch-select');
 
                 if (type !== 'receive' || !productId) {
@@ -618,10 +638,46 @@
 
                 let options = '<option value="">{{ __('messages.fifo') }}</option>';
                 (productBatchesById[productId] || []).forEach(function (batch) {
-                    options += `<option value="${batch.id}">${parseFloat(batch.unit_cost || 0).toFixed(2)} - ${batch.remaining_quantity}</option>`;
+                    options += `<option value="${batch.id}">{{ __('messages.purchase_price') }}: ${parseFloat(batch.unit_cost || 0).toFixed(2)} - {{ __('messages.remaining') }}: ${batch.remaining_quantity}</option>`;
                 });
 
                 $batchSelect.html(options).val('').prop('disabled', false);
+            }
+
+            function updateProductDetails($row) {
+                const $selectedProduct = $row.find('.product-select').find(':selected');
+                const $details = $row.find('[data-product-details]');
+
+                if (!$selectedProduct.val()) {
+                    $details.hide().empty();
+                    return;
+                }
+
+                const stockBefore = parseFloat($selectedProduct.data('stock') || 0);
+                const quantity = parseFloat($row.find('.product-quantity').val()) || 1;
+                const stockAfter = currentTransactionType() === 'send'
+                    ? stockBefore + quantity
+                    : stockBefore - quantity;
+                const purchasePrice = parseFloat($selectedProduct.data('purchase-price') || 0).toFixed(2);
+                const salePrice = parseFloat($selectedProduct.data('sale-price') || 0).toFixed(2);
+
+                $details
+                    .html(`
+                     
+                        <div class="transaction-product-detail-item">
+                            <span class="transaction-product-detail-label">{{ __('messages.sale_price') }}</span>
+                            <span class="transaction-product-detail-value">${salePrice}</span>
+                        </div>
+                        <div class="transaction-product-detail-item">
+                            <span class="transaction-product-detail-label">{{ __('messages.stock_before_quantity') }}</span>
+                            <span class="transaction-product-detail-value">${stockBefore}</span>
+                        </div>
+                        <div class="transaction-product-detail-item">
+                            <span class="transaction-product-detail-label">{{ __('messages.stock_after_quantity') }}</span>
+                            <span class="transaction-product-detail-value">${stockAfter}</span>
+                        </div>
+                    `)
+                    .css('display', 'grid');
             }
 
             function updateTransactionAmountFromProduct() {
@@ -642,18 +698,22 @@
                 }
 
                 syncProductSelections();
-                updateBatchSelect($(this).closest('[data-product-row]'));
-                setDefaultUnitPrice($(this).closest('[data-product-row]'));
+                const $row = $(this).closest('[data-product-row]');
+                updateBatchSelect($row);
+                setDefaultUnitPrice($row);
+                updateProductDetails($row);
                 updateTransactionAmountFromProduct();
             });
 
             $(document).on('input', '.product-quantity, .product-unit-price', function () {
+                updateProductDetails($(this).closest('[data-product-row]'));
                 updateTransactionAmountFromProduct();
             });
 
             $(document).on('select2:clear', '.product-select', function () {
                 const $row = $(this).closest('[data-product-row]');
                 $row.find('.product-unit-price').val('');
+                updateProductDetails($row);
                 updateBatchSelect($row);
                 syncProductSelections();
                 updateTransactionAmountFromProduct();
@@ -666,6 +726,7 @@
                 $('#transactionProductsList [data-remove-product]').prop('disabled', $('#transactionProductsList [data-product-row]').length === 1);
                 initializeProductSelect2($row);
                 syncProductSelections();
+                syncUnitPriceLabels();
             });
 
             $(document).on('click', '[data-remove-product]', function () {
@@ -733,8 +794,10 @@
                     <input type="hidden" name="payment_way_id" value="${id}">
                     <input type="hidden" name="type" value="${type}">
                 `);
+                syncUnitPriceLabels();
                 $('#transactionProductsList [data-product-row]').each(function () {
                     updateBatchSelect($(this));
+                    updateProductDetails($(this));
                 });
 
                 let actionText = type === 'receive' ? '{{ __('messages.create_receive_transaction') }}' : '{{ __('messages.create_send_transaction') }}';

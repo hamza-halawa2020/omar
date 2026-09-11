@@ -178,6 +178,34 @@
             min-width: 0;
         }
 
+        .transaction-product-details {
+            grid-column: 1 / -1;
+            display: none;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 0.5rem;
+            padding: 0.65rem 0.75rem;
+            border: 1px dashed var(--neutral-300);
+            border-radius: 0.5rem;
+            background-color: var(--white);
+        }
+
+        .transaction-product-detail-item {
+            min-width: 0;
+        }
+
+        .transaction-product-detail-label {
+            display: block;
+            color: var(--text-secondary-light);
+            font-size: 0.75rem;
+            line-height: 1.3;
+        }
+
+        .transaction-product-detail-value {
+            display: block;
+            font-weight: 600;
+            overflow-wrap: anywhere;
+        }
+
         .transaction-product-remove {
             width: 38px;
             height: 38px;
@@ -194,6 +222,10 @@
 
             .transaction-product-select {
                 grid-column: 1 / -1;
+            }
+
+            .transaction-product-details {
+                grid-template-columns: 1fr 1fr;
             }
         }
     </style>
@@ -234,12 +266,13 @@
                                         <option value="">{{ __('messages.select_product') }}</option>
                                     </select>
                                 </div>
+                                <div class="transaction-product-details" data-product-details></div>
                                 <div class="transaction-product-quantity">
                                     <label class="form-label small">{{ __('messages.quantity') }}</label>
                                     <input type="number" name="products[0][quantity]" min="1" value="1" placeholder="{{ __('messages.quantity') }}" class="form-control product-quantity">
                                 </div>
                                 <div class="transaction-product-unit-price">
-                                    <label class="form-label small">{{ __('messages.purchase_price') }}</label>
+                                    <label class="form-label small product-unit-price-label">{{ __('messages.purchase_price') }}</label>
                                     <input type="number" name="products[0][unit_price]" min="0" step="0.01" placeholder="{{ __('messages.purchase_price') }}" class="form-control product-unit-price">
                                 </div>
                                 <div class="transaction-product-batch">

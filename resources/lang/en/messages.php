@@ -208,6 +208,8 @@ return [
     'purchase_price' => 'Purchase Price',
     'sale_price' => 'Sale Price',
     'stock' => 'Stock',
+    'stock_before_quantity' => 'Stock Before',
+    'stock_after_quantity' => 'Stock After',
     'edit_product' => 'Edit Product',
     'delete_product' => 'Delete Product',
     'confirm_delete_product' => 'Are you sure you want to delete the product',
