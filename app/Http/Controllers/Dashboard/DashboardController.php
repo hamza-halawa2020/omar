@@ -10,7 +10,8 @@ class DashboardController extends BaseController
 {
     public function __construct(private readonly DashboardService $dashboardService)
     {
-        // $this->middleware('check.permission:dashboard_index')->only('index');
+        $this->middleware('check.permission:dashboard_index')->only('index');
+        $this->middleware('check.permission:dashboard_analytics')->only('analytics');
     }
 
     public function index()

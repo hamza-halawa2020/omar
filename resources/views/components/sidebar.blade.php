@@ -4,7 +4,10 @@
     </button>
 
     <div>
-        <a href="{{ route('dashboard.index') }}" class="sidebar-logo">
+        @php
+            $dashboardUrl = auth()->user()?->can('dashboard_index') ? route('dashboard.index') : 'javascript:void(0)';
+        @endphp
+        <a href="{{ $dashboardUrl }}" class="sidebar-logo">
             <img src="{{ asset('assets/images/1.png') }}" alt="site logo" class="light-logo">
             <img src="{{ asset('assets/images/1.png') }}" alt="site logo" class="dark-logo">
             <img src="{{ asset('assets/images/1.png') }}" alt="site logo" class="logo-icon">
@@ -43,6 +46,9 @@
                         <span>{{ __('messages.products') }}</span>
                     </a>
                 </li>
+            @endcan
+
+            @can('products_analytics')
                 <li>
                     <a href="{{ route('products.analytics') }}"
                         class="d-flex align-items-center gap-2 {{ Route::is('products.analytics') ? 'active-page' : '' }}">

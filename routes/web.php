@@ -36,7 +36,9 @@ Route::prefix('dashboard')->middleware(['auth.or_impersonate', 'tenancy'])->grou
 
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard.index');
     Route::get('/analytics', [DashboardController::class, 'analytics'])->name('dashboard.analytics');
-    Route::get('/whatsapp/status', WhatsAppStatusController::class)->name('dashboard.whatsapp.status');
+    Route::get('/whatsapp/status', WhatsAppStatusController::class)
+        ->middleware('check.permission:whatsapp_index')
+        ->name('dashboard.whatsapp.status');
     Route::get('categories', [CategoryController::class, 'index'])->name('categories.index');
     Route::get('categories/list', [CategoryController::class, 'list'])->name('categories.list');
     Route::post('categories', [CategoryController::class, 'store'])->name('categories.store');
@@ -85,8 +87,6 @@ Route::prefix('dashboard')->middleware(['auth.or_impersonate', 'tenancy'])->grou
     Route::post('transactions', [TransactionController::class, 'store'])->name('transactions.store');
     Route::get('transactions/{id}', [TransactionController::class, 'show'])->name('transactions.show');
     Route::put('transactions/{id}', [TransactionController::class, 'update'])->name('transactions.update');
-    Route::delete('transactions/{id}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
-
     Route::get('clients', [ClientController::class, 'index'])->name('clients.index');
     Route::get('debts', [ClientController::class, 'debts'])->name('debts.index');
     Route::get('merchants', [ClientController::class, 'merchants'])->name('merchants.index');
@@ -102,7 +102,7 @@ Route::prefix('dashboard')->middleware(['auth.or_impersonate', 'tenancy'])->grou
     Route::delete('clients/{id}', [ClientController::class, 'destroy'])->name('clients.destroy');
     Route::get('/clients/{id}', [ClientController::class, 'showPage'])->name('clients.showPage');
 
-    Route::resource('roles', RoleController::class);
+    Route::resource('roles', RoleController::class)->except('show');
 
     Route::get('associations', [AssociationController::class, 'index'])->name('associations.index');
     Route::get('associations/list', [AssociationController::class, 'list'])->name('associations.list');

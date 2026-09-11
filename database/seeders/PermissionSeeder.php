@@ -25,6 +25,9 @@ class PermissionSeeder extends Seeder
     private function seedTenantPermissions(): void
     {
         $permissions = [
+            'dashboard_index',
+            'dashboard_analytics',
+
             'categories_index',
             'categories_store',
             'categories_update',
@@ -55,6 +58,7 @@ class PermissionSeeder extends Seeder
             'payment_way_logs_index',
 
             'products_index',
+            'products_analytics',
             'products_store',
             'products_show',
             'products_update',

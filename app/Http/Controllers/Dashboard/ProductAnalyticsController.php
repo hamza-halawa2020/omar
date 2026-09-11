@@ -10,7 +10,7 @@ class ProductAnalyticsController extends BaseController
 {
     public function __construct(private readonly ProductAnalyticsService $productAnalyticsService)
     {
-        $this->middleware('check.permission:products_index')->only('index');
+        $this->middleware('check.permission:products_analytics')->only('index');
     }
 
     public function index(Request $request)

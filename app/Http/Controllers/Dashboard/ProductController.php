@@ -15,7 +15,7 @@ class ProductController extends BaseController
     {
         $this->middleware('check.permission:products_index')->only('index', 'list');
         $this->middleware('check.permission:products_store')->only('store');
-        $this->middleware('check.permission:products_show')->only('show');
+        $this->middleware('check.permission:products_show')->only('show', 'details');
         $this->middleware('check.permission:products_update')->only('update');
         $this->middleware('check.permission:products_destroy')->only('destroy');
     }

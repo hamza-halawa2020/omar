@@ -17,8 +17,8 @@ class AssociationController extends BaseController
     {
         $this->middleware('check.permission:associations_index')->only('index', 'list');
         $this->middleware('check.permission:associations_store')->only('store');
-        $this->middleware('check.permission:associations_details')->only('details');
-        $this->middleware('check.permission:associations_update')->only('update');
+        $this->middleware('check.permission:associations_details')->only('details', 'show');
+        $this->middleware('check.permission:associations_update')->only('update', 'addMember', 'deleteMember', 'addPayment', 'payMember');
         $this->middleware('check.permission:associations_destroy')->only('destroy');
     }
 
