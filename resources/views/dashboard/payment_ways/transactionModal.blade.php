@@ -151,7 +151,7 @@
 
         .transaction-product-row {
             display: grid;
-            grid-template-columns: minmax(0, 1fr) minmax(6.5rem, 8rem) 2.375rem;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) 2.375rem;
             gap: 0.75rem;
             align-items: end;
             padding: 0.75rem;
@@ -161,11 +161,20 @@
         }
 
         .transaction-product-row .transaction-product-select {
+            grid-column: 1 / -1;
             min-width: 0;
             overflow: hidden;
         }
 
         .transaction-product-quantity {
+            min-width: 0;
+        }
+
+        .transaction-product-unit-price {
+            min-width: 0;
+        }
+
+        .transaction-product-batch {
             min-width: 0;
         }
 
@@ -191,7 +200,7 @@
 @endonce
 
 <div class="modal fade" id="transactionModal" tabindex="-1" aria-labelledby="transactionModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <div class="modal-title" id="transactionModalLabel">{{ __('messages.create_transaction') }}</div>
@@ -228,6 +237,16 @@
                                 <div class="transaction-product-quantity">
                                     <label class="form-label small">{{ __('messages.quantity') }}</label>
                                     <input type="number" name="products[0][quantity]" min="1" value="1" placeholder="{{ __('messages.quantity') }}" class="form-control product-quantity">
+                                </div>
+                                <div class="transaction-product-unit-price">
+                                    <label class="form-label small">{{ __('messages.purchase_price') }}</label>
+                                    <input type="number" name="products[0][unit_price]" min="0" step="0.01" placeholder="{{ __('messages.purchase_price') }}" class="form-control product-unit-price">
+                                </div>
+                                <div class="transaction-product-batch">
+                                    <label class="form-label small">{{ __('messages.batch') }}</label>
+                                    <select name="products[0][purchase_batch_id]" class="form-select product-batch-select" disabled>
+                                        <option value="">{{ __('messages.fifo') }}</option>
+                                    </select>
                                 </div>
                                 <button type="button" class="btn btn-outline-danger btn-sm transaction-product-remove" data-remove-product disabled>
                                     <i class="fas fa-trash"></i>

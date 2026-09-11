@@ -52,12 +52,12 @@ class ProductAnalyticsService
             ->selectRaw("SUM(CASE WHEN transactions.type = 'receive' THEN COALESCE(transaction_products.quantity, 1) ELSE 0 END) as sold_quantity")
             ->selectRaw("SUM(CASE WHEN transactions.type = 'receive' THEN COALESCE(transaction_products.total, 0) ELSE 0 END) as sales_amount")
             ->selectRaw("SUM(CASE WHEN transactions.type = 'receive' THEN COALESCE(transactions.commission, 0) ELSE 0 END) as sales_commission")
-            ->selectRaw("SUM(CASE WHEN transactions.type = 'receive' THEN COALESCE(transaction_products.quantity, 1) * COALESCE(products.purchase_price, 0) ELSE 0 END) as sales_cost")
+            ->selectRaw("SUM(CASE WHEN transactions.type = 'receive' THEN COALESCE(transaction_products.cost_total, 0) ELSE 0 END) as sales_cost")
             ->selectRaw("SUM(CASE WHEN transactions.type = 'send' THEN 1 ELSE 0 END) as purchase_count")
             ->selectRaw("SUM(CASE WHEN transactions.type = 'send' THEN COALESCE(transaction_products.quantity, 1) ELSE 0 END) as purchased_quantity")
             ->selectRaw("SUM(CASE WHEN transactions.type = 'send' THEN COALESCE(transaction_products.total, 0) ELSE 0 END) as purchase_amount")
             ->groupBy('products.id', 'products.name', 'products.code', 'products.purchase_price', 'products.sale_price', 'products.stock')
-            ->orderByDesc(DB::raw("(SUM(CASE WHEN transactions.type = 'receive' THEN COALESCE(transaction_products.total, 0) + COALESCE(transactions.commission, 0) - (COALESCE(transaction_products.quantity, 1) * COALESCE(products.purchase_price, 0)) ELSE 0 END))"));
+            ->orderByDesc(DB::raw("(SUM(CASE WHEN transactions.type = 'receive' THEN COALESCE(transaction_products.total, 0) + COALESCE(transactions.commission, 0) - COALESCE(transaction_products.cost_total, 0) ELSE 0 END))"));
 
         if (! $productId) {
             $query->havingRaw('COUNT(transactions.id) > 0');
@@ -119,7 +119,7 @@ class ProductAnalyticsService
                 }
 
                 $quantity = (int) $items->sum('quantity');
-                $cost = (float) $items->sum(fn ($item) => $item->quantity * (float) optional($item->product)->purchase_price);
+                $cost = (float) $items->sum('cost_total');
                 $amount = (float) $items->sum('total');
 
                 $transaction->analytics_quantity = $quantity;

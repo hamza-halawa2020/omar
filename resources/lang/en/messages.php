@@ -673,7 +673,13 @@ return [
     'profit' => 'Profit',
     'loss' => 'Loss',
     'break_even' => 'Break Even',
-    'stock_purchase' => 'Stock Purchase',    'admin' => [
+    'stock_purchase' => 'Stock Purchase',
+    'purchase_batches' => 'Purchase Batches',
+    'sales_profit' => 'Sales Profit',
+    'batch_cost' => 'Batch Cost',
+    'batch' => 'Batch',
+    'fifo' => 'FIFO',
+    'admin' => [
         'admin_panel' => 'Admin Panel',
         'admin_panel_short' => 'Admin',
         'admin_dashboard' => 'Admin Dashboard',

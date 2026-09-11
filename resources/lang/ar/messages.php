@@ -672,7 +672,13 @@ return [
     'profit' => 'ربح',
     'loss' => 'خسارة',
     'break_even' => 'تعادل',
-    'stock_purchase' => 'شراء مخزون',    'admin' => [
+    'stock_purchase' => 'شراء مخزون',
+    'purchase_batches' => 'دفعات الشراء',
+    'sales_profit' => 'أرباح المبيعات',
+    'batch_cost' => 'تكلفة الدفعة',
+    'batch' => 'دفعة',
+    'fifo' => 'الأقدم أولا',
+    'admin' => [
         'admin_panel' => 'لوحة تحكم المشرف',
         'admin_panel_short' => 'لوحة المشرف',
         'admin_dashboard' => 'لوحة تحكم المشرف العام',

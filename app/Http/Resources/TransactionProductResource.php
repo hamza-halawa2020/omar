@@ -15,6 +15,7 @@ class TransactionProductResource extends JsonResource
             'quantity' => $this->quantity,
             'unit_price' => round($this->unit_price, 2),
             'total' => round($this->total, 2),
+            'cost_total' => round($this->cost_total, 2),
             'product' => new ProductResource($this->whenLoaded('product')),
         ];
     }

@@ -5,7 +5,9 @@ namespace App\Services;
 use App\Models\Client;
 use App\Models\PaymentWay;
 use App\Models\Product;
+use App\Models\ProductPurchaseBatch;
 use App\Models\Transaction;
+use App\Models\TransactionProduct;
 use App\Services\Concerns\HandlesTransactionConcurrency;
 use App\Services\Concerns\HandlesWalletMonthlyLimits;
 use Illuminate\Database\Eloquent\Collection;
@@ -56,6 +58,9 @@ class TransactionService
 
             $data['product_id'] = $firstProductItem['product']->id ?? null;
             $data['quantity'] = $firstProductItem['quantity'] ?? null;
+            if ($productItems->isNotEmpty()) {
+                $data['amount'] = $productItems->sum('total');
+            }
 
             $client = !empty($data['client_id']) ? Client::findOrFail($data['client_id']) : null;
             $total = $data['amount'] + ($data['commission'] ?? 0);
@@ -162,20 +167,19 @@ class TransactionService
     {
         $items = collect($data['products'] ?? [])
             ->filter(fn (array $item) => !empty($item['product_id']))
-            ->groupBy(fn (array $item) => (int) $item['product_id'])
-            ->map(fn ($items, int $productId) => [
-                'product_id' => $productId,
-                'quantity' => $items->sum(fn (array $item) => max((int) ($item['quantity'] ?? 1), 1)),
-            ])
             ->map(function (array $item) use ($data) {
                 $product = Product::findOrFail($item['product_id']);
-                $quantity = (int) $item['quantity'];
-                $unitPrice = (float) ($data['type'] === 'send' ? $product->purchase_price : $product->sale_price);
+                $quantity = max((int) ($item['quantity'] ?? 1), 1);
+                $defaultUnitPrice = (float) ($data['type'] === 'send' ? $product->purchase_price : $product->sale_price);
+                $unitPrice = array_key_exists('unit_price', $item) && $item['unit_price'] !== null && $item['unit_price'] !== ''
+                    ? (float) $item['unit_price']
+                    : $defaultUnitPrice;
 
                 return [
                     'product' => $product,
                     'quantity' => $quantity,
                     'unit_price' => $unitPrice,
+                    'purchase_batch_id' => $item['purchase_batch_id'] ?? null,
                     'total' => $unitPrice * $quantity,
                 ];
             })
@@ -184,12 +188,16 @@ class TransactionService
         if ($items->isEmpty() && !empty($data['product_id'])) {
             $product = Product::findOrFail($data['product_id']);
             $quantity = max((int) ($data['quantity'] ?? 1), 1);
-            $unitPrice = (float) ($data['type'] === 'send' ? $product->purchase_price : $product->sale_price);
+            $defaultUnitPrice = (float) ($data['type'] === 'send' ? $product->purchase_price : $product->sale_price);
+            $unitPrice = array_key_exists('unit_price', $data) && $data['unit_price'] !== null && $data['unit_price'] !== ''
+                ? (float) $data['unit_price']
+                : $defaultUnitPrice;
 
             $items->push([
                 'product' => $product,
                 'quantity' => $quantity,
                 'unit_price' => $unitPrice,
+                'purchase_batch_id' => $data['purchase_batch_id'] ?? null,
                 'total' => $unitPrice * $quantity,
             ]);
         }
@@ -200,19 +208,114 @@ class TransactionService
     private function createProductLines(Transaction $transaction, $productItems, string $type): void
     {
         foreach ($productItems as $item) {
-            $transaction->products()->create([
+            $line = $transaction->products()->create([
                 'product_id' => $item['product']->id,
                 'quantity' => $item['quantity'],
                 'unit_price' => $item['unit_price'],
                 'total' => $item['total'],
+                'cost_total' => $type === 'send' ? $item['total'] : 0,
             ]);
 
             if ($type === 'send') {
                 $item['product']->increment('stock', $item['quantity']);
+                $item['product']->update(['purchase_price' => $item['unit_price']]);
+                $this->createPurchaseBatch($line, $item);
             } elseif ($type === 'receive') {
+                $costTotal = $this->allocateSaleCost($line, $item);
+                $line->update(['cost_total' => $costTotal]);
                 $item['product']->decrement('stock', $item['quantity']);
             }
         }
+    }
+
+    private function createPurchaseBatch(TransactionProduct $line, array $item): void
+    {
+        ProductPurchaseBatch::create([
+            'product_id' => $item['product']->id,
+            'transaction_product_id' => $line->id,
+            'purchased_quantity' => $item['quantity'],
+            'remaining_quantity' => $item['quantity'],
+            'unit_cost' => $item['unit_price'],
+        ]);
+    }
+
+    private function allocateSaleCost(TransactionProduct $line, array $item): float
+    {
+        $remaining = (int) $item['quantity'];
+        $costTotal = 0.0;
+        $preferredBatchId = !empty($item['purchase_batch_id']) ? (int) $item['purchase_batch_id'] : null;
+
+        $batchQuery = ProductPurchaseBatch::query()
+            ->where('product_id', $item['product']->id)
+            ->where('remaining_quantity', '>', 0);
+
+        if ($preferredBatchId) {
+            $preferredBatch = (clone $batchQuery)
+                ->whereKey($preferredBatchId)
+                ->lockForUpdate()
+                ->first();
+
+            if (! $preferredBatch) {
+                throw new HttpResponseException(
+                    response()->json(['status' => false, 'message' => 'Selected purchase batch is not available for this product.'], 400)
+                );
+            }
+
+            $remaining = $this->allocateFromBatch($line, $preferredBatch, $remaining, $costTotal);
+        }
+
+        $batches = $batchQuery
+            ->when($preferredBatchId, fn ($query) => $query->whereKeyNot($preferredBatchId))
+            ->orderBy('created_at')
+            ->orderBy('id')
+            ->lockForUpdate()
+            ->get();
+
+        foreach ($batches as $batch) {
+            if ($remaining <= 0) {
+                break;
+            }
+
+            $remaining = $this->allocateFromBatch($line, $batch, $remaining, $costTotal);
+        }
+
+        if ($remaining > 0) {
+            $fallbackUnitCost = (float) ($item['product']->purchase_price ?? $item['unit_price'] ?? 0);
+            $fallbackTotal = $remaining * $fallbackUnitCost;
+            $costTotal += $fallbackTotal;
+
+            $line->batchAllocations()->create([
+                'product_purchase_batch_id' => null,
+                'quantity' => $remaining,
+                'unit_cost' => $fallbackUnitCost,
+                'total' => $fallbackTotal,
+            ]);
+        }
+
+        return $costTotal;
+    }
+
+    private function allocateFromBatch(TransactionProduct $line, ProductPurchaseBatch $batch, int $remaining, float &$costTotal): int
+    {
+        if ($remaining <= 0) {
+            return 0;
+        }
+
+        $allocatedQuantity = min($remaining, (int) $batch->remaining_quantity);
+        $allocatedTotal = $allocatedQuantity * (float) $batch->unit_cost;
+        $costTotal += $allocatedTotal;
+        $remaining -= $allocatedQuantity;
+
+        $batch->decrement('remaining_quantity', $allocatedQuantity);
+
+        $line->batchAllocations()->create([
+            'product_purchase_batch_id' => $batch->id,
+            'quantity' => $allocatedQuantity,
+            'unit_cost' => $batch->unit_cost,
+            'total' => $allocatedTotal,
+        ]);
+
+        return $remaining;
     }
 
     private function productItemsForLog($productItems): array
@@ -236,11 +339,46 @@ class TransactionService
             }
 
             if ($type === 'send') {
+                $this->deletePurchaseBatch($item);
                 $item->product->decrement('stock', $item->quantity);
             } elseif ($type === 'receive') {
+                $this->reverseSaleCostAllocations($item);
                 $item->product->increment('stock', $item->quantity);
             }
         }
+    }
+
+    private function deletePurchaseBatch(TransactionProduct $line): void
+    {
+        $batch = ProductPurchaseBatch::query()
+            ->where('transaction_product_id', $line->id)
+            ->lockForUpdate()
+            ->first();
+
+        if (! $batch) {
+            return;
+        }
+
+        if ((int) $batch->remaining_quantity !== (int) $batch->purchased_quantity) {
+            throw new HttpResponseException(
+                response()->json(['status' => false, 'message' => 'This purchase batch cannot be updated because sales were already recorded from it.'], 400)
+            );
+        }
+
+        $batch->delete();
+    }
+
+    private function reverseSaleCostAllocations(TransactionProduct $line): void
+    {
+        $line->loadMissing('batchAllocations.purchaseBatch');
+
+        foreach ($line->batchAllocations as $allocation) {
+            if ($allocation->purchaseBatch) {
+                $allocation->purchaseBatch->increment('remaining_quantity', $allocation->quantity);
+            }
+        }
+
+        $line->batchAllocations()->delete();
     }
 
     public function update(int $id, array $data, Request $request): Transaction
@@ -263,6 +401,9 @@ class TransactionService
         $firstProductItem = $newProductItems->first();
         $resolvedData['product_id'] = $firstProductItem['product']->id ?? null;
         $resolvedData['quantity'] = $firstProductItem['quantity'] ?? null;
+        if ($newProductItems->isNotEmpty()) {
+            $resolvedData['amount'] = $newProductItems->sum('total');
+        }
         unset($resolvedData['products']);
 
         if ($request->hasFile('attachment')) {

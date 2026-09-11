@@ -5,7 +5,7 @@
         </div>
         <div class="col-auto">
             <small>{{ __('messages.developed_by') }}
-                <a href="#" target="_blank" class="text-primary fw-semibold text-decoration-none">Hamza Halawa</a>
+                <a href="https://www.hamza-halawa.cloud" target="_blank" class="text-primary fw-semibold text-decoration-none">Hamza Halawa</a>
             </small>
         </div>
     </div>

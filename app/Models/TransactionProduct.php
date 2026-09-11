@@ -12,6 +12,7 @@ class TransactionProduct extends Model
         'quantity',
         'unit_price',
         'total',
+        'cost_total',
     ];
 
     public function transaction()
@@ -22,5 +23,15 @@ class TransactionProduct extends Model
     public function product()
     {
         return $this->belongsTo(Product::class, 'product_id');
+    }
+
+    public function purchaseBatch()
+    {
+        return $this->hasOne(ProductPurchaseBatch::class, 'transaction_product_id');
+    }
+
+    public function batchAllocations()
+    {
+        return $this->hasMany(TransactionProductBatchAllocation::class, 'transaction_product_id');
     }
 }

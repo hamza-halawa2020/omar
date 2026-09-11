@@ -363,6 +363,7 @@
             initializeClientSelect2();
 
             let productOptionsHtml = '<option value="">{{ __('messages.select_product') }}</option>';
+            let productBatchesById = {};
             let transactionProductIndex = 0;
 
             function initializeProductSelect2($scope = $('#transactionProductsList')) {
@@ -421,6 +422,16 @@
                         <div class="transaction-product-quantity">
                             <label class="form-label small">{{ __('messages.quantity') }}</label>
                             <input type="number" name="products[${index}][quantity]" min="1" value="1" placeholder="{{ __('messages.quantity') }}" class="form-control product-quantity">
+                        </div>
+                        <div class="transaction-product-unit-price">
+                            <label class="form-label small">{{ __('messages.purchase_price') }}</label>
+                            <input type="number" name="products[${index}][unit_price]" min="0" step="0.01" placeholder="{{ __('messages.purchase_price') }}" class="form-control product-unit-price">
+                        </div>
+                        <div class="transaction-product-batch">
+                            <label class="form-label small">{{ __('messages.batch') }}</label>
+                            <select name="products[${index}][purchase_batch_id]" class="form-select product-batch-select" disabled>
+                                <option value="">{{ __('messages.fifo') }}</option>
+                            </select>
                         </div>
                         <button type="button" class="btn btn-outline-danger btn-sm transaction-product-remove" data-remove-product>
                             <i class="fas fa-trash"></i>
@@ -563,8 +574,10 @@
                 $.get("{{ route('products.list') }}", function (res) {
                     if (res.status) {
                         let productOptions = '<option value="">{{ __('messages.select_product') }}</option>';
+                        productBatchesById = {};
                         res.data.forEach(function (product) {
                             let productCode = product.code ? ` [${product.code}]` : '';
+                            productBatchesById[product.id] = product.purchase_batches || [];
                             productOptions +=
                                 `<option value="${product.id}" data-purchase-price="${product.purchase_price || 0}" data-sale-price="${product.sale_price || 0}" data-stock="${product.stock || 0}">${product.name}${productCode}</option>`;
                         });
@@ -588,11 +601,34 @@
                 return parseFloat($selectedProduct.data(priceKey) || 0);
             }
 
+            function setDefaultUnitPrice($row) {
+                const productPrice = getSelectedProductPrice($row);
+                $row.find('.product-unit-price').val(productPrice > 0 ? productPrice.toFixed(2) : '');
+            }
+
+            function updateBatchSelect($row) {
+                const productId = $row.find('.product-select').val();
+                const type = $('#receiveForm input[name="type"]').val();
+                const $batchSelect = $row.find('.product-batch-select');
+
+                if (type !== 'receive' || !productId) {
+                    $batchSelect.html('<option value="">{{ __('messages.fifo') }}</option>').val('').prop('disabled', true);
+                    return;
+                }
+
+                let options = '<option value="">{{ __('messages.fifo') }}</option>';
+                (productBatchesById[productId] || []).forEach(function (batch) {
+                    options += `<option value="${batch.id}">${parseFloat(batch.unit_cost || 0).toFixed(2)} - ${batch.remaining_quantity}</option>`;
+                });
+
+                $batchSelect.html(options).val('').prop('disabled', false);
+            }
+
             function updateTransactionAmountFromProduct() {
                 let total = 0;
                 $('#transactionProductsList [data-product-row]').each(function () {
                     const $row = $(this);
-                    const productPrice = getSelectedProductPrice($row);
+                    const productPrice = parseFloat($row.find('.product-unit-price').val()) || 0;
                     const qty = parseFloat($row.find('.product-quantity').val()) || 1;
                     total += productPrice * qty;
                 });
@@ -606,14 +642,19 @@
                 }
 
                 syncProductSelections();
+                updateBatchSelect($(this).closest('[data-product-row]'));
+                setDefaultUnitPrice($(this).closest('[data-product-row]'));
                 updateTransactionAmountFromProduct();
             });
 
-            $(document).on('input', '.product-quantity', function () {
+            $(document).on('input', '.product-quantity, .product-unit-price', function () {
                 updateTransactionAmountFromProduct();
             });
 
             $(document).on('select2:clear', '.product-select', function () {
+                const $row = $(this).closest('[data-product-row]');
+                $row.find('.product-unit-price').val('');
+                updateBatchSelect($row);
                 syncProductSelections();
                 updateTransactionAmountFromProduct();
             });
@@ -692,6 +733,9 @@
                     <input type="hidden" name="payment_way_id" value="${id}">
                     <input type="hidden" name="type" value="${type}">
                 `);
+                $('#transactionProductsList [data-product-row]').each(function () {
+                    updateBatchSelect($(this));
+                });
 
                 let actionText = type === 'receive' ? '{{ __('messages.create_receive_transaction') }}' : '{{ __('messages.create_send_transaction') }}';
                 $('#transactionModal .modal-title').text(`${actionText} - ${currentPaymentWay.name}`);

@@ -38,4 +38,9 @@ class Product extends Model
     {
         return $this->hasMany(TransactionProduct::class, 'product_id')->latest();
     }
+
+    public function purchaseBatches()
+    {
+        return $this->hasMany(ProductPurchaseBatch::class, 'product_id')->latest();
+    }
 }

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 
 class ProductService
 {
@@ -17,7 +18,16 @@ class ProductService
 
     public function list(Request $request): Collection
     {
-        return Product::with(['creator'])
+        $relations = ['creator'];
+
+        if (Schema::hasTable('product_purchase_batches')) {
+            $relations['purchaseBatches'] = fn ($query) => $query
+                ->where('remaining_quantity', '>', 0)
+                ->orderBy('created_at')
+                ->orderBy('id');
+        }
+
+        return Product::with($relations)
             ->when($request->filled('code'), function ($q) use ($request) {
                 $q->where('code', $request->code);
             })
@@ -59,17 +69,37 @@ class ProductService
 
     public function details(int $id): array
     {
-        $product = Product::findOrFail($id);
-        $transactions = Transaction::with(['products.product', 'paymentWay', 'client'])
+        $hasBatches = Schema::hasTable('product_purchase_batches');
+        $hasCostTotal = Schema::hasTable('transaction_products') && Schema::hasColumn('transaction_products', 'cost_total');
+
+        $productRelations = ['installmentContracts.client'];
+
+        if ($hasBatches) {
+            $productRelations['purchaseBatches'] = fn ($query) => $query
+                ->with('transactionProduct.transaction')
+                ->orderBy('created_at')
+                ->orderBy('id');
+        }
+
+        $product = Product::with($productRelations)->findOrFail($id);
+
+        $transactionRelations = ['products.product', 'paymentWay', 'client'];
+        if ($hasBatches) {
+            $transactionRelations[] = 'products.batchAllocations.purchaseBatch';
+        }
+
+        $transactions = Transaction::with($transactionRelations)
             ->whereHas('products', fn ($query) => $query->where('product_id', $product->id))
             ->latest()
             ->get()
-            ->map(function ($transaction) use ($product) {
+            ->map(function ($transaction) use ($product, $hasCostTotal) {
             $line = $transaction->products->firstWhere('product_id', $product->id);
             $quantity = (int) ($line->quantity ?? 1);
-            $purchasePrice = (float) ($product->purchase_price ?? 0);
-            $cost = $transaction->type === 'receive' ? $quantity * $purchasePrice : 0;
+            $cost = $transaction->type === 'receive'
+                ? (float) ($hasCostTotal ? ($line->cost_total ?? 0) : ($quantity * (float) ($product->purchase_price ?? 0)))
+                : 0;
 
+            $transaction->product_line = $line;
             $transaction->quantity = $quantity;
             $transaction->sale_cost = $cost;
             $transaction->sale_profit = $transaction->type === 'receive'
@@ -79,11 +109,36 @@ class ProductService
             return $transaction;
         });
 
+        $purchaseBatches = $hasBatches ? $product->purchaseBatches : collect();
+        $salesTransactions = $transactions->where('type', 'receive')->values();
+        $purchaseTransactions = $transactions->where('type', 'send')->values();
+        $totalCost = $hasBatches
+            ? (float) $purchaseBatches->sum(fn ($batch) => (int) $batch->remaining_quantity * (float) $batch->unit_cost)
+            : (float) ($product->stock * $product->purchase_price);
+
+        $salesAmount = (float) $salesTransactions->sum(fn ($transaction) => (float) optional($transaction->product_line)->total);
+        $salesCommission = (float) $salesTransactions->sum('commission');
+        $salesCost = (float) $salesTransactions->sum('sale_cost');
+        $salesProfit = $salesAmount + $salesCommission - $salesCost;
+        $purchasedAmount = (float) $purchaseTransactions->sum(fn ($transaction) => (float) optional($transaction->product_line)->total);
+
         return [
             'product' => $product,
-            'totalCost' => $product->stock * $product->purchase_price,
+            'totalCost' => $totalCost,
+            'purchaseBatches' => $purchaseBatches,
             'installmentContracts' => $product->installmentContracts,
             'transactions' => $transactions,
+            'salesTransactions' => $salesTransactions,
+            'purchaseTransactions' => $purchaseTransactions,
+            'summary' => [
+                'sales_amount' => $salesAmount,
+                'sales_commission' => $salesCommission,
+                'sales_cost' => $salesCost,
+                'sales_profit' => $salesProfit,
+                'sold_quantity' => (int) $salesTransactions->sum('quantity'),
+                'purchased_amount' => $purchasedAmount,
+                'purchased_quantity' => (int) $purchaseTransactions->sum('quantity'),
+            ],
         ];
     }
 
