@@ -32,6 +32,11 @@ class PaymentWay extends Model
         return $this->hasMany(Transaction::class, 'payment_way_id')->latest();
     }
 
+    public function transactionPayments()
+    {
+        return $this->hasMany(TransactionPayment::class, 'payment_way_id')->latest();
+    }
+
     public function logs()
     {
         return $this->hasMany(PaymentWayLog::class, 'payment_way_id')->latest();

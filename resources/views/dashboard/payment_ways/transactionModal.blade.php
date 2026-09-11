@@ -214,6 +214,17 @@
             justify-content: center;
         }
 
+        .transaction-payment-row {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(140px, 0.45fr) 2.375rem;
+            gap: 0.75rem;
+            align-items: end;
+            padding: 0.75rem;
+            border: 1px solid var(--neutral-200);
+            border-radius: 0.5rem;
+            background-color: var(--neutral-50);
+        }
+
         @media (max-width: 575.98px) {
             .transaction-product-row {
                 grid-template-columns: minmax(0, 1fr) 2.375rem;
@@ -226,6 +237,14 @@
 
             .transaction-product-details {
                 grid-template-columns: 1fr 1fr;
+            }
+
+            .transaction-payment-row {
+                grid-template-columns: minmax(0, 1fr) 2.375rem;
+            }
+
+            .transaction-payment-amount {
+                grid-column: 1 / -1;
             }
         }
     </style>
@@ -294,6 +313,36 @@
                     <div class="mb-3">
                         <label for="commission" class="form-label">{{ __('messages.commission') }}</label>
                         <input required type="number" name="commission" id="commission" class="form-control" value="0">
+                    </div>
+                    <div class="mb-3 d-none" id="transactionPaymentSplitsWrapper">
+                        <div class="d-flex justify-content-between align-items-center gap-2 mb-2">
+                            <label class="form-label mb-0">{{ __('messages.payment_splits') }}</label>
+                            <button type="button" class="btn btn-outline-primary btn-sm" id="addTransactionPayment">
+                                <i class="fas fa-plus me-1"></i>
+                                {{ __('messages.add_payment_way') }}
+                            </button>
+                        </div>
+                        <div id="transactionPaymentsList" class="d-flex flex-column gap-2">
+                            <div class="transaction-payment-row" data-payment-row>
+                                <div>
+                                    <label class="form-label small">{{ __('messages.payment_way') }}</label>
+                                    <select name="payments[0][payment_way_id]" class="form-select transaction-payment-way">
+                                        <option value="">{{ __('messages.select_payment_way') }}</option>
+                                    </select>
+                                </div>
+                                <div class="transaction-payment-amount">
+                                    <label class="form-label small">{{ __('messages.amount') }}</label>
+                                    <input type="number" name="payments[0][amount]" min="0" step="0.01" class="form-control transaction-payment-amount-input">
+                                </div>
+                                <button type="button" class="btn btn-outline-danger btn-sm transaction-payment-remove" data-remove-payment disabled>
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="small text-muted mt-2">
+                            {{ __('messages.payment_splits_total') }}:
+                            <span data-payment-splits-total>0.00</span>
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label for="notes" class="form-label">{{ __('messages.notes') }}</label>

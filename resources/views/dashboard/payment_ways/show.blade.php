@@ -365,8 +365,11 @@
             initializeClientSelect2();
 
             let productOptionsHtml = '<option value="">{{ __('messages.select_product') }}</option>';
+            let paymentWayOptionsHtml = '<option value="">{{ __('messages.select_payment_way') }}</option>';
             let productBatchesById = {};
             let transactionProductIndex = 0;
+            let transactionPaymentIndex = 0;
+            let paymentSplitModeEnabled = false;
 
             function initializeProductSelect2($scope = $('#transactionProductsList')) {
                 if (!$.fn.select2) {
@@ -630,6 +633,26 @@
                 });
             }
 
+            function loadPaymentWayOptions() {
+                let deferred = $.Deferred();
+
+                $.get("{{ route('payment_ways.list') }}", function (res) {
+                    if (res.status) {
+                        paymentWayOptionsHtml = '<option value="">{{ __('messages.select_payment_way') }}</option>';
+                        res.data.forEach(function (way) {
+                            paymentWayOptionsHtml += `<option value="${way.id}">${way.name}</option>`;
+                        });
+                        deferred.resolve();
+                    } else {
+                        deferred.reject();
+                    }
+                }).fail(function () {
+                    deferred.reject();
+                });
+
+                return deferred.promise();
+            }
+
             function getSelectedProductPrice($row) {
                 const $selectedProduct = $row.find('.product-select').find(':selected');
                 const type = $('#receiveForm input[name="type"]').val();
@@ -715,6 +738,89 @@
                 });
 
                 $('#amount').val(total > 0 ? total.toFixed(2) : '');
+                syncSinglePaymentAmount();
+            }
+
+            function buildPaymentRow(index) {
+                return `
+                    <div class="transaction-payment-row" data-payment-row>
+                        <div>
+                            <label class="form-label small">{{ __('messages.payment_way') }}</label>
+                            <select name="payments[${index}][payment_way_id]" class="form-select transaction-payment-way">
+                                ${paymentWayOptionsHtml}
+                            </select>
+                        </div>
+                        <div class="transaction-payment-amount">
+                            <label class="form-label small">{{ __('messages.amount') }}</label>
+                            <input type="number" name="payments[${index}][amount]" min="0" step="0.01" class="form-control transaction-payment-amount-input">
+                        </div>
+                        <button type="button" class="btn btn-outline-danger btn-sm transaction-payment-remove" data-remove-payment>
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+            }
+
+            function transactionTotalWithCommission() {
+                return (parseFloat($('#amount').val()) || 0) + (parseFloat($('#commission').val()) || 0);
+            }
+
+            function updatePaymentSplitsTotal() {
+                let total = 0;
+                $('#transactionPaymentsList .transaction-payment-amount-input').each(function () {
+                    total += parseFloat($(this).val()) || 0;
+                });
+
+                $('[data-payment-splits-total]').text(total.toFixed(2));
+            }
+
+            function syncSinglePaymentAmount() {
+                const $rows = $('#transactionPaymentsList [data-payment-row]');
+                const total = transactionTotalWithCommission();
+
+                if ($rows.length === 1) {
+                    $rows.first().find('.transaction-payment-amount-input').val(total > 0 ? total.toFixed(2) : '');
+                }
+
+                updatePaymentSplitsTotal();
+            }
+
+            function syncPaymentSelections() {
+                const selectedIds = $('.transaction-payment-way').map(function () {
+                    return $(this).val();
+                }).get().filter(Boolean);
+
+                $('.transaction-payment-way').each(function () {
+                    const $select = $(this);
+                    const currentValue = $select.val();
+
+                    $select.find('option').each(function () {
+                        const optionValue = $(this).attr('value');
+                        const shouldDisable = optionValue && optionValue !== currentValue && selectedIds.includes(optionValue);
+                        $(this).prop('disabled', shouldDisable);
+                    });
+                });
+            }
+
+            function resetTransactionPayments(paymentWayId = '') {
+                transactionPaymentIndex = 0;
+                $('#transactionPaymentsList').html(buildPaymentRow(transactionPaymentIndex));
+                $('#transactionPaymentsList [data-remove-payment]').prop('disabled', true);
+                $('#transactionPaymentsList .transaction-payment-way').val(paymentWayId);
+                syncPaymentSelections();
+                syncSinglePaymentAmount();
+            }
+
+            function setPaymentSplitMode(enabled) {
+                paymentSplitModeEnabled = enabled;
+                $('#transactionPaymentSplitsWrapper').toggleClass('d-none', !enabled);
+                $('#addTransactionPayment').toggleClass('d-none', !enabled);
+                $('#transactionPaymentSplitsWrapper').find(':input').prop('disabled', !enabled);
+
+                if (!enabled) {
+                    $('#transactionPaymentsList').empty();
+                    $('[data-payment-splits-total]').text('0.00');
+                }
             }
 
             $(document).on('select2:select change', '.product-select', function (event) {
@@ -733,6 +839,31 @@
             $(document).on('input', '.product-quantity, .product-unit-price', function () {
                 updateProductDetails($(this).closest('[data-product-row]'));
                 updateTransactionAmountFromProduct();
+            });
+
+            $('#amount, #commission').on('input', syncSinglePaymentAmount);
+
+            $('#addTransactionPayment').on('click', function () {
+                transactionPaymentIndex += 1;
+                const $row = $(buildPaymentRow(transactionPaymentIndex));
+                $('#transactionPaymentsList').append($row);
+                $('#transactionPaymentsList [data-remove-payment]').prop('disabled', $('#transactionPaymentsList [data-payment-row]').length === 1);
+                syncPaymentSelections();
+                updatePaymentSplitsTotal();
+            });
+
+            $(document).on('change', '.transaction-payment-way', syncPaymentSelections);
+            $(document).on('input', '.transaction-payment-amount-input', updatePaymentSplitsTotal);
+
+            $(document).on('click', '[data-remove-payment]', function () {
+                if ($('#transactionPaymentsList [data-payment-row]').length === 1) {
+                    return;
+                }
+
+                $(this).closest('[data-payment-row]').remove();
+                $('#transactionPaymentsList [data-remove-payment]').prop('disabled', $('#transactionPaymentsList [data-payment-row]').length === 1);
+                syncPaymentSelections();
+                updatePaymentSplitsTotal();
             });
 
             $(document).on('select2:clear', '.product-select', function () {
@@ -820,6 +951,7 @@
 
                 $('#commission').val(0);
                 resetTransactionProducts();
+                setPaymentSplitMode(false);
 
                 $('#receiveForm').append(`
                     <input type="hidden" name="payment_way_id" value="${id}">
@@ -837,7 +969,7 @@
                 let clientType = currentPaymentWay.client_type;
                 
                 loadProducts();
-                loadClients(clientType).always(function () {
+                $.when(loadPaymentWayOptions(), loadClients(clientType)).always(function () {
                     $('#transactionModal').modal('show');
                     $btn.html(originalText).prop('disabled', false);
                 });
@@ -847,6 +979,19 @@
             $('#receiveForm').submit(function (e) {
                 e.preventDefault();
                 let formData = new FormData(this);
+                if (paymentSplitModeEnabled) {
+                    let expectedTotal = transactionTotalWithCommission();
+                    let paymentsTotal = 0;
+
+                    $('#transactionPaymentsList .transaction-payment-amount-input').each(function () {
+                        paymentsTotal += parseFloat($(this).val()) || 0;
+                    });
+
+                    if (Math.abs(paymentsTotal - expectedTotal) > 0.01) {
+                        showToast('{{ __('messages.payment_splits_must_equal_total') }}', 'error');
+                        return;
+                    }
+                }
 
                 $.ajax({
                     url: "{{ route('transactions.store') }}",
@@ -862,6 +1007,7 @@
                             $('#commission').val(0);
                             $('#client_id').val('').trigger('change');
                             resetTransactionProducts();
+                            setPaymentSplitMode(false);
                             // Refresh the payment way data
                             let currentDateRange = $("#dateRange").val();
                             if (currentDateRange) {
@@ -1373,6 +1519,10 @@
 
                 let txHtml = "";
                 data.transactions.forEach(tx => {
+                    const displayAmount = tx.payment_way_split_amount ?? tx.amount;
+                    const displayCommission = tx.payment_way_split_commission ?? tx.commission;
+                    const displayBalanceBefore = tx.payment_way_split_balance_before ?? tx.balance_before_transaction;
+                    const displayBalanceAfter = tx.payment_way_split_balance_after ?? tx.balance_after_transaction;
                     const canViewLogs = Boolean(tx.is_edited);
                     const productsText = tx.products && tx.products.length
                         ? tx.products.map(item => `${item.product?.name ?? ''} x${item.quantity}`).join(', ')
@@ -1416,12 +1566,12 @@
                                 <span class="badge bg-${tx.type === 'receive' ? 'success' : 'danger'}">${translations[tx.type] ?? tx.type}</span>
                                 ${tx.is_edited ? '<span class="badge bg-warning text-dark ms-1">{{ __('messages.edited') }}</span>' : ''}
                             </td>
-                            <td data-label="{{ __('messages.amount') }}">${tx.amount}</td>
-                            <td data-label="{{ __('messages.commission') }}">${tx.commission}</td>
+                            <td data-label="{{ __('messages.amount') }}">${displayAmount}</td>
+                            <td data-label="{{ __('messages.commission') }}">${displayCommission}</td>
                             <td data-label="{{ __('messages.product') }}">${productsText}</td>
                             <td data-label="{{ __('messages.client') }}">${tx.client?.name ?? ''}</td>
-                            <td data-label="{{ __('messages.balance_before_transaction') }}">${tx.balance_before_transaction}</td>
-                            <td data-label="{{ __('messages.balance_after_transaction') }}">${tx.balance_after_transaction}</td>
+                            <td data-label="{{ __('messages.balance_before_transaction') }}">${displayBalanceBefore}</td>
+                            <td data-label="{{ __('messages.balance_after_transaction') }}">${displayBalanceAfter}</td>
                             <td class="mobile-muted" data-label="{{ __('messages.created_at') }}">${tx.created_at || ''}</td>
                             <td class="mobile-muted mobile-hide" data-label="{{ __('messages.last_update') }}">${tx.updated_at || ''}</td>
                             <td class="mobile-muted mobile-hide" data-label="{{ __('messages.creator') }}">${tx.creator?.name || ''}</td>

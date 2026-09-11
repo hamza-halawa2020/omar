@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\PaymentWay;
+use App\Models\Transaction;
 use App\Services\Concerns\BuildsPaymentWayLogData;
 use App\Services\Concerns\HandlesWalletMonthlyLimits;
 use Carbon\Carbon;
@@ -45,12 +46,15 @@ class PaymentWayService
 
     public function showList(int $id, string $timeFilter = 'today', ?string $startDate = null, ?string $endDate = null): array
     {
-        $paymentWay = PaymentWay::with([
-            'creator', 'transactions.client',
-            'transactions.product', 'transactions.products.product', 'transactions.installmentPayment', 'logs', 'monthlyLimits',
-        ])->findOrFail($id);
+        $paymentWay = PaymentWay::with(['creator', 'logs', 'monthlyLimits'])->findOrFail($id);
 
-        $transactions = $paymentWay->transactions()->with(['client', 'product', 'products.product', 'installmentPayment']);
+        $transactions = Transaction::query()
+            ->with(['client', 'product', 'products.product', 'installmentPayment', 'paymentWay', 'paymentSplits.paymentWay'])
+            ->where(function ($query) use ($id) {
+                $query->where('payment_way_id', $id)
+                    ->orWhereHas('paymentSplits', fn ($query) => $query->where('payment_way_id', $id));
+            })
+            ->latest();
         try {
             if ($timeFilter === 'custom' && $startDate && $endDate) {
                 $transactions->whereBetween('created_at', [Carbon::parse($startDate)->startOfDay(), Carbon::parse($endDate)->endOfDay()]);
@@ -61,18 +65,32 @@ class PaymentWayService
             throw new HttpResponseException(response()->json(['status' => false, 'message' => __('messages.invalid_date_format')], 400));
         }
 
-        $paymentWay->transactions = $transactions->get();
+        $transactions = $transactions->get()
+            ->map(function (Transaction $transaction) use ($id) {
+                $split = $transaction->paymentSplits->firstWhere('payment_way_id', $id);
+
+                if ($split) {
+                    $transaction->payment_way_split_amount = (float) $split->amount;
+                    $transaction->payment_way_split_commission = $this->paymentWayTransactionCommission($transaction, $id);
+                    $transaction->payment_way_split_balance_before = (float) $split->balance_before_transaction;
+                    $transaction->payment_way_split_balance_after = (float) $split->balance_after_transaction;
+                }
+
+                return $transaction;
+            });
+
+        $paymentWay->setRelation('transactions', $transactions);
 
         $receiveTransactions = $paymentWay->transactions->where('type', 'receive');
         $sendTransactions = $paymentWay->transactions->where('type', 'send');
 
-        $receiveAmount = $receiveTransactions->sum('amount');
-        $receiveCommission = $receiveTransactions->sum('commission');
-        $receiveTotal = $receiveAmount + $receiveCommission;
+        $receiveTotal = $receiveTransactions->sum(fn ($transaction) => $this->paymentWayTransactionTotal($transaction, $id));
+        $receiveCommission = $receiveTransactions->sum(fn ($transaction) => $this->paymentWayTransactionCommission($transaction, $id));
+        $receiveAmount = max(0, $receiveTotal - $receiveCommission);
 
-        $sendAmount = $sendTransactions->sum('amount');
-        $sendCommission = $sendTransactions->sum('commission');
-        $sendTotal = $sendAmount + $sendCommission;
+        $sendTotal = $sendTransactions->sum(fn ($transaction) => $this->paymentWayTransactionTotal($transaction, $id));
+        $sendCommission = $sendTransactions->sum(fn ($transaction) => $this->paymentWayTransactionCommission($transaction, $id));
+        $sendAmount = max(0, $sendTotal - $sendCommission);
 
         $grandNet = $receiveTotal - $sendTotal;
 
@@ -105,6 +123,28 @@ class PaymentWayService
                 ],
             ],
         ];
+    }
+
+    private function paymentWayTransactionTotal(Transaction $transaction, int $paymentWayId): float
+    {
+        $split = $transaction->paymentSplits->firstWhere('payment_way_id', $paymentWayId);
+
+        if ($split) {
+            return (float) $split->amount;
+        }
+
+        return (float) $transaction->amount + (float) $transaction->commission;
+    }
+
+    private function paymentWayTransactionCommission(Transaction $transaction, int $paymentWayId): float
+    {
+        $total = (float) $transaction->amount + (float) $transaction->commission;
+
+        if ($total <= 0 || (float) $transaction->commission <= 0) {
+            return 0.0;
+        }
+
+        return $transaction->commission * ($this->paymentWayTransactionTotal($transaction, $paymentWayId) / $total);
     }
 
     public function update(int $id, array $data): PaymentWay

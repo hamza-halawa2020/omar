@@ -7,6 +7,7 @@ use App\Models\PaymentWay;
 use App\Models\Product;
 use App\Models\ProductPurchaseBatch;
 use App\Models\Transaction;
+use App\Models\TransactionPayment;
 use App\Models\TransactionProduct;
 use App\Services\Concerns\HandlesTransactionConcurrency;
 use App\Services\Concerns\HandlesWalletMonthlyLimits;
@@ -31,7 +32,7 @@ class TransactionService
         $fromDate = $request->get('from_date', now()->isoFormat('YYYY-MM-DD'));
         $toDate = $request->get('to_date', now()->isoFormat('YYYY-MM-DD'));
 
-        $transactions = Transaction::with(['paymentWay', 'client', 'creator', 'logs', 'products.product'])
+        $transactions = Transaction::with(['paymentWay', 'paymentSplits.paymentWay', 'client', 'creator', 'logs', 'products.product'])
             ->whereDate('created_at', '>=', $fromDate)
             ->whereDate('created_at', '<=', $toDate)
             ->latest()
@@ -42,7 +43,7 @@ class TransactionService
 
     public function list(): Collection
     {
-        return Transaction::with(['paymentWay', 'client', 'creator', 'logs', 'products.product'])->latest()->get();
+        return Transaction::with(['paymentWay', 'paymentSplits.paymentWay', 'client', 'creator', 'logs', 'products.product'])->latest()->get();
     }
 
     public function store(array $data, Request $request): Transaction
@@ -64,24 +65,14 @@ class TransactionService
 
             $client = !empty($data['client_id']) ? Client::findOrFail($data['client_id']) : null;
             $total = $data['amount'] + ($data['commission'] ?? 0);
-            unset($data['products']);
+            $paymentSplits = $this->resolvePaymentSplits($data, $total);
+            $data['payment_way_id'] = $paymentSplits->first()['payment_way_id'];
+            unset($data['products'], $data['payments']);
 
-            return DB::transaction(function () use ($data, $client, $productItems, $total) {
-                $paymentWay = $this->lockedPaymentWay($data['payment_way_id']);
-                $monthlyLimit = $this->lockedCurrentMonthlyLimit($paymentWay);
-                $this->assertPaymentWayCanHandleTransaction($paymentWay, $monthlyLimit, $data['type'], $data['amount'], $total);
-
+            return DB::transaction(function () use ($data, $client, $productItems, $total, $paymentSplits) {
                 $transaction = Transaction::create(array_filter($data, fn($value) => $value !== null));
-
-                $transaction->balance_before_transaction = $paymentWay->balance;
-                if ($data['type'] === 'send') {
-                    $transaction->balance_after_transaction = $paymentWay->balance - $total;
-                } elseif ($data['type'] === 'receive') {
-                    $transaction->balance_after_transaction = $paymentWay->balance + $total;
-                } else {
-                    $transaction->balance_after_transaction = $paymentWay->balance;
-                }
-                $transaction->save();
+                $appliedPayments = $this->applyPaymentSplits($transaction, $paymentSplits, $data['type'], (float) $data['amount'], (float) $total);
+                $primaryPaymentWay = $appliedPayments->first()['payment_way'];
 
                 if ($data['type'] === 'send') {
                     $this->createProductLines($transaction, $productItems, $data['type']);
@@ -92,11 +83,6 @@ class TransactionService
                         $client->increment('debt', $data['amount']);
                     }
 
-                    $paymentWay->decrement('balance', $total);
-
-                    if ($monthlyLimit) {
-                        $monthlyLimit->increment('send_used', $data['amount']);
-                    }
                 } elseif ($data['type'] === 'receive') {
                     $this->createProductLines($transaction, $productItems, $data['type']);
 
@@ -104,12 +90,6 @@ class TransactionService
                         $client->source_model = $transaction;
                         $client->log_description = __('messages.transaction_created_successfully');
                         $client->decrement('debt', $data['amount']);
-                    }
-
-                    $paymentWay->increment('balance', $total);
-
-                    if ($monthlyLimit) {
-                        $monthlyLimit->increment('receive_used', $total);
                     }
                 }
 
@@ -131,12 +111,20 @@ class TransactionService
                         ],
                         'products' => $this->productItemsForLog($productItems),
                         'payment_way' => [
-                            'id' => $paymentWay->id,
-                            'name' => $paymentWay->name,
-                            'category' => optional($paymentWay->category)->name,
-                            'sub_category' => optional($paymentWay->subCategory)->name,
-                            'creator' => optional($paymentWay->creator)->name,
+                            'id' => $primaryPaymentWay->id,
+                            'name' => $primaryPaymentWay->name,
+                            'category' => optional($primaryPaymentWay->category)->name,
+                            'sub_category' => optional($primaryPaymentWay->subCategory)->name,
+                            'creator' => optional($primaryPaymentWay->creator)->name,
                         ],
+                        'payment_splits' => $appliedPayments
+                            ->map(fn (array $payment) => [
+                                'payment_way_id' => $payment['payment_way']->id,
+                                'payment_way_name' => $payment['payment_way']->name,
+                                'amount' => $payment['amount'],
+                            ])
+                            ->values()
+                            ->all(),
                     ],
                 ]);
 
@@ -153,14 +141,95 @@ class TransactionService
 
                 $transaction->setAttribute('whatsapp', $whatsapp);
 
-                return $transaction->load(['paymentWay', 'client', 'creator', 'products.product']);
+                return $transaction->load(['paymentWay', 'paymentSplits.paymentWay', 'client', 'creator', 'products.product']);
             });
         });
     }
 
     public function show(int $id): Transaction
     {
-        return Transaction::with(['paymentWay', 'client', 'product', 'products.product', 'creator', 'logs'])->findOrFail($id);
+        return Transaction::with(['paymentWay', 'paymentSplits.paymentWay', 'client', 'product', 'products.product', 'creator', 'logs'])->findOrFail($id);
+    }
+
+    private function resolvePaymentSplits(array $data, float $total)
+    {
+        $splits = collect($data['payments'] ?? [])
+            ->filter(fn (array $payment) => !empty($payment['payment_way_id']) && (float) ($payment['amount'] ?? 0) > 0)
+            ->map(fn (array $payment) => [
+                'payment_way_id' => (int) $payment['payment_way_id'],
+                'amount' => round((float) $payment['amount'], 2),
+            ])
+            ->values();
+
+        if ($splits->isEmpty()) {
+            $splits->push([
+                'payment_way_id' => (int) $data['payment_way_id'],
+                'amount' => round($total, 2),
+            ]);
+        }
+
+        $sum = round((float) $splits->sum('amount'), 2);
+
+        if (abs($sum - round($total, 2)) > 0.01) {
+            throw new HttpResponseException(response()->json([
+                'status' => false,
+                'message' => __('messages.payment_splits_must_equal_total'),
+            ], 422));
+        }
+
+        return $splits;
+    }
+
+    private function applyPaymentSplits(Transaction $transaction, $paymentSplits, string $type, float $amount, float $total)
+    {
+        return $paymentSplits->map(function (array $split) use ($transaction, $type, $amount, $total) {
+            $paymentWay = $this->lockedPaymentWay($split['payment_way_id']);
+            $monthlyLimit = $this->lockedCurrentMonthlyLimit($paymentWay);
+            $splitTotal = (float) $split['amount'];
+            $limitAmount = $total > 0 ? ($splitTotal * ($amount / $total)) : $splitTotal;
+
+            $this->assertPaymentWayCanHandleTransaction($paymentWay, $monthlyLimit, $type, $limitAmount, $splitTotal);
+
+            $balanceBefore = (float) $paymentWay->balance;
+            $balanceAfter = $type === 'send'
+                ? $balanceBefore - $splitTotal
+                : $balanceBefore + $splitTotal;
+
+            TransactionPayment::create([
+                'transaction_id' => $transaction->id,
+                'payment_way_id' => $paymentWay->id,
+                'amount' => $splitTotal,
+                'balance_before_transaction' => $balanceBefore,
+                'balance_after_transaction' => $balanceAfter,
+            ]);
+
+            if ($type === 'send') {
+                $paymentWay->decrement('balance', $splitTotal);
+
+                if ($monthlyLimit) {
+                    $monthlyLimit->increment('send_used', $limitAmount);
+                }
+            } elseif ($type === 'receive') {
+                $paymentWay->increment('balance', $splitTotal);
+
+                if ($monthlyLimit) {
+                    $monthlyLimit->increment('receive_used', $splitTotal);
+                }
+            }
+
+            if (! $transaction->balance_before_transaction && ! $transaction->balance_after_transaction) {
+                $transaction->balance_before_transaction = $balanceBefore;
+                $transaction->balance_after_transaction = $balanceAfter;
+                $transaction->save();
+            }
+
+            return [
+                'payment_way' => $paymentWay,
+                'amount' => $splitTotal,
+                'balance_before_transaction' => $balanceBefore,
+                'balance_after_transaction' => $balanceAfter,
+            ];
+        });
     }
 
     private function resolveProductItems(array $data)

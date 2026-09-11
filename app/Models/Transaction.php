@@ -28,6 +28,11 @@ class Transaction extends Model
         return $this->belongsTo(PaymentWay::class, 'payment_way_id');
     }
 
+    public function paymentSplits()
+    {
+        return $this->hasMany(TransactionPayment::class, 'transaction_id');
+    }
+
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');

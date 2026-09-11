@@ -57,7 +57,13 @@
                                         {{ optional($transaction->product)->name ?? '-' }}
                                     @endif
                                 </td>
-                                <td data-label="{{ __('messages.payment_way') }}">{{ optional($transaction->paymentWay)->name ?? '-' }}</td>
+                                <td data-label="{{ __('messages.payment_way') }}">
+                                    @if ($transaction->paymentSplits->isNotEmpty())
+                                        {{ $transaction->paymentSplits->map(fn ($payment) => optional($payment->paymentWay)->name . ' (' . number_format($payment->amount, 2) . ')')->implode(' / ') }}
+                                    @else
+                                        {{ optional($transaction->paymentWay)->name ?? '-' }}
+                                    @endif
+                                </td>
                                 <td class="mobile-muted mobile-hide" data-label="{{ __('messages.created_by') }}">{{ optional($transaction->creator)->name ?? '-' }}</td>
                                 <td class="mobile-muted" data-label="{{ __('messages.created_at') }}">{{ $transaction->created_at->format('Y-m-d H:i') }}</td>
                                 <td class="mobile-actions" data-label="{{ __('messages.actions') }}">
