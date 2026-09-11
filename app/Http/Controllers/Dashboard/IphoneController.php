@@ -52,7 +52,13 @@ class IphoneController extends BaseController
 
     public function update(UpdateIphoneRequest $request, $id)
     {
-        $iphone = $this->iphoneService->update((int) $id, $request->validated());
+        $data = $request->validated();
+
+        if (! $request->user()?->can('purchase_prices_view')) {
+            unset($data['purchase_price_sar'], $data['purchase_price_egp'], $data['extra_expenses']);
+        }
+
+        $iphone = $this->iphoneService->update((int) $id, $data);
 
         return response()->json(['status' => true, 'message' => __('messages.iphone_updated_successfully'), 'data' => new IphoneResource($iphone)]);
     }

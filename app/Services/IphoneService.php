@@ -41,7 +41,14 @@ class IphoneService
     public function update(int $id, array $data): Iphone
     {
         $iphone = Iphone::findOrFail($id);
-        $data = $this->calculateTotals($data);
+        $calculationData = array_merge([
+            'purchase_price_egp' => $iphone->purchase_price_egp,
+            'extra_expenses' => $iphone->extra_expenses,
+            'sale_price_egp' => $iphone->sale_price_egp,
+        ], $data);
+        $totals = $this->calculateTotals($calculationData);
+        $data['total_purchase_with_expenses'] = $totals['total_purchase_with_expenses'];
+        $data['net_profit_after_sale'] = $totals['net_profit_after_sale'];
         $iphone->update($data);
 
         return $iphone;

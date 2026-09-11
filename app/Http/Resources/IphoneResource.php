@@ -9,19 +9,21 @@ class IphoneResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $canViewPurchasePrices = $request->user()?->can('purchase_prices_view') ?? false;
+
         return [
             'id' => $this->id,
             'device_type' => $this->device_type,
             'device_details' => $this->device_details,
-            'purchase_price_sar' => $this->purchase_price_sar,
+            'purchase_price_sar' => $this->when($canViewPurchasePrices, $this->purchase_price_sar),
             'currency' => $this->currency,
-            'purchase_price_egp' => $this->purchase_price_egp,
-            'extra_expenses' => $this->extra_expenses,
-            'total_purchase_with_expenses' => $this->total_purchase_with_expenses,
+            'purchase_price_egp' => $this->when($canViewPurchasePrices, $this->purchase_price_egp),
+            'extra_expenses' => $this->when($canViewPurchasePrices, $this->extra_expenses),
+            'total_purchase_with_expenses' => $this->when($canViewPurchasePrices, $this->total_purchase_with_expenses),
             'sale_price_egp' => $this->sale_price_egp,
-            'net_profit_after_sale' => $this->net_profit_after_sale,
+            'net_profit_after_sale' => $this->when($canViewPurchasePrices, $this->net_profit_after_sale),
             'status' => $this->status,
-            'financial_summary' => $this->financialSummary(),
+            'financial_summary' => $this->when($canViewPurchasePrices, fn () => $this->financialSummary()),
             'sale_client' => $this->saleClientData(),
             'logs_count' => $this->whenLoaded('logs', fn () => $this->logs->count()),
             'creator' => new UserResource($this->whenLoaded('creator')),

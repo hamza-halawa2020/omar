@@ -25,10 +25,12 @@
                         <label>{{ __('messages.description') }}</label>
                         <textarea name="description" class="form-control" rows="3" required></textarea>
                     </div>
-                    <div class="mb-3">
-                        <label>{{ __('messages.purchase_price') }}</label>
-                        <input type="number" name="purchase_price" class="form-control" step="0.01" required>
-                    </div>
+                    @can('purchase_prices_view')
+                        <div class="mb-3">
+                            <label>{{ __('messages.purchase_price') }}</label>
+                            <input type="number" name="purchase_price" class="form-control" step="0.01" required>
+                        </div>
+                    @endcan
                     <div class="mb-3">
                         <label>{{ __('messages.sale_price') }}</label>
                         <input type="number" name="sale_price" class="form-control" step="0.01" required>

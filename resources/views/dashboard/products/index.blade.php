@@ -7,8 +7,10 @@
         <div class="d-flex justify-content-between mb-3 mobile-stack-header">
             <div class="fw-bold fs-5">{{ __('messages.products') }}</div>
             @can('products_store')
-                <button class="btn btn-outline-primary btn-sm radius-8" data-bs-toggle="modal"
-                    data-bs-target="#createModal">{{ __('messages.add_product') }}</button>
+                @can('purchase_prices_view')
+                    <button class="btn btn-outline-primary btn-sm radius-8" data-bs-toggle="modal"
+                        data-bs-target="#createModal">{{ __('messages.add_product') }}</button>
+                @endcan
             @endcan
         </div>
 
@@ -41,7 +43,9 @@
                         <th class="text-center">{{ __('messages.code') }}</th>
                         <th class="text-center">{{ __('messages.image') }}</th>
                         <th class="text-center">{{ __('messages.description') }}</th>
-                        <th class="text-center">{{ __('messages.purchase_price') }}</th>
+                        @can('purchase_prices_view')
+                            <th class="text-center">{{ __('messages.purchase_price') }}</th>
+                        @endcan
                         <th class="text-center">{{ __('messages.sale_price') }}</th>
                         <th class="text-center">{{ __('messages.stock') }}</th>
                         <th class="text-center">{{ __('messages.created_by') }}</th>
@@ -68,6 +72,8 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
+            const canViewPurchasePrices = @can('purchase_prices_view') true @else false @endcan;
+
             loadproducts();
 
             $('#searchInput').on('keyup', function() {
@@ -112,13 +118,9 @@
                     <td data-label="{{ __('messages.code') }}">${escapeHtml(cat.code)}</td>
                     <td class="mobile-muted mobile-hide" data-label="{{ __('messages.image') }}">${imageHtml}</td>
                     <td class="mobile-muted" data-label="{{ __('messages.description') }}">${escapeHtml(cat.description)}</td>
-                    <td class="purchase-price" 
-                        data-label="{{ __('messages.purchase_price') }}"
-                        data-real="${escapeHtml(cat.purchase_price)}" 
-                        data-fake="${escapeHtml(cat.sale_price)}" 
-                        data-state="fake">
-                        ${escapeHtml(cat.sale_price)}
-                    </td>
+                    ${canViewPurchasePrices ? `
+                        <td data-label="{{ __('messages.purchase_price') }}">${escapeHtml(cat.purchase_price)}</td>
+                    ` : ''}
                     <td data-label="{{ __('messages.sale_price') }}">${escapeHtml(cat.sale_price)}</td>
                     <td data-label="{{ __('messages.stock') }}">${escapeHtml(cat.stock)}</td>
                     <td class="mobile-muted mobile-hide" data-label="{{ __('messages.created_by') }}">${cat.creator ? escapeHtml(cat.creator.name) : ''}</td>
@@ -133,7 +135,7 @@
                                 data-name="${escapeHtml(cat.name)}" 
                                 data-code="${escapeHtml(cat.code)}" 
                                 data-description="${escapeHtml(cat.description)}" 
-                                data-purchase_price="${escapeHtml(cat.purchase_price)}" 
+                                ${canViewPurchasePrices ? `data-purchase_price="${escapeHtml(cat.purchase_price)}"` : ''}
                                 data-sale_price="${escapeHtml(cat.sale_price)}" 
                                 data-stock="${escapeHtml(cat.stock)}">{{ __('messages.edit') }}</button>
                             @endcan
@@ -207,21 +209,6 @@
             });
 
 
-            $(document).on('click', '.purchase-price', function() {
-                let state = $(this).data('state');
-                let realPrice = $(this).data('real');
-                let fakePrice = $(this).data('fake');
-
-                if (state === 'fake') {
-                    $(this).text(realPrice).data('state', 'real');
-                } else {
-                    $(this).text(fakePrice).data('state', 'fake');
-                }
-            });
-
-
-
-
             // Edit (open modal)
             $(document).on('click', '.editBtn', function() {
                 let id = $(this).data('id');
@@ -239,7 +226,9 @@
                 $('#editCode').val(code);
                 $('#editImage').val(image);
                 $('#editDescription').val(description);
-                $('#editPurchasePrice').val(purchase_price);
+                if (canViewPurchasePrices) {
+                    $('#editPurchasePrice').val(purchase_price);
+                }
                 $('#editSalePrice').val(sale_price);
                 $('#editStock').val(stock);
 

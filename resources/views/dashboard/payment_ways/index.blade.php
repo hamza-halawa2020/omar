@@ -56,6 +56,7 @@
     <script>
         $(document).ready(function () {
             const canReorderPaymentWays = @can('payment_ways_reorder') true @else false @endcan;
+            const canViewPurchasePrices = @can('purchase_prices_view') true @else false @endcan;
 
             // Add loading animation
             function showLoading() {
@@ -128,10 +129,17 @@
                 function formatProduct(product) {
                     if (!product.id) return product.text;
                     const $el = $(product.element);
+                    const metaParts = [];
+                    if (canViewPurchasePrices) {
+                        metaParts.push(`{{ __('messages.purchase_price') }}: ${parseFloat($el.data('purchase-price') || 0).toFixed(2)}`);
+                    }
+                    metaParts.push(`{{ __('messages.sale_price') }}: ${parseFloat($el.data('sale-price') || 0).toFixed(2)}`);
+                    metaParts.push(`{{ __('messages.stock') }}: ${$el.data('stock') || 0}`);
+
                     return $(
                         `<div class="transaction-product-option">
                             <div class="transaction-product-option__name" style="font-weight:500">${product.text}</div>
-                            <small class="transaction-product-option__meta">{{ __('messages.purchase_price') }}: ${parseFloat($el.data('purchase-price') || 0).toFixed(2)} | {{ __('messages.sale_price') }}: ${parseFloat($el.data('sale-price') || 0).toFixed(2)} | {{ __('messages.stock') }}: ${$el.data('stock') || 0}</small>
+                            <small class="transaction-product-option__meta">${metaParts.join(' | ')}</small>
                         </div>`
                     );
                 }
@@ -309,8 +317,9 @@
                         res.data.forEach(function (product) {
                             let productCode = product.code ? ` [${product.code}]` : '';
                             productBatchesById[product.id] = product.purchase_batches || [];
+                            const purchasePriceData = canViewPurchasePrices ? ` data-purchase-price="${product.purchase_price || 0}"` : '';
                             productOptions +=
-                                `<option value="${product.id}" data-purchase-price="${product.purchase_price || 0}" data-sale-price="${product.sale_price || 0}" data-stock="${product.stock || 0}">${product.name}${productCode}</option>`;
+                                `<option value="${product.id}"${purchasePriceData} data-sale-price="${product.sale_price || 0}" data-stock="${product.stock || 0}">${product.name}${productCode}</option>`;
                         });
                         productOptionsHtml = productOptions;
                         $('.product-select').each(function () {
@@ -327,6 +336,11 @@
             function getSelectedProductPrice($row) {
                 const $selectedProduct = $row.find('.product-select').find(':selected');
                 const type = $('#receiveForm input[name="type"]').val();
+
+                if (type === 'send' && !canViewPurchasePrices) {
+                    return 0;
+                }
+
                 const priceKey = type === 'send' ? 'purchase-price' : 'sale-price';
 
                 return parseFloat($selectedProduct.data(priceKey) || 0);
@@ -349,7 +363,10 @@
 
                 let options = '<option value="">{{ __('messages.fifo') }}</option>';
                 (productBatchesById[productId] || []).forEach(function (batch) {
-                    options += `<option value="${batch.id}">{{ __('messages.purchase_price') }}: ${parseFloat(batch.unit_cost || 0).toFixed(2)} - {{ __('messages.remaining') }}: ${batch.remaining_quantity}</option>`;
+                    const batchLabel = canViewPurchasePrices
+                        ? `{{ __('messages.purchase_price') }}: ${parseFloat(batch.unit_cost || 0).toFixed(2)} - {{ __('messages.remaining') }}: ${batch.remaining_quantity}`
+                        : `#${batch.id} - {{ __('messages.remaining') }}: ${batch.remaining_quantity}`;
+                    options += `<option value="${batch.id}">${batchLabel}</option>`;
                 });
 
                 $batchSelect.html(options).val('').prop('disabled', false);

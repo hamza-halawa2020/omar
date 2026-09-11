@@ -21,6 +21,7 @@ class InstallmentContractResource extends JsonResource
 
         return [
             'id' => $this->id,
+            'product_price' => $this->product_price,
             'total_amount' => $this->total_amount,
             'installment_count' => $this->installment_count,
             'installment_amount' => ceil($this->installment_amount),

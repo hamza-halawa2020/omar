@@ -4,6 +4,7 @@
     @php
         $money = fn ($value) => number_format((float) $value, 2);
         $number = fn ($value) => number_format((float) $value, 0);
+        $canViewPurchasePrices = auth()->user()?->can('purchase_prices_view') ?? false;
     @endphp
 
     <div class="container-fluid py-3">
@@ -21,14 +22,16 @@
                     </div>
                 </div>
             </div>
-            <div class="col-12 col-md-6 col-xl-3">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <div class="text-muted mb-1">{{ __('messages.total_amount_cost') }}</div>
-                        <div class="h4 mb-0">{{ $money($totalCost) }}</div>
+            @if ($canViewPurchasePrices)
+                <div class="col-12 col-md-6 col-xl-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="text-muted mb-1">{{ __('messages.total_amount_cost') }}</div>
+                            <div class="h4 mb-0">{{ $money($totalCost) }}</div>
+                        </div>
                     </div>
                 </div>
-            </div>
+            @endif
             <div class="col-12 col-md-6 col-xl-3">
                 <div class="card h-100">
                     <div class="card-body">
@@ -37,16 +40,18 @@
                     </div>
                 </div>
             </div>
-            <div class="col-12 col-md-6 col-xl-3">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <div class="text-muted mb-1">{{ __('messages.net_profit_loss') }}</div>
-                        <div class="h4 mb-0 {{ $summary['sales_profit'] >= 0 ? 'text-success' : 'text-danger' }}">
-                            {{ $money($summary['sales_profit']) }}
+            @if ($canViewPurchasePrices)
+                <div class="col-12 col-md-6 col-xl-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="text-muted mb-1">{{ __('messages.net_profit_loss') }}</div>
+                            <div class="h4 mb-0 {{ $summary['sales_profit'] >= 0 ? 'text-success' : 'text-danger' }}">
+                                {{ $money($summary['sales_profit']) }}
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            @endif
         </div>
 
         <div class="card mb-3">
@@ -61,10 +66,12 @@
                         <span class="text-muted">{{ __('messages.code') }}</span>
                         <div class="fw-semibold">{{ $product->code ?? '-' }}</div>
                     </div>
-                    <div class="col-12 col-md-6 col-xl-3">
-                        <span class="text-muted">{{ __('messages.purchase_price') }}</span>
-                        <div class="fw-semibold">{{ $money($product->purchase_price) }}</div>
-                    </div>
+                    @if ($canViewPurchasePrices)
+                        <div class="col-12 col-md-6 col-xl-3">
+                            <span class="text-muted">{{ __('messages.purchase_price') }}</span>
+                            <div class="fw-semibold">{{ $money($product->purchase_price) }}</div>
+                        </div>
+                    @endif
                     <div class="col-12 col-md-6 col-xl-3">
                         <span class="text-muted">{{ __('messages.sale_price') }}</span>
                         <div class="fw-semibold">{{ $money($product->sale_price) }}</div>
@@ -77,6 +84,7 @@
             </div>
         </div>
 
+        @if ($canViewPurchasePrices)
         <div class="card mb-3">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -116,7 +124,9 @@
                 @endif
             </div>
         </div>
+        @endif
 
+        @if ($canViewPurchasePrices)
         <div class="card mb-3">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -170,6 +180,7 @@
                 @endif
             </div>
         </div>
+        @endif
 
         <div class="card mb-3">
             <div class="card-body">
@@ -187,8 +198,10 @@
                                 <tr>
                                     <th>#</th>
                                     <th>{{ __('messages.quantity') }}</th>
-                                    <th>{{ __('messages.purchase_price') }}</th>
-                                    <th>{{ __('messages.amount') }}</th>
+                                    @if ($canViewPurchasePrices)
+                                        <th>{{ __('messages.purchase_price') }}</th>
+                                        <th>{{ __('messages.amount') }}</th>
+                                    @endif
                                     <th>{{ __('messages.payment_way') }}</th>
                                     <th>{{ __('messages.notes') }}</th>
                                     <th>{{ __('messages.created_at') }}</th>
@@ -199,8 +212,10 @@
                                     <tr>
                                         <td data-label="#">{{ $transaction->id }}</td>
                                         <td data-label="{{ __('messages.quantity') }}">{{ $number($transaction->quantity) }}</td>
-                                        <td class="mobile-primary" data-label="{{ __('messages.purchase_price') }}">{{ $money(optional($transaction->product_line)->unit_price) }}</td>
-                                        <td data-label="{{ __('messages.amount') }}">{{ $money(optional($transaction->product_line)->total ?? $transaction->amount) }}</td>
+                                        @if ($canViewPurchasePrices)
+                                            <td class="mobile-primary" data-label="{{ __('messages.purchase_price') }}">{{ $money(optional($transaction->product_line)->unit_price) }}</td>
+                                            <td data-label="{{ __('messages.amount') }}">{{ $money(optional($transaction->product_line)->total ?? $transaction->amount) }}</td>
+                                        @endif
                                         <td data-label="{{ __('messages.payment_way') }}">{{ optional($transaction->paymentWay)->name ?? '-' }}</td>
                                         <td class="mobile-muted" data-label="{{ __('messages.notes') }}">{{ $transaction->notes ?? '-' }}</td>
                                         <td class="mobile-muted" data-label="{{ __('messages.created_at') }}">{{ $transaction->created_at->format('Y-m-d H:i') }}</td>

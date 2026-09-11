@@ -1,14 +1,20 @@
 @extends('dashboard.layouts.app')
 
 @section('content')
+    @php
+        $canViewPurchasePrices = auth()->user()?->can('purchase_prices_view') ?? false;
+    @endphp
+
     @include('components.alert')
 
     <div class="container">
         <div class="d-flex justify-content-between mb-3 mobile-stack-header">
             <div class="fw-bold fs-5">{{ __('messages.iphones') }}</div>
             @can('iphones_store')
-                <button class="btn btn-outline-primary btn-sm radius-8" data-bs-toggle="modal"
-                    data-bs-target="#createModal">{{ __('messages.add_iphone') }}</button>
+                @can('purchase_prices_view')
+                    <button class="btn btn-outline-primary btn-sm radius-8" data-bs-toggle="modal"
+                        data-bs-target="#createModal">{{ __('messages.add_iphone') }}</button>
+                @endcan
             @endcan
         </div>
 
@@ -30,15 +36,21 @@
                         <th class="text-center">{{ __('messages.id') }}</th>
                         <th class="text-center">{{ __('messages.device_type') }}</th>
                         <th class="text-center">{{ __('messages.device_details') }}</th>
-                        <th class="text-center">{{ __('messages.purchase_price_sar') }}</th>
+                        @if ($canViewPurchasePrices)
+                            <th class="text-center">{{ __('messages.purchase_price_sar') }}</th>
+                        @endif
                         <th class="text-center">{{ __('messages.currency') }}</th>
-                        <th class="text-center">{{ __('messages.purchase_price_egp') }}</th>
-                        <th class="text-center">{{ __('messages.extra_expenses') }}</th>
-                        <th class="text-center">{{ __('messages.total_purchase_with_expenses') }}</th>
+                        @if ($canViewPurchasePrices)
+                            <th class="text-center">{{ __('messages.purchase_price_egp') }}</th>
+                            <th class="text-center">{{ __('messages.extra_expenses') }}</th>
+                            <th class="text-center">{{ __('messages.total_purchase_with_expenses') }}</th>
+                        @endif
                         <th class="text-center">{{ __('messages.sale_price_egp') }}</th>
                         <th class="text-center">{{ __('messages.status') }}</th>
-                        <th class="text-center">{{ __('messages.total_cost') }}</th>
-                        <th class="text-center">{{ __('messages.net_profit_after_sale') }}</th>
+                        @if ($canViewPurchasePrices)
+                            <th class="text-center">{{ __('messages.total_cost') }}</th>
+                            <th class="text-center">{{ __('messages.net_profit_after_sale') }}</th>
+                        @endif
                         <th class="text-center">{{ __('messages.created_by') }}</th>
                         @canany(['iphones_destroy','iphones_update','iphones_logs'])
                             <th class="text-center">{{ __('messages.actions') }}</th>
@@ -60,6 +72,8 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
+            const canViewPurchasePrices = @can('purchase_prices_view') true @else false @endcan;
+
             loadIphones();
 
             $('#searchInput').on('keyup', function() {
@@ -133,15 +147,19 @@
                                 <td data-label="{{ __('messages.id') }}">${i + 1}</td>
                                 <td class="mobile-primary" data-label="{{ __('messages.device_type') }}">${escapeHtml(iphone.device_type)}</td>
                                 <td class="mobile-muted" data-label="{{ __('messages.device_details') }}">${escapeHtml(iphone.device_details)}</td>
-                                <td class="mobile-muted mobile-hide" data-label="{{ __('messages.purchase_price_sar') }}">${escapeHtml(iphone.purchase_price_sar)}</td>
+                                ${canViewPurchasePrices ? `<td class="mobile-muted mobile-hide" data-label="{{ __('messages.purchase_price_sar') }}">${escapeHtml(iphone.purchase_price_sar)}</td>` : ''}
                                 <td class="mobile-muted mobile-hide" data-label="{{ __('messages.currency') }}">${escapeHtml(iphone.currency)}</td>
-                                <td data-label="{{ __('messages.purchase_price_egp') }}">${escapeHtml(iphone.purchase_price_egp)}</td>
-                                <td data-label="{{ __('messages.extra_expenses') }}">${escapeHtml(iphone.extra_expenses)}</td>
-                                <td data-label="{{ __('messages.total_purchase_with_expenses') }}">${escapeHtml(iphone.total_purchase_with_expenses)}</td>
+                                ${canViewPurchasePrices ? `
+                                    <td data-label="{{ __('messages.purchase_price_egp') }}">${escapeHtml(iphone.purchase_price_egp)}</td>
+                                    <td data-label="{{ __('messages.extra_expenses') }}">${escapeHtml(iphone.extra_expenses)}</td>
+                                    <td data-label="{{ __('messages.total_purchase_with_expenses') }}">${escapeHtml(iphone.total_purchase_with_expenses)}</td>
+                                ` : ''}
                                 <td data-label="{{ __('messages.sale_price_egp') }}">${escapeHtml(iphone.sale_price_egp)}</td>
                                 <td data-label="{{ __('messages.status') }}">${escapeHtml(statusLabel(iphone.status))}</td>
-                                <td data-label="{{ __('messages.total_cost') }}">${escapeHtml(iphone.financial_summary?.total_cost)}</td>
-                                <td data-label="{{ __('messages.net_profit_after_sale') }}">${escapeHtml(iphone.financial_summary?.net_profit)}</td>
+                                ${canViewPurchasePrices ? `
+                                    <td data-label="{{ __('messages.total_cost') }}">${escapeHtml(iphone.financial_summary?.total_cost)}</td>
+                                    <td data-label="{{ __('messages.net_profit_after_sale') }}">${escapeHtml(iphone.financial_summary?.net_profit)}</td>
+                                ` : ''}
                                 <td class="mobile-muted mobile-hide" data-label="{{ __('messages.created_by') }}">${iphone.creator ? escapeHtml(iphone.creator.name) : ''}</td>
                                 @canany(['iphones_destroy','iphones_update','iphones_logs'])
                                     <td class="mobile-actions" data-label="{{ __('messages.actions') }}">
@@ -160,10 +178,10 @@
                                                 data-id="${iphone.id}"
                                                 data-device_type="${escapeAttr(iphone.device_type)}"
                                                 data-device_details="${escapeAttr(iphone.device_details)}"
-                                                data-purchase_price_sar="${escapeAttr(iphone.purchase_price_sar)}"
+                                                ${canViewPurchasePrices ? `data-purchase_price_sar="${escapeAttr(iphone.purchase_price_sar)}"` : ''}
                                                 data-currency="${escapeAttr(iphone.currency)}"
-                                                data-purchase_price_egp="${escapeAttr(iphone.purchase_price_egp)}"
-                                                data-extra_expenses="${escapeAttr(iphone.extra_expenses)}"
+                                                ${canViewPurchasePrices ? `data-purchase_price_egp="${escapeAttr(iphone.purchase_price_egp)}"` : ''}
+                                                ${canViewPurchasePrices ? `data-extra_expenses="${escapeAttr(iphone.extra_expenses)}"` : ''}
                                                 data-sale_price_egp="${escapeAttr(iphone.sale_price_egp)}">{{ __('messages.edit') }}</button>
                                         @endcan
                                         @can('iphones_destroy')
@@ -204,12 +222,18 @@
                 $('#editId').val($(this).data('id'));
                 $('#editDeviceType').val($(this).data('device_type'));
                 $('#editDeviceDetails').val($(this).data('device_details'));
-                $('#editPurchasePriceSar').val($(this).data('purchase_price_sar'));
+                if (canViewPurchasePrices) {
+                    $('#editPurchasePriceSar').val($(this).data('purchase_price_sar'));
+                }
                 $('#editCurrency').val($(this).data('currency'));
-                $('#editPurchasePriceEgp').val($(this).data('purchase_price_egp'));
-                $('#editExtraExpenses').val($(this).data('extra_expenses'));
+                if (canViewPurchasePrices) {
+                    $('#editPurchasePriceEgp').val($(this).data('purchase_price_egp'));
+                    $('#editExtraExpenses').val($(this).data('extra_expenses'));
+                }
                 $('#editSalePriceEgp').val($(this).data('sale_price_egp'));
-                calculateModalTotals('edit');
+                if (canViewPurchasePrices) {
+                    calculateModalTotals('edit');
+                }
                 $('#editModal').modal('show');
             });
 

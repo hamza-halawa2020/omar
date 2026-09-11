@@ -9,6 +9,12 @@ class TransactionResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $products = $this->whenLoaded('products', function () {
+            $this->products->each(fn ($product) => $product->setRelation('transaction', $this->resource));
+
+            return TransactionProductResource::collection($this->products);
+        });
+
         return [
             'id' => $this->id,
             'type' => $this->type,
@@ -27,7 +33,7 @@ class TransactionResource extends JsonResource
             'paymentWay' => new PaymentWayResource($this->whenLoaded('paymentWay')),
             'creator' => new UserResource($this->creator),
             'logs' => TransactionLogResource::collection($this->whenLoaded('logs')),
-            'products' => TransactionProductResource::collection($this->whenLoaded('products')),
+            'products' => $products,
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
             'is_edited' => $this->updated_at && $this->created_at && $this->updated_at->ne($this->created_at),

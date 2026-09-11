@@ -75,7 +75,6 @@
                             let clientName = contract.client?.name ?? '';
                             let clientPhone = contract.client?.phone_number ?? '';
                             let productName = contract.product?.name ?? '';
-                            let purchasePrice = contract.product?.purchase_price ?? '';
 
                             rows += `
                     <tr>
@@ -101,7 +100,7 @@
                                         data-id="${contract.id}"
                                         data-client_id="${contract.client?.id ?? ''}"
                                         data-product_id="${contract.product?.id ?? ''}"
-                                        data-product_price="${contract.product?.purchase_price ?? ''}"
+                                        data-product_price="${escapeHtml(contract.product_price ?? contract.product?.sale_price ?? '')}"
                                         data-down_payment="${escapeHtml(contract.down_payment)}"
                                         data-interest_rate="${escapeHtml(contract.interest_rate ?? '')}" 
                                         data-installment_count="${escapeHtml(contract.installment_count)}"

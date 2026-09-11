@@ -309,6 +309,7 @@ return [
     'edit_role' => 'Edit Role',
     'dashboard_index' => 'View Dashboard',
     'dashboard_analytics' => 'View Dashboard Analytics',
+    'purchase_prices_view' => 'View Purchase Prices',
     'categories_index' => 'View Categories',
     'categories_store' => 'Add Category',
     'categories_update' => 'Edit Category',

@@ -63,7 +63,13 @@ class ProductController extends BaseController
 
     public function update(UpdateProductRequest $request, $id)
     {
-        $product = $this->productService->update((int) $id, $request->validated(), $request);
+        $data = $request->validated();
+
+        if (! $request->user()?->can('purchase_prices_view')) {
+            unset($data['purchase_price']);
+        }
+
+        $product = $this->productService->update((int) $id, $data, $request);
 
         return response()->json(['status' => true, 'message' => __('messages.Product_updated_successfully'), 'data' => new ProductResource($product)]);
     }

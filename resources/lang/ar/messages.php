@@ -308,6 +308,7 @@ return [
     'edit_role' => 'تعديل دور',
     'dashboard_index' => 'عرض لوحة التحكم',
     'dashboard_analytics' => 'عرض تحليلات لوحة التحكم',
+    'purchase_prices_view' => 'عرض أسعار الشراء',
     'categories_index' => 'عرض الاقسام',
     'categories_store' => 'اضافة قسم',
     'categories_update' => 'تعديل قسم',

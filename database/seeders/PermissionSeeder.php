@@ -27,6 +27,7 @@ class PermissionSeeder extends Seeder
         $permissions = [
             'dashboard_index',
             'dashboard_analytics',
+            'purchase_prices_view',
 
             'categories_index',
             'categories_store',
