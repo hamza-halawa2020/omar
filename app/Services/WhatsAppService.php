@@ -18,10 +18,10 @@ class WhatsAppService
 
     public function sendMessage(string $phone, string $message): ?array
     {
-        $token = auth()->user()->whatsapp_api_token;
+        $token = auth()->user()?->whatsapp_api_token;
 
         if (!$token) {
-            throw new Exception("WhatsApp API token is not configured for this user.");
+            return null;
         }
 
         try {
