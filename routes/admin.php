@@ -46,6 +46,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/tenants/{tenant}/users', [AdminUserController::class, 'index'])->name('tenants.users.index');
         Route::get('/tenants/{tenant}/users/create', [AdminUserController::class, 'create'])->name('tenants.users.create');
         Route::post('/tenants/{tenant}/users', [AdminUserController::class, 'store'])->name('tenants.users.store');
+        Route::get('/tenants/{tenant}/users/{user}/edit', [AdminUserController::class, 'edit'])->name('tenants.users.edit');
+        Route::put('/tenants/{tenant}/users/{user}', [AdminUserController::class, 'update'])->name('tenants.users.update');
         Route::patch('/tenants/{tenant}/users/{user}/status', [AdminUserController::class, 'updateStatus'])->name('tenants.users.status');
         Route::delete('/tenants/{tenant}/users/{user}', [AdminUserController::class, 'destroy'])->name('tenants.users.destroy');
 

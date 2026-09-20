@@ -50,6 +50,12 @@
                         <td>{{ $user->created_at->format('Y-m-d') }}</td>
                         <td>
                             <div class="d-flex gap-2">
+                                <a href="{{ route('admin.tenants.users.edit', [$tenant, $user]) }}"
+                                   class="btn btn-outline-primary btn-sm admin-icon-btn"
+                                   title="{{ __('messages.edit_user') }}">
+                                    <iconify-icon icon="solar:pen-new-square-outline"></iconify-icon>
+                                </a>
+
                                 <form action="{{ route('admin.tenants.users.status', [$tenant, $user]) }}" method="POST">
                                     @csrf
                                     @method('PATCH')

@@ -5,16 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Spatie\Permission\Models\Role;
+use Illuminate\Validation\Rule;
 
 class AdminUserController extends Controller
 {
-    /**
-     * List users for a specific tenant — Requirements: 5.1
-     */
     public function index(Tenant $tenant)
     {
         $users = User::on('central')
@@ -24,14 +21,11 @@ class AdminUserController extends Controller
         return view('admin.users.index', compact('tenant', 'users'));
     }
 
-    /**
-     * Show create user form
-     */
     public function create(Tenant $tenant)
     {
         try {
             tenancy()->initialize($tenant);
-            $roles = Role::all();
+            $roles = $this->tenantRoles();
         } finally {
             tenancy()->end();
         }
@@ -39,33 +33,28 @@ class AdminUserController extends Controller
         return view('admin.users.create', compact('tenant', 'roles'));
     }
 
-    /**
-     * Store a new user and assign role in tenant DB — Requirements: 5.2, 5.4
-     */
     public function store(Request $request, Tenant $tenant)
     {
         $request->validate([
-            'name'     => ['required', 'string', 'max:255'],
-            'email'    => ['required', 'email', 'unique:central.users,email'],
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'unique:central.users,email'],
             'password' => ['required', 'string', 'min:8'],
-            'role'     => ['nullable', 'string'],
+            'role' => ['nullable', 'string'],
             'is_active' => ['nullable', 'boolean'],
         ]);
 
-        // Create user in central DB with correct tenant_id
         $user = User::on('central')->create([
-            'name'      => $request->name,
-            'email'     => $request->email,
-            'password'  => Hash::make($request->password),
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
             'tenant_id' => $tenant->id,
             'is_active' => $request->boolean('is_active', true),
         ]);
 
-        // Assign role in tenant DB
         if ($request->filled('role')) {
             try {
                 tenancy()->initialize($tenant);
-                $user->assignRole($request->role);
+                $this->syncTenantUserRole($user, $request->role);
             } finally {
                 tenancy()->end();
             }
@@ -76,21 +65,74 @@ class AdminUserController extends Controller
             ->with('success', __('messages.admin.user_created'));
     }
 
-    /**
-     * Delete a user from central DB — Requirements: 5.3
-     */
+    public function edit(Tenant $tenant, User $user)
+    {
+        abort_unless($user->tenant_id === $tenant->id, 404);
+
+        try {
+            tenancy()->initialize($tenant);
+            $roles = $this->tenantRoles();
+            $currentRole = $this->currentTenantRoleName($user);
+        } finally {
+            tenancy()->end();
+        }
+
+        return view('admin.users.edit', compact('tenant', 'user', 'roles', 'currentRole'));
+    }
+
+    public function update(Request $request, Tenant $tenant, User $user)
+    {
+        abort_unless($user->tenant_id === $tenant->id, 404);
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', Rule::unique('central.users', 'email')->ignore($user->id)],
+            'password' => ['nullable', 'string', 'min:8'],
+            'role' => ['nullable', 'string'],
+            'is_active' => ['nullable', 'boolean'],
+        ]);
+
+        $user->forceFill([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'is_active' => $request->boolean('is_active'),
+        ]);
+
+        if ($request->filled('password')) {
+            $user->password = Hash::make($validated['password']);
+        }
+
+        $user->save();
+
+        try {
+            tenancy()->initialize($tenant);
+            $this->syncTenantUserRole($user, $request->input('role'));
+        } finally {
+            tenancy()->end();
+        }
+
+        if (! $user->is_active) {
+            DB::connection('central')->table('sessions')->where('user_id', $user->id)->delete();
+        }
+
+        return redirect()
+            ->route('admin.tenants.users.index', $tenant)
+            ->with('success', __('messages.user_updated_successfully'));
+    }
+
     public function destroy(Tenant $tenant, User $user)
     {
         abort_unless($user->tenant_id === $tenant->id, 404);
 
         try {
             tenancy()->initialize($tenant);
-            $user->syncRoles([]);
+            $this->deleteTenantUserRoles($user);
         } finally {
             tenancy()->end();
         }
 
-        $user->delete();
+        DB::connection('central')->table('sessions')->where('user_id', $user->id)->delete();
+        $user->deleteQuietly();
 
         return back()->with('success', __('messages.admin.user_deleted'));
     }
@@ -110,5 +152,93 @@ class AdminUserController extends Controller
         }
 
         return back()->with('success', __('messages.admin.user_status_updated'));
+    }
+
+    private function tenantPermissionTablesExist(): bool
+    {
+        $tableNames = config('permission.table_names');
+        $schema = DB::connection('tenant')->getSchemaBuilder();
+
+        return $schema->hasTable($tableNames['roles'])
+            && $schema->hasTable($tableNames['model_has_roles']);
+    }
+
+    private function tenantRoles()
+    {
+        if (! $this->tenantPermissionTablesExist()) {
+            return collect();
+        }
+
+        return DB::connection('tenant')
+            ->table(config('permission.table_names.roles'))
+            ->select(['id', 'name'])
+            ->orderBy('name')
+            ->get();
+    }
+
+    private function currentTenantRoleName(User $user): ?string
+    {
+        if (! $this->tenantPermissionTablesExist()) {
+            return null;
+        }
+
+        $tableNames = config('permission.table_names');
+        $modelKey = config('permission.column_names.model_morph_key');
+        $roleKey = config('permission.column_names.role_pivot_key') ?: 'role_id';
+
+        return DB::connection('tenant')
+            ->table($tableNames['model_has_roles'])
+            ->join($tableNames['roles'], "{$tableNames['roles']}.id", '=', "{$tableNames['model_has_roles']}.{$roleKey}")
+            ->where("{$tableNames['model_has_roles']}.{$modelKey}", $user->id)
+            ->where("{$tableNames['model_has_roles']}.model_type", User::class)
+            ->value("{$tableNames['roles']}.name");
+    }
+
+    private function syncTenantUserRole(User $user, ?string $roleName): void
+    {
+        if (! $this->tenantPermissionTablesExist()) {
+            return;
+        }
+
+        $this->deleteTenantUserRoles($user);
+
+        if (! $roleName) {
+            return;
+        }
+
+        $tableNames = config('permission.table_names');
+        $modelKey = config('permission.column_names.model_morph_key');
+        $roleKey = config('permission.column_names.role_pivot_key') ?: 'role_id';
+        $roleId = DB::connection('tenant')
+            ->table($tableNames['roles'])
+            ->where('name', $roleName)
+            ->where('guard_name', 'web')
+            ->value('id');
+
+        if (! $roleId) {
+            return;
+        }
+
+        DB::connection('tenant')->table($tableNames['model_has_roles'])->insertOrIgnore([
+            $roleKey => $roleId,
+            'model_type' => User::class,
+            $modelKey => $user->id,
+        ]);
+    }
+
+    private function deleteTenantUserRoles(User $user): void
+    {
+        if (! $this->tenantPermissionTablesExist()) {
+            return;
+        }
+
+        $tableNames = config('permission.table_names');
+        $modelKey = config('permission.column_names.model_morph_key');
+
+        DB::connection('tenant')
+            ->table($tableNames['model_has_roles'])
+            ->where($modelKey, $user->id)
+            ->where('model_type', User::class)
+            ->delete();
     }
 }
