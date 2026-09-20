@@ -655,7 +655,12 @@
 
             $('#receiveForm').submit(function (e) {
                 e.preventDefault();
-                let formData = new FormData(this);
+                let $form = $(this);
+
+                if ($form.data('submitting')) {
+                    return;
+                }
+
                 if (paymentSplitModeEnabled) {
                     let expectedTotal = transactionTotalWithCommission();
                     let paymentsTotal = 0;
@@ -669,6 +674,15 @@
                         return;
                     }
                 }
+
+                let $submitButton = $form.find('button[type="submit"]');
+                let originalSubmitText = $submitButton.html();
+                $form.data('submitting', true);
+                $submitButton
+                    .prop('disabled', true)
+                    .html('<i class="fas fa-spinner fa-spin me-1"></i>{{ __('messages.saving') }}');
+
+                let formData = new FormData(this);
 
                 $.ajax({
                     url: "{{ route('transactions.store') }}",
@@ -692,6 +706,10 @@
                     },
                     error: function (err) {
                         showToast(`{{ __('messages.something_went_wrong') }}: ${err.responseJSON?.message || err.responseText}`, 'error');
+                    },
+                    complete: function () {
+                        $form.data('submitting', false);
+                        $submitButton.prop('disabled', false).html(originalSubmitText);
                     }
                 });
             });
