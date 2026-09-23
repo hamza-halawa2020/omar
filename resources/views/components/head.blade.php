@@ -39,4 +39,5 @@
 
     <link rel="stylesheet" href="{{ asset('assets/css/lib/flatpickr.min.css') }}">
 
+    @stack('styles')
 </head>

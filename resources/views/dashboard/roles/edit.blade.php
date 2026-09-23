@@ -2,7 +2,17 @@
 
 @section('content')
     <div class="container">
-        <div>{{ __('messages.edit_role') }}</div>
+        <div class="role-form-shell">
+        <div class="d-flex justify-content-between align-items-center gap-2 mb-3 mobile-stack-header">
+            <div>
+                <h5 class="mb-1">{{ __('messages.edit_role') }}</h5>
+                <div class="text-muted small">{{ $role->name }}</div>
+            </div>
+            <a href="{{ route('roles.index') }}" class="btn btn-outline-secondary btn-sm radius-8">
+                {{ __('messages.back') }}
+            </a>
+        </div>
+
         <form action="{{ route('roles.update', $role->id) }}" method="POST">
             @csrf
             @method('PUT')
@@ -17,42 +27,40 @@
 
             <div class="mb-3">
                 <label class="d-block mb-2">{{ __('messages.permissions') }}</label>
-                <select name="permissions[]" class="form-control js-permissions-select" multiple>
-                    @foreach ($rolePermissions as $permissionName)
-                        <option value="{{ $permissionName }}" selected>{{ __('messages.' . $permissionName) }}</option>
+                <input type="text" class="form-control mb-3 js-permissions-filter"
+                    placeholder="{{ __('messages.search_placeholder') }}">
+                <div class="row mobile-permissions-grid js-permissions-list">
+                    @foreach ($permissions as $permission)
+                        <div class="d-flex col-md-3 col-sm-6 mb-2 js-permission-item"
+                            data-permission="{{ __('messages.' . $permission->name) }} {{ $permission->name }}">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="permissions[]"
+                                    value="{{ $permission->name }}" id="perm_{{ $permission->id }}"
+                                    {{ in_array($permission->name, $rolePermissions) ? 'checked' : '' }}>
+                                <label class="form-check-label ms-1" for="perm_{{ $permission->id }}">
+                                    {{ __('messages.' . $permission->name) }}
+                                </label>
+                            </div>
+                        </div>
                     @endforeach
-                </select>
+                </div>
             </div>
 
             <button class="btn btn-outline-success btn-sm radius-8">{{ __('messages.update') }}</button>
         </form>
+        </div>
     </div>
 @endsection
 
 @push('scripts')
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            $('.js-permissions-select').select2({
-                width: '100%',
-                placeholder: '{{ __('messages.permissions') }}',
-                allowClear: true,
-                ajax: {
-                    url: '{{ route('roles.permissions.list') }}',
-                    dataType: 'json',
-                    delay: 250,
-                    data: function(params) {
-                        return {
-                            search: params.term || '',
-                            limit: 100
-                        };
-                    },
-                    processResults: function(response) {
-                        return {
-                            results: response.data || []
-                        };
-                    },
-                    cache: true
-                }
+            $('.js-permissions-filter').on('input', function() {
+                const search = this.value.toLowerCase();
+
+                $('.js-permission-item').each(function() {
+                    $(this).toggle($(this).data('permission').toLowerCase().includes(search));
+                });
             });
         });
     </script>

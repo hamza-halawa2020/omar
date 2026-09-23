@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -16,7 +17,7 @@ class RoleService
 
     public function createData(): array
     {
-        return [];
+        return ['permissions' => $this->permissionsForForm()];
     }
 
     public function store(array $data): void
@@ -35,8 +36,17 @@ class RoleService
 
         return [
             'role' => $role,
+            'permissions' => $this->permissionsForForm(),
             'rolePermissions' => $role->permissions()->pluck('name')->toArray(),
         ];
+    }
+
+    private function permissionsForForm(): Collection
+    {
+        return DB::table(config('permission.table_names.permissions'))
+            ->select('id', 'name')
+            ->orderBy('name')
+            ->get();
     }
 
     public function permissionOptions(Request $request): array
