@@ -27,6 +27,14 @@
                 <label class="d-block mb-2">{{ __('messages.permissions') }}</label>
                 <input type="text" class="form-control mb-3 js-permissions-filter"
                     placeholder="{{ __('messages.search_placeholder') }}">
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <button type="button" class="btn btn-outline-primary btn-sm radius-8 js-check-all-permissions">
+                        {{ __('messages.select_all') }}
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm radius-8 js-uncheck-all-permissions">
+                        {{ __('messages.cancel') }}
+                    </button>
+                </div>
                 <div class="row mobile-permissions-grid js-permissions-list">
                     @foreach ($permissions as $permission)
                         <div class="d-flex col-md-3 col-sm-6 mb-2 js-permission-item"
@@ -58,6 +66,14 @@
                 $('.js-permission-item').each(function() {
                     $(this).toggle($(this).data('permission').toLowerCase().includes(search));
                 });
+            });
+
+            $('.js-check-all-permissions').on('click', function() {
+                $('.js-permissions-list input[type="checkbox"]').prop('checked', true);
+            });
+
+            $('.js-uncheck-all-permissions').on('click', function() {
+                $('.js-permissions-list input[type="checkbox"]').prop('checked', false);
             });
         });
     </script>
