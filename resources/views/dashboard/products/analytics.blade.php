@@ -27,7 +27,12 @@
 
         .product-analytics-page {
             max-width: 100%;
-            overflow-x: hidden;
+            width: 100%;
+        }
+
+        .product-analytics-page .row,
+        .product-analytics-page [class*="col-"] {
+            min-width: 0;
         }
 
         .product-analytics-filter .card-body {
@@ -162,6 +167,28 @@
             overflow-wrap: anywhere;
         }
 
+        .product-analytics-page .chart-header,
+        .product-analytics-page .summary-line {
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .product-analytics-page .chart-header {
+            flex-wrap: wrap;
+        }
+
+        .product-analytics-page .chart-header .card-title,
+        .product-analytics-page .summary-line span,
+        .product-analytics-page .summary-line strong {
+            min-width: 0;
+            overflow-wrap: anywhere;
+        }
+
+        .product-analytics-page .chart-header .badge {
+            flex: 0 0 auto;
+            white-space: normal;
+        }
+
         .product-analytics-page .chart-box {
             height: 280px;
             min-width: 0;
@@ -169,6 +196,15 @@
 
         .product-analytics-page .table-responsive {
             max-width: 100%;
+        }
+
+        .product-analytics-page .responsive-records {
+            width: 100%;
+        }
+
+        .product-analytics-page .responsive-records th,
+        .product-analytics-page .responsive-records td {
+            vertical-align: middle;
         }
 
         .product-analytics-page .table-pager {
@@ -237,6 +273,23 @@
 
             .product-analytics-page .card-title {
                 font-size: 15px;
+            }
+
+            .product-analytics-page .summary-line {
+                align-items: flex-start !important;
+                flex-direction: column;
+            }
+
+            .product-analytics-page .responsive-records tbody tr td {
+                min-width: 0;
+            }
+
+            .product-analytics-page .responsive-records tbody tr td::before {
+                min-width: 0;
+            }
+
+            .product-analytics-page .responsive-records tbody tr td > * {
+                min-width: 0;
             }
 
             .product-analytics-page .table-pager {
@@ -336,9 +389,6 @@
                         <div class="h4 mb-0 summary-value">{{ number_format($totals['profit_margin'], 2) }}%</div>
                     </div>
                 </div>
-                <div class="mt-3">
-                    {{ $productRows->appends(request()->query())->links() }}
-                </div>
             </div>
         </div>
 
@@ -346,7 +396,7 @@
             <div class="col-12 col-lg-8">
                 <div class="card h-100">
                     <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-3 chart-header">
                             <div class="card-title mb-0">{{ __('messages.products_profit_loss') }}</div>
                             <span class="badge bg-primary">{{ $formatNumber($totals['sold_quantity']) }} {{ __('messages.quantity') }}</span>
                         </div>
@@ -360,19 +410,19 @@
                 <div class="card h-100">
                     <div class="card-body">
                         <div class="card-title">{{ __('messages.period_summary') }}</div>
-                        <div class="d-flex justify-content-between border-bottom py-2">
+                        <div class="d-flex justify-content-between border-bottom py-2 summary-line">
                             <span>{{ __('messages.products_count') }}</span>
                             <strong>{{ $formatNumber($totals['products_count']) }}</strong>
                         </div>
-                        <div class="d-flex justify-content-between border-bottom py-2">
+                        <div class="d-flex justify-content-between border-bottom py-2 summary-line">
                             <span>{{ __('messages.sales_count') }}</span>
                             <strong>{{ $formatNumber($totals['sales_count']) }}</strong>
                         </div>
-                        <div class="d-flex justify-content-between border-bottom py-2">
+                        <div class="d-flex justify-content-between border-bottom py-2 summary-line">
                             <span>{{ __('messages.total_commission') }}</span>
                             <strong>{{ $formatMoney($totals['sales_commission']) }}</strong>
                         </div>
-                        <div class="d-flex justify-content-between border-bottom py-2">
+                        <div class="d-flex justify-content-between border-bottom py-2 summary-line">
                             <span>{{ __('messages.gross_profit_before_commission') }}</span>
                             <strong class="{{ $totals['gross_profit'] >= 0 ? 'text-success' : 'text-danger' }}">
                                 {{ $formatMoney($totals['gross_profit']) }}
