@@ -148,9 +148,47 @@
 
 @push('scripts')
     <script>
+        function initializePayPaymentWaySelect() {
+            if (!$.fn.select2) {
+                return;
+            }
+
+            $('#payPaymentWay').select2({
+                width: '100%',
+                allowClear: true,
+                placeholder: "{{ __('messages.select_payment_way') }}",
+                dropdownParent: $('#payModal'),
+                dir: $('html').attr('dir') || 'rtl',
+                ajax: {
+                    url: "{{ route('payment_ways.list') }}",
+                    dataType: 'json',
+                    delay: 300,
+                    data: function(params) {
+                        return {
+                            search: params.term || '',
+                            per_page: 60
+                        };
+                    },
+                    processResults: function(res) {
+                        return {
+                            results: (res.data || []).map(function(paymentWay) {
+                                return {
+                                    id: paymentWay.id,
+                                    text: paymentWay.name
+                                };
+                            })
+                        };
+                    }
+                }
+            });
+        }
+
+        initializePayPaymentWaySelect();
+
         $(document).on('click', '.payBtn', function() {
             $('#payInstallmentId').val($(this).data('id'));
             $('#payAmount').val($(this).data('amount'));
+            $('#payPaymentWay').val(null).trigger('change');
             $('#payModal').modal('show');
         });
 

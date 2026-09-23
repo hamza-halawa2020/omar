@@ -358,7 +358,29 @@
                     allowClear: true,
                     placeholder: "{{ __('messages.select_client') }}",
                     dropdownParent: $('#transactionModal'),
-                    dir: $('html').attr('dir') || 'rtl'
+                    dir: $('html').attr('dir') || 'rtl',
+                    ajax: {
+                        url: "{{ route('clients.list') }}",
+                        dataType: 'json',
+                        delay: 300,
+                        data: function (params) {
+                            return {
+                                type: currentTransactionType(),
+                                search: params.term || '',
+                                limit: 100
+                            };
+                        },
+                        processResults: function (res) {
+                            return {
+                                results: (res.data || []).map(function (client) {
+                                    return {
+                                        id: client.id,
+                                        text: `${client.name} ({{ __('messages.debt') }}: ${parseFloat(client.debt || 0).toFixed(2)})`
+                                    };
+                                })
+                            };
+                        }
+                    }
                 });
             }
 
@@ -383,13 +405,16 @@
 
                 function formatProduct(product) {
                     if (!product.id) return product.text;
-                    const $el = $(product.element);
+                    const $el = $(product.element || []);
                     const metaParts = [];
+                    const purchasePrice = product.purchase_price ?? $el.data('purchase-price') ?? 0;
+                    const salePrice = product.sale_price ?? $el.data('sale-price') ?? 0;
+                    const stock = product.stock ?? $el.data('stock') ?? 0;
                     if (canViewPurchasePrices) {
-                        metaParts.push(`{{ __('messages.purchase_price') }}: ${parseFloat($el.data('purchase-price') || 0).toFixed(2)}`);
+                        metaParts.push(`{{ __('messages.purchase_price') }}: ${parseFloat(purchasePrice || 0).toFixed(2)}`);
                     }
-                    metaParts.push(`{{ __('messages.sale_price') }}: ${parseFloat($el.data('sale-price') || 0).toFixed(2)}`);
-                    metaParts.push(`{{ __('messages.stock') }}: ${$el.data('stock') || 0}`);
+                    metaParts.push(`{{ __('messages.sale_price') }}: ${parseFloat(salePrice || 0).toFixed(2)}`);
+                    metaParts.push(`{{ __('messages.stock') }}: ${stock || 0}`);
 
                     return $(
                         `<div class="transaction-product-option">
@@ -417,7 +442,36 @@
                         dropdownParent: $('#transactionModal'),
                         dir: $('html').attr('dir') || 'rtl',
                         templateResult: formatProduct,
-                        templateSelection: formatProductSelection
+                        templateSelection: formatProductSelection,
+                        ajax: {
+                            url: "{{ route('products.list') }}",
+                            dataType: 'json',
+                            delay: 300,
+                            data: function (params) {
+                                return {
+                                    with_batches: 1,
+                                    search: params.term || '',
+                                    per_page: 100
+                                };
+                            },
+                            processResults: function (res) {
+                                return {
+                                    results: (res.data || []).map(function (product) {
+                                        let productCode = product.code ? ` [${product.code}]` : '';
+                                        productBatchesById[product.id] = product.purchase_batches || [];
+
+                                        return {
+                                            id: product.id,
+                                            text: `${product.name}${productCode}`,
+                                            purchase_price: product.purchase_price || 0,
+                                            sale_price: product.sale_price || 0,
+                                            stock: product.stock || 0,
+                                            purchase_batches: product.purchase_batches || []
+                                        };
+                                    })
+                                };
+                            }
+                        }
                     });
                 });
             }
@@ -552,14 +606,26 @@
 
             const clientsCache = {};
 
-            function renderClientOptions(clients) {
+            function reopenSelect2($select) {
+                if (!$select || !$select.length || !$select.hasClass('select2-hidden-accessible')) {
+                    return;
+                }
+
+                setTimeout(function () {
+                    $select.select2('open');
+                }, 0);
+            }
+
+            function renderClientOptions(clients, $activeSelect = null) {
+                const selectedValue = $('#client_id').val();
                 let clientOptions = '<option value="">{{ __('messages.select_client') }}</option>';
                 clients.forEach(function (client) {
                     clientOptions +=
                         `<option value="${client.id}">${client.name} ({{ __('messages.debt') }}: ${parseFloat(client.debt || 0).toFixed(2)})</option>`;
                 });
 
-                $('#client_id').prop('disabled', false).html(clientOptions).val('').trigger('change');
+                $('#client_id').prop('disabled', false).html(clientOptions).val(selectedValue).trigger('change');
+                reopenSelect2($activeSelect);
             }
 
             function setClientLoadingState() {
@@ -571,7 +637,7 @@
             }
 
             // Load clients and products functions (same as index page)
-            function loadClients(type) {
+            function loadClients(type, search = '', $activeSelect = null) {
                 let deferred = $.Deferred();
 
                 if (!type) {
@@ -580,20 +646,24 @@
                     return deferred.promise();
                 }
 
-                if (clientsCache[type]) {
-                    renderClientOptions(clientsCache[type]);
-                    deferred.resolve(clientsCache[type]);
+                const cacheKey = `${type}:${search}`;
+
+                if (clientsCache[cacheKey]) {
+                    renderClientOptions(clientsCache[cacheKey], $activeSelect);
+                    deferred.resolve(clientsCache[cacheKey]);
                     return deferred.promise();
                 }
 
-                setClientLoadingState();
+                if (!search) {
+                    setClientLoadingState();
+                }
 
-                $.get("{{ route('clients.list') }}", { type: type })
+                $.get("{{ route('clients.list') }}", { type: type, search: search, limit: 100 })
                     .done(function (res) {
                         if (res.status) {
-                            clientsCache[type] = res.data || [];
-                            renderClientOptions(clientsCache[type]);
-                            deferred.resolve(clientsCache[type]);
+                            clientsCache[cacheKey] = res.data || [];
+                            renderClientOptions(clientsCache[cacheKey], $activeSelect);
+                            deferred.resolve(clientsCache[cacheKey]);
                         } else {
                             renderClientOptions([]);
                             showToast('{{ __('messages.something_went_wrong') }}', 'error');
@@ -609,39 +679,63 @@
                 return deferred.promise();
             }
 
-            function loadProducts() {
-                $.get("{{ route('products.list') }}", function (res) {
+            function loadProducts(search = '', $activeSelect = null) {
+                return $.get("{{ route('products.list') }}", { with_batches: 1, search: search, per_page: 100 }, function (res) {
                     if (res.status) {
-                        let productOptions = '<option value="">{{ __('messages.select_product') }}</option>';
-                        productBatchesById = {};
+                        let productOptions = search ? productOptionsHtml : '<option value="">{{ __('messages.select_product') }}</option>';
                         res.data.forEach(function (product) {
                             let productCode = product.code ? ` [${product.code}]` : '';
                             productBatchesById[product.id] = product.purchase_batches || [];
                             const purchasePriceData = canViewPurchasePrices ? ` data-purchase-price="${product.purchase_price || 0}"` : '';
-                            productOptions +=
-                                `<option value="${product.id}"${purchasePriceData} data-sale-price="${product.sale_price || 0}" data-stock="${product.stock || 0}">${product.name}${productCode}</option>`;
+                            if (!productOptions.includes(`value="${product.id}"`)) {
+                                productOptions +=
+                                    `<option value="${product.id}"${purchasePriceData} data-sale-price="${product.sale_price || 0}" data-stock="${product.stock || 0}">${product.name}${productCode}</option>`;
+                            }
                         });
                         productOptionsHtml = productOptions;
                         $('.product-select').each(function () {
-                            $(this).html(productOptionsHtml).val('').trigger('change');
+                            const selectedValue = $(this).val();
+                            $(this).html(productOptionsHtml).val(selectedValue).trigger('change');
                         });
                         initializeProductSelect2();
                         syncProductSelections();
+                        reopenSelect2($activeSelect);
                     } else {
                         showToast('{{ __('messages.something_went_wrong') }}', 'error');
                     }
                 });
             }
 
-            function loadPaymentWayOptions() {
+            function appendPaymentWayOptions(paymentWays) {
+                paymentWays.forEach(function (way) {
+                    if (!paymentWayOptionsHtml.includes(`value="${way.id}"`)) {
+                        paymentWayOptionsHtml += `<option value="${way.id}">${way.name}</option>`;
+                    }
+                });
+            }
+
+            function refreshPaymentWaySelects($activeSelect = null) {
+                $('.transaction-payment-way').each(function () {
+                    const selectedValue = $(this).val();
+                    $(this).html(paymentWayOptionsHtml).val(selectedValue).trigger('change');
+                });
+
+                initializePaymentWaySelect2();
+                syncPaymentSelections();
+                reopenSelect2($activeSelect);
+            }
+
+            function loadPaymentWayOptions(search = '', $activeSelect = null) {
                 let deferred = $.Deferred();
 
-                $.get("{{ route('payment_ways.list') }}", function (res) {
+                return $.get("{{ route('payment_ways.list') }}", { search: search, per_page: 60 }, function (res) {
                     if (res.status) {
-                        paymentWayOptionsHtml = '<option value="">{{ __('messages.select_payment_way') }}</option>';
-                        res.data.forEach(function (way) {
-                            paymentWayOptionsHtml += `<option value="${way.id}">${way.name}</option>`;
-                        });
+                        if (!search) {
+                            paymentWayOptionsHtml = '<option value="">{{ __('messages.select_payment_way') }}</option>';
+                        }
+
+                        appendPaymentWayOptions(res.data || []);
+                        refreshPaymentWaySelects($activeSelect);
                         deferred.resolve();
                     } else {
                         deferred.reject();
@@ -741,6 +835,49 @@
                 syncSinglePaymentAmount();
             }
 
+            function initializePaymentWaySelect2($scope = $('#transactionPaymentsList')) {
+                if (!$.fn.select2) {
+                    return;
+                }
+
+                $scope.find('.transaction-payment-way').each(function () {
+                    const $select = $(this);
+
+                    if ($select.hasClass('select2-hidden-accessible')) {
+                        $select.select2('destroy');
+                    }
+
+                    $select.select2({
+                        width: '100%',
+                        allowClear: true,
+                        placeholder: "{{ __('messages.select_payment_way') }}",
+                        dropdownParent: $('#transactionModal'),
+                        dir: $('html').attr('dir') || 'rtl',
+                        ajax: {
+                            url: "{{ route('payment_ways.list') }}",
+                            dataType: 'json',
+                            delay: 300,
+                            data: function (params) {
+                                return {
+                                    search: params.term || '',
+                                    per_page: 60
+                                };
+                            },
+                            processResults: function (res) {
+                                return {
+                                    results: (res.data || []).map(function (way) {
+                                        return {
+                                            id: way.id,
+                                            text: way.name
+                                        };
+                                    })
+                                };
+                            }
+                        }
+                    });
+                });
+            }
+
             function buildPaymentRow(index) {
                 return `
                     <div class="transaction-payment-row" data-payment-row>
@@ -807,6 +944,7 @@
                 $('#transactionPaymentsList').html(buildPaymentRow(transactionPaymentIndex));
                 $('#transactionPaymentsList [data-remove-payment]').prop('disabled', true);
                 $('#transactionPaymentsList .transaction-payment-way').val(paymentWayId);
+                initializePaymentWaySelect2();
                 syncPaymentSelections();
                 syncSinglePaymentAmount();
             }
@@ -826,6 +964,16 @@
             $(document).on('select2:select change', '.product-select', function (event) {
                 if (event.type === 'change' && $(this).hasClass('select2-hidden-accessible')) {
                     return;
+                }
+
+                if (event.type === 'select2:select' && event.params?.data) {
+                    const product = event.params.data;
+                    const $option = $(this).find(`option[value="${product.id}"]`);
+                    $option
+                        .data('purchase-price', product.purchase_price || 0)
+                        .data('sale-price', product.sale_price || 0)
+                        .data('stock', product.stock || 0);
+                    productBatchesById[product.id] = product.purchase_batches || productBatchesById[product.id] || [];
                 }
 
                 syncProductSelections();
@@ -848,6 +996,7 @@
                 const $row = $(buildPaymentRow(transactionPaymentIndex));
                 $('#transactionPaymentsList').append($row);
                 $('#transactionPaymentsList [data-remove-payment]').prop('disabled', $('#transactionPaymentsList [data-payment-row]').length === 1);
+                initializePaymentWaySelect2($row);
                 syncPaymentSelections();
                 updatePaymentSplitsTotal();
             });
@@ -1080,7 +1229,7 @@
 
                 // Set selected values after loading
                 setTimeout(() => {
-                    $('#editPaymentWayId').val(paymentWayId);
+                    $('#editPaymentWayId').val(paymentWayId).trigger('change');
                     $('#editClientId').val(clientId);
                     $('#editProductId').val(productId).trigger('change');
                 }, 500);
@@ -1180,20 +1329,69 @@
             });
 
             // Helper functions for edit modal
-            function loadPaymentWaysForEdit() {
-                $.get("{{ route('payment_ways.list') }}", function (res) {
+            function initializeEditPaymentWaySelect2() {
+                if (!$.fn.select2) {
+                    return;
+                }
+
+                const $select = $('#editPaymentWayId');
+                if (!$select.length) {
+                    return;
+                }
+
+                if ($select.hasClass('select2-hidden-accessible')) {
+                    $select.select2('destroy');
+                }
+
+                $select.select2({
+                    width: '100%',
+                    allowClear: true,
+                    placeholder: "{{ __('messages.select_payment_way') }}",
+                    dropdownParent: $('#editTransactionModal'),
+                    dir: $('html').attr('dir') || 'rtl',
+                    ajax: {
+                        url: "{{ route('payment_ways.list') }}",
+                        dataType: 'json',
+                        delay: 300,
+                        data: function (params) {
+                            return {
+                                search: params.term || '',
+                                per_page: 60
+                            };
+                        },
+                        processResults: function (res) {
+                            return {
+                                results: (res.data || []).map(function (way) {
+                                    return {
+                                        id: way.id,
+                                        text: way.name
+                                    };
+                                })
+                            };
+                        }
+                    }
+                });
+            }
+
+            function loadPaymentWaysForEdit(search = '', $activeSelect = null) {
+                return $.get("{{ route('payment_ways.list') }}", { search: search, per_page: 60 }, function (res) {
                     if (res.status) {
-                        let options = '<option value="">{{ __('messages.select_payment_way') }}</option>';
+                        const selectedValue = $('#editPaymentWayId').val();
+                        let options = search ? $('#editPaymentWayId').html() : '<option value="">{{ __('messages.select_payment_way') }}</option>';
                         res.data.forEach(function (way) {
-                            options += `<option value="${way.id}">${way.name}</option>`;
+                            if (!options.includes(`value="${way.id}"`)) {
+                                options += `<option value="${way.id}">${way.name}</option>`;
+                            }
                         });
-                        $('#editPaymentWayId').html(options);
+                        $('#editPaymentWayId').html(options).val(selectedValue).trigger('change');
+                        initializeEditPaymentWaySelect2();
+                        reopenSelect2($activeSelect);
                     }
                 });
             }
 
             function loadClientsForEdit(type) {
-                $.get("{{ route('clients.list') }}", { type: type }, function (res) {
+                $.get("{{ route('clients.list') }}", { type: type, limit: 100 }, function (res) {
                     if (res.status) {
                         let options = '<option value="">{{ __('messages.select_client') }}</option>';
                         res.data.forEach(function (client) {
@@ -1205,7 +1403,7 @@
             }
 
             function loadProductsForEdit() {
-                $.get("{{ route('products.list') }}", function (res) {
+                $.get("{{ route('products.list') }}", { with_batches: 1, per_page: 100 }, function (res) {
                     if (res.status) {
                         let options = '<option value="">{{ __('messages.select_product') }}</option>';
                         res.data.forEach(function (product) {

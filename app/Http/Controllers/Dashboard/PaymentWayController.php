@@ -28,9 +28,15 @@ class PaymentWayController extends BaseController
 
     public function list()
     {
-        $paymentWays = $this->paymentWayService->list();
+        $paymentWays = $this->paymentWayService->list(request());
 
-        return response()->json(['status' => true, 'message' => __('messages.payment_ways_fetched_successfully'), 'data' => PaymentWayResource::collection($paymentWays)]);
+        return response()->json([
+            'status' => true,
+            'message' => __('messages.payment_ways_fetched_successfully'),
+            'data' => PaymentWayResource::collection($paymentWays['items']),
+            'stats' => $this->paymentWayService->stats(),
+            'meta' => $paymentWays['meta'],
+        ]);
     }
 
     public function store(StorePaymentWayRequest $request)
@@ -49,7 +55,7 @@ class PaymentWayController extends BaseController
     {
         $result = $this->paymentWayService->showList((int) $id, (string) request('time', 'today'), request('start_date'), request('end_date'));
 
-        return response()->json(['status' => true,'message' => __('messages.payment_way_fetched_successfully'),'data' => new PaymentWayResource($result['paymentWay']),'statistics' => $result['statistics']]);
+        return response()->json(['status' => true, 'message' => __('messages.payment_way_fetched_successfully'), 'data' => new PaymentWayResource($result['paymentWay']), 'statistics' => $result['statistics']]);
     }
 
     public function update(UpdatePaymentWayRequest $request, $id)

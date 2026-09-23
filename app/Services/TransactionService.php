@@ -11,30 +11,40 @@ use App\Models\TransactionPayment;
 use App\Models\TransactionProduct;
 use App\Services\Concerns\HandlesTransactionConcurrency;
 use App\Services\Concerns\HandlesWalletMonthlyLimits;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use App\Services\WhatsAppService;
 
 class TransactionService
 {
     use HandlesTransactionConcurrency;
     use HandlesWalletMonthlyLimits;
 
-    public function __construct(private readonly FileService $fileService)
-    {
-    }
+    public function __construct(private readonly FileService $fileService) {}
 
     public function paginatedForIndex(Request $request): array
     {
         $fromDate = $request->get('from_date', now()->isoFormat('YYYY-MM-DD'));
         $toDate = $request->get('to_date', now()->isoFormat('YYYY-MM-DD'));
+        $fromDateTime = Carbon::parse($fromDate)->startOfDay();
+        $toDateTime = Carbon::parse($toDate)->endOfDay();
 
-        $transactions = Transaction::with(['paymentWay', 'paymentSplits.paymentWay', 'client', 'creator', 'logs', 'products.product'])
-            ->whereDate('created_at', '>=', $fromDate)
-            ->whereDate('created_at', '<=', $toDate)
+        $transactions = Transaction::query()
+            ->select(['id', 'type', 'amount', 'client_id', 'product_id', 'payment_way_id', 'created_by', 'created_at'])
+            ->with([
+                'paymentWay:id,name',
+                'paymentSplits:id,transaction_id,payment_way_id,amount',
+                'paymentSplits.paymentWay:id,name',
+                'client:id,name',
+                'creator:id,name',
+                'product:id,name',
+                'products:id,transaction_id,product_id,quantity',
+                'products.product:id,name',
+            ])
+            ->whereBetween('created_at', [$fromDateTime, $toDateTime])
             ->latest()
             ->paginate(50);
 
@@ -63,14 +73,14 @@ class TransactionService
                 $data['amount'] = $productItems->sum('total');
             }
 
-            $client = !empty($data['client_id']) ? Client::findOrFail($data['client_id']) : null;
+            $client = ! empty($data['client_id']) ? Client::findOrFail($data['client_id']) : null;
             $total = $data['amount'] + ($data['commission'] ?? 0);
             $paymentSplits = $this->resolvePaymentSplits($data, $total);
             $data['payment_way_id'] = $paymentSplits->first()['payment_way_id'];
             unset($data['products'], $data['payments']);
 
             return DB::transaction(function () use ($data, $client, $productItems, $total, $paymentSplits) {
-                $transaction = Transaction::create(array_filter($data, fn($value) => $value !== null));
+                $transaction = Transaction::create(array_filter($data, fn ($value) => $value !== null));
                 $appliedPayments = $this->applyPaymentSplits($transaction, $paymentSplits, $data['type'], (float) $data['amount'], (float) $total);
                 $primaryPaymentWay = $appliedPayments->first()['payment_way'];
 
@@ -133,7 +143,7 @@ class TransactionService
                     $context = [];
                     if ($productItems->isNotEmpty()) {
                         $context['product'] = $productItems
-                            ->map(fn (array $item) => $item['product']->name . ' x' . $item['quantity'])
+                            ->map(fn (array $item) => $item['product']->name.' x'.$item['quantity'])
                             ->implode(', ');
                     }
                     $whatsapp = app(WhatsAppService::class)->sendTransactionMessage($client, $data['amount'], $data['type'], $context);
@@ -154,7 +164,7 @@ class TransactionService
     private function resolvePaymentSplits(array $data, float $total)
     {
         $splits = collect($data['payments'] ?? [])
-            ->filter(fn (array $payment) => !empty($payment['payment_way_id']) && (float) ($payment['amount'] ?? 0) > 0)
+            ->filter(fn (array $payment) => ! empty($payment['payment_way_id']) && (float) ($payment['amount'] ?? 0) > 0)
             ->map(fn (array $payment) => [
                 'payment_way_id' => (int) $payment['payment_way_id'],
                 'amount' => round((float) $payment['amount'], 2),
@@ -235,7 +245,7 @@ class TransactionService
     private function resolveProductItems(array $data)
     {
         $items = collect($data['products'] ?? [])
-            ->filter(fn (array $item) => !empty($item['product_id']))
+            ->filter(fn (array $item) => ! empty($item['product_id']))
             ->map(function (array $item) use ($data) {
                 $product = Product::findOrFail($item['product_id']);
                 $quantity = max((int) ($item['quantity'] ?? 1), 1);
@@ -254,7 +264,7 @@ class TransactionService
             })
             ->values();
 
-        if ($items->isEmpty() && !empty($data['product_id'])) {
+        if ($items->isEmpty() && ! empty($data['product_id'])) {
             $product = Product::findOrFail($data['product_id']);
             $quantity = max((int) ($data['quantity'] ?? 1), 1);
             $defaultUnitPrice = (float) ($data['type'] === 'send' ? $product->purchase_price : $product->sale_price);
@@ -312,7 +322,7 @@ class TransactionService
     {
         $remaining = (int) $item['quantity'];
         $costTotal = 0.0;
-        $preferredBatchId = !empty($item['purchase_batch_id']) ? (int) $item['purchase_batch_id'] : null;
+        $preferredBatchId = ! empty($item['purchase_batch_id']) ? (int) $item['purchase_batch_id'] : null;
 
         $batchQuery = ProductPurchaseBatch::query()
             ->where('product_id', $item['product']->id)
@@ -482,8 +492,8 @@ class TransactionService
 
         $oldClient = $transaction->client_id ? Client::findOrFail($transaction->client_id) : null;
         $oldProduct = $transaction->product_id ? Product::findOrFail($transaction->product_id) : null;
-        $newClient = !empty($resolvedData['client_id']) ? Client::findOrFail($resolvedData['client_id']) : null;
-        $newProduct = !empty($resolvedData['product_id']) ? Product::findOrFail($resolvedData['product_id']) : null;
+        $newClient = ! empty($resolvedData['client_id']) ? Client::findOrFail($resolvedData['client_id']) : null;
+        $newProduct = ! empty($resolvedData['product_id']) ? Product::findOrFail($resolvedData['product_id']) : null;
         $oldProductItems = $transaction->products;
 
         $oldPaymentWay = PaymentWay::findOrFail($transaction->payment_way_id);
@@ -594,7 +604,7 @@ class TransactionService
             if ($product) {
                 $product->decrement('stock', $quantity);
             }
-            if ($client && !$product) {
+            if ($client && ! $product) {
                 $client->source_model = $sourceTransaction;
                 $client->log_description = __('messages.transaction_reversal');
                 $client->decrement('debt', $amount);
@@ -611,7 +621,7 @@ class TransactionService
             if ($product) {
                 $product->increment('stock', $quantity);
             }
-            if ($client && !$product) {
+            if ($client && ! $product) {
                 $client->source_model = $sourceTransaction;
                 $client->log_description = __('messages.transaction_reversal');
                 $client->increment('debt', $amount);
@@ -641,7 +651,7 @@ class TransactionService
             if ($product) {
                 $product->increment('stock', $quantity);
             }
-            if ($client && !$product) {
+            if ($client && ! $product) {
                 $client->source_model = $sourceTransaction;
                 $client->log_description = __('messages.transaction_updated_successfully');
                 $client->increment('debt', $amount);
@@ -658,7 +668,7 @@ class TransactionService
             if ($product) {
                 $product->decrement('stock', $quantity);
             }
-            if ($client && !$product) {
+            if ($client && ! $product) {
                 $client->source_model = $sourceTransaction;
                 $client->log_description = __('messages.transaction_updated_successfully');
                 $client->decrement('debt', $amount);

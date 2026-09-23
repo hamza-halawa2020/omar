@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -10,12 +11,12 @@ class RoleService
 {
     public function indexData(): array
     {
-        return ['roles' => Role::with('permissions')->paginate(10)];
+        return ['roles' => Role::withCount('permissions')->paginate(10)];
     }
 
     public function createData(): array
     {
-        return ['permissions' => Permission::all()];
+        return [];
     }
 
     public function store(array $data): void
@@ -34,9 +35,27 @@ class RoleService
 
         return [
             'role' => $role,
-            'permissions' => Permission::all(),
-            'rolePermissions' => $role->permissions->pluck('name')->toArray(),
+            'rolePermissions' => $role->permissions()->pluck('name')->toArray(),
         ];
+    }
+
+    public function permissionOptions(Request $request): array
+    {
+        $search = trim((string) $request->input('search', ''));
+        $limit = min(max((int) $request->input('limit', 100), 1), 100);
+
+        return Permission::query()
+            ->select('name')
+            ->when($search !== '', fn ($query) => $query->where('name', 'like', "%{$search}%"))
+            ->orderBy('name')
+            ->limit($limit)
+            ->pluck('name')
+            ->map(fn (string $name) => [
+                'id' => $name,
+                'text' => __('messages.'.$name),
+            ])
+            ->values()
+            ->all();
     }
 
     public function update(int $id, array $data): void

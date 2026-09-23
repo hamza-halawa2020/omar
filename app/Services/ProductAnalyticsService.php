@@ -2,9 +2,10 @@
 
 namespace App\Services;
 
-use App\Models\Product;
 use App\Models\Transaction;
+use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -15,28 +16,32 @@ class ProductAnalyticsService
     {
         $fromDate = $request->get('from_date', now()->startOfMonth()->toDateString());
         $toDate = $request->get('to_date', now()->toDateString());
+        $fromDateTime = Carbon::parse($fromDate)->startOfDay();
+        $toDateTime = Carbon::parse($toDate)->endOfDay();
         $productId = $request->filled('product_id') ? (int) $request->get('product_id') : null;
 
-        $products = Product::query()
+        $products = DB::table('products')
             ->select('id', 'name', 'code')
             ->orderBy('name')
             ->get();
 
-        $productRows = $this->productRows($fromDate, $toDate, $productId);
-        $totals = $this->totals($productRows);
-        $salesTransactions = $this->salesTransactions($fromDate, $toDate, $productId);
+        $productRowsQuery = $this->productRowsQuery($fromDateTime, $toDateTime, $productId);
+        $totalRows = $this->normalizeProductRows((clone $productRowsQuery)->get());
+        $productRows = $this->paginateProductRows($productRowsQuery, $request);
+        $chartRows = $totalRows->take(10);
+        $totals = $this->totals($totalRows);
+        $salesTransactions = $this->salesTransactions($fromDateTime, $toDateTime, $productId);
 
-        return compact('fromDate', 'toDate', 'productId', 'products', 'productRows', 'totals', 'salesTransactions');
+        return compact('fromDate', 'toDate', 'productId', 'products', 'productRows', 'chartRows', 'totals', 'salesTransactions');
     }
 
-    private function productRows(string $fromDate, string $toDate, ?int $productId): Collection
+    private function productRowsQuery(Carbon $fromDateTime, Carbon $toDateTime, ?int $productId): Builder
     {
-        $query = Product::query()
+        $query = DB::table('products')
             ->leftJoin('transaction_products', 'products.id', '=', 'transaction_products.product_id')
-            ->leftJoin('transactions', function ($join) use ($fromDate, $toDate) {
+            ->leftJoin('transactions', function ($join) use ($fromDateTime, $toDateTime) {
                 $join->on('transaction_products.transaction_id', '=', 'transactions.id')
-                    ->whereDate('transactions.created_at', '>=', $fromDate)
-                    ->whereDate('transactions.created_at', '<=', $toDate);
+                    ->whereBetween('transactions.created_at', [$fromDateTime, $toDateTime]);
             })
             ->when($productId, fn ($query) => $query->where('products.id', $productId))
             ->select([
@@ -63,22 +68,38 @@ class ProductAnalyticsService
             $query->havingRaw('COUNT(transactions.id) > 0');
         }
 
-        return $query->get()->map(function ($row) {
-            $row->total_transactions = (int) $row->total_transactions;
-            $row->sales_count = (int) $row->sales_count;
-            $row->sold_quantity = (int) $row->sold_quantity;
-            $row->sales_amount = (float) $row->sales_amount;
-            $row->sales_commission = (float) $row->sales_commission;
-            $row->sales_cost = (float) $row->sales_cost;
-            $row->purchase_count = (int) $row->purchase_count;
-            $row->purchased_quantity = (int) $row->purchased_quantity;
-            $row->purchase_amount = (float) $row->purchase_amount;
-            $row->gross_profit = $row->sales_amount - $row->sales_cost;
-            $row->net_profit = $row->sales_amount + $row->sales_commission - $row->sales_cost;
-            $row->profit_margin = $row->sales_amount > 0 ? ($row->net_profit / $row->sales_amount) * 100 : 0;
+        return $query;
+    }
 
-            return $row;
-        });
+    private function paginateProductRows(Builder $query, Request $request): LengthAwarePaginator
+    {
+        return $query
+            ->paginate(25, ['*'], 'products_page')
+            ->appends($request->query())
+            ->through(fn ($row) => $this->normalizeProductRow($row));
+    }
+
+    private function normalizeProductRows(Collection $rows): Collection
+    {
+        return $rows->map(fn ($row) => $this->normalizeProductRow($row));
+    }
+
+    private function normalizeProductRow(object $row): object
+    {
+        $row->total_transactions = (int) $row->total_transactions;
+        $row->sales_count = (int) $row->sales_count;
+        $row->sold_quantity = (int) $row->sold_quantity;
+        $row->sales_amount = (float) $row->sales_amount;
+        $row->sales_commission = (float) $row->sales_commission;
+        $row->sales_cost = (float) $row->sales_cost;
+        $row->purchase_count = (int) $row->purchase_count;
+        $row->purchased_quantity = (int) $row->purchased_quantity;
+        $row->purchase_amount = (float) $row->purchase_amount;
+        $row->gross_profit = $row->sales_amount - $row->sales_cost;
+        $row->net_profit = $row->sales_amount + $row->sales_commission - $row->sales_cost;
+        $row->profit_margin = $row->sales_amount > 0 ? ($row->net_profit / $row->sales_amount) * 100 : 0;
+
+        return $row;
     }
 
     private function totals(Collection $productRows): array
@@ -101,16 +122,15 @@ class ProductAnalyticsService
         ];
     }
 
-    private function salesTransactions(string $fromDate, string $toDate, ?int $productId): LengthAwarePaginator
+    private function salesTransactions(Carbon $fromDateTime, Carbon $toDateTime, ?int $productId): LengthAwarePaginator
     {
         return Transaction::query()
             ->with(['product', 'products.product', 'paymentWay', 'client'])
             ->where('type', 'receive')
             ->whereHas('products', fn ($query) => $query->when($productId, fn ($query) => $query->where('product_id', $productId)))
-            ->whereDate('created_at', '>=', $fromDate)
-            ->whereDate('created_at', '<=', $toDate)
+            ->whereBetween('created_at', [$fromDateTime, $toDateTime])
             ->latest()
-            ->paginate(25)
+            ->paginate(25, ['*'], 'sales_page')
             ->through(function (Transaction $transaction) use ($productId) {
                 $items = $transaction->products;
 

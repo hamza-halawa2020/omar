@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Dashboard\TenantController;
 use App\Http\Controllers\Dashboard\AssociationController;
 use App\Http\Controllers\Dashboard\CategoryController;
 use App\Http\Controllers\Dashboard\ClientController;
@@ -13,6 +12,7 @@ use App\Http\Controllers\Dashboard\ProductAnalyticsController;
 use App\Http\Controllers\Dashboard\ProductController;
 use App\Http\Controllers\Dashboard\ProfileController;
 use App\Http\Controllers\Dashboard\RoleController;
+use App\Http\Controllers\Dashboard\TenantController;
 use App\Http\Controllers\Dashboard\TransactionController;
 use App\Http\Controllers\Dashboard\WhatsAppStatusController;
 use Illuminate\Support\Facades\Route;
@@ -102,6 +102,7 @@ Route::prefix('dashboard')->middleware(['auth.or_impersonate', 'tenancy'])->grou
     Route::delete('clients/{id}', [ClientController::class, 'destroy'])->name('clients.destroy');
     Route::get('/clients/{id}', [ClientController::class, 'showPage'])->name('clients.showPage');
 
+    Route::get('roles/permissions/list', [RoleController::class, 'permissionsList'])->name('roles.permissions.list');
     Route::resource('roles', RoleController::class)->except('show');
 
     Route::get('associations', [AssociationController::class, 'index'])->name('associations.index');

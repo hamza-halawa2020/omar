@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\Transaction;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DashboardService
 {
@@ -76,20 +77,24 @@ class DashboardService
 
     private function getTopClientsByDebt(int $value)
     {
-        return Client::whereDoesntHave('installmentContracts')->with('installmentContracts.installments')
-            ->get()
-            ->sortByDesc('debt')
+        return Client::query()
+            ->select(['id', 'name', 'debt'])
+            ->whereDoesntHave('installmentContracts')
+            ->orderByDesc('debt')
             ->take($value)
+            ->get()
             ->map(fn ($client) => [
                 'id' => $client->id,
                 'name' => $client->name,
                 'total_remaining_amount' => $client->debt,
-            ])->values();
+            ]);
     }
 
     private function getTopClientsByInstallments(int $value)
     {
-        return Client::withCount('installmentContracts')
+        return Client::query()
+            ->select(['id', 'name'])
+            ->withCount('installmentContracts')
             ->orderByDesc('installment_contracts_count')
             ->take($value)
             ->get()
@@ -102,30 +107,46 @@ class DashboardService
 
     private function getTopOverdueInstallments(int $value)
     {
-        return Installment::where('status', 'late')
-            ->with(['contract.client'])
-            ->get()
-            ->sortByDesc(fn ($installment) => $installment->required_amount - $installment->paid_amount)
+        return Installment::query()
+            ->join('installment_contracts', 'installment_contracts.id', '=', 'installments.installment_contract_id')
+            ->leftJoin('clients', 'clients.id', '=', 'installment_contracts.client_id')
+            ->where('installments.status', 'late')
+            ->select([
+                'installments.id',
+                'clients.name as client_name',
+                'installments.due_date',
+                DB::raw('installments.required_amount - installments.paid_amount as overdue_amount'),
+            ])
+            ->orderByDesc('overdue_amount')
             ->take($value)
+            ->get()
             ->map(fn ($installment) => [
                 'id' => $installment->id,
-                'client_name' => $installment->contract->client->name,
+                'client_name' => $installment->client_name ?? '',
                 'due_date' => $installment->due_date->format('Y-m-d'),
-                'overdue_amount' => $installment->required_amount - $installment->paid_amount,
-            ])->values();
+                'overdue_amount' => $installment->overdue_amount,
+            ]);
     }
 
     private function getUpcomingInstallments(int $value)
     {
-        return Installment::where('status', 'pending')
-            ->where('due_date', '>=', Carbon::today())
-            ->with(['contract.client'])
-            ->orderBy('due_date')
+        return Installment::query()
+            ->join('installment_contracts', 'installment_contracts.id', '=', 'installments.installment_contract_id')
+            ->leftJoin('clients', 'clients.id', '=', 'installment_contracts.client_id')
+            ->where('installments.status', 'pending')
+            ->where('installments.due_date', '>=', Carbon::today())
+            ->select([
+                'installments.id',
+                'clients.name as client_name',
+                'installments.due_date',
+                'installments.required_amount',
+            ])
+            ->orderBy('installments.due_date')
             ->take($value)
             ->get()
             ->map(fn ($installment) => [
                 'id' => $installment->id,
-                'client_name' => $installment->contract->client->name,
+                'client_name' => $installment->client_name ?? '',
                 'due_date' => $installment->due_date->format('Y-m-d'),
                 'required_amount' => $installment->required_amount,
             ]);
@@ -133,9 +154,14 @@ class DashboardService
 
     private function getTopPaymentWaysBySend(Carbon $startDate, Carbon $endDate, int $value)
     {
-        return PaymentWay::withCount(['transactions' => function ($query) use ($startDate, $endDate) {
-            $query->where('type', 'send')->whereBetween('created_at', [$startDate, $endDate]);
-        }])->orderByDesc('transactions_count')
+        return PaymentWay::query()
+            ->select(['id', 'name'])
+            ->withCount([
+                'transactions' => function ($query) use ($startDate, $endDate) {
+                    $query->where('type', 'send')->whereBetween('created_at', [$startDate, $endDate]);
+                },
+            ])
+            ->orderByDesc('transactions_count')
             ->take($value)
             ->get()
             ->map(fn ($paymentWay) => [
@@ -147,9 +173,14 @@ class DashboardService
 
     private function getTopPaymentWaysByReceive(Carbon $startDate, Carbon $endDate, int $value)
     {
-        return PaymentWay::withCount(['transactions' => function ($query) use ($startDate, $endDate) {
-            $query->where('type', 'receive')->whereBetween('created_at', [$startDate, $endDate]);
-        }])->orderByDesc('transactions_count')
+        return PaymentWay::query()
+            ->select(['id', 'name'])
+            ->withCount([
+                'transactions' => function ($query) use ($startDate, $endDate) {
+                    $query->where('type', 'receive')->whereBetween('created_at', [$startDate, $endDate]);
+                },
+            ])
+            ->orderByDesc('transactions_count')
             ->take($value)
             ->get()
             ->map(fn ($paymentWay) => [
@@ -161,7 +192,9 @@ class DashboardService
 
     private function getTopPaymentWaysByBalance(int $value)
     {
-        return PaymentWay::orderByDesc('balance')
+        return PaymentWay::query()
+            ->select(['id', 'name', 'balance'])
+            ->orderByDesc('balance')
             ->take($value)
             ->get()
             ->map(fn ($paymentWay) => [
@@ -176,24 +209,29 @@ class DashboardService
         $currentYear = Carbon::now()->year;
         $currentMonth = Carbon::now()->month;
 
-        return PaymentWay::whereNotNull('send_limit')
-            ->with(['monthlyLimits' => function ($query) use ($currentYear, $currentMonth) {
-                $query->where('year', $currentYear)->where('month', $currentMonth);
-            }])
-            ->get()
-            ->sortByDesc(function ($paymentWay) {
-                $monthlyLimit = $paymentWay->monthlyLimits->first();
-                return $monthlyLimit ? ($monthlyLimit->send_used / $paymentWay->send_limit) : 0;
+        return PaymentWay::query()
+            ->select([
+                'payment_ways.id',
+                'payment_ways.name',
+                'payment_ways.send_limit',
+                DB::raw('COALESCE(payment_way_limits.send_used, 0) as send_used'),
+            ])
+            ->leftJoin('payment_way_limits', function ($join) use ($currentYear, $currentMonth) {
+                $join->on('payment_way_limits.payment_way_id', '=', 'payment_ways.id')
+                    ->where('payment_way_limits.year', $currentYear)
+                    ->where('payment_way_limits.month', $currentMonth);
             })
+            ->whereNotNull('payment_ways.send_limit')
+            ->orderByDesc(DB::raw('COALESCE(payment_way_limits.send_used, 0) / NULLIF(payment_ways.send_limit, 0)'))
             ->take($value)
+            ->get()
             ->map(function ($paymentWay) {
-                $monthlyLimit = $paymentWay->monthlyLimits->first();
                 return [
                     'id' => $paymentWay->id,
                     'name' => $paymentWay->name,
                     'send_limit' => $paymentWay->send_limit,
-                    'send_used' => $monthlyLimit ? $monthlyLimit->send_used : 0,
-                    'percentage_used' => $monthlyLimit && $paymentWay->send_limit ? ($monthlyLimit->send_used / $paymentWay->send_limit * 100) : 0,
+                    'send_used' => $paymentWay->send_used,
+                    'percentage_used' => $paymentWay->send_limit ? ($paymentWay->send_used / $paymentWay->send_limit * 100) : 0,
                 ];
             })->values();
     }
@@ -203,31 +241,38 @@ class DashboardService
         $currentYear = Carbon::now()->year;
         $currentMonth = Carbon::now()->month;
 
-        return PaymentWay::whereNotNull('receive_limit')
-            ->with(['monthlyLimits' => function ($query) use ($currentYear, $currentMonth) {
-                $query->where('year', $currentYear)->where('month', $currentMonth);
-            }])
-            ->get()
-            ->sortByDesc(function ($paymentWay) {
-                $monthlyLimit = $paymentWay->monthlyLimits->first();
-                return $monthlyLimit ? ($monthlyLimit->receive_used / $paymentWay->receive_limit) : 0;
+        return PaymentWay::query()
+            ->select([
+                'payment_ways.id',
+                'payment_ways.name',
+                'payment_ways.receive_limit',
+                DB::raw('COALESCE(payment_way_limits.receive_used, 0) as receive_used'),
+            ])
+            ->leftJoin('payment_way_limits', function ($join) use ($currentYear, $currentMonth) {
+                $join->on('payment_way_limits.payment_way_id', '=', 'payment_ways.id')
+                    ->where('payment_way_limits.year', $currentYear)
+                    ->where('payment_way_limits.month', $currentMonth);
             })
+            ->whereNotNull('payment_ways.receive_limit')
+            ->orderByDesc(DB::raw('COALESCE(payment_way_limits.receive_used, 0) / NULLIF(payment_ways.receive_limit, 0)'))
             ->take($value)
+            ->get()
             ->map(function ($paymentWay) {
-                $monthlyLimit = $paymentWay->monthlyLimits->first();
                 return [
                     'id' => $paymentWay->id,
                     'name' => $paymentWay->name,
                     'receive_limit' => $paymentWay->receive_limit,
-                    'receive_used' => $monthlyLimit ? $monthlyLimit->receive_used : 0,
-                    'percentage_used' => $monthlyLimit && $paymentWay->receive_limit ? ($monthlyLimit->receive_used / $paymentWay->receive_limit * 100) : 0,
+                    'receive_used' => $paymentWay->receive_used,
+                    'percentage_used' => $paymentWay->receive_limit ? ($paymentWay->receive_used / $paymentWay->receive_limit * 100) : 0,
                 ];
             })->values();
     }
 
     private function getTopProductsByInstallments(int $value)
     {
-        return Product::withCount('installmentContracts')
+        return Product::query()
+            ->select(['id', 'name'])
+            ->withCount('installmentContracts')
             ->orderByDesc('installment_contracts_count')
             ->take($value)
             ->get()
@@ -240,16 +285,24 @@ class DashboardService
 
     private function getLastSendTransactions(Carbon $startDate, Carbon $endDate, int $value)
     {
-        return Transaction::where('type', 'send')
-            ->with(['client', 'paymentWay'])
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->orderByDesc('created_at')
+        return Transaction::where('transactions.type', 'send')
+            ->leftJoin('clients', 'clients.id', '=', 'transactions.client_id')
+            ->leftJoin('payment_ways', 'payment_ways.id', '=', 'transactions.payment_way_id')
+            ->select([
+                'transactions.id',
+                'clients.name as client_name',
+                'payment_ways.name as payment_way',
+                'transactions.amount',
+                'transactions.created_at',
+            ])
+            ->whereBetween('transactions.created_at', [$startDate, $endDate])
+            ->orderByDesc('transactions.created_at')
             ->take($value)
             ->get()
             ->map(fn ($transaction) => [
                 'id' => $transaction->id,
-                'client_name' => $transaction->client ? $transaction->client->name : '',
-                'payment_way' => $transaction->paymentWay ? $transaction->paymentWay->name : '',
+                'client_name' => $transaction->client_name ?? '',
+                'payment_way' => $transaction->payment_way ?? '',
                 'amount' => $transaction->amount,
                 'created_at' => $transaction->created_at->format('Y-m-d H:i:s'),
             ]);
@@ -257,16 +310,24 @@ class DashboardService
 
     private function getLastReceiveTransactions(Carbon $startDate, Carbon $endDate, int $value)
     {
-        return Transaction::where('type', 'receive')
-            ->with(['client', 'paymentWay'])
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->orderByDesc('created_at')
+        return Transaction::where('transactions.type', 'receive')
+            ->leftJoin('clients', 'clients.id', '=', 'transactions.client_id')
+            ->leftJoin('payment_ways', 'payment_ways.id', '=', 'transactions.payment_way_id')
+            ->select([
+                'transactions.id',
+                'clients.name as client_name',
+                'payment_ways.name as payment_way',
+                'transactions.amount',
+                'transactions.created_at',
+            ])
+            ->whereBetween('transactions.created_at', [$startDate, $endDate])
+            ->orderByDesc('transactions.created_at')
             ->take($value)
             ->get()
             ->map(fn ($transaction) => [
                 'id' => $transaction->id,
-                'client_name' => $transaction->client ? $transaction->client->name : '',
-                'payment_way' => $transaction->paymentWay ? $transaction->paymentWay->name : '',
+                'client_name' => $transaction->client_name ?? '',
+                'payment_way' => $transaction->payment_way ?? '',
                 'amount' => $transaction->amount,
                 'created_at' => $transaction->created_at->format('Y-m-d H:i:s'),
             ]);

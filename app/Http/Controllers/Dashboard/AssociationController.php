@@ -29,9 +29,21 @@ class AssociationController extends BaseController
 
     public function list()
     {
-        $associations = $this->associationService->list();
+        $associations = $this->associationService->list(request());
 
-        return response()->json(['status' => true, 'message' => __('messages.associations_fetched_successfully'), 'data' => AssociationResource::collection($associations)]);
+        return response()->json([
+            'status' => true,
+            'message' => __('messages.associations_fetched_successfully'),
+            'data' => AssociationResource::collection($associations),
+            'meta' => [
+                'current_page' => $associations->currentPage(),
+                'from' => $associations->firstItem(),
+                'last_page' => $associations->lastPage(),
+                'per_page' => $associations->perPage(),
+                'to' => $associations->lastItem(),
+                'total' => $associations->total(),
+            ],
+        ]);
     }
 
     public function details($id)
@@ -57,7 +69,7 @@ class AssociationController extends BaseController
     {
         $this->associationService->deleteMember((int) $associationId, (int) $memberId);
 
-        return response()->json(['status' => true,'message' => __('messages.member_deleted_successfully')]);
+        return response()->json(['status' => true, 'message' => __('messages.member_deleted_successfully')]);
     }
 
     public function addPayment(addPaymentAssociationRequest $request, $id)

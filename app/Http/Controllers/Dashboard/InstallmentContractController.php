@@ -28,9 +28,21 @@ class InstallmentContractController extends BaseController
 
     public function list()
     {
-        $installments = $this->installmentContractService->list();
+        $installments = $this->installmentContractService->list(request());
 
-        return response()->json(['status' => true, 'message' => __('messages.installments_fetched_successfully'), 'data' => InstallmentContractResource::collection($installments)]);
+        return response()->json([
+            'status' => true,
+            'message' => __('messages.installments_fetched_successfully'),
+            'data' => InstallmentContractResource::collection($installments),
+            'meta' => [
+                'current_page' => $installments->currentPage(),
+                'from' => $installments->firstItem(),
+                'last_page' => $installments->lastPage(),
+                'per_page' => $installments->perPage(),
+                'to' => $installments->lastItem(),
+                'total' => $installments->total(),
+            ],
+        ]);
     }
 
     public function store(StoreInstallmentContractRequest $request)
@@ -70,6 +82,6 @@ class InstallmentContractController extends BaseController
     {
         $this->installmentContractService->destroy((int) $id);
 
-        return response()->json(['status' => true,'message' => __('messages.installment_contract_deleted_successfully')]);
+        return response()->json(['status' => true, 'message' => __('messages.installment_contract_deleted_successfully')]);
     }
 }

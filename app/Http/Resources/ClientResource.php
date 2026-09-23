@@ -8,8 +8,9 @@ class ClientResource extends JsonResource
 {
     public function toArray($request)
     {
-
-        $totalInstallments = $this->installmentContracts?->sum('remaining_amount') ?? 0;
+        $totalInstallments = array_key_exists('installment_remaining_amount', $this->getAttributes())
+            ? (float) $this->installment_remaining_amount
+            : ($this->relationLoaded('installmentContracts') ? $this->installmentContracts->sum('remaining_amount') : 0);
 
         $originalDebt = $this->debt - $totalInstallments;
 

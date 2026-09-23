@@ -51,6 +51,7 @@
         <div id="paymentWaysContainer" class="row g-3 mobile-card-grid">
              {{-- Data via AJAX --}}
         </div>
+        <div id="paymentWaysLoadState" class="text-center py-4 d-none"></div>
     </div>
 
     <!-- Modals -->
@@ -69,6 +70,10 @@
         $(document).ready(function () {
             const canReorderPaymentWays = @can('payment_ways_reorder') true @else false @endcan;
             const canViewPurchasePrices = @can('purchase_prices_view') true @else false @endcan;
+            let paymentWaysPage = 1;
+            let paymentWaysHasMore = true;
+            let paymentWaysLoading = false;
+            const paymentWaysPerPage = 24;
 
             // Add loading animation
             function showLoading() {
@@ -80,6 +85,29 @@
                         <p class="mt-3 ">{{ __('messages.loading_payment_ways') }}</p>
                     </div>
                 `);
+                $('#paymentWaysLoadState').addClass('d-none').empty();
+            }
+
+            function showLoadMoreState() {
+                $('#paymentWaysLoadState').removeClass('d-none').html(`
+                    <div class="d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill shadow-sm bg-body border">
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <span class="fw-semibold">{{ __('messages.loading_text') }}</span>
+                    </div>
+                `);
+            }
+
+            function showEndOfPaymentWays() {
+                $('#paymentWaysLoadState').removeClass('d-none').html(`
+                    <div class="d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill bg-body-secondary">
+                        <i class="fas fa-check-circle text-success"></i>
+                        <span class="small">{{ __('messages.no_data_found') }}</span>
+                    </div>
+                `);
+            }
+
+            function hideLoadMoreState() {
+                $('#paymentWaysLoadState').addClass('d-none').empty();
             }
 
             function toggleFields(type, groupClass) {
@@ -118,7 +146,29 @@
                     allowClear: true,
                     placeholder: "{{ __('messages.select_client') }}",
                     dropdownParent: $('#transactionModal'),
-                    dir: $('html').attr('dir') || 'rtl'
+                    dir: $('html').attr('dir') || 'rtl',
+                    ajax: {
+                        url: "{{ route('clients.list') }}",
+                        dataType: 'json',
+                        delay: 300,
+                        data: function (params) {
+                            return {
+                                type: currentTransactionType(),
+                                search: params.term || '',
+                                limit: 100
+                            };
+                        },
+                        processResults: function (res) {
+                            return {
+                                results: (res.data || []).map(function (client) {
+                                    return {
+                                        id: client.id,
+                                        text: `${client.name} ({{ __('messages.debt') }}: ${parseFloat(client.debt || 0).toFixed(2)})`
+                                    };
+                                })
+                            };
+                        }
+                    }
                 });
             }
 
@@ -143,13 +193,16 @@
 
                 function formatProduct(product) {
                     if (!product.id) return product.text;
-                    const $el = $(product.element);
+                    const $el = $(product.element || []);
                     const metaParts = [];
+                    const purchasePrice = product.purchase_price ?? $el.data('purchase-price') ?? 0;
+                    const salePrice = product.sale_price ?? $el.data('sale-price') ?? 0;
+                    const stock = product.stock ?? $el.data('stock') ?? 0;
                     if (canViewPurchasePrices) {
-                        metaParts.push(`{{ __('messages.purchase_price') }}: ${parseFloat($el.data('purchase-price') || 0).toFixed(2)}`);
+                        metaParts.push(`{{ __('messages.purchase_price') }}: ${parseFloat(purchasePrice || 0).toFixed(2)}`);
                     }
-                    metaParts.push(`{{ __('messages.sale_price') }}: ${parseFloat($el.data('sale-price') || 0).toFixed(2)}`);
-                    metaParts.push(`{{ __('messages.stock') }}: ${$el.data('stock') || 0}`);
+                    metaParts.push(`{{ __('messages.sale_price') }}: ${parseFloat(salePrice || 0).toFixed(2)}`);
+                    metaParts.push(`{{ __('messages.stock') }}: ${stock || 0}`);
 
                     return $(
                         `<div class="transaction-product-option">
@@ -177,12 +230,84 @@
                         dropdownParent: $('#transactionModal'),
                         dir: $('html').attr('dir') || 'rtl',
                         templateResult: formatProduct,
-                        templateSelection: formatProductSelection
+                        templateSelection: formatProductSelection,
+                        ajax: {
+                            url: "{{ route('products.list') }}",
+                            dataType: 'json',
+                            delay: 300,
+                            data: function (params) {
+                                return {
+                                    with_batches: 1,
+                                    search: params.term || '',
+                                    per_page: 100
+                                };
+                            },
+                            processResults: function (res) {
+                                return {
+                                    results: (res.data || []).map(function (product) {
+                                        let productCode = product.code ? ` [${product.code}]` : '';
+                                        productBatchesById[product.id] = product.purchase_batches || [];
+
+                                        return {
+                                            id: product.id,
+                                            text: `${product.name}${productCode}`,
+                                            purchase_price: product.purchase_price || 0,
+                                            sale_price: product.sale_price || 0,
+                                            stock: product.stock || 0,
+                                            purchase_batches: product.purchase_batches || []
+                                        };
+                                    })
+                                };
+                            }
+                        }
                     });
                 });
             }
 
             initializeProductSelect2();
+
+            function initializePaymentWaySelect2($scope = $('#transactionPaymentsList')) {
+                if (!$.fn.select2) {
+                    return;
+                }
+
+                $scope.find('.transaction-payment-way').each(function () {
+                    const $select = $(this);
+
+                    if ($select.hasClass('select2-hidden-accessible')) {
+                        $select.select2('destroy');
+                    }
+
+                    $select.select2({
+                        width: '100%',
+                        allowClear: true,
+                        placeholder: "{{ __('messages.select_payment_way') }}",
+                        dropdownParent: $('#transactionModal'),
+                        dir: $('html').attr('dir') || 'rtl',
+                        ajax: {
+                            url: "{{ route('payment_ways.list') }}",
+                            dataType: 'json',
+                            delay: 300,
+                            data: function (params) {
+                                return {
+                                    search: params.term || '',
+                                    per_page: 60
+                                };
+                            },
+                            processResults: function (res) {
+                                return {
+                                    results: (res.data || []).map(function (way) {
+                                        return {
+                                            id: way.id,
+                                            text: way.name
+                                        };
+                                    })
+                                };
+                            }
+                        }
+                    });
+                });
+            }
 
             function buildProductRow(index) {
                 return `
@@ -269,14 +394,26 @@
 
             const clientsCache = {};
 
-            function renderClientOptions(clients) {
+            function reopenSelect2($select) {
+                if (!$select || !$select.length || !$select.hasClass('select2-hidden-accessible')) {
+                    return;
+                }
+
+                setTimeout(function () {
+                    $select.select2('open');
+                }, 0);
+            }
+
+            function renderClientOptions(clients, $activeSelect = null) {
+                const selectedValue = $('#client_id').val();
                 let clientOptions = '<option value="">{{ __('messages.select_client') }}</option>';
                 clients.forEach(function (client) {
                     clientOptions +=
                         `<option value="${client.id}">${client.name} ({{ __('messages.debt') }}: ${parseFloat(client.debt || 0).toFixed(2)})</option>`;
                 });
 
-                $('#client_id').prop('disabled', false).html(clientOptions).val('').trigger('change');
+                $('#client_id').prop('disabled', false).html(clientOptions).val(selectedValue).trigger('change');
+                reopenSelect2($activeSelect);
             }
 
             function setClientLoadingState() {
@@ -287,23 +424,25 @@
                     .trigger('change');
             }
 
-            function loadClients(type) {
+            function loadClients(type, search = '', $activeSelect = null) {
                 let deferred = $.Deferred();
-                let cacheKey = type || 'all';
+                let cacheKey = `${type || 'all'}:${search}`;
 
                 if (clientsCache[cacheKey]) {
-                    renderClientOptions(clientsCache[cacheKey]);
+                    renderClientOptions(clientsCache[cacheKey], $activeSelect);
                     deferred.resolve(clientsCache[cacheKey]);
                     return deferred.promise();
                 }
 
-                setClientLoadingState();
+                if (!search) {
+                    setClientLoadingState();
+                }
 
-                $.get("{{ route('clients.list') }}", { type: type })
+                $.get("{{ route('clients.list') }}", { type: type, search: search, limit: 100 })
                     .done(function (res) {
                         if (res.status) {
                             clientsCache[cacheKey] = res.data || [];
-                            renderClientOptions(clientsCache[cacheKey]);
+                            renderClientOptions(clientsCache[cacheKey], $activeSelect);
                             deferred.resolve(clientsCache[cacheKey]);
                         } else {
                             renderClientOptions([]);
@@ -319,24 +458,27 @@
 
                 return deferred.promise();
             }
-            function loadProducts() {
-                $.get("{{ route('products.list') }}", function (res) {
+            function loadProducts(search = '', $activeSelect = null) {
+                return $.get("{{ route('products.list') }}", { with_batches: 1, search: search, per_page: 100 }, function (res) {
                     if (res.status) {
-                        let productOptions = '<option value="">{{ __('messages.select_product') }}</option>';
-                        productBatchesById = {};
+                        let productOptions = search ? productOptionsHtml : '<option value="">{{ __('messages.select_product') }}</option>';
                         res.data.forEach(function (product) {
                             let productCode = product.code ? ` [${product.code}]` : '';
                             productBatchesById[product.id] = product.purchase_batches || [];
                             const purchasePriceData = canViewPurchasePrices ? ` data-purchase-price="${product.purchase_price || 0}"` : '';
-                            productOptions +=
-                                `<option value="${product.id}"${purchasePriceData} data-sale-price="${product.sale_price || 0}" data-stock="${product.stock || 0}">${product.name}${productCode}</option>`;
+                            if (!productOptions.includes(`value="${product.id}"`)) {
+                                productOptions +=
+                                    `<option value="${product.id}"${purchasePriceData} data-sale-price="${product.sale_price || 0}" data-stock="${product.stock || 0}">${product.name}${productCode}</option>`;
+                            }
                         });
                         productOptionsHtml = productOptions;
                         $('.product-select').each(function () {
-                            $(this).html(productOptionsHtml).val('').trigger('change');
+                            const selectedValue = $(this).val();
+                            $(this).html(productOptionsHtml).val(selectedValue).trigger('change');
                         });
                         initializeProductSelect2();
                         syncProductSelections();
+                        reopenSelect2($activeSelect);
                     } else {
                         showToast('{{ __('messages.something_went_wrong') }}', 'error');
                     }
@@ -492,11 +634,49 @@
                 });
             }
 
+            function appendPaymentWayOptions(paymentWays) {
+                paymentWays.forEach(function (way) {
+                    if (!paymentWayOptionsHtml.includes(`value="${way.id}"`)) {
+                        paymentWayOptionsHtml += `<option value="${way.id}">${way.name}</option>`;
+                    }
+                });
+            }
+
+            function refreshPaymentWaySelects($activeSelect = null) {
+                $('.transaction-payment-way').each(function () {
+                    const selectedValue = $(this).val();
+                    $(this).html(paymentWayOptionsHtml).val(selectedValue).trigger('change');
+                });
+
+                initializePaymentWaySelect2();
+                syncPaymentSelections();
+                reopenSelect2($activeSelect);
+            }
+
+            function loadPaymentWayOptions(search = '', $activeSelect = null) {
+                return $.get("{{ route('payment_ways.list') }}", {
+                    search: search,
+                    per_page: 60
+                }, function (res) {
+                    if (!res.status) {
+                        return;
+                    }
+
+                    if (!search) {
+                        paymentWayOptionsHtml = '<option value="">{{ __('messages.select_payment_way') }}</option>';
+                    }
+
+                    appendPaymentWayOptions(res.data || []);
+                    refreshPaymentWaySelects($activeSelect);
+                });
+            }
+
             function resetTransactionPayments(paymentWayId = '') {
                 transactionPaymentIndex = 0;
                 $('#transactionPaymentsList').html(buildPaymentRow(transactionPaymentIndex));
                 $('#transactionPaymentsList [data-remove-payment]').prop('disabled', true);
                 $('#transactionPaymentsList .transaction-payment-way').val(paymentWayId);
+                initializePaymentWaySelect2();
                 syncPaymentSelections();
                 syncSinglePaymentAmount();
             }
@@ -516,6 +696,16 @@
             $(document).on('select2:select change', '.product-select', function (event) {
                 if (event.type === 'change' && $(this).hasClass('select2-hidden-accessible')) {
                     return;
+                }
+
+                if (event.type === 'select2:select' && event.params?.data) {
+                    const product = event.params.data;
+                    const $option = $(this).find(`option[value="${product.id}"]`);
+                    $option
+                        .data('purchase-price', product.purchase_price || 0)
+                        .data('sale-price', product.sale_price || 0)
+                        .data('stock', product.stock || 0);
+                    productBatchesById[product.id] = product.purchase_batches || productBatchesById[product.id] || [];
                 }
 
                 syncProductSelections();
@@ -538,6 +728,7 @@
                 const $row = $(buildPaymentRow(transactionPaymentIndex));
                 $('#transactionPaymentsList').append($row);
                 $('#transactionPaymentsList [data-remove-payment]').prop('disabled', $('#transactionPaymentsList [data-payment-row]').length === 1);
+                initializePaymentWaySelect2($row);
                 syncPaymentSelections();
                 updatePaymentSplitsTotal();
             });
@@ -718,15 +909,38 @@
             showLoading();
             loadPaymentWays();
 
-            function loadPaymentWays() {
-                $.get("{{ route('payment_ways.list') }}", function (res) {
+            function loadPaymentWays(reset = true) {
+                if (paymentWaysLoading) {
+                    return;
+                }
+
+                if (reset) {
+                    paymentWaysPage = 1;
+                    paymentWaysHasMore = true;
+                    paymentWayOptionsHtml = '<option value="">{{ __('messages.select_payment_way') }}</option>';
+                }
+
+                if (!paymentWaysHasMore) {
+                    return;
+                }
+
+                paymentWaysLoading = true;
+                if (!reset) {
+                    showLoadMoreState();
+                } else {
+                    hideLoadMoreState();
+                }
+
+                $.get("{{ route('payment_ways.list') }}", {
+                    page: paymentWaysPage,
+                    per_page: paymentWaysPerPage
+                }, function (res) {
                     if (res.status) {
                         // Load stats first
-                        loadStats(res.data);
+                        loadStats(res.stats || res.data);
                         
                         let cards = '';
                         res.data.sort((a, b) => (a.position || 0) - (b.position || 0));
-                        paymentWayOptionsHtml = '<option value="">{{ __('messages.select_payment_way') }}</option>';
                         res.data.forEach((way) => {
                             paymentWayOptionsHtml += `<option value="${way.id}">${way.name}</option>`;
                         });
@@ -932,13 +1146,97 @@
                                 </div>
                             `;
                         });
-                        $('#paymentWaysContainer').html(cards);
+                        if (reset) {
+                            $('#paymentWaysContainer').html(cards);
+                        } else {
+                            $('#paymentWaysContainer').append(cards);
+                        }
+
+                        paymentWaysHasMore = Boolean(res.meta?.has_more);
+                        paymentWaysPage = res.meta?.next_page || paymentWaysPage;
+                        if (!paymentWaysHasMore && !reset) {
+                            showEndOfPaymentWays();
+                        } else {
+                            hideLoadMoreState();
+                        }
                         initSortable();
+                    }
+                }).always(function () {
+                    paymentWaysLoading = false;
+                    if (paymentWaysHasMore) {
+                        hideLoadMoreState();
                     }
                 });
             }
 
             function loadStats(data) {
+                if (!Array.isArray(data)) {
+                    const stats = data || {};
+                    $('#statsCards').html(`
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card border-0 shadow-sm rounded-3">
+                                <div class="card-body p-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1 opacity-75">{{ __('messages.total_balance') }}</h6>
+                                            <div class="mb-0 fw-bold">${parseFloat(stats.total_balance || 0).toFixed(2)}</div>
+                                        </div>
+                                        <div class="ms-3">
+                                            <i class="fas fa-coins fa-2x opacity-75"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card border-0 shadow-sm rounded-3  ">
+                                <div class="card-body p-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1 opacity-75">{{ __('messages.electronic_wallets') }}</h6>
+                                            <div class="mb-0 fw-bold">${stats.total_wallets || 0} <span class="text-success ms-1">(${parseFloat(stats.wallet_balance || 0).toFixed(2)})</span></div>
+                                        </div>
+                                        <div class="ms-3">
+                                            <i class="fas fa-wallet fa-2x opacity-75"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card border-0 shadow-sm rounded-3  ">
+                                <div class="card-body p-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1 opacity-75">{{ __('messages.cash_methods') }}</h6>
+                                            <div class="mb-0 fw-bold">${stats.total_cash || 0} <span class="text-success ms-1">(${parseFloat(stats.cash_balance || 0).toFixed(2)})</span></div>
+                                        </div>
+                                        <div class="ms-3">
+                                            <i class="fas fa-money-bill-wave fa-2x opacity-75"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="card border-0 shadow-sm rounded-3  ">
+                                <div class="card-body p-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1 opacity-75">{{ __('messages.balance_machines') }}</h6>
+                                            <div class="mb-0 fw-bold">${stats.total_machines || 0} <span class="text-success ms-1">(${parseFloat(stats.machine_balance || 0).toFixed(2)})</span></div>
+                                        </div>
+                                        <div class="ms-3">
+                                            <i class="fas fa-credit-card fa-2x opacity-75"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                    return;
+                }
+
                 let totalBalance = 0;
                 let totalWallets = 0;
                 let walletBalance = 0;
@@ -1027,6 +1325,14 @@
                 
                 $('#statsCards').html(statsHtml);
             }
+
+            $(window).on('scroll', function () {
+                const nearBottom = $(window).scrollTop() + $(window).height() >= $(document).height() - 350;
+
+                if (nearBottom && paymentWaysHasMore && !paymentWaysLoading) {
+                    loadPaymentWays(false);
+                }
+            });
 
             const mobileSortableQuery = window.matchMedia('(max-width: 767.98px), (pointer: coarse)');
 

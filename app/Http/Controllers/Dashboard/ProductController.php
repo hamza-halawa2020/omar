@@ -36,15 +36,22 @@ class ProductController extends BaseController
             'message' => __('messages.products_fetched_successfully'),
             'data' => ProductResource::collection($products),
             'codes' => $this->productService->codes(),
+            'meta' => [
+                'current_page' => $products->currentPage(),
+                'from' => $products->firstItem(),
+                'last_page' => $products->lastPage(),
+                'per_page' => $products->perPage(),
+                'to' => $products->lastItem(),
+                'total' => $products->total(),
+            ],
         ]);
     }
-
 
     public function store(StoreProductRequest $request)
     {
         $product = $this->productService->create($request->validated(), $request);
 
-        return response()->json(['status' => true,'message' => __('messages.Product_created_successfully'),'data' => new ProductResource($product)], 201);
+        return response()->json(['status' => true, 'message' => __('messages.Product_created_successfully'), 'data' => new ProductResource($product)], 201);
     }
 
     public function show($id)

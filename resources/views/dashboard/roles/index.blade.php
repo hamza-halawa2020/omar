@@ -31,12 +31,9 @@
                         <tr>
                             <td class="mobile-primary" data-label="{{ __('messages.name') }}">{{ $role->name }}</td>
                             <td class="mobile-muted" data-label="{{ __('messages.permissions') }}" style="max-width: 250px;">
-                                <div class="d-flex flex-wrap gap-1 justify-content-center mobile-badge-list">
-                                    @foreach ($role->permissions as $permission)
-                                        <span
-                                            class="badge bg-primary px-3 py-1">{{ __('messages.' . $permission->name) }}</span>
-                                    @endforeach
-                                </div>
+                                <span class="badge bg-primary px-3 py-1">
+                                    {{ $role->permissions_count }} {{ __('messages.permissions') }}
+                                </span>
                             </td>
 
                             @canany(['roles_update', 'roles_destroy'])

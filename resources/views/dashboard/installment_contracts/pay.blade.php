@@ -18,10 +18,6 @@
                         <label>{{ __('messages.payment_ways') }}</label>
                         <select name="payment_way_id" id="payPaymentWay" class="form-control" required>
                             <option value="" disabled selected>{{ __('messages.select_payment_way') }}</option>
-                            @foreach ($paymentWays as $paymentWay)
-                                <option value="{{ $paymentWay->id }}">{{ $paymentWay->name }}</option>
-                            @endforeach
-
                         </select>
                     </div>
                     <div class="mb-3">

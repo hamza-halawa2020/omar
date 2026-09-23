@@ -17,23 +17,43 @@
 
             <div class="mb-3">
                 <label class="d-block mb-2">{{ __('messages.permissions') }}</label>
-                <div class="row mobile-permissions-grid">
-                    @foreach ($permissions as $permission)
-                        <div class="d-flex col-md-3 col-sm-6 mb-2">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="permissions[]"
-                                    value="{{ $permission->name }}" id="perm_{{ $permission->id }}"
-                                    {{ in_array($permission->name, $rolePermissions) ? 'checked' : '' }}>
-                                <label class="form-check-label ms-1" for="perm_{{ $permission->id }}">
-                                    {{ __('messages.' . $permission->name) }}
-                                </label>
-                            </div>
-                        </div>
+                <select name="permissions[]" class="form-control js-permissions-select" multiple>
+                    @foreach ($rolePermissions as $permissionName)
+                        <option value="{{ $permissionName }}" selected>{{ __('messages.' . $permissionName) }}</option>
                     @endforeach
-                </div>
+                </select>
             </div>
 
             <button class="btn btn-outline-success btn-sm radius-8">{{ __('messages.update') }}</button>
         </form>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            $('.js-permissions-select').select2({
+                width: '100%',
+                placeholder: '{{ __('messages.permissions') }}',
+                allowClear: true,
+                ajax: {
+                    url: '{{ route('roles.permissions.list') }}',
+                    dataType: 'json',
+                    delay: 250,
+                    data: function(params) {
+                        return {
+                            search: params.term || '',
+                            limit: 100
+                        };
+                    },
+                    processResults: function(response) {
+                        return {
+                            results: response.data || []
+                        };
+                    },
+                    cache: true
+                }
+            });
+        });
+    </script>
+@endpush

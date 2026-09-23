@@ -8,8 +8,8 @@ use App\Services\Concerns\BuildsPaymentWayLogData;
 use App\Services\Concerns\HandlesWalletMonthlyLimits;
 use Carbon\Carbon;
 use Exception;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -23,11 +23,101 @@ class PaymentWayService
         return [];
     }
 
-    public function list(): Collection
+    public function list(Request $request): array
     {
-        return PaymentWay::with(['creator', 'monthlyLimits'])
+        $currentMonth = now()->month;
+        $currentYear = now()->year;
+        $page = max((int) $request->input('page', 1), 1);
+        $perPage = min(max((int) $request->input('per_page', 24), 1), 60);
+        $query = PaymentWay::query()
+            ->select([
+                'id',
+                'name',
+                'type',
+                'phone_number',
+                'client_type',
+                'receive_limit',
+                'receive_limit_alert',
+                'send_limit',
+                'send_limit_alert',
+                'balance',
+                'created_by',
+                'created_at',
+                'updated_at',
+                'position',
+            ])
+            ->with([
+                'creator:id,name,email',
+                'monthlyLimits' => function ($query) use ($currentMonth, $currentYear) {
+                    $query
+                        ->select([
+                            'id',
+                            'payment_way_id',
+                            'month',
+                            'year',
+                            'send_limit',
+                            'send_used',
+                            'receive_limit',
+                            'receive_used',
+                        ])
+                        ->where('month', $currentMonth)
+                        ->where('year', $currentYear);
+                },
+            ])
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $query->where(function ($nestedQuery) use ($request) {
+                    $search = '%'.$request->search.'%';
+
+                    $nestedQuery->where('name', 'like', $search)
+                        ->orWhere('phone_number', 'like', $search)
+                        ->orWhere('type', 'like', $search);
+                });
+            });
+
+        $total = (clone $query)->count();
+
+        $items = $query
             ->orderBy('position', 'asc')
+            ->skip(($page - 1) * $perPage)
+            ->take($perPage)
             ->get();
+
+        $lastPage = max((int) ceil($total / $perPage), 1);
+
+        return [
+            'items' => $items,
+            'meta' => [
+                'current_page' => $page,
+                'last_page' => $lastPage,
+                'per_page' => $perPage,
+                'total' => $total,
+                'has_more' => $page < $lastPage,
+                'next_page' => $page < $lastPage ? $page + 1 : null,
+            ],
+        ];
+    }
+
+    public function stats(): array
+    {
+        $stats = PaymentWay::query()
+            ->selectRaw('COALESCE(SUM(balance), 0) as total_balance')
+            ->selectRaw("SUM(CASE WHEN type = 'wallet' THEN 1 ELSE 0 END) as total_wallets")
+            ->selectRaw("COALESCE(SUM(CASE WHEN type = 'wallet' THEN balance ELSE 0 END), 0) as wallet_balance")
+            ->selectRaw("SUM(CASE WHEN type = 'cash' THEN 1 ELSE 0 END) as total_cash")
+            ->selectRaw("COALESCE(SUM(CASE WHEN type = 'cash' THEN balance ELSE 0 END), 0) as cash_balance")
+            ->selectRaw("SUM(CASE WHEN type = 'balance_machine' THEN 1 ELSE 0 END) as total_machines")
+            ->selectRaw("COALESCE(SUM(CASE WHEN type = 'balance_machine' THEN balance ELSE 0 END), 0) as machine_balance")
+            ->first();
+
+        return [
+            'total_balance' => (float) $stats->total_balance,
+            'total_wallets' => (int) $stats->total_wallets,
+            'wallet_balance' => (float) $stats->wallet_balance,
+            'total_cash' => (int) $stats->total_cash,
+            'cash_balance' => (float) $stats->cash_balance,
+            'total_machines' => (int) $stats->total_machines,
+            'machine_balance' => (float) $stats->machine_balance,
+        ];
     }
 
     public function store(array $data): PaymentWay
@@ -201,8 +291,8 @@ class PaymentWayService
     private function logAction(PaymentWay $paymentWay, string $action): void
     {
         $paymentWay->logs()->create([
-                'created_by' => Auth::id(),
-                'action' => $action,
+            'created_by' => Auth::id(),
+            'action' => $action,
             'data' => $this->paymentWayLogData($paymentWay),
         ]);
     }

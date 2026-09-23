@@ -111,10 +111,7 @@
                             <div class="mb-3">
                                 <label for="pm_payment_way" class="form-label">{{ __('messages.select_payment_way') }}</label>
                                 <select name="payment_way_id" id="pm_payment_way" class="form-select" required>
-                                <option value="" disabled selected>{{ __('messages.select_payment_way') }}</option>
-                                    @foreach($paymentWays as $pw)
-                                        <option value="{{ $pw->id }}">{{ $pw->name }} ({{ $pw->type }})</option>
-                                    @endforeach
+                                    <option value="" disabled selected>{{ __('messages.select_payment_way') }}</option>
                                 </select>
                             </div>
                             <div class="mb-3">
@@ -153,11 +150,8 @@
                         </div>
                         <div class="modal-body">
                             <label>{{ __('messages.select_client') }}</label>
-                            <select name="client_id" class="form-select" required data-searchable="true" data-placeholder="{{ __('messages.select_client') }}">
-                                {{-- <option value="" disabled selected>{{ __('messages.select_client') }}</option> --}}
-                                @foreach ($clients as $client)
-                                    <option value="{{ $client->id }}">{{ $client->name }}</option>
-                                @endforeach
+                            <select name="client_id" id="associationClientSelect" class="form-select" required data-placeholder="{{ __('messages.select_client') }}">
+                                <option value="" disabled selected>{{ __('messages.select_client') }}</option>
                             </select>
                         </div>
                         <div class="modal-footer">
@@ -193,10 +187,6 @@
                             <select name="payment_way_id" id="payPaymentWay" class="form-control" required>
 
                                 <option value="" disabled selected>{{ __('messages.select_payment_way') }}</option>
-
-                                @foreach ($paymentWays as $way)
-                                    <option value="{{ $way->id }}">{{ $way->name }}</option>
-                                @endforeach
                             </select>
                             <label>{{ __('messages.commission') }}</label>
                             <input type="number" step="0.01" name="commission" id="payCommission" class="form-control"
@@ -250,6 +240,81 @@
 @push('scripts')
     <script>
         $(document).ready(function () {
+            function initClientSelect() {
+                if (!$.fn.select2) {
+                    return;
+                }
+
+                $('#associationClientSelect').select2({
+                    width: '100%',
+                    allowClear: true,
+                    placeholder: "{{ __('messages.select_client') }}",
+                    dropdownParent: $('#addMemberModal'),
+                    dir: $('html').attr('dir') || 'rtl',
+                    ajax: {
+                        url: "{{ route('clients.list') }}",
+                        dataType: 'json',
+                        delay: 300,
+                        data: function (params) {
+                            return {
+                                type: 'client',
+                                search: params.term || '',
+                                limit: 100
+                            };
+                        },
+                        processResults: function (res) {
+                            return {
+                                results: (res.data || []).map(function (client) {
+                                    return {
+                                        id: client.id,
+                                        text: client.name
+                                    };
+                                })
+                            };
+                        }
+                    }
+                });
+            }
+
+            function initPaymentWaySelect(selector, modalSelector) {
+                if (!$.fn.select2) {
+                    return;
+                }
+
+                $(selector).select2({
+                    width: '100%',
+                    allowClear: true,
+                    placeholder: "{{ __('messages.select_payment_way') }}",
+                    dropdownParent: $(modalSelector),
+                    dir: $('html').attr('dir') || 'rtl',
+                    ajax: {
+                        url: "{{ route('payment_ways.list') }}",
+                        dataType: 'json',
+                        delay: 300,
+                        data: function (params) {
+                            return {
+                                search: params.term || '',
+                                per_page: 60
+                            };
+                        },
+                        processResults: function (res) {
+                            return {
+                                results: (res.data || []).map(function (paymentWay) {
+                                    return {
+                                        id: paymentWay.id,
+                                        text: paymentWay.name
+                                    };
+                                })
+                            };
+                        }
+                    }
+                });
+            }
+
+            initClientSelect();
+            initPaymentWaySelect('#pm_payment_way', '#payMemberModal');
+            initPaymentWaySelect('#payPaymentWay', '#addPaymentModal');
+
             // Add Member
             $('#addMemberForm').submit(function (e) {
                 e.preventDefault();
@@ -269,6 +334,7 @@
             // Add Payment
             $('.add-payment').click(function () {
                 $('#paymentMemberId').val($(this).data('id'));
+                $('#payPaymentWay').val(null).trigger('change');
                 $('#addPaymentModal').modal('show');
             });
 
@@ -336,7 +402,7 @@
                 $('#pm_amount').val(total);
                 $('#pm_amount_label').text(total.toLocaleString());
 
-                $('#pm_payment_way').val('');
+                $('#pm_payment_way').val(null).trigger('change');
                 $('#pm_alert').addClass('d-none').text('');
 
                 const modalEl = document.getElementById('payMemberModal');

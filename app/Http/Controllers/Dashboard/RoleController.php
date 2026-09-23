@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Dashboard;
 use App\Http\Requests\Role\StoreRoleRequest;
 use App\Http\Requests\Role\UpdateRoleRequest;
 use App\Services\RoleService;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Spatie\Permission\Models\Role;
 
@@ -16,6 +17,14 @@ class RoleController extends BaseController
         $this->middleware('check.permission:roles_store')->only('store', 'create');
         $this->middleware('check.permission:roles_update')->only('update', 'edit');
         $this->middleware('check.permission:roles_destroy')->only('destroy');
+    }
+
+    public function permissionsList(Request $request)
+    {
+        return response()->json([
+            'status' => true,
+            'data' => $this->roleService->permissionOptions($request),
+        ]);
     }
 
     public function index()
@@ -46,7 +55,6 @@ class RoleController extends BaseController
 
         return redirect()->route('roles.index')->with('success', 'Role updated successfully.');
     }
-
 
     public function destroy(Role $role)
     {

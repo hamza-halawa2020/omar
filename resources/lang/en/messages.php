@@ -23,6 +23,7 @@ return [
     'show' => 'Show',
     'search' => 'Search',
     'no_data_found' => 'No Data Found',
+    'no_records_found' => 'No records found',
     'transactions_list' => 'Transactions List',
     'client_type' => 'Client Type',
     'updated_successfully' => 'Updated Successfully',

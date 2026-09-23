@@ -3,7 +3,48 @@
 @section('content')
     @include('components.alert')
 
-    <div class="container">
+    <style>
+        .installment-contracts-page .table-pager {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            direction: ltr;
+            white-space: nowrap;
+        }
+
+        .installment-contracts-page .table-pager .btn {
+            min-width: 36px;
+            height: 36px;
+            padding: 0;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .installment-contracts-page .table-pager .page-status {
+            min-width: 92px;
+            height: 36px;
+            padding: 0 12px;
+            border: 1px solid #d8dee8;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            color: #475569;
+            font-size: 13px;
+        }
+
+        @media (max-width: 767.98px) {
+            .installment-contracts-page .table-pager {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+
+    <div class="container installment-contracts-page">
         <div class="d-flex justify-content-between mb-3 mobile-stack-header">
             <div class="fw-bold fs-5">{{ __('messages.installments') }}</div>
             @can('installments_store')
@@ -36,6 +77,10 @@
                 </tbody>
             </table>
         </div>
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 mt-3">
+            <small class="text-muted" id="installmentsPaginationInfo"></small>
+            <div class="table-pager" id="installmentsPagination"></div>
+        </div>
 
     </div>
 
@@ -52,6 +97,9 @@
 @push('scripts')
     <script>
         $(document).ready(function() {
+            let currentPage = 1;
+            const perPage = 25;
+
             loadinstallments();
 
             function valueOrEmpty(value) {
@@ -66,11 +114,17 @@
                     .replace(/'/g, '&#039;');
             }
 
-            function loadinstallments() {
-                $.get("{{ route('installment_contracts.list') }}", function(res) {
+            function loadinstallments(page = currentPage) {
+                currentPage = page;
+
+                $.get("{{ route('installment_contracts.list') }}", {
+                    page: currentPage,
+                    per_page: perPage
+                }, function(res) {
 
                     if (res.status) {
                         let rows = '';
+                        let rowStart = res.meta?.from || 1;
                         res.data.forEach((contract, i) => {
                             let clientName = contract.client?.name ?? '';
                             let clientPhone = contract.client?.phone_number ?? '';
@@ -78,7 +132,7 @@
 
                             rows += `
                     <tr>
-                        <td data-label="{{ __('messages.id') }}">${i+1}</td>
+                        <td data-label="{{ __('messages.id') }}">${rowStart + i}</td>
                         <td class="mobile-primary" data-label="{{ __('messages.client') }}">
                             <strong>${escapeHtml(clientName)}</strong><br>
                             <small>${escapeHtml(clientPhone)}</small>
@@ -119,9 +173,44 @@
                     </tr>`;
                         });
                         $('#installmentsTable tbody').html(rows);
+                        renderInstallmentsPagination(res.meta || {});
                     }
                 });
             }
+
+            function renderInstallmentsPagination(meta) {
+                let from = meta.from || 0;
+                let to = meta.to || 0;
+                let total = meta.total || 0;
+                let lastPage = meta.last_page || 1;
+                let page = meta.current_page || 1;
+
+                $('#installmentsPaginationInfo').text(`${from} - ${to} / ${total}`);
+
+                if (lastPage <= 1) {
+                    $('#installmentsPagination').empty();
+                    return;
+                }
+
+                $('#installmentsPagination').html(`
+                    <button type="button" class="btn btn-outline-primary ${page <= 1 ? 'disabled' : ''}" data-page="${page - 1}">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <span class="page-status">${page} / ${lastPage}</span>
+                    <button type="button" class="btn btn-outline-primary ${page >= lastPage ? 'disabled' : ''}" data-page="${page + 1}">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                `);
+            }
+
+            $(document).on('click', '#installmentsPagination button:not(.disabled)', function() {
+                let page = Number($(this).data('page'));
+                if (!page) {
+                    return;
+                }
+
+                loadinstallments(page);
+            });
 
             // Create
             $('#createForm').submit(function(e) {

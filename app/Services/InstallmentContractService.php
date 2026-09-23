@@ -5,16 +5,15 @@ namespace App\Services;
 use App\Models\Client;
 use App\Models\Installment;
 use App\Models\InstallmentContract;
-use App\Models\PaymentWay;
 use App\Models\Product;
 use App\Models\Transaction;
 use App\Services\Concerns\HandlesTransactionConcurrency;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use App\Services\WhatsAppService;
 
 class InstallmentContractService
 {
@@ -28,16 +27,18 @@ class InstallmentContractService
         return compact('clients', 'products');
     }
 
-    public function list(): Collection
+    public function list(Request $request): LengthAwarePaginator
     {
+        $perPage = min(max((int) $request->input('per_page', 25), 1), 100);
+
         return InstallmentContract::with([
             'client' => function ($query) {
                 $query->where('type', 'client');
             },
             'product',
             'creator',
-            'installments'
-        ])->latest()->get();
+            'installments',
+        ])->latest()->paginate($perPage);
     }
 
     public function store(array $data): InstallmentContract
@@ -86,7 +87,7 @@ class InstallmentContractService
             },
             'product',
             'creator',
-            'installments.payments.paid_by'
+            'installments.payments.paid_by',
         ])->findOrFail($id);
     }
 
@@ -98,12 +99,10 @@ class InstallmentContractService
             },
             'product',
             'creator',
-            'installments.payments'
+            'installments.payments',
         ])->findOrFail($id);
 
-        $paymentWays = PaymentWay::all();
-
-        return compact('contract', 'paymentWays');
+        return compact('contract');
     }
 
     public function update(int $id, array $data): InstallmentContract
@@ -114,7 +113,7 @@ class InstallmentContractService
 
             $recalculate = isset($data['product_price']) || isset($data['down_payment']) || isset($data['interest_rate']) || isset($data['installment_count']) || isset($data['start_date']);
 
-            if (!$recalculate) {
+            if (! $recalculate) {
                 $contract->update($data);
 
                 return $contract->load('installments');
@@ -178,7 +177,7 @@ class InstallmentContractService
                     'type' => 'receive',
                     'amount' => $data['amount'],
                     'commission' => $data['commission'] ?? 0,
-                    'notes' => __('messages.payment_for_installment') . ' ' . ($client->name ?? '') . ' - ' . ($product->name ?? ''),
+                    'notes' => __('messages.payment_for_installment').' '.($client->name ?? '').' - '.($product->name ?? ''),
                     'client_id' => $client->id ?? null,
                     'balance_before_transaction' => $paymentWay->balance,
                     'balance_after_transaction' => $paymentWay->balance + $total,
@@ -288,5 +287,4 @@ class InstallmentContractService
             ]);
         }
     }
-
 }

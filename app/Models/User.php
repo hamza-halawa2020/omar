@@ -4,23 +4,28 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Contracts\Permission;
 use Spatie\Permission\Traits\HasRoles;
-use Spatie\Permission\Traits\HasPermissions;
-
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, HasRoles, Notifiable;
 
     // User model is stored in Central Database
     protected $connection = 'central';
 
+    protected array $directPermissionIdsByConnection = [];
+
+    protected array $permissionNamesByConnection = [];
+
     /**
      * Override Spatie roles relation to run on the active default connection (tenant DB when tenancy initialized).
      */
-    public function roles(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function roles(): BelongsToMany
     {
         $activeConn = config('database.default');
 
@@ -46,7 +51,7 @@ class User extends Authenticatable
     /**
      * Override Spatie permissions relation to run on the active default connection (tenant DB when tenancy initialized).
      */
-    public function permissions(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function permissions(): BelongsToMany
     {
         $activeConn = config('database.default');
 
@@ -86,14 +91,65 @@ class User extends Authenticatable
             $permission = $permissionClass->setConnection($activeConn)->findById($permission, $this->getDefaultGuardName());
         }
 
-        if (! $permission instanceof \Spatie\Permission\Contracts\Permission) {
+        if (! $permission instanceof Permission) {
             return false;
         }
 
-        return $this->permissions()->where(
-            config('permission.table_names.permissions') . '.id',
-            $permission->id
-        )->exists();
+        return in_array((int) $permission->id, $this->directPermissionIds($activeConn), true);
+    }
+
+    public function hasPermissionTo($permission, $guardName = null): bool
+    {
+        $permissionName = $permission instanceof Permission ? $permission->name : (string) $permission;
+
+        return in_array($permissionName, $this->permissionNames(config('database.default')), true);
+    }
+
+    private function permissionNames(string $connection): array
+    {
+        return $this->permissionNamesByConnection[$connection] ??= $this->loadPermissionNames($connection);
+    }
+
+    private function loadPermissionNames(string $connection): array
+    {
+        $tables = config('permission.table_names');
+        $columns = config('permission.column_names');
+        $modelIdColumn = $columns['model_morph_key'];
+        $rolePivotColumn = $columns['role_pivot_key'] ?: 'role_id';
+        $permissionPivotColumn = $columns['permission_pivot_key'] ?: 'permission_id';
+        $modelType = $this->getMorphClass();
+        $guardName = $this->getDefaultGuardName();
+
+        $directPermissions = DB::connection($connection)
+            ->table($tables['permissions'])
+            ->join($tables['model_has_permissions'], $tables['model_has_permissions'].'.'.$permissionPivotColumn, '=', $tables['permissions'].'.id')
+            ->where($tables['model_has_permissions'].'.'.$modelIdColumn, $this->getKey())
+            ->where($tables['model_has_permissions'].'.model_type', $modelType)
+            ->where($tables['permissions'].'.guard_name', $guardName)
+            ->pluck($tables['permissions'].'.name');
+
+        $rolePermissions = DB::connection($connection)
+            ->table($tables['permissions'])
+            ->join($tables['role_has_permissions'], $tables['role_has_permissions'].'.'.$permissionPivotColumn, '=', $tables['permissions'].'.id')
+            ->join($tables['model_has_roles'], $tables['model_has_roles'].'.'.$rolePivotColumn, '=', $tables['role_has_permissions'].'.'.$rolePivotColumn)
+            ->where($tables['model_has_roles'].'.'.$modelIdColumn, $this->getKey())
+            ->where($tables['model_has_roles'].'.model_type', $modelType)
+            ->where($tables['permissions'].'.guard_name', $guardName)
+            ->pluck($tables['permissions'].'.name');
+
+        return $directPermissions
+            ->merge($rolePermissions)
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    private function directPermissionIds(string $connection): array
+    {
+        return $this->directPermissionIdsByConnection[$connection] ??= $this->permissions()
+            ->pluck(config('permission.table_names.permissions').'.id')
+            ->map(fn ($id) => (int) $id)
+            ->all();
     }
 
     protected $fillable = [
@@ -145,38 +201,44 @@ class User extends Authenticatable
     {
         return $this->hasMany(InstallmentContract::class, 'created_by');
     }
+
     public function installmentPayments()
     {
         return $this->hasMany(InstallmentPayment::class, 'paid_by');
     }
+
     public function categories()
     {
         return $this->hasMany(Category::class, 'created_by');
     }
+
     public function paymentWays()
     {
         return $this->hasMany(PaymentWay::class, 'created_by');
     }
+
     public function paymentWayLogs()
     {
         return $this->hasMany(PaymentWayLog::class, 'created_by');
     }
+
     public function transactions()
     {
         return $this->hasMany(Transaction::class, 'created_by');
     }
+
     public function transactionLogs()
     {
         return $this->hasMany(TransactionLog::class, 'created_by');
     }
 
-      public function associations()
+    public function associations()
     {
         return $this->hasMany(AssociationMember::class, 'client_id');
     }
-      public function associationPayments()
+
+    public function associationPayments()
     {
         return $this->hasMany(AssociationPayment::class, 'client_id');
     }
-
 }

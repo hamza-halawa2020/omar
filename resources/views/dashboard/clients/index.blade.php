@@ -3,7 +3,48 @@
 @section('content')
 @include('components.alert')
 
-<div class="container">
+<style>
+    .clients-page .table-pager {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        direction: ltr;
+        white-space: nowrap;
+    }
+
+    .clients-page .table-pager .btn {
+        min-width: 36px;
+        height: 36px;
+        padding: 0;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .clients-page .table-pager .page-status {
+        min-width: 92px;
+        height: 36px;
+        padding: 0 12px;
+        border: 1px solid #d8dee8;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #fff;
+        color: #475569;
+        font-size: 13px;
+    }
+
+    @media (max-width: 767.98px) {
+        .clients-page .table-pager {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="container clients-page">
     <div class="d-flex justify-content-between mb-3 mobile-stack-header">
         <div class="fw-bold fs-5">{{ __('messages.clients') }}</div>
         @can('clients_store')
@@ -38,6 +79,10 @@
         </tbody>
     </table>
     </div>
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 mt-3">
+        <small class="text-muted" id="clientsPaginationInfo"></small>
+        <div class="table-pager" id="clientsPagination"></div>
+    </div>
 </div>
 
 <!-- Create Modal -->
@@ -51,20 +96,31 @@
 @push('scripts')
 <script>
     $(document).ready(function () {
+        let currentPage = 1;
+        const perPage = 25;
+
         loadclients();
         $('#searchInput').on('keyup', function () {
-            const search = $(this).val();
-            loadclients(search);
+            currentPage = 1;
+            loadclients();
         });
 
-        function loadclients(search = '') {
-            $.get("{{ route('clients.list') }}", { search }, function (res) {
+        function loadclients(page = currentPage) {
+            currentPage = page;
+            const search = $('#searchInput').val();
+
+            $.get("{{ route('clients.list') }}", {
+                search,
+                page: currentPage,
+                per_page: perPage
+            }, function (res) {
                 if (res.status) {
                     let rows = '';
+                    let rowStart = res.meta?.from || 1;
                     res.data.forEach((client, i) => {
                         rows += `
                             <tr>
-                                <td data-label="{{ __('messages.id') }}">${i + 1}</td>
+                                <td data-label="{{ __('messages.id') }}">${rowStart + i}</td>
                                 <td class="mobile-primary" data-label="{{ __('messages.name') }}">${client.name}</td>
                                 <td data-label="{{ __('messages.phone_number') }}">${client.full_phone_number || client.phone_number || ''}</td>
                                 <td data-label="{{ __('messages.debt') }}">${client.debt}</td>
@@ -93,9 +149,44 @@
                             </tr>`;
                     });
                     $('#clientsTable tbody').html(rows);
+                    renderClientsPagination(res.meta || {});
                 }
             });
         }
+
+        function renderClientsPagination(meta) {
+            let from = meta.from || 0;
+            let to = meta.to || 0;
+            let total = meta.total || 0;
+            let lastPage = meta.last_page || 1;
+            let page = meta.current_page || 1;
+
+            $('#clientsPaginationInfo').text(`${from} - ${to} / ${total}`);
+
+            if (lastPage <= 1) {
+                $('#clientsPagination').empty();
+                return;
+            }
+
+            $('#clientsPagination').html(`
+                <button type="button" class="btn btn-outline-primary ${page <= 1 ? 'disabled' : ''}" data-page="${page - 1}">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <span class="page-status">${page} / ${lastPage}</span>
+                <button type="button" class="btn btn-outline-primary ${page >= lastPage ? 'disabled' : ''}" data-page="${page + 1}">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            `);
+        }
+
+        $(document).on('click', '#clientsPagination button:not(.disabled)', function () {
+            let page = Number($(this).data('page'));
+            if (!page) {
+                return;
+            }
+
+            loadclients(page);
+        });
 
         // Create
         $('#createForm').submit(function (e) {

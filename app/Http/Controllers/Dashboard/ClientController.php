@@ -64,35 +64,52 @@ class ClientController extends BaseController
     {
         $clients = $this->clientService->list($request);
 
-        return response()->json(['status' => true,'message' => __('messages.clients_fetched_successfully'),'data' => ClientResource::collection($clients)]);
+        $response = [
+            'status' => true,
+            'message' => __('messages.clients_fetched_successfully'),
+            'data' => ClientResource::collection($clients),
+        ];
+
+        if (method_exists($clients, 'currentPage')) {
+            $response['meta'] = [
+                'current_page' => $clients->currentPage(),
+                'from' => $clients->firstItem(),
+                'last_page' => $clients->lastPage(),
+                'per_page' => $clients->perPage(),
+                'to' => $clients->lastItem(),
+                'total' => $clients->total(),
+            ];
+        }
+
+        return response()->json($response);
     }
 
     public function listDebts()
     {
-        $clients = $this->clientService->listDebts(request('search'));
+        $clients = $this->clientService->listDebts(request());
 
-        return response()->json(['status' => true, 'message' => __('messages.clients_fetched_successfully'), 'data' => ClientResource::collection($clients)]);
+        return response()->json($this->clientListResponse($clients));
     }
 
     public function listMerchants()
     {
-        $clients = $this->clientService->listMerchants(request('search'));
+        $clients = $this->clientService->listMerchants(request());
 
-        return response()->json(['status' => true, 'message' => __('messages.clients_fetched_successfully'), 'data' => ClientResource::collection($clients)]);
+        return response()->json($this->clientListResponse($clients));
     }
 
     public function listCreditor()
     {
-        $clients = $this->clientService->listCreditor(request('search'));
+        $clients = $this->clientService->listCreditor(request());
 
-        return response()->json(['status' => true, 'message' => __('messages.clients_fetched_successfully'), 'data' => ClientResource::collection($clients)]);
+        return response()->json($this->clientListResponse($clients));
     }
 
     public function listClientInstallments()
     {
-        $clients = $this->clientService->listClientInstallments(request('search'));
+        $clients = $this->clientService->listClientInstallments(request());
 
-        return response()->json(['status' => true, 'message' => __('messages.clients_fetched_successfully'), 'data' => ClientResource::collection($clients)]);
+        return response()->json($this->clientListResponse($clients));
     }
 
     public function store(StoreClientRequest $request)
@@ -142,6 +159,28 @@ class ClientController extends BaseController
         return response()->json(['status' => true, 'message' => __('messages.client_deleted_successfully')]);
     }
 
+    private function clientListResponse($clients): array
+    {
+        $response = [
+            'status' => true,
+            'message' => __('messages.clients_fetched_successfully'),
+            'data' => ClientResource::collection($clients),
+        ];
+
+        if (method_exists($clients, 'currentPage')) {
+            $response['meta'] = [
+                'current_page' => $clients->currentPage(),
+                'from' => $clients->firstItem(),
+                'last_page' => $clients->lastPage(),
+                'per_page' => $clients->perPage(),
+                'to' => $clients->lastItem(),
+                'total' => $clients->total(),
+            ];
+        }
+
+        return $response;
+    }
+
     private function countryCodeOptions(): array
     {
         $phoneUtil = PhoneNumberUtil::getInstance();
@@ -154,7 +193,7 @@ class ClientController extends BaseController
                 continue;
             }
 
-            $code = '+' . $phoneUtil->getCountryCodeForRegion($region);
+            $code = '+'.$phoneUtil->getCountryCodeForRegion($region);
             $options[] = [
                 'region' => $region,
                 'code' => $code,

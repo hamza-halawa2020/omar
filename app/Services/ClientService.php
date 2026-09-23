@@ -3,77 +3,97 @@
 namespace App\Services;
 
 use App\Models\Client;
-use App\Models\PaymentWay;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use libphonenumber\NumberParseException;
 use libphonenumber\PhoneNumberUtil;
 
 class ClientService
 {
-    public function list(Request $request): Collection
+    public function list(Request $request): Collection|LengthAwarePaginator
     {
-        $query = Client::query();
+        $query = $this->clientListQuery();
 
         $query->when($request->type === 'merchant', function ($q) {
             return $q->where('type', 'merchant');
         });
 
-        $query->with(['creator'])->orderByDesc('debt');
+        $query->orderByDesc('debt');
         $this->applySearch($query, $request->search);
 
-        return $query->get();
+        if ($request->has('page')) {
+            $perPage = min(max((int) $request->input('per_page', 25), 1), 100);
+
+            return $query->paginate($perPage);
+        }
+
+        return $query
+            ->limit(min(max((int) $request->input('limit', 60), 1), 100))
+            ->get();
     }
 
-    public function listDebts(?string $search): Collection
+    public function listDebts(Request $request): Collection|LengthAwarePaginator
     {
-        $query = Client::where('type', 'client')
+        $query = $this->clientListQuery()
+            ->where('type', 'client')
             ->where('debt', '>', 0)
             ->whereDoesntHave('installmentContracts')
-            ->with(['creator', 'installmentContracts'])
             ->orderByDesc('debt');
 
-        $this->applySearch($query, $search);
+        $this->applySearch($query, $request->search);
 
-        return $query->get();
+        return $this->paginateOrGet($query, $request);
     }
 
-    public function listMerchants(?string $search): Collection
+    public function listMerchants(Request $request): Collection|LengthAwarePaginator
     {
-        $query = Client::where('type', 'merchant')
-            ->with(['creator'])
+        $query = $this->clientListQuery()
+            ->where('type', 'merchant')
             ->orderByDesc('debt');
 
-        $this->applySearch($query, $search);
+        $this->applySearch($query, $request->search);
 
-        return $query->get();
+        return $this->paginateOrGet($query, $request);
     }
 
-    public function listCreditor(?string $search): Collection
+    public function listCreditor(Request $request): Collection|LengthAwarePaginator
     {
-        $query = Client::where('type', 'client')
+        $query = $this->clientListQuery()
+            ->where('type', 'client')
             ->where('debt', '<', 0)
-            ->with(['creator', 'installmentContracts'])
             ->orderBy('debt', 'asc');
 
-        $this->applySearch($query, $search);
+        $this->applySearch($query, $request->search);
 
-        return $query->get();
+        return $this->paginateOrGet($query, $request);
     }
 
-    public function listClientInstallments(?string $search): Collection
+    public function listClientInstallments(Request $request): Collection|LengthAwarePaginator
     {
-        $query = Client::where('type', 'client')
+        $query = $this->clientListQuery()
+            ->where('type', 'client')
             ->where('debt', '!=', 0)
             ->whereHas('installmentContracts')
-            ->with(['creator', 'installmentContracts'])
             ->orderByDesc('debt');
 
-        $this->applySearch($query, $search);
+        $this->applySearch($query, $request->search);
+
+        return $this->paginateOrGet($query, $request);
+    }
+
+    private function paginateOrGet(Builder $query, Request $request): Collection|LengthAwarePaginator
+    {
+        if ($request->has('page')) {
+            $perPage = min(max((int) $request->input('per_page', 25), 1), 100);
+
+            return $query->paginate($perPage);
+        }
 
         return $query->get();
     }
@@ -98,7 +118,6 @@ class ClientService
             'transactions.paymentWay',
             'transactions.debtLog',
             'installmentContracts.installments.payments',
-            'debtLogs.source',
             'debtLogs.creator',
         ])->findOrFail($id);
 
@@ -106,7 +125,6 @@ class ClientService
             'client' => $client,
             'remaining_amount' => $client->total_remaining_amount,
             'remaining_installments' => $client->total_remaining_installments,
-            'paymentWays' => PaymentWay::all(),
         ];
     }
 
@@ -142,6 +160,29 @@ class ClientService
         });
     }
 
+    private function clientListQuery(): Builder
+    {
+        return Client::query()
+            ->select([
+                'clients.id',
+                'clients.name',
+                'clients.type',
+                'clients.phone_number',
+                'clients.country_code',
+                'clients.debt',
+                'clients.created_by',
+                'clients.created_at',
+                'clients.updated_at',
+            ])
+            ->addSelect([
+                'installment_remaining_amount' => DB::table('installment_contracts')
+                    ->join('installments', 'installments.installment_contract_id', '=', 'installment_contracts.id')
+                    ->selectRaw('COALESCE(SUM(installments.required_amount - installments.paid_amount), 0)')
+                    ->whereColumn('installment_contracts.client_id', 'clients.id'),
+            ])
+            ->with(['creator:id,name,email']);
+    }
+
     private function normalizePhoneData(array $data): array
     {
         if (empty($data['phone_number'])) {
@@ -161,24 +202,29 @@ class ClientService
             ]);
         }
 
+        if (strlen($digitsOnlyPhoneNumber) < 6) {
+            throw ValidationException::withMessages([
+                'phone_number' => __('validation.regex', ['attribute' => __('messages.phone_number')]),
+            ]);
+        }
+
         $phoneUtil = PhoneNumberUtil::getInstance();
 
         try {
-            $phoneNumber = $phoneUtil->parse('+' . $digitsOnlyCountryCode . $digitsOnlyPhoneNumber, null);
+            $phoneNumber = $phoneUtil->parse('+'.$digitsOnlyCountryCode.$digitsOnlyPhoneNumber, null);
+
+            if ($phoneUtil->isValidNumber($phoneNumber)) {
+                $data['country_code'] = '+'.$phoneNumber->getCountryCode();
+                $data['phone_number'] = $phoneUtil->getNationalSignificantNumber($phoneNumber);
+
+                return $data;
+            }
         } catch (NumberParseException) {
-            throw ValidationException::withMessages([
-                'phone_number' => __('validation.regex', ['attribute' => __('messages.phone_number')]),
-            ]);
+            // Keep flexible CRM entry for manually entered local numbers.
         }
 
-        if (! $phoneUtil->isValidNumber($phoneNumber)) {
-            throw ValidationException::withMessages([
-                'phone_number' => __('validation.regex', ['attribute' => __('messages.phone_number')]),
-            ]);
-        }
-
-        $data['country_code'] = '+' . $phoneNumber->getCountryCode();
-        $data['phone_number'] = $phoneUtil->getNationalSignificantNumber($phoneNumber);
+        $data['country_code'] = '+'.$digitsOnlyCountryCode;
+        $data['phone_number'] = $digitsOnlyPhoneNumber;
 
         return $data;
     }

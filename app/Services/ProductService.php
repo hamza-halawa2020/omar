@@ -4,52 +4,70 @@ namespace App\Services;
 
 use App\Models\Product;
 use App\Models\Transaction;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Http\Request;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 
 class ProductService
 {
-    public function __construct(private readonly FileService $fileService)
-    {
-    }
+    public function __construct(private readonly FileService $fileService) {}
 
-    public function list(Request $request): Collection
+    public function list(Request $request): LengthAwarePaginator
     {
-        $relations = ['creator'];
+        $relations = [];
+        $perPage = min(max((int) $request->input('per_page', 25), 1), 100);
 
-        if (Schema::hasTable('product_purchase_batches')) {
+        if ($request->boolean('with_batches') && Schema::hasTable('product_purchase_batches')) {
             $relations['purchaseBatches'] = fn ($query) => $query
+                ->select(['id', 'product_id', 'remaining_quantity', 'unit_cost', 'created_at'])
                 ->where('remaining_quantity', '>', 0)
                 ->orderBy('created_at')
                 ->orderBy('id');
         }
 
-        return Product::with($relations)
+        return Product::query()
+            ->select([
+                'id',
+                'name',
+                'code',
+                'image',
+                'description',
+                'purchase_price',
+                'sale_price',
+                'stock',
+                'created_by',
+                'created_at',
+                'updated_at',
+            ])
+            ->with([
+                'creator:id,name,email',
+                ...$relations,
+            ])
             ->when($request->filled('code'), function ($q) use ($request) {
                 $q->where('code', $request->code);
             })
             ->when($request->search, function ($q) use ($request) {
                 $q->where(function ($query) use ($request) {
-                    $query->where('name', 'like', '%' . $request->search . '%')
-                        ->orWhere('code', 'like', '%' . $request->search . '%')
-                        ->orWhere('stock', 'like', '%' . $request->search . '%');
+                    $query->where('name', 'like', '%'.$request->search.'%')
+                        ->orWhere('code', 'like', '%'.$request->search.'%')
+                        ->orWhere('stock', 'like', '%'.$request->search.'%');
                 });
             })
-            ->get();
+            ->orderBy('name')
+            ->paginate($perPage);
     }
 
     public function codes(): Collection
     {
         return Product::query()
-            ->select('code')
             ->whereNotNull('code')
             ->where('code', '!=', '')
             ->distinct()
             ->orderBy('code')
-            ->get();
+            ->pluck('code');
     }
 
     public function create(array $data, Request $request): Product
@@ -93,21 +111,21 @@ class ProductService
             ->latest()
             ->get()
             ->map(function ($transaction) use ($product, $hasCostTotal) {
-            $line = $transaction->products->firstWhere('product_id', $product->id);
-            $quantity = (int) ($line->quantity ?? 1);
-            $cost = $transaction->type === 'receive'
-                ? (float) ($hasCostTotal ? ($line->cost_total ?? 0) : ($quantity * (float) ($product->purchase_price ?? 0)))
-                : 0;
+                $line = $transaction->products->firstWhere('product_id', $product->id);
+                $quantity = (int) ($line->quantity ?? 1);
+                $cost = $transaction->type === 'receive'
+                    ? (float) ($hasCostTotal ? ($line->cost_total ?? 0) : ($quantity * (float) ($product->purchase_price ?? 0)))
+                    : 0;
 
-            $transaction->product_line = $line;
-            $transaction->quantity = $quantity;
-            $transaction->sale_cost = $cost;
-            $transaction->sale_profit = $transaction->type === 'receive'
-                ? (float) ($line->total ?? $transaction->amount) + (float) $transaction->commission - $cost
-                : null;
+                $transaction->product_line = $line;
+                $transaction->quantity = $quantity;
+                $transaction->sale_cost = $cost;
+                $transaction->sale_profit = $transaction->type === 'receive'
+                    ? (float) ($line->total ?? $transaction->amount) + (float) $transaction->commission - $cost
+                    : null;
 
-            return $transaction;
-        });
+                return $transaction;
+            });
 
         $purchaseBatches = $hasBatches ? $product->purchaseBatches : collect();
         $salesTransactions = $transactions->where('type', 'receive')->values();

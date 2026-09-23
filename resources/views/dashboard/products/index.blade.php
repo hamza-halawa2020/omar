@@ -3,7 +3,48 @@
 @section('content')
     @include('components.alert')
 
-    <div class="container">
+    <style>
+        .products-page .table-pager {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            direction: ltr;
+            white-space: nowrap;
+        }
+
+        .products-page .table-pager .btn {
+            min-width: 36px;
+            height: 36px;
+            padding: 0;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .products-page .table-pager .page-status {
+            min-width: 92px;
+            height: 36px;
+            padding: 0 12px;
+            border: 1px solid #d8dee8;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            color: #475569;
+            font-size: 13px;
+        }
+
+        @media (max-width: 767.98px) {
+            .products-page .table-pager {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+
+    <div class="container products-page">
         <div class="d-flex justify-content-between mb-3 mobile-stack-header">
             <div class="fw-bold fs-5">{{ __('messages.products') }}</div>
             @can('products_store')
@@ -26,7 +67,7 @@
                         <select id="codeFilter" class="form-control mt-1">
                             <option value="">{{ __('messages.all') }}</option>
                             @foreach ($productCodes as $productCode)
-                                <option value="{{ $productCode->code }}">{{ $productCode->code }}</option>
+                                <option value="{{ $productCode }}">{{ $productCode }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -59,6 +100,10 @@
                 </tbody>
             </table>
         </div>
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 mt-3">
+            <small class="text-muted" id="productsPaginationInfo"></small>
+            <div class="table-pager" id="productsPagination"></div>
+        </div>
     </div>
 
     <!-- Create Modal -->
@@ -73,14 +118,18 @@
     <script>
         $(document).ready(function() {
             const canViewPurchasePrices = @can('purchase_prices_view') true @else false @endcan;
+            let currentPage = 1;
+            const perPage = 25;
 
             loadproducts();
 
             $('#searchInput').on('keyup', function() {
+                currentPage = 1;
                 loadproducts();
             });
 
             $('#codeFilter').on('change', function() {
+                currentPage = 1;
                 loadproducts();
             });
 
@@ -96,13 +145,16 @@
                     .replace(/'/g, '&#039;');
             }
 
-            function loadproducts() {
+            function loadproducts(page = currentPage) {
+                currentPage = page;
                 let search = $('#searchInput').val();
                 let code = $('#codeFilter').val();
 
                 $.get("{{ route('products.list') }}", {
                     search: search,
-                    code: code
+                    code: code,
+                    page: currentPage,
+                    per_page: perPage
                 }, function(res) {
                     if (res.status) {
                         refreshCodeFilter(res.codes || []);
@@ -150,9 +202,44 @@
                         $('#productsTable tbody').html(rows);
                         $('#parentSelect').html(parentOptions);
                         $('#editParent').html(parentOptions);
+                        renderProductsPagination(res.meta || {});
                     }
                 });
             }
+
+            function renderProductsPagination(meta) {
+                let from = meta.from || 0;
+                let to = meta.to || 0;
+                let total = meta.total || 0;
+                let lastPage = meta.last_page || 1;
+                let page = meta.current_page || 1;
+
+                $('#productsPaginationInfo').text(`${from} - ${to} / ${total}`);
+
+                if (lastPage <= 1) {
+                    $('#productsPagination').empty();
+                    return;
+                }
+
+                $('#productsPagination').html(`
+                    <button type="button" class="btn btn-outline-primary ${page <= 1 ? 'disabled' : ''}" data-page="${page - 1}">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <span class="page-status">${page} / ${lastPage}</span>
+                    <button type="button" class="btn btn-outline-primary ${page >= lastPage ? 'disabled' : ''}" data-page="${page + 1}">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                `);
+            }
+
+            $(document).on('click', '#productsPagination button:not(.disabled)', function() {
+                let page = Number($(this).data('page'));
+                if (!page) {
+                    return;
+                }
+
+                loadproducts(page);
+            });
 
             function refreshCodeFilter(codes) {
                 let selectedCode = $('#codeFilter').val();

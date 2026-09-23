@@ -5,15 +5,14 @@ namespace App\Services;
 use App\Models\Association;
 use App\Models\AssociationPayment;
 use App\Models\Client;
-use App\Models\PaymentWay;
 use App\Models\Transaction;
 use App\Services\Concerns\HandlesTransactionConcurrency;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use App\Services\WhatsAppService;
 
 class AssociationService
 {
@@ -26,23 +25,23 @@ class AssociationService
         return compact('clients');
     }
 
-    public function list(): Collection
+    public function list(Request $request): LengthAwarePaginator
     {
+        $perPage = min(max((int) $request->input('per_page', 25), 1), 100);
+
         return Association::with([
             'members.client' => function ($query) {
                 $query->where('type', 'client');
             },
-            'creator'
-        ])->get();
+            'creator',
+        ])->latest()->paginate($perPage);
     }
 
     public function details(int $id): array
     {
         $association = Association::with(['members.client', 'creator'])->findOrFail($id);
-        $clients = Client::where('type', 'client')->get();
-        $paymentWays = PaymentWay::all();
 
-        return compact('association', 'clients', 'paymentWays');
+        return compact('association');
     }
 
     public function addMember(int $id, array $data): mixed
@@ -172,7 +171,7 @@ class AssociationService
                     'type' => 'receive',
                     'amount' => $data['amount'],
                     'commission' => $data['commission'] ?? 0,
-                    'notes' => __('messages.payment_for_installment') . ' ' . ($member->client->name ?? '') . ' - ' . $association->name,
+                    'notes' => __('messages.payment_for_installment').' '.($member->client->name ?? '').' - '.$association->name,
                     'client_id' => $member->client_id ?? null,
                     'balance_before_transaction' => $paymentWay->balance,
                     'balance_after_transaction' => $paymentWay->balance + $total,
@@ -244,7 +243,7 @@ class AssociationService
                     'type' => 'send',
                     'amount' => $totalReceived,
                     'commission' => $commission,
-                    'notes' => __('messages.recevied_done') . ' ' . $association->name . ' - ' . ($member->client->name ?? ''),
+                    'notes' => __('messages.recevied_done').' '.$association->name.' - '.($member->client->name ?? ''),
                     'client_id' => $member->client_id,
                     'balance_before_transaction' => $paymentWay->balance,
                     'balance_after_transaction' => $paymentWay->balance - $total,

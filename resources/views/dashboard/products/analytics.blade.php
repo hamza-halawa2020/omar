@@ -7,6 +7,10 @@
         $currency = __('messages.currency_symbol');
         $formatMoney = fn ($value) => number_format((float) $value, 2) . ' ' . $currency;
         $formatNumber = fn ($value) => number_format((float) $value, 0);
+        $paginationUrl = fn ($paginator, $page, $except, $fragment) => $paginator
+            ->appends(request()->except($except))
+            ->fragment($fragment)
+            ->url($page);
     @endphp
 
     <style>
@@ -167,6 +171,38 @@
             max-width: 100%;
         }
 
+        .product-analytics-page .table-pager {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            direction: ltr;
+            white-space: nowrap;
+        }
+
+        .product-analytics-page .table-pager .btn {
+            min-width: 36px;
+            height: 36px;
+            padding: 0;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .product-analytics-page .table-pager .page-status {
+            min-width: 92px;
+            height: 36px;
+            padding: 0 12px;
+            border: 1px solid #d8dee8;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            color: #475569;
+            font-size: 13px;
+        }
+
         @media (max-width: 767.98px) {
             .product-analytics-page {
                 padding-inline: 0 !important;
@@ -201,6 +237,11 @@
 
             .product-analytics-page .card-title {
                 font-size: 15px;
+            }
+
+            .product-analytics-page .table-pager {
+                width: 100%;
+                justify-content: center;
             }
         }
 
@@ -295,6 +336,9 @@
                         <div class="h4 mb-0 summary-value">{{ number_format($totals['profit_margin'], 2) }}%</div>
                     </div>
                 </div>
+                <div class="mt-3">
+                    {{ $productRows->appends(request()->query())->links() }}
+                </div>
             </div>
         </div>
 
@@ -343,7 +387,7 @@
             </div>
         </div>
 
-        <div class="card mb-3">
+        <div class="card mb-3" id="product-performance-table">
             <div class="card-body">
                 <div class="card-title">{{ __('messages.product_performance') }}</div>
                 <div class="table-responsive responsive-records-wrapper">
@@ -384,10 +428,30 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 mt-3">
+                    <small class="text-muted">
+                        {{ $productRows->firstItem() ?? 0 }} - {{ $productRows->lastItem() ?? 0 }}
+                        /
+                        {{ $productRows->total() }}
+                    </small>
+                    <div class="table-pager">
+                        @if ($productRows->hasPages())
+                            <a class="btn btn-outline-primary {{ $productRows->onFirstPage() ? 'disabled' : '' }}"
+                                href="{{ $productRows->onFirstPage() ? '#' : $paginationUrl($productRows, $productRows->currentPage() - 1, 'products_page', 'product-performance-table') }}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                            <span class="page-status">{{ $productRows->currentPage() }} / {{ $productRows->lastPage() }}</span>
+                            <a class="btn btn-outline-primary {{ $productRows->hasMorePages() ? '' : 'disabled' }}"
+                                href="{{ $productRows->hasMorePages() ? $paginationUrl($productRows, $productRows->currentPage() + 1, 'products_page', 'product-performance-table') : '#' }}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        @endif
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="card">
+        <div class="card" id="sales-transactions-table">
             <div class="card-body">
                 <div class="card-title">{{ __('messages.sales_transactions_profit') }}</div>
                 <div class="table-responsive responsive-records-wrapper">
@@ -429,8 +493,25 @@
                     </table>
                 </div>
 
-                <div class="mt-3">
-                    {{ $salesTransactions->appends(request()->query())->links() }}
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 mt-3">
+                    <small class="text-muted">
+                        {{ $salesTransactions->firstItem() ?? 0 }} - {{ $salesTransactions->lastItem() ?? 0 }}
+                        /
+                        {{ $salesTransactions->total() }}
+                    </small>
+                    <div class="table-pager">
+                        @if ($salesTransactions->hasPages())
+                            <a class="btn btn-outline-primary {{ $salesTransactions->onFirstPage() ? 'disabled' : '' }}"
+                                href="{{ $salesTransactions->onFirstPage() ? '#' : $paginationUrl($salesTransactions, $salesTransactions->currentPage() - 1, 'sales_page', 'sales-transactions-table') }}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                            <span class="page-status">{{ $salesTransactions->currentPage() }} / {{ $salesTransactions->lastPage() }}</span>
+                            <a class="btn btn-outline-primary {{ $salesTransactions->hasMorePages() ? '' : 'disabled' }}"
+                                href="{{ $salesTransactions->hasMorePages() ? $paginationUrl($salesTransactions, $salesTransactions->currentPage() + 1, 'sales_page', 'sales-transactions-table') : '#' }}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
@@ -461,8 +542,8 @@
             const chartCanvas = document.getElementById('productProfitChart');
             if (!chartCanvas) return;
 
-            const labels = @json($productRows->take(10)->pluck('name')->values());
-            const values = @json($productRows->take(10)->pluck('net_profit')->map(fn ($value) => round($value, 2))->values());
+            const labels = @json($chartRows->pluck('name')->values());
+            const values = @json($chartRows->pluck('net_profit')->map(fn ($value) => round($value, 2))->values());
 
             new Chart(chartCanvas, {
                 type: 'bar',
