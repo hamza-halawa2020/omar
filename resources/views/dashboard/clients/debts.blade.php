@@ -4,13 +4,47 @@
 @include('components.alert')
 
 <style>
-    .clients-paginated-page .table-pager{display:inline-flex;align-items:center;gap:8px;direction:ltr;white-space:nowrap}
-    .clients-paginated-page .table-pager .btn{min-width:36px;height:36px;padding:0;border-radius:8px;display:inline-flex;align-items:center;justify-content:center}
-    .clients-paginated-page .table-pager .page-status{min-width:92px;height:36px;padding:0 12px;border:1px solid #d8dee8;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;background:#fff;color:#475569;font-size:13px}
-    @media (max-width:767.98px){.clients-paginated-page .table-pager{width:100%;justify-content:center}}
+    .clients-paginated-page .table-pager {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        direction: ltr;
+        white-space: nowrap
+    }
+
+    .clients-paginated-page .table-pager .btn {
+        min-width: 36px;
+        height: 36px;
+        padding: 0;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center
+    }
+
+    .clients-paginated-page .table-pager .page-status {
+        min-width: 92px;
+        height: 36px;
+        padding: 0 12px;
+        border: 1px solid #d8dee8;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #fff;
+        color: #475569;
+        font-size: 13px
+    }
+
+    @media (max-width:767.98px) {
+        .clients-paginated-page .table-pager {
+            width: 100%;
+            justify-content: center
+        }
+    }
 </style>
 
-<div class="container clients-paginated-page">
+<div class="container-fluid clients-paginated-page">
     <div class="d-flex justify-content-between mb-3 mobile-stack-header">
         <div class="fw-bold fs-5">{{ __('messages.debts') }}</div>
     </div>
@@ -22,28 +56,27 @@
         </div>
     </div>
 
+    <x-table-pagination id="clientsPagination" :per-page="25" />
+
     <div class="responsive-records-wrapper table-responsive">
-    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records" id="clientsTable" data-backend-sort="true">
-        <thead>
-            <tr>
-                <th class="text-center" data-sort-key="id">{{ __('messages.id') }}</th>
-                <th class="text-center" data-sort-key="name">{{ __('messages.name') }}</th>
-                <th class="text-center" data-sort-key="phone_number">{{ __('messages.phone_number') }}</th>
-                <th class="text-center" data-sort-key="debt">{{ __('messages.debt') }}</th>
-                <th class="text-center" data-sort-key="created_by">{{ __('messages.created_by') }}</th>
-                @canany(['clients_show', 'clients_update', 'clients_destroy'])
-                <th class="text-center">{{ __('messages.actions') }}</th>
-                @endcan
-            </tr>
-        </thead>
-        <tbody>
-            {{-- Data will be loaded via AJAX --}}
-        </tbody>
-    </table>
-    </div>
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 mt-3">
-        <small class="text-muted" id="clientsPaginationInfo"></small>
-        <div class="table-pager" id="clientsPagination"></div>
+        <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records"
+            id="clientsTable" data-backend-sort="true">
+            <thead>
+                <tr>
+                    <th class="text-center" data-sort-key="id">{{ __('messages.id') }}</th>
+                    <th class="text-center" data-sort-key="name">{{ __('messages.name') }}</th>
+                    <th class="text-center" data-sort-key="phone_number">{{ __('messages.phone_number') }}</th>
+                    <th class="text-center" data-sort-key="debt">{{ __('messages.debt') }}</th>
+                    <th class="text-center" data-sort-key="created_by">{{ __('messages.created_by') }}</th>
+                    @canany(['clients_show', 'clients_update', 'clients_destroy'])
+                    <th class="text-center">{{ __('messages.actions') }}</th>
+                    @endcan
+                </tr>
+            </thead>
+            <tbody>
+                {{-- Data will be loaded via AJAX --}}
+            </tbody>
+        </table>
     </div>
 </div>
 
@@ -57,7 +90,7 @@
 <script>
     $(document).ready(function () {
         let currentPage = 1;
-        const perPage = 25;
+        let perPage = 25;
         let currentSortBy = 'debt';
         let currentSortDirection = 'desc';
 
@@ -100,43 +133,22 @@
                             </tr>`;
                     });
                     $('#clientsTable tbody').html(rows);
-                    renderClientsPagination(res.meta || {});
+                    TablePagination.render('clientsPagination', res.meta || {});
                 }
             });
         }
 
-        function renderClientsPagination(meta) {
-            let from = meta.from || 0;
-            let to = meta.to || 0;
-            let total = meta.total || 0;
-            let lastPage = meta.last_page || 1;
-            let page = meta.current_page || 1;
-
-            $('#clientsPaginationInfo').text(`${from} - ${to} / ${total}`);
-
-            if (lastPage <= 1) {
-                $('#clientsPagination').empty();
-                return;
-            }
-
-            $('#clientsPagination').html(`
-                <button type="button" class="btn btn-outline-primary ${page <= 1 ? 'disabled' : ''}" data-page="${page - 1}">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                <span class="page-status">${page} / ${lastPage}</span>
-                <button type="button" class="btn btn-outline-primary ${page >= lastPage ? 'disabled' : ''}" data-page="${page + 1}">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-            `);
-        }
-
-        $(document).on('click', '#clientsPagination button:not(.disabled)', function () {
-            let page = Number($(this).data('page'));
-            if (!page) return;
-            loadclients(page);
+        document.getElementById('clientsPagination')?.addEventListener('table:page', function (event) {
+            loadclients(event.detail.page);
         });
 
-        document.getElementById('clientsTable')?.addEventListener('table:sort', function(event) {
+        document.getElementById('clientsPagination')?.addEventListener('table:per-page', function (event) {
+            perPage = event.detail.perPage;
+            currentPage = 1;
+            loadclients();
+        });
+
+        document.getElementById('clientsTable')?.addEventListener('table:sort', function (event) {
             event.preventDefault();
             currentSortBy = event.detail.key;
             currentSortDirection = event.detail.direction;

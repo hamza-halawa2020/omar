@@ -1,7 +1,7 @@
 @extends('dashboard.layouts.app')
 
 @section('content')
-    <div class="container">
+    <div class="container-fluid">
         <div class="d-flex justify-content-between mb-3 mobile-stack-header">
             <div>{{ __('messages.installment_contract_details') }}</div>
          

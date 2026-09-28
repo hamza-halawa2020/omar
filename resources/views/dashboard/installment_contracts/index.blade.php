@@ -1,139 +1,139 @@
 @extends('dashboard.layouts.app')
 
 @section('content')
-    @include('components.alert')
+@include('components.alert')
 
-    <style>
+<style>
+    .installment-contracts-page .table-pager {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        direction: ltr;
+        white-space: nowrap;
+    }
+
+    .installment-contracts-page .table-pager .btn {
+        min-width: 36px;
+        height: 36px;
+        padding: 0;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .installment-contracts-page .table-pager .page-status {
+        min-width: 92px;
+        height: 36px;
+        padding: 0 12px;
+        border: 1px solid #d8dee8;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #fff;
+        color: #475569;
+        font-size: 13px;
+    }
+
+    @media (max-width: 767.98px) {
         .installment-contracts-page .table-pager {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            direction: ltr;
-            white-space: nowrap;
-        }
-
-        .installment-contracts-page .table-pager .btn {
-            min-width: 36px;
-            height: 36px;
-            padding: 0;
-            border-radius: 8px;
-            display: inline-flex;
-            align-items: center;
+            width: 100%;
             justify-content: center;
         }
+    }
+</style>
 
-        .installment-contracts-page .table-pager .page-status {
-            min-width: 92px;
-            height: 36px;
-            padding: 0 12px;
-            border: 1px solid #d8dee8;
-            border-radius: 8px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: #fff;
-            color: #475569;
-            font-size: 13px;
-        }
-
-        @media (max-width: 767.98px) {
-            .installment-contracts-page .table-pager {
-                width: 100%;
-                justify-content: center;
-            }
-        }
-    </style>
-
-    <div class="container installment-contracts-page">
-        <div class="d-flex justify-content-between mb-3 mobile-stack-header">
-            <div class="fw-bold fs-5">{{ __('messages.installments') }}</div>
-            @can('installments_store')
-                <button class="btn btn-outline-primary btn-sm radius-8" data-bs-toggle="modal"
-                    data-bs-target="#createModal">{{ __('messages.add_installment') }}</button>
-            @endcan
-        </div>
-
-
-        <div class="responsive-records-wrapper table-responsive">
-            <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records"
-                id="installmentsTable" data-backend-sort="true">
-                <thead>
-                    <tr>
-                        <th class="text-center" data-sort-key="id">#</th>
-                        <th class="text-center" data-sort-key="client">{{ __('messages.client') }}</th>
-                        <th class="text-center" data-sort-key="product">{{ __('messages.product') }}</th>
-               
-                        <th class="text-center" data-sort-key="installment_amount">{{ __('messages.installment_amount') }}</th>
-                        <th class="text-center" data-sort-key="down_payment">{{ __('messages.down_payment') }}</th>
-                        <th class="text-center" data-sort-key="remaining_amount">{{ __('messages.remaining_amount') }}</th>
-                        <th class="text-center" data-sort-key="remaining_installments">{{ __('messages.installment_count_left') }}</th>
-                        @canany(['installments_show', 'installments_update', 'installments_destroy'])
-                            <th class="text-center">{{ __('messages.actions') }}</th>
-                        @endcan
-                    </tr>
-                </thead>
-                <tbody>
-                    {{-- Data will be loaded via AJAX --}}
-                </tbody>
-            </table>
-        </div>
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 mt-3">
-            <small class="text-muted" id="installmentsPaginationInfo"></small>
-            <div class="table-pager" id="installmentsPagination"></div>
-        </div>
-
+<div class="container-fluid installment-contracts-page">
+    <div class="d-flex justify-content-between mb-3 mobile-stack-header">
+        <div class="fw-bold fs-5">{{ __('messages.installments') }}</div>
+        @can('installments_store')
+            <button class="btn btn-outline-primary btn-sm radius-8" data-bs-toggle="modal"
+                data-bs-target="#createModal">{{ __('messages.add_installment') }}</button>
+        @endcan
     </div>
 
-    <!-- Create Modal -->
-    @include('dashboard.installment_contracts.create')
-    <!-- Edit Modal -->
-    @include('dashboard.installment_contracts.edit')
-    <!-- Pay Modal -->
-    {{-- @include('dashboard.installment_contracts.pay') --}}
-    <!-- Delete Modal -->
-    @include('dashboard.installment_contracts.delete')
+
+    <x-table-pagination id="installmentsPagination" :per-page="25" />
+
+    <div class="responsive-records-wrapper table-responsive">
+        <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records"
+            id="installmentsTable" data-backend-sort="true">
+            <thead>
+                <tr>
+                    <th class="text-center" data-sort-key="id">#</th>
+                    <th class="text-center" data-sort-key="client">{{ __('messages.client') }}</th>
+                    <th class="text-center" data-sort-key="product">{{ __('messages.product') }}</th>
+
+                    <th class="text-center" data-sort-key="installment_amount">{{ __('messages.installment_amount') }}
+                    </th>
+                    <th class="text-center" data-sort-key="down_payment">{{ __('messages.down_payment') }}</th>
+                    <th class="text-center" data-sort-key="remaining_amount">{{ __('messages.remaining_amount') }}</th>
+                    <th class="text-center" data-sort-key="remaining_installments">
+                        {{ __('messages.installment_count_left') }}</th>
+                    @canany(['installments_show', 'installments_update', 'installments_destroy'])
+                    <th class="text-center">{{ __('messages.actions') }}</th>
+                    @endcan
+                </tr>
+            </thead>
+            <tbody>
+                {{-- Data will be loaded via AJAX --}}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<!-- Create Modal -->
+@include('dashboard.installment_contracts.create')
+<!-- Edit Modal -->
+@include('dashboard.installment_contracts.edit')
+<!-- Pay Modal -->
+{{-- @include('dashboard.installment_contracts.pay') --}}
+<!-- Delete Modal -->
+@include('dashboard.installment_contracts.delete')
 @endsection
 
 @push('scripts')
-    <script>
-        $(document).ready(function() {
-            let currentPage = 1;
-            const perPage = 25;
-            let currentSortBy = 'id';
-            let currentSortDirection = 'desc';
+<script>
+    $(document).ready(function () {
+        let currentPage = 1;
+        let perPage = 25;
+        let currentSortBy = 'id';
+        let currentSortDirection = 'desc';
 
-            loadinstallments();
+        loadinstallments();
 
-            function valueOrEmpty(value) {
-                return value ?? '';
-            }
+        function valueOrEmpty(value) {
+            return value ?? '';
+        }
 
-            function escapeHtml(value) {
-                return String(valueOrEmpty(value)).replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
-                    .replace(/"/g, '&quot;')
-                    .replace(/'/g, '&#039;');
-            }
+        function escapeHtml(value) {
+            return String(valueOrEmpty(value)).replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
 
-            function loadinstallments(page = currentPage) {
-                currentPage = page;
+        function loadinstallments(page = currentPage) {
+            currentPage = page;
 
-                $.get("{{ route('installment_contracts.list') }}", {
-                    page: currentPage,
-                    per_page: perPage,
-                    sort_by: currentSortBy,
-                    sort_direction: currentSortDirection
-                }, function(res) {
+            $.get("{{ route('installment_contracts.list') }}", {
+                page: currentPage,
+                per_page: perPage,
+                sort_by: currentSortBy,
+                sort_direction: currentSortDirection
+            }, function (res) {
 
-                    if (res.status) {
-                        let rows = '';
-                        res.data.forEach((contract, i) => {
-                            let clientName = contract.client?.name ?? '';
-                            let clientPhone = contract.client?.phone_number ?? '';
-                            let productName = contract.product?.name ?? '';
+                if (res.status) {
+                    let rows = '';
+                    res.data.forEach((contract, i) => {
+                        let clientName = contract.client?.name ?? '';
+                        let clientPhone = contract.client?.phone_number ?? '';
+                        let productName = contract.product?.name ?? '';
 
-                            rows += `
+                        rows += `
                     <tr>
                         <td data-label="{{ __('messages.id') }}">${escapeHtml(contract.id)}</td>
                         <td class="mobile-primary" data-label="{{ __('messages.client') }}">
@@ -174,205 +174,181 @@
                             </td>
                         @endcan
                     </tr>`;
-                        });
-                        $('#installmentsTable tbody').html(rows);
-                        renderInstallmentsPagination(res.meta || {});
-                    }
-                });
-            }
-
-            function renderInstallmentsPagination(meta) {
-                let from = meta.from || 0;
-                let to = meta.to || 0;
-                let total = meta.total || 0;
-                let lastPage = meta.last_page || 1;
-                let page = meta.current_page || 1;
-
-                $('#installmentsPaginationInfo').text(`${from} - ${to} / ${total}`);
-
-                if (lastPage <= 1) {
-                    $('#installmentsPagination').empty();
-                    return;
-                }
-
-                $('#installmentsPagination').html(`
-                    <button type="button" class="btn btn-outline-primary ${page <= 1 ? 'disabled' : ''}" data-page="${page - 1}">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <span class="page-status">${page} / ${lastPage}</span>
-                    <button type="button" class="btn btn-outline-primary ${page >= lastPage ? 'disabled' : ''}" data-page="${page + 1}">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
-                `);
-            }
-
-            $(document).on('click', '#installmentsPagination button:not(.disabled)', function() {
-                let page = Number($(this).data('page'));
-                if (!page) {
-                    return;
-                }
-
-                loadinstallments(page);
-            });
-
-            document.getElementById('installmentsTable')?.addEventListener('table:sort', function(event) {
-                event.preventDefault();
-                currentSortBy = event.detail.sortBy || 'id';
-                currentSortDirection = event.detail.sortDirection || 'desc';
-                currentPage = 1;
-                loadinstallments();
-            });
-
-            // Create
-            $('#createForm').submit(function(e) {
-                e.preventDefault();
-                $.post("{{ route('installment_contracts.store') }}", $(this).serialize(), function(res) {
-                    if (res.status) {
-                        $('#createModal').modal('hide');
-                        loadinstallments();
-                        showToast(res.message, 'success');
-                        $('#createForm')[0].reset();
-                    } else {
-                        $('#createModal').modal('hide');
-                        showToast(res.message, 'error');
-                    }
-                });
-            });
-
-            $(document).on('click', '.purchase-price', function() {
-                let state = $(this).data('state');
-                let realPrice = $(this).data('real');
-                let fakePrice = $(this).data('fake');
-
-                if (state === 'fake') {
-                    $(this).text(realPrice).data('state', 'real');
-                } else {
-                    $(this).text(fakePrice).data('state', 'fake');
+                    });
+                    $('#installmentsTable tbody').html(rows);
+                    TablePagination.render('installmentsPagination', res.meta || {});
                 }
             });
+        }
 
-
-
-
-            // Edit (open modal)
-            $(document).on('click', '.editBtn', function() {
-                let id = $(this).data('id');
-                let clientId = $(this).data('client_id');
-                let productId = $(this).data('product_id');
-                let productPrice = $(this).data('product_price');
-                let downPayment = $(this).data('down_payment');
-                let interestRate = $(this).data('interest_rate');
-                let installmentCount = $(this).data('installment_count');
-                let startDate = $(this).data('start_date');
-
-                let totalAmount = $(this).data('total_amount');
-                let remainingAmount = $(this).data('remaining_amount');
-                let remainingInstallments = $(this).data('remaining_installments');
-                let nextDueDate = $(this).data('next_due_date');
-
-                $('#editId').val(id);
-                $('#editClientId').val(clientId);
-                $('#editProductId').val(productId);
-                $('#editProductPrice').val(productPrice);
-                $('#editDownPayment').val(downPayment);
-                $('#editInterestRate').val(interestRate);
-                $('#editInstallmentCount').val(installmentCount);
-                $('#editStartDate').val(startDate);
-
-                $('#editTotalAmount').val(totalAmount);
-                $('#editRemainingAmount').val(remainingAmount);
-                $('#editRemainingInstallments').val(remainingInstallments);
-                $('#editNextDueDate').val(nextDueDate);
-
-                $('#editModal').modal('show');
-            });
-
-
-
-
-            // Update
-            $('#editForm').submit(function(e) {
-                e.preventDefault();
-                let id = $('#editId').val();
-
-                $.ajax({
-                    url: "/dashboard/installment_contracts/" + id,
-                    type: "PUT",
-                    data: $(this).serialize(),
-                    success: function(res) {
-                        if (res.status) {
-                            $('#editModal').modal('hide');
-                            loadinstallments();
-                            showToast(res.message, 'success');
-                        } else {
-                            $('#editModal').modal('hide');
-                            showToast(res.message, 'error');
-                        }
-                    },
-                    error: function(xhr) {
-                        $('#editModal').modal('hide');
-                        let res = xhr.responseJSON;
-                        showToast(res?.message || 'Something went wrong', 'error');
-                    }
-                });
-            });
-
-
-            // Delete (open modal)
-            $(document).on('click', '.deleteBtn', function() {
-                $('#deleteId').val($(this).data('id'));
-                $('#deleteName').text($(this).data('name'));
-                $('#deleteModal').modal('show');
-            });
-
-            // Confirm Delete
-            $('#deleteForm').submit(function(e) {
-                e.preventDefault();
-                let id = $('#deleteId').val();
-                $.ajax({
-                    url: "/dashboard/installment_contracts/" + id,
-                    type: "DELETE",
-                    data: $(this).serialize(),
-                    success: function(res) {
-                        if (res.status) {
-                            $('#deleteModal').modal('hide');
-                            loadinstallments();
-                            showToast(res.message, 'success');
-                        } else {
-                            $('#deleteModal').modal('hide');
-                            showToast(res.message, 'error');
-                        }
-                    },
-                    error: function(xhr) {
-                        $('#deleteModal').modal('hide');
-                        let res = xhr.responseJSON;
-                        showToast(res?.message || 'Something went wrong', 'error');
-                    }
-                });
-            });
-
-            $(document).on('click', '.payBtn', function() {
-                let id = $(this).data('id');
-                $('#payInstallmentId').val(id);
-                $('#payModal').modal('show');
-            });
-
-            $('#payForm').submit(function(e) {
-                e.preventDefault();
-                $.post("{{ route('installments.pay') }}", $(this).serialize(), function(res) {
-                    if (res.status) {
-                        $('#payModal').modal('hide');
-                        loadinstallments();
-                        showToast(res.message, 'success');
-                    } else {
-                        showToast(res.message, 'error');
-                    }
-                }).fail(function(xhr) {
-                    showToast(xhr.responseJSON?.message || 'Something went wrong', 'error');
-                });
-            });
-
-
+        document.getElementById('installmentsPagination')?.addEventListener('table:page', function (event) {
+            loadinstallments(event.detail.page);
         });
-    </script>
+
+        document.getElementById('installmentsPagination')?.addEventListener('table:per-page', function (event) {
+            perPage = event.detail.perPage;
+            currentPage = 1;
+            loadinstallments();
+        });
+
+        document.getElementById('installmentsTable')?.addEventListener('table:sort', function (event) {
+            event.preventDefault();
+            currentSortBy = event.detail.sortBy || 'id';
+            currentSortDirection = event.detail.sortDirection || 'desc';
+            currentPage = 1;
+            loadinstallments();
+        });
+
+        // Create
+        $('#createForm').submit(function (e) {
+            e.preventDefault();
+            $.post("{{ route('installment_contracts.store') }}", $(this).serialize(), function (res) {
+                if (res.status) {
+                    $('#createModal').modal('hide');
+                    loadinstallments();
+                    showToast(res.message, 'success');
+                    $('#createForm')[0].reset();
+                } else {
+                    $('#createModal').modal('hide');
+                    showToast(res.message, 'error');
+                }
+            });
+        });
+
+        $(document).on('click', '.purchase-price', function () {
+            let state = $(this).data('state');
+            let realPrice = $(this).data('real');
+            let fakePrice = $(this).data('fake');
+
+            if (state === 'fake') {
+                $(this).text(realPrice).data('state', 'real');
+            } else {
+                $(this).text(fakePrice).data('state', 'fake');
+            }
+        });
+
+
+
+
+        // Edit (open modal)
+        $(document).on('click', '.editBtn', function () {
+            let id = $(this).data('id');
+            let clientId = $(this).data('client_id');
+            let productId = $(this).data('product_id');
+            let productPrice = $(this).data('product_price');
+            let downPayment = $(this).data('down_payment');
+            let interestRate = $(this).data('interest_rate');
+            let installmentCount = $(this).data('installment_count');
+            let startDate = $(this).data('start_date');
+
+            let totalAmount = $(this).data('total_amount');
+            let remainingAmount = $(this).data('remaining_amount');
+            let remainingInstallments = $(this).data('remaining_installments');
+            let nextDueDate = $(this).data('next_due_date');
+
+            $('#editId').val(id);
+            $('#editClientId').val(clientId);
+            $('#editProductId').val(productId);
+            $('#editProductPrice').val(productPrice);
+            $('#editDownPayment').val(downPayment);
+            $('#editInterestRate').val(interestRate);
+            $('#editInstallmentCount').val(installmentCount);
+            $('#editStartDate').val(startDate);
+
+            $('#editTotalAmount').val(totalAmount);
+            $('#editRemainingAmount').val(remainingAmount);
+            $('#editRemainingInstallments').val(remainingInstallments);
+            $('#editNextDueDate').val(nextDueDate);
+
+            $('#editModal').modal('show');
+        });
+
+
+
+
+        // Update
+        $('#editForm').submit(function (e) {
+            e.preventDefault();
+            let id = $('#editId').val();
+
+            $.ajax({
+                url: "/dashboard/installment_contracts/" + id,
+                type: "PUT",
+                data: $(this).serialize(),
+                success: function (res) {
+                    if (res.status) {
+                        $('#editModal').modal('hide');
+                        loadinstallments();
+                        showToast(res.message, 'success');
+                    } else {
+                        $('#editModal').modal('hide');
+                        showToast(res.message, 'error');
+                    }
+                },
+                error: function (xhr) {
+                    $('#editModal').modal('hide');
+                    let res = xhr.responseJSON;
+                    showToast(res?.message || 'Something went wrong', 'error');
+                }
+            });
+        });
+
+
+        // Delete (open modal)
+        $(document).on('click', '.deleteBtn', function () {
+            $('#deleteId').val($(this).data('id'));
+            $('#deleteName').text($(this).data('name'));
+            $('#deleteModal').modal('show');
+        });
+
+        // Confirm Delete
+        $('#deleteForm').submit(function (e) {
+            e.preventDefault();
+            let id = $('#deleteId').val();
+            $.ajax({
+                url: "/dashboard/installment_contracts/" + id,
+                type: "DELETE",
+                data: $(this).serialize(),
+                success: function (res) {
+                    if (res.status) {
+                        $('#deleteModal').modal('hide');
+                        loadinstallments();
+                        showToast(res.message, 'success');
+                    } else {
+                        $('#deleteModal').modal('hide');
+                        showToast(res.message, 'error');
+                    }
+                },
+                error: function (xhr) {
+                    $('#deleteModal').modal('hide');
+                    let res = xhr.responseJSON;
+                    showToast(res?.message || 'Something went wrong', 'error');
+                }
+            });
+        });
+
+        $(document).on('click', '.payBtn', function () {
+            let id = $(this).data('id');
+            $('#payInstallmentId').val(id);
+            $('#payModal').modal('show');
+        });
+
+        $('#payForm').submit(function (e) {
+            e.preventDefault();
+            $.post("{{ route('installments.pay') }}", $(this).serialize(), function (res) {
+                if (res.status) {
+                    $('#payModal').modal('hide');
+                    loadinstallments();
+                    showToast(res.message, 'success');
+                } else {
+                    showToast(res.message, 'error');
+                }
+            }).fail(function (xhr) {
+                showToast(xhr.responseJSON?.message || 'Something went wrong', 'error');
+            });
+        });
+
+
+    });
+</script>
 @endpush

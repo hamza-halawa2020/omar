@@ -90,8 +90,10 @@ class ProductAnalyticsService
 
     private function paginateProductRows(Builder $query, Request $request): LengthAwarePaginator
     {
+        $perPage = min(max((int) $request->input('products_per_page', 25), 1), 100);
+
         return $query
-            ->paginate(25, ['*'], 'products_page')
+            ->paginate($perPage, ['*'], 'products_page')
             ->appends($request->query())
             ->through(fn ($row) => $this->normalizeProductRow($row));
     }
@@ -143,6 +145,7 @@ class ProductAnalyticsService
     {
         $sortBy = $request->input('sales_sort_by', 'created_at');
         $sortDirection = strtolower($request->input('sales_sort_direction', 'desc')) === 'asc' ? 'asc' : 'desc';
+        $perPage = min(max((int) $request->input('sales_per_page', 25), 1), 100);
         $quantitySubquery = DB::table('transaction_products')
             ->selectRaw('COALESCE(SUM(quantity), 0)')
             ->whereColumn('transaction_products.transaction_id', 'transactions.id')
@@ -199,7 +202,7 @@ class ProductAnalyticsService
 
         return $query
             ->orderBy('transactions.id', 'desc')
-            ->paginate(25, ['*'], 'sales_page')
+            ->paginate($perPage, ['*'], 'sales_page')
             ->appends($request->query())
             ->through(function (Transaction $transaction) use ($productId) {
                 $items = $transaction->products;

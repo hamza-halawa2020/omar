@@ -28,6 +28,8 @@
 
     <div class="card">
         <div class="card-body">
+            <x-table-pagination id="transactionsPagination" :paginator="$transactions" :per-page="$transactions->perPage()" />
+
             <div class="table-responsive responsive-records-wrapper">
                 <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records" id="transactionsTable" data-backend-sort="true">
                     <thead>
@@ -81,10 +83,6 @@
                         @endforelse
                     </tbody>
                 </table>
-            </div>
-            
-            <div class="mt-3">
-                {{ $transactions->appends(request()->query())->links() }}
             </div>
         </div>
     </div>

@@ -44,7 +44,7 @@
     }
 </style>
 
-<div class="container associations-page">
+<div class="container-fluid associations-page">
     <div class="d-flex justify-content-between mb-3 mobile-stack-header">
         <div class="fw-bold fs-5">{{ __('messages.associations') }}</div>
 
@@ -54,30 +54,29 @@
         @endcan
     </div>
 
+    <x-table-pagination id="associationsPagination" :per-page="25" />
+
     <div class="responsive-records-wrapper table-responsive">
-    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records" id="associationsTable" data-backend-sort="true">
-        <thead>
-            <tr>
-                <th class="text-center" data-sort-key="id">{{ __('messages.id') }}</th>
-                <th class="text-center" data-sort-key="name">{{ __('messages.name') }}</th>
-                <th class="text-center" data-sort-key="per_day">{{ __('messages.per_day') }}</th>
-                <th class="text-center" data-sort-key="total_members">{{ __('messages.total_members') }}</th>
-                <th class="text-center" data-sort-key="monthly_amount">{{ __('messages.monthly_amount') }}</th>
-                <th class="text-center" data-sort-key="status">{{ __('messages.status') }}</th>
-                <th class="text-center" data-sort-key="created_by">{{ __('messages.created_by') }}</th>
-                @canany(['associations_update', 'associations_destroy', 'associations_details'])
-                <th class="text-center">{{ __('messages.actions') }}</th>
-                @endcan
-            </tr>
-        </thead>
-        <tbody>
-            {{-- Loaded by AJAX --}}
-        </tbody>
-    </table>
-    </div>
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 mt-3">
-        <small class="text-muted" id="associationsPaginationInfo"></small>
-        <div class="table-pager" id="associationsPagination"></div>
+        <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records"
+            id="associationsTable" data-backend-sort="true">
+            <thead>
+                <tr>
+                    <th class="text-center" data-sort-key="id">{{ __('messages.id') }}</th>
+                    <th class="text-center" data-sort-key="name">{{ __('messages.name') }}</th>
+                    <th class="text-center" data-sort-key="per_day">{{ __('messages.per_day') }}</th>
+                    <th class="text-center" data-sort-key="total_members">{{ __('messages.total_members') }}</th>
+                    <th class="text-center" data-sort-key="monthly_amount">{{ __('messages.monthly_amount') }}</th>
+                    <th class="text-center" data-sort-key="status">{{ __('messages.status') }}</th>
+                    <th class="text-center" data-sort-key="created_by">{{ __('messages.created_by') }}</th>
+                    @canany(['associations_update', 'associations_destroy', 'associations_details'])
+                    <th class="text-center">{{ __('messages.actions') }}</th>
+                    @endcan
+                </tr>
+            </thead>
+            <tbody>
+                {{-- Loaded by AJAX --}}
+            </tbody>
+        </table>
     </div>
 </div>
 
@@ -94,7 +93,7 @@
 <script>
     $(document).ready(function () {
         let currentPage = 1;
-        const perPage = 25;
+        let perPage = 25;
         let currentSortBy = 'id';
         let currentSortDirection = 'desc';
 
@@ -165,46 +164,22 @@
                                 </tr>`;
                     });
                     $('#associationsTable tbody').html(rows);
-                    renderAssociationsPagination(res.meta || {});
+                    TablePagination.render('associationsPagination', res.meta || {});
                 }
             });
         }
 
-        function renderAssociationsPagination(meta) {
-            let from = meta.from || 0;
-            let to = meta.to || 0;
-            let total = meta.total || 0;
-            let lastPage = meta.last_page || 1;
-            let page = meta.current_page || 1;
-
-            $('#associationsPaginationInfo').text(`${from} - ${to} / ${total}`);
-
-            if (lastPage <= 1) {
-                $('#associationsPagination').empty();
-                return;
-            }
-
-            $('#associationsPagination').html(`
-                <button type="button" class="btn btn-outline-primary ${page <= 1 ? 'disabled' : ''}" data-page="${page - 1}">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                <span class="page-status">${page} / ${lastPage}</span>
-                <button type="button" class="btn btn-outline-primary ${page >= lastPage ? 'disabled' : ''}" data-page="${page + 1}">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-            `);
-        }
-
-        $(document).on('click', '#associationsPagination button:not(.disabled)', function () {
-            let page = Number($(this).data('page'));
-            if (!page) {
-                return;
-            }
-
-            loadAssociations(page);
+        document.getElementById('associationsPagination')?.addEventListener('table:page', function (event) {
+            loadAssociations(event.detail.page);
         });
 
-        document.getElementById('associationsTable')?.addEventListener('table:sort', function(event) {
+        document.getElementById('associationsPagination')?.addEventListener('table:per-page', function (event) {
+            perPage = event.detail.perPage;
+            currentPage = 1;
+            loadAssociations();
+        });
+
+        document.getElementById('associationsTable')?.addEventListener('table:sort', function (event) {
             event.preventDefault();
             currentSortBy = event.detail.sortBy || 'id';
             currentSortDirection = event.detail.sortDirection || 'desc';

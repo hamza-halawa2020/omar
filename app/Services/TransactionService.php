@@ -35,6 +35,7 @@ class TransactionService
         $sortBy = $request->input('sort_by', 'created_at');
         $sortDirection = strtolower($request->input('sort_direction', 'desc')) === 'asc' ? 'asc' : 'desc';
         $sortableColumns = ['id', 'type', 'amount', 'created_at'];
+        $perPage = min(max((int) $request->input('per_page', 50), 1), 100);
 
         $transactions = Transaction::query()
             ->select(['id', 'type', 'amount', 'client_id', 'product_id', 'payment_way_id', 'created_by', 'created_at'])
@@ -87,7 +88,8 @@ class TransactionService
             })
             ->when(in_array($sortBy, $sortableColumns, true), fn ($query) => $query->orderBy($sortBy, $sortDirection))
             ->orderBy('id', 'desc')
-            ->paginate(50);
+            ->paginate($perPage)
+            ->appends($request->query());
 
         return compact('transactions', 'fromDate', 'toDate');
     }

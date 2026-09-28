@@ -14,6 +14,7 @@ class RoleService
     {
         $sortBy = $request->input('sort_by', 'id');
         $sortDirection = strtolower($request->input('sort_direction', 'desc')) === 'asc' ? 'asc' : 'desc';
+        $perPage = min(max((int) $request->input('per_page', 10), 1), 100);
         $query = Role::query()->withCount('permissions');
 
         if ($sortBy === 'permissions') {
@@ -24,7 +25,7 @@ class RoleService
             $query->orderBy('id', 'desc');
         }
 
-        return ['roles' => $query->orderBy('id', 'desc')->paginate(10)->appends($request->query())];
+        return ['roles' => $query->orderBy('id', 'desc')->paginate($perPage)->appends($request->query())];
     }
 
     public function createData(): array

@@ -1,7 +1,7 @@
 @extends('dashboard.layouts.app')
 
 @section('content')
-    <div class="container">
+    <div class="container-fluid">
         <div class="role-form-shell">
         <div class="d-flex justify-content-between align-items-center gap-2 mb-3 mobile-stack-header">
             <div>

@@ -3,7 +3,7 @@
 @section('content')
     @include('components.alert')
 
-    <div class="container">
+    <div class="container-fluid">
         <!-- Header -->
         <div class="d-flex justify-content-between align-items-center mb-3 mobile-stack-header">
             <div class="fw-bold fs-5">
@@ -27,8 +27,7 @@
                         </p>
                         <p><strong>{{ __('messages.created_by') }}:</strong> <span id="clientCreator" class=""></span>
                         </p>
-                        <p><strong>{{ __('messages.created_at') }}:</strong> <span id="clientCreatedAt"
-                                class=""></span>
+                        <p><strong>{{ __('messages.created_at') }}:</strong> <span id="clientCreatedAt" class=""></span>
                         </p>
                     </div>
                 </div>
@@ -81,7 +80,8 @@
                 <div class="mb-0">{{ __('messages.transactions') }}</div>
             </div>
             <div class="card-body responsive-records-wrapper">
-                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records">
+                <table
+                    class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records">
                     <thead>
                         <tr>
                             <th class="text-center">{{ __('messages.id') }}</th>
@@ -163,15 +163,15 @@
                     url: "{{ route('payment_ways.list') }}",
                     dataType: 'json',
                     delay: 300,
-                    data: function(params) {
+                    data: function (params) {
                         return {
                             search: params.term || '',
                             per_page: 60
                         };
                     },
-                    processResults: function(res) {
+                    processResults: function (res) {
                         return {
-                            results: (res.data || []).map(function(paymentWay) {
+                            results: (res.data || []).map(function (paymentWay) {
                                 return {
                                     id: paymentWay.id,
                                     text: paymentWay.name
@@ -185,31 +185,31 @@
 
         initializePayPaymentWaySelect();
 
-        $(document).on('click', '.payBtn', function() {
+        $(document).on('click', '.payBtn', function () {
             $('#payInstallmentId').val($(this).data('id'));
             $('#payAmount').val($(this).data('amount'));
             $('#payPaymentWay').val(null).trigger('change');
             $('#payModal').modal('show');
         });
 
-        $('#payForm').submit(function(e) {
+        $('#payForm').submit(function (e) {
             e.preventDefault();
-            $.post("{{ route('installments.pay') }}", $(this).serialize(), function(res) {
+            $.post("{{ route('installments.pay') }}", $(this).serialize(), function (res) {
                 if (res.status) {
                     location.reload();
                 } else {
                     showToast(res.message, 'error');
                 }
-            }).fail(function(xhr) {
+            }).fail(function (xhr) {
                 showToast(xhr.responseJSON?.message || 'Something went wrong', 'error');
             });
         });
 
 
-        $(document).ready(function() {
+        $(document).ready(function () {
             // Load client details
             function loadClientDetails() {
-                $.get("{{ route('clients.showPage', $client->id) }}", function(res) {
+                $.get("{{ route('clients.showPage', $client->id) }}", function (res) {
                     if (res.status) {
                         let client = res.data;
 
@@ -217,13 +217,13 @@
                         $('#clientName').text(client.name);
                         $('#clientPhone').text(client.full_phone_number || client.phone_number || '{{ __('messages.unknown') }}');
                         $('#clientDebt').text(parseFloat(client.debt || 0));
-                        $('#clientCreator').text(client.creator ? client.creator.name :'{{ __('messages.unknown') }}');
+                        $('#clientCreator').text(client.creator ? client.creator.name : '{{ __('messages.unknown') }}');
                         $('#clientCreatedAt').text(client.created_at);
 
 
                         // Update statistics
                         let totalTransactions = client.transactions.length;
-                        let totalSent = client.transactions.filter(t => t.type === 'send').reduce((sum,t) => sum + parseFloat(t.amount || 0), 0);
+                        let totalSent = client.transactions.filter(t => t.type === 'send').reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
                         let totalReceived = client.transactions.filter(t => t.type === 'receive').reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
                         let totalCommission = client.transactions.reduce((sum, t) => sum + parseFloat(t.commission || 0), 0);
 
@@ -238,20 +238,20 @@
                             receive: "{{ __('messages.receive') }}",
                             send: "{{ __('messages.send') }}",
                         };
-                        client.transactions.forEach(function(transaction, index) {
+                        client.transactions.forEach(function (transaction, index) {
                             transactionsHtml += `
-                                <tr>
-                                    <td data-label="{{ __('messages.id') }}">${index +1}</td>
-                                    <td class="mobile-primary ${transaction.type === 'send' ? 'text-danger' : 'text-success'}" data-label="{{ __('messages.type') }}">${status[transaction.type]}</td>
-                                    <td data-label="{{ __('messages.amount') }}">${parseFloat(transaction.amount)}</td>
-                                    <td data-label="{{ __('messages.debt_before') }}">${transaction.debt_before !== null ? parseFloat(transaction.debt_before).toFixed(2) : '-'}</td>
-                                    <td data-label="{{ __('messages.debt_after') }}">${transaction.debt_after !== null ? parseFloat(transaction.debt_after).toFixed(2) : '-'}</td>
-                                    <td class="mobile-muted" data-label="{{ __('messages.notes') }}">${transaction.notes}</td>
-                                    <td data-label="{{ __('messages.commission') }}">${parseFloat(transaction.commission || 0)}</td>
-                                    <td data-label="{{ __('messages.payment_way') }}">${transaction.paymentWay ? transaction.paymentWay.name : '{{ __('messages.unknown') }}'}</td>
-                                    <td class="mobile-muted" data-label="{{ __('messages.created_at') }}">${transaction.created_at}</td>
-                                </tr>
-                            `;
+                                    <tr>
+                                        <td data-label="{{ __('messages.id') }}">${index + 1}</td>
+                                        <td class="mobile-primary ${transaction.type === 'send' ? 'text-danger' : 'text-success'}" data-label="{{ __('messages.type') }}">${status[transaction.type]}</td>
+                                        <td data-label="{{ __('messages.amount') }}">${parseFloat(transaction.amount)}</td>
+                                        <td data-label="{{ __('messages.debt_before') }}">${transaction.debt_before !== null ? parseFloat(transaction.debt_before).toFixed(2) : '-'}</td>
+                                        <td data-label="{{ __('messages.debt_after') }}">${transaction.debt_after !== null ? parseFloat(transaction.debt_after).toFixed(2) : '-'}</td>
+                                        <td class="mobile-muted" data-label="{{ __('messages.notes') }}">${transaction.notes}</td>
+                                        <td data-label="{{ __('messages.commission') }}">${parseFloat(transaction.commission || 0)}</td>
+                                        <td data-label="{{ __('messages.payment_way') }}">${transaction.paymentWay ? transaction.paymentWay.name : '{{ __('messages.unknown') }}'}</td>
+                                        <td class="mobile-muted" data-label="{{ __('messages.created_at') }}">${transaction.created_at}</td>
+                                    </tr>
+                                `;
                         });
                         $('#transactionsTable').html(transactionsHtml);
 
@@ -265,52 +265,51 @@
                             late: "{{ __('messages.late') }}",
                             pending: "{{ __('messages.pending') }}",
                         };
-                        client.installment_contracts.forEach(function(contract, index) {
+                        client.installment_contracts.forEach(function (contract, index) {
 
                             let installmentsHtml = '';
                             if (contract.installments) {
-                                contract.installments.forEach(function(installment) {
+                                contract.installments.forEach(function (installment) {
                                     installmentsHtml += `
-                                <tr>
-                                    <td data-label="{{ __('messages.id') }}">${installment.id}</td>
-                                    <td class="mobile-primary" data-label="{{ __('messages.due_date') }}">${installment.due_date}</td>
-                                    <td data-label="{{ __('messages.required') }}">${Math.ceil(installment.required_amount)}</td>
-                                    <td data-label="{{ __('messages.paid') }}">${Math.ceil(installment.paid_amount)}</td>
-                                    <td data-label="{{ __('messages.status') }}">
-                                    <span class="${installment.status === 'paid' ? 'badge bg-success' : installment.status === 'late' ? 'badge bg-danger' : 'badge bg-warning text-dark'}">
-                                        ${installmentStatus[installment.status] || '{{ __('messages.unknown') }}'}
-                                        </span>
-                                    </td>
-                                    <td class="mobile-actions" data-label="{{ __('messages.actions') }}">
-                                        ${
-                                            installment.status !== 'paid'
-                                                ? `<button class="btn btn-outline-success btn-sm radius-8 payBtn"
-                                                            data-id="${installment.id}"
-                                                            data-amount="${(Math.ceil(installment.required_amount) - Math.ceil(installment.paid_amount))}"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#payModal">
-                                                            {{ __('messages.pay') }}
-                                                    </button>`
-                                                : ''
+                                    <tr>
+                                        <td data-label="{{ __('messages.id') }}">${installment.id}</td>
+                                        <td class="mobile-primary" data-label="{{ __('messages.due_date') }}">${installment.due_date}</td>
+                                        <td data-label="{{ __('messages.required') }}">${Math.ceil(installment.required_amount)}</td>
+                                        <td data-label="{{ __('messages.paid') }}">${Math.ceil(installment.paid_amount)}</td>
+                                        <td data-label="{{ __('messages.status') }}">
+                                        <span class="${installment.status === 'paid' ? 'badge bg-success' : installment.status === 'late' ? 'badge bg-danger' : 'badge bg-warning text-dark'}">
+                                            ${installmentStatus[installment.status] || '{{ __('messages.unknown') }}'}
+                                            </span>
+                                        </td>
+                                        <td class="mobile-actions" data-label="{{ __('messages.actions') }}">
+                                            ${installment.status !== 'paid'
+                                            ? `<button class="btn btn-outline-success btn-sm radius-8 payBtn"
+                                                                data-id="${installment.id}"
+                                                                data-amount="${(Math.ceil(installment.required_amount) - Math.ceil(installment.paid_amount))}"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#payModal">
+                                                                {{ __('messages.pay') }}
+                                                        </button>`
+                                            : ''
                                         }
-                                    </td>
-                                </tr>
-                            `;
+                                        </td>
+                                    </tr>
+                                `;
 
                                     if (installment.payments && installment.payments.length > 0) {
 
                                         installmentsHtml += `
-                                            <tr>
-                                                <td colspan="6" class="text-start" data-label="{{ __('messages.payments') }}">
-                                                    <strong>{{ __('messages.payments') }}:</strong>
-                                                    <ul>
-                                                        ${installment.payments.map(pay =>
-                                                            `<li>${pay.payment_date} - ${Math.ceil(pay.amount)} (${pay.paid_by?.name || ''})</li>`
-                                                        ).join('')}
-                                                    </ul>
-                                                </td>
-                                            </tr>
-                                        `;
+                                                <tr>
+                                                    <td colspan="6" class="text-start" data-label="{{ __('messages.payments') }}">
+                                                        <strong>{{ __('messages.payments') }}:</strong>
+                                                        <ul>
+                                                            ${installment.payments.map(pay =>
+                                            `<li>${pay.payment_date} - ${Math.ceil(pay.amount)} (${pay.paid_by?.name || ''})</li>`
+                                        ).join('')}
+                                                        </ul>
+                                                    </td>
+                                                </tr>
+                                            `;
                                     }
 
 
@@ -318,41 +317,41 @@
                             }
 
                             contractsAccordion += `
-                        <div class="accordion-item">
-                            <div class="accordion-header" id="heading${index}">
-                                <button class="accordion-button client-contract-toggle ${index > 0 ? 'collapsed' : ''}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${index}">
-                                    <span class="px-3 py-1 bg-primary m-2 rounded">{{ __('messages.installments') }} #${contract.id} </span>
-                                    <span class="px-3 py-1 bg-primary m-2 rounded">{{ __('messages.total') }} ${parseFloat(contract.total_amount).toFixed(2)} </span>
-                                    <span class="px-3 py-1 bg-primary m-2 rounded">{{ __('messages.remaining_installments') }} ${contract.remaining_installments} </span>
-                                    <span class="px-3 py-1 bg-primary m-2 rounded">{{ __('messages.remaining_amount') }} ${contract.remaining_amount}</span>
-                                </button>
-                            </div>
-                            <div id="collapse${index}" class="accordion-collapse collapse ${index === 0 ? 'show' : ''}" data-bs-parent="#contractsAccordion">
-                                <div class="accordion-body">
-                                    <p><strong>{{ __('messages.installment_count') }}:</strong> ${contract.installment_count}</p>
-                                    <p><strong>{{ __('messages.installment_amount') }}:</strong> ${parseFloat(contract.installment_amount).toFixed(2)}</p>
-                                    <hr>
-                                    <div class="responsive-records-wrapper table-responsive">
-                                        <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records">
-                                        <thead>
-                                            <tr>
-                                                <th class="text-center">{{ __('messages.id') }}</th>
-                                                <th class="text-center">{{ __('messages.due_date') }}</th>
-                                                <th class="text-center">{{ __('messages.required') }}</th>
-                                                <th class="text-center">{{ __('messages.paid') }}</th>
-                                                <th class="text-center">{{ __('messages.status') }}</th>
-                                                <th class="text-center">{{ __('messages.actions') }}</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            ${installmentsHtml || `<tr><td colspan="5" data-label="{{ __('messages.no_installments') }}">{{ __('messages.no_installments') }}</td></tr>`}
-                                        </tbody>
-                                        </table>
+                            <div class="accordion-item">
+                                <div class="accordion-header" id="heading${index}">
+                                    <button class="accordion-button client-contract-toggle ${index > 0 ? 'collapsed' : ''}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${index}">
+                                        <span class="px-3 py-1 bg-primary m-2 rounded">{{ __('messages.installments') }} #${contract.id} </span>
+                                        <span class="px-3 py-1 bg-primary m-2 rounded">{{ __('messages.total') }} ${parseFloat(contract.total_amount).toFixed(2)} </span>
+                                        <span class="px-3 py-1 bg-primary m-2 rounded">{{ __('messages.remaining_installments') }} ${contract.remaining_installments} </span>
+                                        <span class="px-3 py-1 bg-primary m-2 rounded">{{ __('messages.remaining_amount') }} ${contract.remaining_amount}</span>
+                                    </button>
+                                </div>
+                                <div id="collapse${index}" class="accordion-collapse collapse ${index === 0 ? 'show' : ''}" data-bs-parent="#contractsAccordion">
+                                    <div class="accordion-body">
+                                        <p><strong>{{ __('messages.installment_count') }}:</strong> ${contract.installment_count}</p>
+                                        <p><strong>{{ __('messages.installment_amount') }}:</strong> ${parseFloat(contract.installment_amount).toFixed(2)}</p>
+                                        <hr>
+                                        <div class="responsive-records-wrapper table-responsive">
+                                            <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records">
+                                            <thead>
+                                                <tr>
+                                                    <th class="text-center">{{ __('messages.id') }}</th>
+                                                    <th class="text-center">{{ __('messages.due_date') }}</th>
+                                                    <th class="text-center">{{ __('messages.required') }}</th>
+                                                    <th class="text-center">{{ __('messages.paid') }}</th>
+                                                    <th class="text-center">{{ __('messages.status') }}</th>
+                                                    <th class="text-center">{{ __('messages.actions') }}</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                ${installmentsHtml || `<tr><td colspan="5" data-label="{{ __('messages.no_installments') }}">{{ __('messages.no_installments') }}</td></tr>`}
+                                            </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    `;
+                        `;
                         });
 
                         $('#contractsAccordion').html(contractsAccordion);
@@ -360,29 +359,29 @@
                         // Update Debt Logs
                         let debtLogsHtml = '';
                         if (client.debt_logs && client.debt_logs.length > 0) {
-                            client.debt_logs.forEach(function(log) {
+                            client.debt_logs.forEach(function (log) {
                                 let changeClass = log.change_amount > 0 ? 'text-danger' : 'text-success'; // Debt increase is bad (red), decrease is good (green) for client view? Or standard accounting?
                                 // Usually debt increase = you owe more = red. decrease = you paid = green.
                                 // Actually, if I lend money: debt increases for them.
                                 // Let's simplify:
-                                
+
                                 let sourceType = '{{ __('messages.manual') }}';
                                 if (log.source_type && log.source_type.includes('Transaction')) sourceType = '{{ __('messages.transaction') }}';
                                 else if (log.source_type && log.source_type.includes('InstallmentContract')) sourceType = '{{ __('messages.installment_contract') }}';
                                 else if (log.source_type) sourceType = log.source_type.split('\\').pop();
 
                                 debtLogsHtml += `
-                                    <tr>
-                                        <td data-label="{{ __('messages.id') }}">${log.id}</td>
-                                        <td data-label="{{ __('messages.debt_before') }}">${parseFloat(log.debt_before).toFixed(2)}</td>
-                                        <td class="mobile-primary ${parseFloat(log.change_amount) > 0 ? 'text-danger' : 'text-success'}" data-label="{{ __('messages.change_amount') }}">${parseFloat(log.change_amount).toFixed(2)}</td>
-                                        <td data-label="{{ __('messages.debt_after') }}">${parseFloat(log.debt_after).toFixed(2)}</td>
-                                        <td class="mobile-muted" data-label="{{ __('messages.description') }}">${log.description || '-'}</td>
-                                        <td data-label="{{ __('messages.source') }}">${sourceType} #${log.source_id || ''}</td>
-                                        <td class="mobile-muted mobile-hide" data-label="{{ __('messages.created_by') }}">${log.creator ? log.creator.name : '-'}</td>
-                                        <td class="mobile-muted" data-label="{{ __('messages.created_at') }}">${log.created_at}</td>
-                                    </tr>
-                                `;
+                                        <tr>
+                                            <td data-label="{{ __('messages.id') }}">${log.id}</td>
+                                            <td data-label="{{ __('messages.debt_before') }}">${parseFloat(log.debt_before).toFixed(2)}</td>
+                                            <td class="mobile-primary ${parseFloat(log.change_amount) > 0 ? 'text-danger' : 'text-success'}" data-label="{{ __('messages.change_amount') }}">${parseFloat(log.change_amount).toFixed(2)}</td>
+                                            <td data-label="{{ __('messages.debt_after') }}">${parseFloat(log.debt_after).toFixed(2)}</td>
+                                            <td class="mobile-muted" data-label="{{ __('messages.description') }}">${log.description || '-'}</td>
+                                            <td data-label="{{ __('messages.source') }}">${sourceType} #${log.source_id || ''}</td>
+                                            <td class="mobile-muted mobile-hide" data-label="{{ __('messages.created_by') }}">${log.creator ? log.creator.name : '-'}</td>
+                                            <td class="mobile-muted" data-label="{{ __('messages.created_at') }}">${log.created_at}</td>
+                                        </tr>
+                                    `;
                             });
                         } else {
                             debtLogsHtml = `<tr><td colspan="8" data-label="{{ __('messages.no_records_found') }}">{{ __('messages.no_records_found') }}</td></tr>`;

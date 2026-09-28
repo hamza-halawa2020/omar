@@ -1,71 +1,72 @@
 @extends('dashboard.layouts.app')
 
 @section('content')
-    <div class="container">
-        <div class="d-flex justify-content-between align-items-center mb-3 mobile-stack-header">
-            <div>{{ __('messages.roles') }}</div>
-            @can('roles_store')
-                <a href="{{ route('roles.create') }}" class="btn btn-outline-primary btn-sm radius-8">
-                    {{ __('messages.create_role') }}
-                </a>
-            @endcan
-        </div>
-        @if (session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
-
-        <div class="responsive-records-wrapper table-responsive">
-            <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records" id="rolesTable" data-backend-sort="true">
-
-                <thead>
-                    <tr>
-                        <th class="text-center" data-sort-key="name">{{ __('messages.name') }}</th>
-                        <th class="text-center" data-sort-key="permissions">{{ __('messages.permissions') }}</th>
-                        @canany(['roles_update', 'roles_destroy'])
-                            <th class="text-center">{{ __('messages.actions') }}</th>
-                        @endcan
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($roles as $role)
-                        <tr>
-                            <td class="mobile-primary" data-label="{{ __('messages.name') }}">{{ $role->name }}</td>
-                            <td class="mobile-muted" data-label="{{ __('messages.permissions') }}" style="max-width: 250px;">
-                                <span class="badge bg-primary px-3 py-1">
-                                    {{ $role->permissions_count }} {{ __('messages.permissions') }}
-                                </span>
-                            </td>
-
-                            @canany(['roles_update', 'roles_destroy'])
-                                <td class="mobile-actions" data-label="{{ __('messages.actions') }}">
-                                    @can('roles_update')
-                                        <a href="{{ route('roles.edit', $role->id) }}"
-                                            class="btn btn-outline-primary btn-sm radius-8">{{ __('messages.edit') }}</a>
-                                    @endcan
-                                    @can('roles_destroy')
-                                        <button type="button" class="btn btn-outline-danger btn-sm radius-8" data-bs-toggle="modal"
-                                            data-bs-target="#deleteModal" data-id="{{ $role->id }}"
-                                            data-name="{{ $role->name }}">
-                                            {{ __('messages.delete') }}
-                                        </button>
-                                    @endcan
-                                </td>
-                            @endcan
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-        {{ $roles->links() }}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-3 mobile-stack-header">
+        <div>{{ __('messages.roles') }}</div>
+        @can('roles_store')
+            <a href="{{ route('roles.create') }}" class="btn btn-outline-primary btn-sm radius-8">
+                {{ __('messages.create_role') }}
+            </a>
+        @endcan
     </div>
+    @if (session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
 
-    @include('dashboard.roles.delete')
+    <x-table-pagination id="rolesPagination" :paginator="$roles" :per-page="$roles->perPage()" />
+
+    <div class="responsive-records-wrapper table-responsive">
+        <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records"
+            id="rolesTable" data-backend-sort="true">
+
+            <thead>
+                <tr>
+                    <th class="text-center" data-sort-key="name">{{ __('messages.name') }}</th>
+                    <th class="text-center" data-sort-key="permissions">{{ __('messages.permissions') }}</th>
+                    @canany(['roles_update', 'roles_destroy'])
+                    <th class="text-center">{{ __('messages.actions') }}</th>
+                    @endcan
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($roles as $role)
+                <tr>
+                    <td class="mobile-primary" data-label="{{ __('messages.name') }}">{{ $role->name }}</td>
+                    <td class="mobile-muted" data-label="{{ __('messages.permissions') }}" style="max-width: 250px;">
+                        <span class="badge bg-primary px-3 py-1">
+                            {{ $role->permissions_count }} {{ __('messages.permissions') }}
+                        </span>
+                    </td>
+
+                    @canany(['roles_update', 'roles_destroy'])
+                    <td class="mobile-actions" data-label="{{ __('messages.actions') }}">
+                        @can('roles_update')
+                            <a href="{{ route('roles.edit', $role->id) }}"
+                                class="btn btn-outline-primary btn-sm radius-8">{{ __('messages.edit') }}</a>
+                        @endcan
+                        @can('roles_destroy')
+                            <button type="button" class="btn btn-outline-danger btn-sm radius-8" data-bs-toggle="modal"
+                                data-bs-target="#deleteModal" data-id="{{ $role->id }}" data-name="{{ $role->name }}">
+                                {{ __('messages.delete') }}
+                            </button>
+                        @endcan
+                    </td>
+                    @endcan
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@include('dashboard.roles.delete')
 @endsection
 
 @push('scripts')
     <script>
         const deleteModal = document.getElementById('deleteModal');
-        deleteModal.addEventListener('show.bs.modal', function(event) {
+        deleteModal.addEventListener('show.bs.modal', function (event) {
             let button = event.relatedTarget;
             let id = button.getAttribute('data-id');
             let name = button.getAttribute('data-name');

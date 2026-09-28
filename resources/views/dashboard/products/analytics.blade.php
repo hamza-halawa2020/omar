@@ -440,6 +440,8 @@
         <div class="card mb-3" id="product-performance-table">
             <div class="card-body">
                 <div class="card-title">{{ __('messages.product_performance') }}</div>
+                <x-table-pagination id="productRowsPagination" :paginator="$productRows" page-name="products_page" per-page-param="products_per_page" fragment="product-performance-table" :per-page="$productRows->perPage()" />
+
                 <div class="table-responsive responsive-records-wrapper">
                     <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records" id="productPerformanceTable" data-backend-sort="true" data-sort-param-prefix="products_" data-sort-page-param="products_page">
                         <thead>
@@ -478,32 +480,14 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 mt-3">
-                    <small class="text-muted">
-                        {{ $productRows->firstItem() ?? 0 }} - {{ $productRows->lastItem() ?? 0 }}
-                        /
-                        {{ $productRows->total() }}
-                    </small>
-                    <div class="table-pager">
-                        @if ($productRows->hasPages())
-                            <a class="btn btn-outline-primary {{ $productRows->onFirstPage() ? 'disabled' : '' }}"
-                                href="{{ $productRows->onFirstPage() ? '#' : $paginationUrl($productRows, $productRows->currentPage() - 1, 'products_page', 'product-performance-table') }}">
-                                <i class="fas fa-chevron-left"></i>
-                            </a>
-                            <span class="page-status">{{ $productRows->currentPage() }} / {{ $productRows->lastPage() }}</span>
-                            <a class="btn btn-outline-primary {{ $productRows->hasMorePages() ? '' : 'disabled' }}"
-                                href="{{ $productRows->hasMorePages() ? $paginationUrl($productRows, $productRows->currentPage() + 1, 'products_page', 'product-performance-table') : '#' }}">
-                                <i class="fas fa-chevron-right"></i>
-                            </a>
-                        @endif
-                    </div>
-                </div>
             </div>
         </div>
 
         <div class="card" id="sales-transactions-table">
             <div class="card-body">
                 <div class="card-title">{{ __('messages.sales_transactions_profit') }}</div>
+                <x-table-pagination id="salesTransactionsPagination" :paginator="$salesTransactions" page-name="sales_page" per-page-param="sales_per_page" fragment="sales-transactions-table" :per-page="$salesTransactions->perPage()" />
+
                 <div class="table-responsive responsive-records-wrapper">
                     <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records" id="salesTransactionsTable" data-backend-sort="true" data-sort-param-prefix="sales_" data-sort-page-param="sales_page">
                         <thead>
@@ -541,27 +525,6 @@
                             @endforelse
                         </tbody>
                     </table>
-                </div>
-
-                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 mt-3">
-                    <small class="text-muted">
-                        {{ $salesTransactions->firstItem() ?? 0 }} - {{ $salesTransactions->lastItem() ?? 0 }}
-                        /
-                        {{ $salesTransactions->total() }}
-                    </small>
-                    <div class="table-pager">
-                        @if ($salesTransactions->hasPages())
-                            <a class="btn btn-outline-primary {{ $salesTransactions->onFirstPage() ? 'disabled' : '' }}"
-                                href="{{ $salesTransactions->onFirstPage() ? '#' : $paginationUrl($salesTransactions, $salesTransactions->currentPage() - 1, 'sales_page', 'sales-transactions-table') }}">
-                                <i class="fas fa-chevron-left"></i>
-                            </a>
-                            <span class="page-status">{{ $salesTransactions->currentPage() }} / {{ $salesTransactions->lastPage() }}</span>
-                            <a class="btn btn-outline-primary {{ $salesTransactions->hasMorePages() ? '' : 'disabled' }}"
-                                href="{{ $salesTransactions->hasMorePages() ? $paginationUrl($salesTransactions, $salesTransactions->currentPage() + 1, 'sales_page', 'sales-transactions-table') : '#' }}">
-                                <i class="fas fa-chevron-right"></i>
-                            </a>
-                        @endif
-                    </div>
                 </div>
             </div>
         </div>
