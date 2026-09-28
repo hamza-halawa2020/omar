@@ -286,6 +286,8 @@
         });
     </script>
 
+    <x-table-sorter />
+
     @stack('scripts')
 </body>
 </html>

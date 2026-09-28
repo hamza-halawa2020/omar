@@ -9,6 +9,7 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class ProductService
@@ -28,7 +29,21 @@ class ProductService
                 ->orderBy('id');
         }
 
-        return Product::query()
+        $sortBy = $request->input('sort_by', 'name');
+        $sortDirection = strtolower($request->input('sort_direction', 'asc')) === 'desc' ? 'desc' : 'asc';
+        $sortableColumns = [
+            'id',
+            'name',
+            'code',
+            'description',
+            'purchase_price',
+            'sale_price',
+            'stock',
+            'created_at',
+            'updated_at',
+        ];
+
+        $query = Product::query()
             ->select([
                 'id',
                 'name',
@@ -55,8 +70,24 @@ class ProductService
                         ->orWhere('code', 'like', '%'.$request->search.'%')
                         ->orWhere('stock', 'like', '%'.$request->search.'%');
                 });
-            })
-            ->orderBy('name')
+            });
+
+        if ($sortBy === 'created_by') {
+            $query->orderBy(
+                DB::table('users')
+                    ->select('name')
+                    ->whereColumn('users.id', 'products.created_by')
+                    ->limit(1),
+                $sortDirection
+            );
+        } elseif (in_array($sortBy, $sortableColumns, true)) {
+            $query->orderBy($sortBy, $sortDirection);
+        } else {
+            $query->orderBy('name');
+        }
+
+        return $query
+            ->orderBy('id', 'desc')
             ->paginate($perPage);
     }
 

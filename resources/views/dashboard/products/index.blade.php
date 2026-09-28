@@ -76,20 +76,20 @@
         </div>
 
         <div class="responsive-records-wrapper table-responsive">
-            <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records" id="productsTable">
+            <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records" id="productsTable" data-backend-sort="true">
                 <thead>
                     <tr>
-                        <th class="text-center">{{ __('messages.id') }}</th>
-                        <th class="text-center">{{ __('messages.name') }}</th>
-                        <th class="text-center">{{ __('messages.code') }}</th>
+                        <th class="text-center" data-sort-key="id">{{ __('messages.id') }}</th>
+                        <th class="text-center" data-sort-key="name">{{ __('messages.name') }}</th>
+                        <th class="text-center" data-sort-key="code">{{ __('messages.code') }}</th>
                         <th class="text-center">{{ __('messages.image') }}</th>
-                        <th class="text-center">{{ __('messages.description') }}</th>
+                        <th class="text-center" data-sort-key="description">{{ __('messages.description') }}</th>
                         @can('purchase_prices_view')
-                            <th class="text-center">{{ __('messages.purchase_price') }}</th>
+                            <th class="text-center" data-sort-key="purchase_price">{{ __('messages.purchase_price') }}</th>
                         @endcan
-                        <th class="text-center">{{ __('messages.sale_price') }}</th>
-                        <th class="text-center">{{ __('messages.stock') }}</th>
-                        <th class="text-center">{{ __('messages.created_by') }}</th>
+                        <th class="text-center" data-sort-key="sale_price">{{ __('messages.sale_price') }}</th>
+                        <th class="text-center" data-sort-key="stock">{{ __('messages.stock') }}</th>
+                        <th class="text-center" data-sort-key="created_by">{{ __('messages.created_by') }}</th>
                         @canany(['products_destroy','products_update','products_show'])
                             <th class="text-center">{{ __('messages.actions') }}</th>
                         @endcan
@@ -120,6 +120,8 @@
             const canViewPurchasePrices = @can('purchase_prices_view') true @else false @endcan;
             let currentPage = 1;
             const perPage = 25;
+            let currentSortBy = 'name';
+            let currentSortDirection = 'asc';
 
             loadproducts();
 
@@ -154,7 +156,9 @@
                     search: search,
                     code: code,
                     page: currentPage,
-                    per_page: perPage
+                    per_page: perPage,
+                    sort_by: currentSortBy,
+                    sort_direction: currentSortDirection
                 }, function(res) {
                     if (res.status) {
                         refreshCodeFilter(res.codes || []);
@@ -165,7 +169,7 @@
                             let imageHtml = cat.image ? `<img src="/${escapeHtml(cat.image)}" width="50" class="rounded">` : '';
                             rows += `
                 <tr>
-                    <td data-label="{{ __('messages.id') }}">${i+1}</td>
+                    <td data-label="{{ __('messages.id') }}">${escapeHtml(cat.id)}</td>
                     <td class="mobile-primary" data-label="{{ __('messages.name') }}">${escapeHtml(cat.name)}</td>
                     <td data-label="{{ __('messages.code') }}">${escapeHtml(cat.code)}</td>
                     <td class="mobile-muted mobile-hide" data-label="{{ __('messages.image') }}">${imageHtml}</td>
@@ -239,6 +243,14 @@
                 }
 
                 loadproducts(page);
+            });
+
+            document.getElementById('productsTable')?.addEventListener('table:sort', function(event) {
+                event.preventDefault();
+                currentSortBy = event.detail.sortBy || 'name';
+                currentSortDirection = event.detail.sortDirection || 'asc';
+                currentPage = 1;
+                loadproducts();
             });
 
             function refreshCodeFilter(codes) {

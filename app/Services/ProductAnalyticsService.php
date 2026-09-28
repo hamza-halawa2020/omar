@@ -25,18 +25,34 @@ class ProductAnalyticsService
             ->orderBy('name')
             ->get();
 
-        $productRowsQuery = $this->productRowsQuery($fromDateTime, $toDateTime, $productId);
+        $productRowsQuery = $this->productRowsQuery($fromDateTime, $toDateTime, $productId, $request);
         $totalRows = $this->normalizeProductRows((clone $productRowsQuery)->get());
         $productRows = $this->paginateProductRows($productRowsQuery, $request);
         $chartRows = $totalRows->take(10);
         $totals = $this->totals($totalRows);
-        $salesTransactions = $this->salesTransactions($fromDateTime, $toDateTime, $productId);
+        $salesTransactions = $this->salesTransactions($fromDateTime, $toDateTime, $productId, $request);
 
         return compact('fromDate', 'toDate', 'productId', 'products', 'productRows', 'chartRows', 'totals', 'salesTransactions');
     }
 
-    private function productRowsQuery(Carbon $fromDateTime, Carbon $toDateTime, ?int $productId): Builder
+    private function productRowsQuery(Carbon $fromDateTime, Carbon $toDateTime, ?int $productId, Request $request): Builder
     {
+        $sortBy = $request->input('products_sort_by', 'net_profit');
+        $sortDirection = strtolower($request->input('products_sort_direction', 'desc')) === 'asc' ? 'asc' : 'desc';
+        $netProfitExpression = "SUM(CASE WHEN transactions.type = 'receive' THEN COALESCE(transaction_products.total, 0) + COALESCE(transactions.commission, 0) - COALESCE(transaction_products.cost_total, 0) ELSE 0 END)";
+        $salesAmountExpression = "SUM(CASE WHEN transactions.type = 'receive' THEN COALESCE(transaction_products.total, 0) ELSE 0 END)";
+        $sortMap = [
+            'name' => 'products.name',
+            'code' => 'products.code',
+            'stock' => 'products.stock',
+            'sold_quantity' => DB::raw("SUM(CASE WHEN transactions.type = 'receive' THEN COALESCE(transaction_products.quantity, 1) ELSE 0 END)"),
+            'sales_amount' => DB::raw($salesAmountExpression),
+            'sales_cost' => DB::raw("SUM(CASE WHEN transactions.type = 'receive' THEN COALESCE(transaction_products.cost_total, 0) ELSE 0 END)"),
+            'sales_commission' => DB::raw("SUM(CASE WHEN transactions.type = 'receive' THEN COALESCE(transactions.commission, 0) ELSE 0 END)"),
+            'net_profit' => DB::raw($netProfitExpression),
+            'profit_margin' => DB::raw("(CASE WHEN {$salesAmountExpression} > 0 THEN ({$netProfitExpression} / {$salesAmountExpression}) ELSE 0 END)"),
+        ];
+
         $query = DB::table('products')
             ->leftJoin('transaction_products', 'products.id', '=', 'transaction_products.product_id')
             ->leftJoin('transactions', function ($join) use ($fromDateTime, $toDateTime) {
@@ -61,14 +77,15 @@ class ProductAnalyticsService
             ->selectRaw("SUM(CASE WHEN transactions.type = 'send' THEN 1 ELSE 0 END) as purchase_count")
             ->selectRaw("SUM(CASE WHEN transactions.type = 'send' THEN COALESCE(transaction_products.quantity, 1) ELSE 0 END) as purchased_quantity")
             ->selectRaw("SUM(CASE WHEN transactions.type = 'send' THEN COALESCE(transaction_products.total, 0) ELSE 0 END) as purchase_amount")
-            ->groupBy('products.id', 'products.name', 'products.code', 'products.purchase_price', 'products.sale_price', 'products.stock')
-            ->orderByDesc(DB::raw("(SUM(CASE WHEN transactions.type = 'receive' THEN COALESCE(transaction_products.total, 0) + COALESCE(transactions.commission, 0) - COALESCE(transaction_products.cost_total, 0) ELSE 0 END))"));
+            ->groupBy('products.id', 'products.name', 'products.code', 'products.purchase_price', 'products.sale_price', 'products.stock');
 
         if (! $productId) {
             $query->havingRaw('COUNT(transactions.id) > 0');
         }
 
-        return $query;
+        return $query
+            ->orderBy($sortMap[$sortBy] ?? $sortMap['net_profit'], $sortDirection)
+            ->orderBy('products.id');
     }
 
     private function paginateProductRows(Builder $query, Request $request): LengthAwarePaginator
@@ -122,15 +139,68 @@ class ProductAnalyticsService
         ];
     }
 
-    private function salesTransactions(Carbon $fromDateTime, Carbon $toDateTime, ?int $productId): LengthAwarePaginator
+    private function salesTransactions(Carbon $fromDateTime, Carbon $toDateTime, ?int $productId, Request $request): LengthAwarePaginator
     {
-        return Transaction::query()
+        $sortBy = $request->input('sales_sort_by', 'created_at');
+        $sortDirection = strtolower($request->input('sales_sort_direction', 'desc')) === 'asc' ? 'asc' : 'desc';
+        $quantitySubquery = DB::table('transaction_products')
+            ->selectRaw('COALESCE(SUM(quantity), 0)')
+            ->whereColumn('transaction_products.transaction_id', 'transactions.id')
+            ->when($productId, fn ($query) => $query->where('product_id', $productId));
+        $costSubquery = DB::table('transaction_products')
+            ->selectRaw('COALESCE(SUM(cost_total), 0)')
+            ->whereColumn('transaction_products.transaction_id', 'transactions.id')
+            ->when($productId, fn ($query) => $query->where('product_id', $productId));
+        $amountSubquery = DB::table('transaction_products')
+            ->selectRaw('COALESCE(SUM(total), 0)')
+            ->whereColumn('transaction_products.transaction_id', 'transactions.id')
+            ->when($productId, fn ($query) => $query->where('product_id', $productId));
+
+        $query = Transaction::query()
+            ->select('transactions.*')
+            ->selectSub($quantitySubquery, 'analytics_quantity_sort')
+            ->selectSub($costSubquery, 'analytics_cost')
+            ->selectSub($amountSubquery, 'analytics_amount')
             ->with(['product', 'products.product', 'paymentWay', 'client'])
             ->where('type', 'receive')
             ->whereHas('products', fn ($query) => $query->when($productId, fn ($query) => $query->where('product_id', $productId)))
-            ->whereBetween('created_at', [$fromDateTime, $toDateTime])
-            ->latest()
+            ->whereBetween('created_at', [$fromDateTime, $toDateTime]);
+
+        if ($sortBy === 'product') {
+            $query->orderBy(
+                DB::table('transaction_products')
+                    ->join('products', 'products.id', '=', 'transaction_products.product_id')
+                    ->select('products.name')
+                    ->whereColumn('transaction_products.transaction_id', 'transactions.id')
+                    ->when($productId, fn ($query) => $query->where('transaction_products.product_id', $productId))
+                    ->orderBy('products.name')
+                    ->limit(1),
+                $sortDirection
+            );
+        } elseif ($sortBy === 'client') {
+            $query->orderBy(
+                DB::table('clients')
+                    ->select('name')
+                    ->whereColumn('clients.id', 'transactions.client_id')
+                    ->limit(1),
+                $sortDirection
+            );
+        } elseif ($sortBy === 'quantity') {
+            $query->orderBy('analytics_quantity_sort', $sortDirection);
+        } elseif ($sortBy === 'cost') {
+            $query->orderBy('analytics_cost', $sortDirection);
+        } elseif ($sortBy === 'profit') {
+            $query->orderByRaw("(`analytics_amount` + transactions.commission - `analytics_cost`) {$sortDirection}");
+        } elseif (in_array($sortBy, ['id', 'amount', 'commission', 'created_at'], true)) {
+            $query->orderBy($sortBy, $sortDirection);
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
+
+        return $query
+            ->orderBy('transactions.id', 'desc')
             ->paginate(25, ['*'], 'sales_page')
+            ->appends($request->query())
             ->through(function (Transaction $transaction) use ($productId) {
                 $items = $transaction->products;
 

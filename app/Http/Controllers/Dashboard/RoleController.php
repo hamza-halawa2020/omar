@@ -27,9 +27,9 @@ class RoleController extends BaseController
         ]);
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        return view('dashboard.roles.index', $this->roleService->indexData());
+        return view('dashboard.roles.index', $this->roleService->indexData($request));
     }
 
     public function create()

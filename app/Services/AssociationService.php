@@ -28,13 +28,45 @@ class AssociationService
     public function list(Request $request): LengthAwarePaginator
     {
         $perPage = min(max((int) $request->input('per_page', 25), 1), 100);
+        $sortBy = $request->input('sort_by', 'id');
+        $sortDirection = strtolower($request->input('sort_direction', 'desc')) === 'asc' ? 'asc' : 'desc';
+        $sortableColumns = [
+            'id',
+            'name',
+            'per_day',
+            'total_members',
+            'monthly_amount',
+            'status',
+            'start_date',
+            'end_date',
+            'created_at',
+            'updated_at',
+        ];
 
-        return Association::with([
+        $query = Association::with([
             'members.client' => function ($query) {
                 $query->where('type', 'client');
             },
             'creator',
-        ])->latest()->paginate($perPage);
+        ]);
+
+        if ($sortBy === 'created_by') {
+            $query->orderBy(
+                DB::table('users')
+                    ->select('name')
+                    ->whereColumn('users.id', 'associations.created_by')
+                    ->limit(1),
+                $sortDirection
+            );
+        } elseif (in_array($sortBy, $sortableColumns, true)) {
+            $query->orderBy($sortBy, $sortDirection);
+        } else {
+            $query->orderBy('id', 'desc');
+        }
+
+        return $query
+            ->orderBy('id', 'desc')
+            ->paginate($perPage);
     }
 
     public function details(int $id): array

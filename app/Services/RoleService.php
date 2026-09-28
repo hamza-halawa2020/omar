@@ -10,9 +10,21 @@ use Spatie\Permission\Models\Role;
 
 class RoleService
 {
-    public function indexData(): array
+    public function indexData(Request $request): array
     {
-        return ['roles' => Role::withCount('permissions')->paginate(10)];
+        $sortBy = $request->input('sort_by', 'id');
+        $sortDirection = strtolower($request->input('sort_direction', 'desc')) === 'asc' ? 'asc' : 'desc';
+        $query = Role::query()->withCount('permissions');
+
+        if ($sortBy === 'permissions') {
+            $query->orderBy('permissions_count', $sortDirection);
+        } elseif (in_array($sortBy, ['id', 'name', 'created_at', 'updated_at'], true)) {
+            $query->orderBy($sortBy, $sortDirection);
+        } else {
+            $query->orderBy('id', 'desc');
+        }
+
+        return ['roles' => $query->orderBy('id', 'desc')->paginate(10)->appends($request->query())];
     }
 
     public function createData(): array

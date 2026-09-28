@@ -31,6 +31,9 @@ class TransactionService
         $toDate = $request->get('to_date', now()->isoFormat('YYYY-MM-DD'));
         $fromDateTime = Carbon::parse($fromDate)->startOfDay();
         $toDateTime = Carbon::parse($toDate)->endOfDay();
+        $sortBy = $request->input('sort_by', 'created_at');
+        $sortDirection = strtolower($request->input('sort_direction', 'desc')) === 'asc' ? 'asc' : 'desc';
+        $sortableColumns = ['id', 'type', 'amount', 'created_at'];
 
         $transactions = Transaction::query()
             ->select(['id', 'type', 'amount', 'client_id', 'product_id', 'payment_way_id', 'created_by', 'created_at'])
@@ -45,7 +48,44 @@ class TransactionService
                 'products.product:id,name',
             ])
             ->whereBetween('created_at', [$fromDateTime, $toDateTime])
-            ->latest()
+            ->when($sortBy === 'client', function ($query) use ($sortDirection) {
+                $query->orderBy(
+                    Client::query()
+                        ->select('name')
+                        ->whereColumn('clients.id', 'transactions.client_id')
+                        ->limit(1),
+                    $sortDirection
+                );
+            })
+            ->when($sortBy === 'product', function ($query) use ($sortDirection) {
+                $query->orderBy(
+                    Product::query()
+                        ->select('name')
+                        ->whereColumn('products.id', 'transactions.product_id')
+                        ->limit(1),
+                    $sortDirection
+                );
+            })
+            ->when($sortBy === 'payment_way', function ($query) use ($sortDirection) {
+                $query->orderBy(
+                    PaymentWay::query()
+                        ->select('name')
+                        ->whereColumn('payment_ways.id', 'transactions.payment_way_id')
+                        ->limit(1),
+                    $sortDirection
+                );
+            })
+            ->when($sortBy === 'created_by', function ($query) use ($sortDirection) {
+                $query->orderBy(
+                    DB::table('users')
+                        ->select('name')
+                        ->whereColumn('users.id', 'transactions.created_by')
+                        ->limit(1),
+                    $sortDirection
+                );
+            })
+            ->when(in_array($sortBy, $sortableColumns, true), fn ($query) => $query->orderBy($sortBy, $sortDirection))
+            ->orderBy('id', 'desc')
             ->paginate(50);
 
         return compact('transactions', 'fromDate', 'toDate');

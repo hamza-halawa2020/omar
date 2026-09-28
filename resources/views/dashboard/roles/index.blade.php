@@ -15,12 +15,12 @@
         @endif
 
         <div class="responsive-records-wrapper table-responsive">
-            <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records" id="categoriesTable">
+            <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records" id="rolesTable" data-backend-sort="true">
 
                 <thead>
                     <tr>
-                        <th class="text-center">{{ __('messages.name') }}</th>
-                        <th class="text-center">{{ __('messages.permissions') }}</th>
+                        <th class="text-center" data-sort-key="name">{{ __('messages.name') }}</th>
+                        <th class="text-center" data-sort-key="permissions">{{ __('messages.permissions') }}</th>
                         @canany(['roles_update', 'roles_destroy'])
                             <th class="text-center">{{ __('messages.actions') }}</th>
                         @endcan

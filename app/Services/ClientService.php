@@ -26,8 +26,8 @@ class ClientService
             return $q->where('type', $type);
         });
 
-        $query->orderByDesc('debt');
         $this->applySearch($query, $request->search);
+        $this->applySort($query, $request, 'debt', 'desc');
 
         if ($request->has('page')) {
             $perPage = min(max((int) $request->input('per_page', 25), 1), 100);
@@ -45,10 +45,10 @@ class ClientService
         $query = $this->clientListQuery()
             ->where('type', 'client')
             ->where('debt', '>', 0)
-            ->whereDoesntHave('installmentContracts')
-            ->orderByDesc('debt');
+            ->whereDoesntHave('installmentContracts');
 
         $this->applySearch($query, $request->search);
+        $this->applySort($query, $request, 'debt', 'desc');
 
         return $this->paginateOrGet($query, $request);
     }
@@ -56,10 +56,10 @@ class ClientService
     public function listMerchants(Request $request): Collection|LengthAwarePaginator
     {
         $query = $this->clientListQuery()
-            ->where('type', 'merchant')
-            ->orderByDesc('debt');
+            ->where('type', 'merchant');
 
         $this->applySearch($query, $request->search);
+        $this->applySort($query, $request, 'debt', 'desc');
 
         return $this->paginateOrGet($query, $request);
     }
@@ -68,10 +68,10 @@ class ClientService
     {
         $query = $this->clientListQuery()
             ->where('type', 'client')
-            ->where('debt', '<', 0)
-            ->orderBy('debt', 'asc');
+            ->where('debt', '<', 0);
 
         $this->applySearch($query, $request->search);
+        $this->applySort($query, $request, 'debt', 'asc');
 
         return $this->paginateOrGet($query, $request);
     }
@@ -81,10 +81,10 @@ class ClientService
         $query = $this->clientListQuery()
             ->where('type', 'client')
             ->where('debt', '!=', 0)
-            ->whereHas('installmentContracts')
-            ->orderByDesc('debt');
+            ->whereHas('installmentContracts');
 
         $this->applySearch($query, $request->search);
+        $this->applySort($query, $request, 'debt', 'desc');
 
         return $this->paginateOrGet($query, $request);
     }
@@ -160,6 +160,31 @@ class ClientService
                 ->orWhere('country_code', 'like', "%{$search}%")
                 ->orWhere('phone_number', 'like', "%{$search}%");
         });
+    }
+
+    private function applySort(Builder $query, Request $request, string $defaultSortBy = 'debt', string $defaultDirection = 'desc'): void
+    {
+        $sortBy = $request->input('sort_by', $defaultSortBy);
+        $sortDirection = strtolower($request->input('sort_direction', $defaultDirection)) === 'asc' ? 'asc' : 'desc';
+        $sortableColumns = ['id', 'name', 'type', 'phone_number', 'country_code', 'debt', 'created_at', 'updated_at'];
+
+        if ($sortBy === 'created_by') {
+            $query->orderBy(
+                DB::table('users')
+                    ->select('name')
+                    ->whereColumn('users.id', 'clients.created_by')
+                    ->limit(1),
+                $sortDirection
+            );
+        } elseif ($sortBy === 'installments') {
+            $query->orderBy('installment_remaining_amount', $sortDirection);
+        } elseif (in_array($sortBy, $sortableColumns, true)) {
+            $query->orderBy($sortBy, $sortDirection);
+        } else {
+            $query->orderBy($defaultSortBy, $defaultDirection);
+        }
+
+        $query->orderBy('id', 'desc');
     }
 
     private function clientListQuery(): Builder

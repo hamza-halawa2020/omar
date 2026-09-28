@@ -55,16 +55,16 @@
     </div>
 
     <div class="responsive-records-wrapper table-responsive">
-    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records" id="associationsTable">
+    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records" id="associationsTable" data-backend-sort="true">
         <thead>
             <tr>
-                <th class="text-center">{{ __('messages.id') }}</th>
-                <th class="text-center">{{ __('messages.name') }}</th>
-                <th class="text-center">{{ __('messages.per_day') }}</th>
-                <th class="text-center">{{ __('messages.total_members') }}</th>
-                <th class="text-center">{{ __('messages.monthly_amount') }}</th>
-                <th class="text-center">{{ __('messages.status') }}</th>
-                <th class="text-center">{{ __('messages.created_by') }}</th>
+                <th class="text-center" data-sort-key="id">{{ __('messages.id') }}</th>
+                <th class="text-center" data-sort-key="name">{{ __('messages.name') }}</th>
+                <th class="text-center" data-sort-key="per_day">{{ __('messages.per_day') }}</th>
+                <th class="text-center" data-sort-key="total_members">{{ __('messages.total_members') }}</th>
+                <th class="text-center" data-sort-key="monthly_amount">{{ __('messages.monthly_amount') }}</th>
+                <th class="text-center" data-sort-key="status">{{ __('messages.status') }}</th>
+                <th class="text-center" data-sort-key="created_by">{{ __('messages.created_by') }}</th>
                 @canany(['associations_update', 'associations_destroy', 'associations_details'])
                 <th class="text-center">{{ __('messages.actions') }}</th>
                 @endcan
@@ -95,6 +95,8 @@
     $(document).ready(function () {
         let currentPage = 1;
         const perPage = 25;
+        let currentSortBy = 'id';
+        let currentSortDirection = 'desc';
 
         loadAssociations();
 
@@ -115,15 +117,16 @@
 
             $.get("{{ route('associations.list') }}", {
                 page: currentPage,
-                per_page: perPage
+                per_page: perPage,
+                sort_by: currentSortBy,
+                sort_direction: currentSortDirection
             }, function (res) {
                 if (res.status) {
                     let rows = '';
-                    let rowStart = res.meta?.from || 1;
                     res.data.forEach((assoc, i) => {
                         rows += `
                                 <tr>
-                                    <td data-label="{{ __('messages.id') }}">${rowStart + i}</td>
+                                    <td data-label="{{ __('messages.id') }}">${escapeHtml(assoc.id)}</td>
                                     <td class="mobile-primary" data-label="{{ __('messages.name') }}">${escapeHtml(assoc.name)}</td>
                                     <td data-label="{{ __('messages.per_day') }}">${escapeHtml(assoc.per_day)}</td>
                                     <td data-label="{{ __('messages.total_members') }}">${escapeHtml(assoc.total_members)}</td>
@@ -199,6 +202,14 @@
             }
 
             loadAssociations(page);
+        });
+
+        document.getElementById('associationsTable')?.addEventListener('table:sort', function(event) {
+            event.preventDefault();
+            currentSortBy = event.detail.sortBy || 'id';
+            currentSortDirection = event.detail.sortDirection || 'desc';
+            currentPage = 1;
+            loadAssociations();
         });
 
         // Create

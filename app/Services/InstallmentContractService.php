@@ -30,15 +30,55 @@ class InstallmentContractService
     public function list(Request $request): LengthAwarePaginator
     {
         $perPage = min(max((int) $request->input('per_page', 25), 1), 100);
+        $sortBy = $request->input('sort_by', 'id');
+        $sortDirection = strtolower($request->input('sort_direction', 'desc')) === 'asc' ? 'asc' : 'desc';
+        $sortableColumns = [
+            'id',
+            'installment_amount',
+            'down_payment',
+            'remaining_amount',
+            'remaining_installments',
+            'installment_count',
+            'total_amount',
+            'start_date',
+            'created_at',
+            'updated_at',
+        ];
 
-        return InstallmentContract::with([
+        $query = InstallmentContract::with([
             'client' => function ($query) {
                 $query->where('type', 'client');
             },
             'product',
             'creator',
             'installments',
-        ])->latest()->paginate($perPage);
+        ]);
+
+        if ($sortBy === 'client') {
+            $query->orderBy(
+                Client::query()
+                    ->select('name')
+                    ->whereColumn('clients.id', 'installment_contracts.client_id')
+                    ->limit(1),
+                $sortDirection
+            );
+        } elseif ($sortBy === 'product') {
+            $query->orderBy(
+                Product::query()
+                    ->select('name')
+                    ->whereColumn('products.id', 'installment_contracts.product_id')
+                    ->limit(1),
+                $sortDirection
+            );
+        } elseif (in_array($sortBy, $sortableColumns, true)) {
+            $query->orderBy($sortBy, $sortDirection);
+        } else {
+            $query->orderBy('id', 'desc');
+        }
+
+        return $query
+            ->orderBy('id', 'desc')
+            ->paginate($perPage);
     }
 
     public function store(array $data): InstallmentContract

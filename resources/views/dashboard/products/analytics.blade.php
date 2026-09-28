@@ -441,18 +441,18 @@
             <div class="card-body">
                 <div class="card-title">{{ __('messages.product_performance') }}</div>
                 <div class="table-responsive responsive-records-wrapper">
-                    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records">
+                    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records" id="productPerformanceTable" data-backend-sort="true" data-sort-param-prefix="products_" data-sort-page-param="products_page">
                         <thead>
                             <tr>
-                                <th>{{ __('messages.product') }}</th>
-                                <th>{{ __('messages.code') }}</th>
-                                <th>{{ __('messages.sold_quantity') }}</th>
-                                <th>{{ __('messages.total_product_sales') }}</th>
-                                <th>{{ __('messages.total_sales_cost') }}</th>
-                                <th>{{ __('messages.total_commission') }}</th>
-                                <th>{{ __('messages.net_profit_loss') }}</th>
-                                <th>{{ __('messages.profit_margin') }}</th>
-                                <th>{{ __('messages.stock') }}</th>
+                                <th data-sort-key="name">{{ __('messages.product') }}</th>
+                                <th data-sort-key="code">{{ __('messages.code') }}</th>
+                                <th data-sort-key="sold_quantity">{{ __('messages.sold_quantity') }}</th>
+                                <th data-sort-key="sales_amount">{{ __('messages.total_product_sales') }}</th>
+                                <th data-sort-key="sales_cost">{{ __('messages.total_sales_cost') }}</th>
+                                <th data-sort-key="sales_commission">{{ __('messages.total_commission') }}</th>
+                                <th data-sort-key="net_profit">{{ __('messages.net_profit_loss') }}</th>
+                                <th data-sort-key="profit_margin">{{ __('messages.profit_margin') }}</th>
+                                <th data-sort-key="stock">{{ __('messages.stock') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -505,18 +505,18 @@
             <div class="card-body">
                 <div class="card-title">{{ __('messages.sales_transactions_profit') }}</div>
                 <div class="table-responsive responsive-records-wrapper">
-                    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records">
+                    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records" id="salesTransactionsTable" data-backend-sort="true" data-sort-param-prefix="sales_" data-sort-page-param="sales_page">
                         <thead>
                             <tr>
-                                <th>#</th>
-                                <th>{{ __('messages.product') }}</th>
-                                <th>{{ __('messages.quantity') }}</th>
-                                <th>{{ __('messages.amount') }}</th>
-                                <th>{{ __('messages.sale_cost') }}</th>
-                                <th>{{ __('messages.commission') }}</th>
-                                <th>{{ __('messages.net_profit_loss') }}</th>
-                                <th>{{ __('messages.client') }}</th>
-                                <th>{{ __('messages.created_at') }}</th>
+                                <th data-sort-key="id">#</th>
+                                <th data-sort-key="product">{{ __('messages.product') }}</th>
+                                <th data-sort-key="quantity">{{ __('messages.quantity') }}</th>
+                                <th data-sort-key="amount">{{ __('messages.amount') }}</th>
+                                <th data-sort-key="cost">{{ __('messages.sale_cost') }}</th>
+                                <th data-sort-key="commission">{{ __('messages.commission') }}</th>
+                                <th data-sort-key="profit">{{ __('messages.net_profit_loss') }}</th>
+                                <th data-sort-key="client">{{ __('messages.client') }}</th>
+                                <th data-sort-key="created_at">{{ __('messages.created_at') }}</th>
                             </tr>
                         </thead>
                         <tbody>

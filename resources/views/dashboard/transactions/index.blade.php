@@ -29,17 +29,17 @@
     <div class="card">
         <div class="card-body">
             <div class="table-responsive responsive-records-wrapper">
-                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records">
+                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records" id="transactionsTable" data-backend-sort="true">
                     <thead>
                         <tr>
-                            <th class="text-center">#</th>
-                            <th class="text-center">{{ __('messages.type') }}</th>
-                            <th class="text-center">{{ __('messages.amount') }}</th>
-                            <th class="text-center">{{ __('messages.client') }}</th>
-                            <th class="text-center">{{ __('messages.product') }}</th>
-                            <th class="text-center">{{ __('messages.payment_way') }}</th>
-                            <th class="text-center">{{ __('messages.created_by') }}</th>
-                            <th class="text-center">{{ __('messages.created_at') }}</th>
+                            <th class="text-center" data-sort-key="id">#</th>
+                            <th class="text-center" data-sort-key="type">{{ __('messages.type') }}</th>
+                            <th class="text-center" data-sort-key="amount">{{ __('messages.amount') }}</th>
+                            <th class="text-center" data-sort-key="client">{{ __('messages.client') }}</th>
+                            <th class="text-center" data-sort-key="product">{{ __('messages.product') }}</th>
+                            <th class="text-center" data-sort-key="payment_way">{{ __('messages.payment_way') }}</th>
+                            <th class="text-center" data-sort-key="created_by">{{ __('messages.created_by') }}</th>
+                            <th class="text-center" data-sort-key="created_at">{{ __('messages.created_at') }}</th>
                             <th class="text-center">{{ __('messages.actions') }}</th>
                         </tr>
                     </thead>

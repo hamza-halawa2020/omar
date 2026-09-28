@@ -56,17 +56,17 @@
 
         <div class="responsive-records-wrapper table-responsive">
             <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records"
-                id="installmentsTable">
+                id="installmentsTable" data-backend-sort="true">
                 <thead>
                     <tr>
-                        <th class="text-center">#</th>
-                        <th class="text-center">{{ __('messages.client') }}</th>
-                        <th class="text-center">{{ __('messages.product') }}</th>
+                        <th class="text-center" data-sort-key="id">#</th>
+                        <th class="text-center" data-sort-key="client">{{ __('messages.client') }}</th>
+                        <th class="text-center" data-sort-key="product">{{ __('messages.product') }}</th>
                
-                        <th class="text-center">{{ __('messages.installment_amount') }}</th>
-                        <th class="text-center">{{ __('messages.down_payment') }}</th>
-                        <th class="text-center">{{ __('messages.remaining_amount') }}</th>
-                        <th class="text-center">{{ __('messages.installment_count_left') }}</th>
+                        <th class="text-center" data-sort-key="installment_amount">{{ __('messages.installment_amount') }}</th>
+                        <th class="text-center" data-sort-key="down_payment">{{ __('messages.down_payment') }}</th>
+                        <th class="text-center" data-sort-key="remaining_amount">{{ __('messages.remaining_amount') }}</th>
+                        <th class="text-center" data-sort-key="remaining_installments">{{ __('messages.installment_count_left') }}</th>
                         @canany(['installments_show', 'installments_update', 'installments_destroy'])
                             <th class="text-center">{{ __('messages.actions') }}</th>
                         @endcan
@@ -99,6 +99,8 @@
         $(document).ready(function() {
             let currentPage = 1;
             const perPage = 25;
+            let currentSortBy = 'id';
+            let currentSortDirection = 'desc';
 
             loadinstallments();
 
@@ -119,12 +121,13 @@
 
                 $.get("{{ route('installment_contracts.list') }}", {
                     page: currentPage,
-                    per_page: perPage
+                    per_page: perPage,
+                    sort_by: currentSortBy,
+                    sort_direction: currentSortDirection
                 }, function(res) {
 
                     if (res.status) {
                         let rows = '';
-                        let rowStart = res.meta?.from || 1;
                         res.data.forEach((contract, i) => {
                             let clientName = contract.client?.name ?? '';
                             let clientPhone = contract.client?.phone_number ?? '';
@@ -132,7 +135,7 @@
 
                             rows += `
                     <tr>
-                        <td data-label="{{ __('messages.id') }}">${rowStart + i}</td>
+                        <td data-label="{{ __('messages.id') }}">${escapeHtml(contract.id)}</td>
                         <td class="mobile-primary" data-label="{{ __('messages.client') }}">
                             <strong>${escapeHtml(clientName)}</strong><br>
                             <small>${escapeHtml(clientPhone)}</small>
@@ -210,6 +213,14 @@
                 }
 
                 loadinstallments(page);
+            });
+
+            document.getElementById('installmentsTable')?.addEventListener('table:sort', function(event) {
+                event.preventDefault();
+                currentSortBy = event.detail.sortBy || 'id';
+                currentSortDirection = event.detail.sortDirection || 'desc';
+                currentPage = 1;
+                loadinstallments();
             });
 
             // Create

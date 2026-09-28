@@ -23,14 +23,14 @@
     </div>
 
     <div class="responsive-records-wrapper table-responsive">
-    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records" id="clientsTable">
+    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records" id="clientsTable" data-backend-sort="true">
         <thead>
             <tr>
-                <th class="text-center">{{ __('messages.id') }}</th>
-                <th class="text-center">{{ __('messages.name') }}</th>
-                <th class="text-center">{{ __('messages.phone_number') }}</th>
-                <th class="text-center">{{ __('messages.debt') }}</th>
-                <th class="text-center">{{ __('messages.created_by') }}</th>
+                <th class="text-center" data-sort-key="id">{{ __('messages.id') }}</th>
+                <th class="text-center" data-sort-key="name">{{ __('messages.name') }}</th>
+                <th class="text-center" data-sort-key="phone_number">{{ __('messages.phone_number') }}</th>
+                <th class="text-center" data-sort-key="debt">{{ __('messages.debt') }}</th>
+                <th class="text-center" data-sort-key="created_by">{{ __('messages.created_by') }}</th>
                 @canany(['clients_show', 'clients_update', 'clients_destroy'])
                 <th class="text-center">{{ __('messages.actions') }}</th>
                 @endcan
@@ -58,6 +58,8 @@
     $(document).ready(function () {
         let currentPage = 1;
         const perPage = 25;
+        let currentSortBy = 'debt';
+        let currentSortDirection = 'desc';
 
         loadclients();
         $('#searchInput').on('keyup', function () {
@@ -69,7 +71,7 @@
             currentPage = page;
             const search = $('#searchInput').val();
 
-            $.get("{{ route('clients.listMerchants') }}", { search, page: currentPage, per_page: perPage }, function (res) {
+            $.get("{{ route('clients.listMerchants') }}", { search, page: currentPage, per_page: perPage, sort_by: currentSortBy, sort_direction: currentSortDirection }, function (res) {
 
                 if (res.status) {
                     let rows = '';
@@ -77,7 +79,7 @@
                     res.data.forEach((client, i) => {
                         rows += `
                             <tr>
-                                <td data-label="{{ __('messages.id') }}">${rowStart + i}</td>
+                                <td data-label="{{ __('messages.id') }}">${client.id}</td>
                                 <td class="mobile-primary" data-label="{{ __('messages.name') }}">${client.name}</td>
                                 <td data-label="{{ __('messages.phone_number') }}">${client.full_phone_number || client.phone_number || ''}</td>
                                 <td data-label="{{ __('messages.debt') }}">${client.debt}</td>
@@ -139,6 +141,14 @@
             let page = Number($(this).data('page'));
             if (!page) return;
             loadclients(page);
+        });
+
+        document.getElementById('clientsTable')?.addEventListener('table:sort', function(event) {
+            event.preventDefault();
+            currentSortBy = event.detail.key;
+            currentSortDirection = event.detail.direction;
+            currentPage = 1;
+            loadclients();
         });
 
 
