@@ -265,45 +265,20 @@
 
                     <div class="mb-3">
                         <label for="client_id" class="form-label">{{ __('messages.client') }}</label>
-                        <select name="client_id" id="client_id" class="form-select" data-placeholder="{{ __('messages.select_client') }}">
+                        <input type="hidden" name="client_id" id="selectedClientId">
+                        <select id="client_id" class="form-select" data-placeholder="{{ __('messages.select_client') }}">
                             <option value="">{{ __('messages.select_client') }}</option>
                         </select>
+                        <div id="selectedClientPreview" class="mt-2"></div>
                     </div>
                     <div class="mb-3">
                         <div class="d-flex justify-content-between align-items-center gap-2 mb-2">
                             <label class="form-label mb-0">{{ __('messages.products') }}</label>
-                            <button type="button" class="btn btn-outline-primary btn-sm" id="addTransactionProduct">
-                                <i class="fas fa-plus me-1"></i>
-                                {{ __('messages.add_product') }}
-                            </button>
                         </div>
+                        <select id="productSearch" class="form-select" data-placeholder="{{ __('messages.select_product') }}">
+                            <option value="">{{ __('messages.select_product') }}</option>
+                        </select>
                         <div id="transactionProductsList" class="d-flex flex-column gap-2">
-                            <div class="transaction-product-row" data-product-row>
-                                <div class="transaction-product-select">
-                                    <label class="form-label small">{{ __('messages.product') }}</label>
-                                    <select name="products[0][product_id]" class="form-select product-select" data-placeholder="{{ __('messages.select_product') }}">
-                                        <option value="">{{ __('messages.select_product') }}</option>
-                                    </select>
-                                </div>
-                                <div class="transaction-product-details" data-product-details></div>
-                                <div class="transaction-product-quantity">
-                                    <label class="form-label small">{{ __('messages.quantity') }}</label>
-                                    <input type="number" name="products[0][quantity]" min="1" value="1" placeholder="{{ __('messages.quantity') }}" class="form-control product-quantity">
-                                </div>
-                                <div class="transaction-product-unit-price">
-                                    <label class="form-label small product-unit-price-label">{{ __('messages.purchase_price') }}</label>
-                                    <input type="number" name="products[0][unit_price]" min="0" step="0.01" placeholder="{{ __('messages.purchase_price') }}" class="form-control product-unit-price">
-                                </div>
-                                <div class="transaction-product-batch">
-                                    <label class="form-label small">{{ __('messages.batch') }}</label>
-                                    <select name="products[0][purchase_batch_id]" class="form-select product-batch-select" disabled>
-                                        <option value="">{{ __('messages.fifo') }}</option>
-                                    </select>
-                                </div>
-                                <button type="button" class="btn btn-outline-danger btn-sm transaction-product-remove" data-remove-product disabled>
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
                         </div>
                     </div>
                     <div class="mb-3">

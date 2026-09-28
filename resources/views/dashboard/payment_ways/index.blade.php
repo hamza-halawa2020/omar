@@ -182,13 +182,22 @@
             let transactionPaymentIndex = 0;
             let paymentSplitModeEnabled = false;
 
-            function initializeProductSelect2($scope = $('#transactionProductsList')) {
+            function escapeHtml(value) {
+                return String(value ?? '')
+                    .replaceAll('&', '&amp;')
+                    .replaceAll('<', '&lt;')
+                    .replaceAll('>', '&gt;')
+                    .replaceAll('"', '&quot;')
+                    .replaceAll("'", '&#039;');
+            }
+
+            function initializeProductSelect2() {
                 if (!$.fn.select2) {
                     return;
                 }
 
-                const $productSelects = $scope.find('.product-select');
-                if (!$productSelects.length) {
+                const $productSelect = $('#productSearch');
+                if (!$productSelect.length) {
                     return;
                 }
 
@@ -217,51 +226,47 @@
                     return $(`<span class="transaction-product-selection">${product.text || ''}</span>`);
                 }
 
-                $productSelects.each(function () {
-                    const $select = $(this);
+                if ($productSelect.hasClass('select2-hidden-accessible')) {
+                    $productSelect.select2('destroy');
+                }
 
-                    if ($select.hasClass('select2-hidden-accessible')) {
-                        $select.select2('destroy');
-                    }
+                $productSelect.select2({
+                    width: '100%',
+                    allowClear: true,
+                    placeholder: "{{ __('messages.select_product') }}",
+                    dropdownParent: $('#transactionModal'),
+                    dir: $('html').attr('dir') || 'rtl',
+                    templateResult: formatProduct,
+                    templateSelection: formatProductSelection,
+                    ajax: {
+                        url: "{{ route('products.list') }}",
+                        dataType: 'json',
+                        delay: 300,
+                        data: function (params) {
+                            return {
+                                with_batches: 1,
+                                search: params.term || '',
+                                per_page: 100
+                            };
+                        },
+                        processResults: function (res) {
+                            return {
+                                results: (res.data || []).map(function (product) {
+                                    let productCode = product.code ? ` [${product.code}]` : '';
+                                    productBatchesById[product.id] = product.purchase_batches || [];
 
-                    $select.select2({
-                        width: '100%',
-                        allowClear: true,
-                        placeholder: "{{ __('messages.select_product') }}",
-                        dropdownParent: $('#transactionModal'),
-                        dir: $('html').attr('dir') || 'rtl',
-                        templateResult: formatProduct,
-                        templateSelection: formatProductSelection,
-                        ajax: {
-                            url: "{{ route('products.list') }}",
-                            dataType: 'json',
-                            delay: 300,
-                            data: function (params) {
-                                return {
-                                    with_batches: 1,
-                                    search: params.term || '',
-                                    per_page: 100
-                                };
-                            },
-                            processResults: function (res) {
-                                return {
-                                    results: (res.data || []).map(function (product) {
-                                        let productCode = product.code ? ` [${product.code}]` : '';
-                                        productBatchesById[product.id] = product.purchase_batches || [];
-
-                                        return {
-                                            id: product.id,
-                                            text: `${product.name}${productCode}`,
-                                            purchase_price: product.purchase_price || 0,
-                                            sale_price: product.sale_price || 0,
-                                            stock: product.stock || 0,
-                                            purchase_batches: product.purchase_batches || []
-                                        };
-                                    })
-                                };
-                            }
+                                    return {
+                                        id: product.id,
+                                        text: `${product.name}${productCode}`,
+                                        purchase_price: product.purchase_price || 0,
+                                        sale_price: product.sale_price || 0,
+                                        stock: product.stock || 0,
+                                        purchase_batches: product.purchase_batches || []
+                                    };
+                                })
+                            };
                         }
-                    });
+                    }
                 });
             }
 
@@ -310,14 +315,15 @@
                 });
             }
 
-            function buildProductRow(index) {
+            function buildProductRow(index, product) {
+                const purchasePriceData = canViewPurchasePrices ? ` data-purchase-price="${product.purchase_price || 0}"` : '';
+                const productText = escapeHtml(product.text || '');
                 return `
-                    <div class="transaction-product-row" data-product-row>
+                    <div class="transaction-product-row" data-product-row data-product-id="${product.id}"${purchasePriceData} data-sale-price="${product.sale_price || 0}" data-stock="${product.stock || 0}">
                         <div class="transaction-product-select">
                             <label class="form-label small">{{ __('messages.product') }}</label>
-                            <select name="products[${index}][product_id]" class="form-select product-select" data-placeholder="{{ __('messages.select_product') }}">
-                                ${productOptionsHtml}
-                            </select>
+                            <input type="hidden" name="products[${index}][product_id]" class="product-id" value="${product.id}">
+                            <div class="form-control-plaintext fw-semibold">${productText}</div>
                         </div>
                         <div class="transaction-product-details" data-product-details></div>
                         <div class="transaction-product-quantity">
@@ -343,8 +349,8 @@
 
             function resetTransactionProducts() {
                 transactionProductIndex = 0;
-                $('#transactionProductsList').html(buildProductRow(transactionProductIndex));
-                $('#transactionProductsList [data-remove-product]').prop('disabled', true);
+                $('#transactionProductsList').empty();
+                $('#productSearch').val('').trigger('change');
                 initializeProductSelect2();
                 syncProductSelections();
             }
@@ -369,28 +375,13 @@
             }
 
             function selectedProductIds() {
-                return $('.product-select').map(function () {
+                return $('.product-id').map(function () {
                     return $(this).val();
                 }).get().filter(Boolean);
             }
 
             function syncProductSelections() {
-                const selectedIds = selectedProductIds();
-
-                $('.product-select').each(function () {
-                    const $select = $(this);
-                    const currentValue = $select.val();
-
-                    $select.find('option').each(function () {
-                        const optionValue = $(this).attr('value');
-                        const shouldDisable = optionValue && optionValue !== currentValue && selectedIds.includes(optionValue);
-                        $(this).prop('disabled', shouldDisable);
-                    });
-
-                    if ($select.hasClass('select2-hidden-accessible')) {
-                        $select.trigger('change.select2');
-                    }
-                });
+                return selectedProductIds();
             }
 
             const clientsCache = {};
@@ -406,14 +397,13 @@
             }
 
             function renderClientOptions(clients, $activeSelect = null) {
-                const selectedValue = $('#client_id').val();
                 let clientOptions = '<option value="">{{ __('messages.select_client') }}</option>';
                 clients.forEach(function (client) {
                     clientOptions +=
                         `<option value="${client.id}">${client.name} ({{ __('messages.debt') }}: ${parseFloat(client.debt || 0).toFixed(2)})</option>`;
                 });
 
-                $('#client_id').prop('disabled', false).html(clientOptions).val(selectedValue).trigger('change');
+                $('#client_id').prop('disabled', false).html(clientOptions).val('').trigger('change');
                 reopenSelect2($activeSelect);
             }
 
@@ -423,6 +413,25 @@
                     .html('<option value="">{{ __('messages.loading_text') }}...</option>')
                     .val('')
                     .trigger('change');
+            }
+
+            function clearSelectedClient() {
+                $('#selectedClientId').val('');
+                $('#selectedClientPreview').empty();
+                $('#client_id').val('').trigger('change');
+            }
+
+            function setSelectedClient(client) {
+                $('#selectedClientId').val(client.id);
+                $('#selectedClientPreview').html(`
+                    <div class="d-flex align-items-center justify-content-between gap-2 border rounded px-3 py-2">
+                        <span class="fw-semibold">${escapeHtml(client.text || '')}</span>
+                        <button type="button" class="btn btn-outline-danger btn-sm" id="clearSelectedClient">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `);
+                $('#client_id').val('').trigger('change');
             }
 
             function loadClients(type, search = '', $activeSelect = null) {
@@ -462,20 +471,8 @@
             function loadProducts(search = '', $activeSelect = null) {
                 return $.get("{{ route('products.list') }}", { with_batches: 1, search: search, per_page: 100 }, function (res) {
                     if (res.status) {
-                        let productOptions = search ? productOptionsHtml : '<option value="">{{ __('messages.select_product') }}</option>';
                         res.data.forEach(function (product) {
-                            let productCode = product.code ? ` [${product.code}]` : '';
                             productBatchesById[product.id] = product.purchase_batches || [];
-                            const purchasePriceData = canViewPurchasePrices ? ` data-purchase-price="${product.purchase_price || 0}"` : '';
-                            if (!productOptions.includes(`value="${product.id}"`)) {
-                                productOptions +=
-                                    `<option value="${product.id}"${purchasePriceData} data-sale-price="${product.sale_price || 0}" data-stock="${product.stock || 0}">${product.name}${productCode}</option>`;
-                            }
-                        });
-                        productOptionsHtml = productOptions;
-                        $('.product-select').each(function () {
-                            const selectedValue = $(this).val();
-                            $(this).html(productOptionsHtml).val(selectedValue).trigger('change');
                         });
                         initializeProductSelect2();
                         syncProductSelections();
@@ -487,7 +484,6 @@
             }
 
             function getSelectedProductPrice($row) {
-                const $selectedProduct = $row.find('.product-select').find(':selected');
                 const type = $('#receiveForm input[name="type"]').val();
 
                 if (type === 'send' && !canViewPurchasePrices) {
@@ -496,7 +492,7 @@
 
                 const priceKey = type === 'send' ? 'purchase-price' : 'sale-price';
 
-                return parseFloat($selectedProduct.data(priceKey) || 0);
+                return parseFloat($row.data(priceKey) || 0);
             }
 
             function setDefaultUnitPrice($row) {
@@ -505,7 +501,7 @@
             }
 
             function updateBatchSelect($row) {
-                const productId = $row.find('.product-select').val();
+                const productId = $row.find('.product-id').val();
                 const type = currentTransactionType();
                 const $batchSelect = $row.find('.product-batch-select');
 
@@ -526,21 +522,20 @@
             }
 
             function updateProductDetails($row) {
-                const $selectedProduct = $row.find('.product-select').find(':selected');
                 const $details = $row.find('[data-product-details]');
 
-                if (!$selectedProduct.val()) {
+                if (!$row.find('.product-id').val()) {
                     $details.hide().empty();
                     return;
                 }
 
-                const stockBefore = parseFloat($selectedProduct.data('stock') || 0);
+                const stockBefore = parseFloat($row.data('stock') || 0);
                 const quantity = parseFloat($row.find('.product-quantity').val()) || 1;
                 const stockAfter = currentTransactionType() === 'send'
                     ? stockBefore + quantity
                     : stockBefore - quantity;
-                const purchasePrice = parseFloat($selectedProduct.data('purchase-price') || 0).toFixed(2);
-                const salePrice = parseFloat($selectedProduct.data('sale-price') || 0).toFixed(2);
+                const purchasePrice = parseFloat($row.data('purchase-price') || 0).toFixed(2);
+                const salePrice = parseFloat($row.data('sale-price') || 0).toFixed(2);
 
                 $details
                     .html(`
@@ -694,28 +689,46 @@
                 }
             }
 
-            $(document).on('select2:select change', '.product-select', function (event) {
-                if (event.type === 'change' && $(this).hasClass('select2-hidden-accessible')) {
+            $('#productSearch').on('select2:select', function (event) {
+                const product = event.params?.data;
+                if (!product || !product.id) {
+                    $(this).val('').trigger('change');
+                    reopenSelect2($(this));
                     return;
                 }
 
-                if (event.type === 'select2:select' && event.params?.data) {
-                    const product = event.params.data;
-                    const $option = $(this).find(`option[value="${product.id}"]`);
-                    $option
-                        .data('purchase-price', product.purchase_price || 0)
-                        .data('sale-price', product.sale_price || 0)
-                        .data('stock', product.stock || 0);
-                    productBatchesById[product.id] = product.purchase_batches || productBatchesById[product.id] || [];
+                const $existingRow = $(`#transactionProductsList [data-product-row][data-product-id="${product.id}"]`);
+                if ($existingRow.length) {
+                    const $quantity = $existingRow.first().find('.product-quantity');
+                    $quantity.val((parseInt($quantity.val(), 10) || 0) + 1).trigger('input');
+                    $(this).val('').trigger('change');
+                    reopenSelect2($(this));
+                    return;
                 }
 
+                productBatchesById[product.id] = product.purchase_batches || productBatchesById[product.id] || [];
+                const $row = $(buildProductRow(transactionProductIndex, product));
+                $('#transactionProductsList').append($row);
+                transactionProductIndex += 1;
                 syncProductSelections();
-                const $row = $(this).closest('[data-product-row]');
                 updateBatchSelect($row);
                 setDefaultUnitPrice($row);
                 updateProductDetails($row);
                 updateTransactionAmountFromProduct();
+                $(this).val('').trigger('change');
+                reopenSelect2($(this));
             });
+
+            $('#client_id').on('select2:select', function (event) {
+                const client = event.params?.data;
+                if (!client || !client.id) {
+                    return;
+                }
+
+                setSelectedClient(client);
+            });
+
+            $(document).on('click', '#clearSelectedClient', clearSelectedClient);
 
             $(document).on('input', '.product-quantity, .product-unit-price', function () {
                 updateProductDetails($(this).closest('[data-product-row]'));
@@ -748,32 +761,8 @@
                 updatePaymentSplitsTotal();
             });
 
-            $(document).on('select2:clear', '.product-select', function () {
-                const $row = $(this).closest('[data-product-row]');
-                $row.find('.product-unit-price').val('');
-                updateProductDetails($row);
-                updateBatchSelect($row);
-                syncProductSelections();
-                updateTransactionAmountFromProduct();
-            });
-
-            $('#addTransactionProduct').on('click', function () {
-                transactionProductIndex += 1;
-                const $row = $(buildProductRow(transactionProductIndex));
-                $('#transactionProductsList').append($row);
-                $('#transactionProductsList [data-remove-product]').prop('disabled', $('#transactionProductsList [data-product-row]').length === 1);
-                initializeProductSelect2($row);
-                syncProductSelections();
-                syncUnitPriceLabels();
-            });
-
             $(document).on('click', '[data-remove-product]', function () {
-                if ($('#transactionProductsList [data-product-row]').length === 1) {
-                    return;
-                }
-
                 $(this).closest('[data-product-row]').remove();
-                $('#transactionProductsList [data-remove-product]').prop('disabled', $('#transactionProductsList [data-product-row]').length === 1);
                 syncProductSelections();
                 updateTransactionAmountFromProduct();
             });
@@ -789,6 +778,7 @@
                 let paymentWayId = $(this).data('id');
 
                 $('#commission').val(0);
+                clearSelectedClient();
                 resetTransactionProducts();
                 setPaymentSplitMode(false);
 
@@ -827,12 +817,14 @@
                 $btn.html('<i class="fas fa-spinner fa-spin me-1"></i>{{ __('messages.loading_text') }}').prop('disabled', true);
                 $('#receiveForm input[name="payment_way_id"], #receiveForm input[name="type"]').remove();
                 $('#commission').val(0);
+                clearSelectedClient();
                 resetTransactionProducts();
                 setPaymentSplitMode(true);
                 resetTransactionPayments();
 
                 $('#receiveForm').append(`<input type="hidden" name="type" value="${type}">`);
                 syncUnitPriceLabels();
+                $('#client_id').data('client-type', 'all');
 
                 $('#transactionModal .modal-title').text(type === 'receive'
                     ? '{{ __('messages.create_receive_transaction') }} - {{ __('messages.payment_splits') }}'
@@ -889,7 +881,7 @@
                             showToast(res.message || '{{ __('messages.transaction_created_successfully') }}', 'success');
                             $('#receiveForm')[0].reset();
                             $('#commission').val(0);
-                            $('#client_id').val('').trigger('change');
+                            clearSelectedClient();
                             resetTransactionProducts();
                             setPaymentSplitMode(false);
                             loadPaymentWays();
