@@ -23,7 +23,7 @@
                     <div class="mb-3">
                         <label>{{ __('messages.client_type') }}</label>
                         <select name="client_type" id="createclientType" class="form-control">
-                            <option value="all">{{ __('messages.all') }}</option>
+                            <!-- <option value="all">{{ __('messages.all') }}</option> -->
                             <option value="client">{{ __('messages.client') }}</option>
                             <option value="merchant">{{ __('messages.merchant') }}</option>
                         </select>
