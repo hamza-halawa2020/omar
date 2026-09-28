@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', __('messages.admin.admin_panel'))</title>
-    <link rel="icon" type="image/png" href="{{ asset('assets/images/1.png') }}" sizes="16x16">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('assets/images/app-logo.svg') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/remixicon.css') }}">
     <link href="{{ asset('assets/css/lib/font-awesome/6.4.2.css') }}" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('assets/css/lib/bootstrap.min.css') }}">
@@ -171,7 +171,7 @@
         <main class="admin-main">
             <header class="admin-topbar d-flex align-items-center justify-content-between px-4">
                 <a class="admin-brand" href="{{ route('admin.dashboard') }}">
-                    <img src="{{ asset('assets/images/1.png') }}" alt="logo">
+                    <img src="{{ asset('assets/images/app-logo.svg') }}" alt="logo">
                     <span class="fw-bold small">{{ __('messages.admin.admin_panel_short') }}</span>
                 </a>
 

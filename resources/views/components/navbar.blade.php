@@ -49,7 +49,7 @@
                             $user = Auth::user();
                             $profileImage = $user?->profile_image
                                 ? asset('storage/' . $user->profile_image)
-                                : asset('assets/images/1.png');
+                                : asset('assets/images/app-logo.svg');
                         @endphp
                         <img src="{{ $profileImage }}"
                             alt="image" class="w-40-px h-40-px object-fit-cover rounded-circle">

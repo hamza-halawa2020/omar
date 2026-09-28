@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ __('messages.admin.admin_login') }}</title>
-    <link rel="icon" type="image/png" href="{{ asset('assets/images/1.png') }}" sizes="16x16">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('assets/images/app-logo.svg') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/remixicon.css') }}">
     <link href="{{ asset('assets/css/lib/font-awesome/6.4.2.css') }}" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('assets/css/lib/bootstrap.min.css') }}">
@@ -18,7 +18,7 @@
         <div class="max-w-464-px mx-auto w-100 p-3">
             <div class="text-center mb-4">
                 <a class="mb-3 d-inline-block" style="max-width:120px;">
-                    <img src="{{ asset('assets/images/1.png') }}" alt="logo" style="width:100%;height:auto;object-fit:contain;">
+                    <img src="{{ asset('assets/images/app-logo.svg') }}" alt="logo" style="width:100%;height:auto;object-fit:contain;">
                 </a>
                 <h5 class="fw-bold mt-3">{{ __('messages.admin.admin_login') }}</h5>
                 <p class="text-secondary-light text-lg">{{ __('messages.admin.admin_login_subtitle') }}</p>

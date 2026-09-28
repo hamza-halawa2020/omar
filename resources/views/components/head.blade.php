@@ -7,7 +7,7 @@
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <link rel="icon" type="image/png" href="{{ asset('assets/images/1.png') }}" sizes="16x16">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('assets/images/app-logo.svg') }}">
     <!-- remix icon font css  -->
     <link rel="stylesheet" href="{{ asset('assets/css/remixicon.css') }}">
 

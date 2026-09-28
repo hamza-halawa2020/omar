@@ -8,9 +8,9 @@
             $dashboardUrl = auth()->user()?->can('dashboard_index') ? route('dashboard.index') : 'javascript:void(0)';
         @endphp
         <a href="{{ $dashboardUrl }}" class="sidebar-logo">
-            <img src="{{ asset('assets/images/1.png') }}" alt="site logo" class="light-logo">
-            <img src="{{ asset('assets/images/1.png') }}" alt="site logo" class="dark-logo">
-            <img src="{{ asset('assets/images/1.png') }}" alt="site logo" class="logo-icon">
+            <img src="{{ asset('assets/images/app-logo.svg') }}" alt="site logo" class="light-logo">
+            <img src="{{ asset('assets/images/app-logo.svg') }}" alt="site logo" class="dark-logo">
+            <img src="{{ asset('assets/images/app-logo.svg') }}" alt="site logo" class="logo-icon">
         </a>
     </div>
 
