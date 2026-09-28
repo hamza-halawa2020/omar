@@ -152,8 +152,9 @@
                         dataType: 'json',
                         delay: 300,
                         data: function (params) {
+                            const clientType = $clientSelect.data('client-type');
                             return {
-                                type: currentTransactionType(),
+                                type: clientType === 'all' ? '' : (clientType || ''),
                                 search: params.term || '',
                                 limit: 100
                             };
@@ -438,7 +439,7 @@
                     setClientLoadingState();
                 }
 
-                $.get("{{ route('clients.list') }}", { type: type, search: search, limit: 100 })
+                $.get("{{ route('clients.list') }}", { type: type === 'all' ? '' : type, search: search, limit: 100 })
                     .done(function (res) {
                         if (res.status) {
                             clientsCache[cacheKey] = res.data || [];
@@ -807,6 +808,7 @@
 
 
                 let clientType = $(this).closest('.card').find('span[data-client-type]').attr('data-client-type');
+                $('#client_id').data('client-type', clientType || 'all');
                 
                 loadProducts();
 
@@ -959,6 +961,10 @@
                                 clientTypeText = "{{ __('messages.merchant') }}";
                                 clientTypeIcon = 'fas fa-store';
                                 clientTypeBadge = 'bg-warning';
+                            } else {
+                                clientTypeText = "{{ __('messages.all') }}";
+                                clientTypeIcon = 'fas fa-users';
+                                clientTypeBadge = 'bg-secondary';
                             }
 
                             let limits = way.monthly_limits || {};
@@ -1431,7 +1437,7 @@
                 $('#editId').val($(this).data('id'));
                 $('#editName').val($(this).data('name'));
                 $('#editType').val($(this).data('type'));
-                $('#editCientType').val($(this).data('client-type'));
+                $('#editClientType').val($(this).data('client-type') || 'all');
                 $('#editPhone').val($(this).data('phone'));
                 $('#editReceiveLimit').val($(this).data('receive-limit'));
                 $('#editSendLimit').val($(this).data('send-limit'));

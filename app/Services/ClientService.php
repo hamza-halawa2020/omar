@@ -20,8 +20,10 @@ class ClientService
     {
         $query = $this->clientListQuery();
 
-        $query->when($request->type === 'merchant', function ($q) {
-            return $q->where('type', 'merchant');
+        $type = $request->input('type');
+
+        $query->when(in_array($type, ['client', 'merchant'], true), function ($q) use ($type) {
+            return $q->where('type', $type);
         });
 
         $query->orderByDesc('debt');

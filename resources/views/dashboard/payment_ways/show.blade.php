@@ -364,8 +364,9 @@
                         dataType: 'json',
                         delay: 300,
                         data: function (params) {
+                            const clientType = $clientSelect.data('client-type');
                             return {
-                                type: currentTransactionType(),
+                                type: clientType === 'all' ? '' : (clientType || ''),
                                 search: params.term || '',
                                 limit: 100
                             };
@@ -640,13 +641,8 @@
             function loadClients(type, search = '', $activeSelect = null) {
                 let deferred = $.Deferred();
 
-                if (!type) {
-                    renderClientOptions([]);
-                    deferred.resolve([]);
-                    return deferred.promise();
-                }
-
-                const cacheKey = `${type}:${search}`;
+                const normalizedType = type === 'all' ? '' : (type || '');
+                const cacheKey = `${normalizedType || 'all'}:${search}`;
 
                 if (clientsCache[cacheKey]) {
                     renderClientOptions(clientsCache[cacheKey], $activeSelect);
@@ -658,7 +654,7 @@
                     setClientLoadingState();
                 }
 
-                $.get("{{ route('clients.list') }}", { type: type, search: search, limit: 100 })
+                $.get("{{ route('clients.list') }}", { type: normalizedType, search: search, limit: 100 })
                     .done(function (res) {
                         if (res.status) {
                             clientsCache[cacheKey] = res.data || [];
@@ -1116,6 +1112,7 @@
                 $('#transactionModal .modal-title').text(`${actionText} - ${currentPaymentWay.name}`);
 
                 let clientType = currentPaymentWay.client_type;
+                $('#client_id').data('client-type', clientType || 'all');
                 
                 loadProducts();
                 $.when(loadPaymentWayOptions(), loadClients(clientType)).always(function () {
@@ -1391,7 +1388,7 @@
             }
 
             function loadClientsForEdit(type) {
-                $.get("{{ route('clients.list') }}", { type: type, limit: 100 }, function (res) {
+                $.get("{{ route('clients.list') }}", { type: type === 'all' ? '' : type, limit: 100 }, function (res) {
                     if (res.status) {
                         let options = '<option value="">{{ __('messages.select_client') }}</option>';
                         res.data.forEach(function (client) {

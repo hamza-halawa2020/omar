@@ -22,7 +22,7 @@ class StorePaymentWayRequest extends FormRequest
             'receive_limit' => 'nullable|numeric|min:0',
             'receive_limit_alert' => 'nullable|numeric|min:0',
             'balance' => 'nullable|numeric|min:0',
-            'client_type' => 'nullable',
+            'client_type' => 'nullable|in:client,merchant,all',
         ];
     }
 }
