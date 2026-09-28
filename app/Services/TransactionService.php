@@ -9,6 +9,7 @@ use App\Models\ProductPurchaseBatch;
 use App\Models\Transaction;
 use App\Models\TransactionPayment;
 use App\Models\TransactionProduct;
+use App\Models\User;
 use App\Services\Concerns\HandlesTransactionConcurrency;
 use App\Services\Concerns\HandlesWalletMonthlyLimits;
 use Carbon\Carbon;
@@ -77,7 +78,7 @@ class TransactionService
             })
             ->when($sortBy === 'created_by', function ($query) use ($sortDirection) {
                 $query->orderBy(
-                    DB::table('users')
+                    User::query()
                         ->select('name')
                         ->whereColumn('users.id', 'transactions.created_by')
                         ->limit(1),

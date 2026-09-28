@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Product;
 use App\Models\Transaction;
+use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
@@ -74,7 +75,7 @@ class ProductService
 
         if ($sortBy === 'created_by') {
             $query->orderBy(
-                DB::table('users')
+                User::query()
                     ->select('name')
                     ->whereColumn('users.id', 'products.created_by')
                     ->limit(1),

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Client;
+use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -170,7 +171,7 @@ class ClientService
 
         if ($sortBy === 'created_by') {
             $query->orderBy(
-                DB::table('users')
+                User::query()
                     ->select('name')
                     ->whereColumn('users.id', 'clients.created_by')
                     ->limit(1),

@@ -6,6 +6,7 @@ use App\Models\Association;
 use App\Models\AssociationPayment;
 use App\Models\Client;
 use App\Models\Transaction;
+use App\Models\User;
 use App\Services\Concerns\HandlesTransactionConcurrency;
 use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -52,7 +53,7 @@ class AssociationService
 
         if ($sortBy === 'created_by') {
             $query->orderBy(
-                DB::table('users')
+                User::query()
                     ->select('name')
                     ->whereColumn('users.id', 'associations.created_by')
                     ->limit(1),
