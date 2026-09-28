@@ -33,6 +33,51 @@
                                     value="{{ auth()->user()->whatsapp_api_token }}" placeholder="Enter your WhatsApp API Token">
                             </div>
 
+                            @php
+                                $templateLabels = [
+                                    'greeting' => __('messages.whatsapp_template_greeting'),
+                                    'send' => __('messages.whatsapp_template_send'),
+                                    'receive' => __('messages.whatsapp_template_receive'),
+                                    'product' => __('messages.whatsapp_template_product'),
+                                    'installment' => __('messages.whatsapp_template_installment'),
+                                    'association' => __('messages.whatsapp_template_association'),
+                                    'association_payout' => __('messages.whatsapp_template_association_payout'),
+                                    'balance' => __('messages.whatsapp_template_balance'),
+                                ];
+                            @endphp
+
+                            <div class="card border mb-4">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+                                        <div>
+                                            <div class="fw-bold">{{ __('messages.whatsapp_message_templates') }}</div>
+                                            <small class="text-muted">{{ __('messages.whatsapp_message_templates_hint') }}</small>
+                                        </div>
+                                    </div>
+                                    <div class="alert alert-light border small">
+                                        {{ __('messages.whatsapp_template_variables') }}:
+                                        <code>:name</code>,
+                                        <code>:amount</code>,
+                                        <code>:product</code>,
+                                        <code>:association</code>,
+                                        <code>:balance</code>
+                                    </div>
+                                    @foreach ($whatsappTemplateKeys as $templateKey)
+                                        <div class="mb-3">
+                                            <label class="form-label" for="whatsapp_template_{{ $templateKey }}">
+                                                {{ $templateLabels[$templateKey] ?? $templateKey }}
+                                            </label>
+                                            <textarea
+                                                class="form-control"
+                                                id="whatsapp_template_{{ $templateKey }}"
+                                                name="whatsapp_templates[{{ $templateKey }}]"
+                                                rows="2"
+                                            >{{ $whatsappTemplates[$templateKey] ?? '' }}</textarea>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
                             <div class="position-relative mb-20">
                                 <div class="icon-field">
                                     <span class="icon top-50 translate-middle-y">

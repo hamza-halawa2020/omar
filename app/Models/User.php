@@ -232,6 +232,11 @@ class User extends Authenticatable
         return $this->hasMany(TransactionLog::class, 'created_by');
     }
 
+    public function whatsappMessageTemplates()
+    {
+        return $this->hasMany(UserWhatsAppMessageTemplate::class);
+    }
+
     public function associations()
     {
         return $this->hasMany(AssociationMember::class, 'client_id');

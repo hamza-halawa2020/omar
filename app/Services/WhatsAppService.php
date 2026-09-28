@@ -2,13 +2,28 @@
 
 namespace App\Services;
 
+use App\Models\User;
+use App\Models\UserWhatsAppMessageTemplate;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Exception;
 
 class WhatsAppService
 {
     protected $baseUrl;
+
+    public const TEMPLATE_KEYS = [
+        'greeting',
+        'send',
+        'receive',
+        'product',
+        'installment',
+        'association',
+        'association_payout',
+        'balance',
+    ];
 
     public function __construct()
     {
@@ -131,24 +146,96 @@ class WhatsAppService
             return;
         }
 
-        $greeting = __('messages.whatsapp_msg_greeting', ['name' => $client->name]);
-        $action = $type === 'send' ? __('messages.whatsapp_msg_send', ['amount' => $amount]) : __('messages.whatsapp_msg_receive', ['amount' => $amount]);
+        $user = auth()->user();
+        $templates = $this->templatesForUser($user);
+        $client = $client->fresh();
+        $variables = [
+            'name' => $client->name,
+            'amount' => $amount,
+            'product' => $context['product'] ?? '',
+            'association' => $context['association'] ?? $context['association_payout'] ?? '',
+            'balance' => $client->debt,
+        ];
+
+        $greeting = $this->renderTemplate($templates['greeting'], $variables);
+        $action = $type === 'send'
+            ? $this->renderTemplate($templates['send'], $variables)
+            : $this->renderTemplate($templates['receive'], $variables);
 
         $reason = '';
         if (isset($context['product'])) {
-            $reason = __('messages.whatsapp_msg_product', ['product' => $context['product']]);
+            $reason = $this->renderTemplate($templates['product'], $variables);
         } elseif (isset($context['installment'])) {
-            $reason = __('messages.whatsapp_msg_installment');
+            $reason = $this->renderTemplate($templates['installment'], $variables);
         } elseif (isset($context['association'])) {
-            $reason = __('messages.whatsapp_msg_association', ['association' => $context['association']]);
+            $reason = $this->renderTemplate($templates['association'], $variables);
         } elseif (isset($context['association_payout'])) {
-            $reason = __('messages.whatsapp_msg_association_payout', ['association' => $context['association_payout']]);
+            $reason = $this->renderTemplate($templates['association_payout'], $variables);
         }
 
-        $balance = __('messages.whatsapp_msg_balance', ['balance' => $client->fresh()->debt]);
+        $balance = $this->renderTemplate($templates['balance'], $variables);
 
         $message = "{$greeting}\n{$action}{$reason}\n{$balance}";
 
         return $this->sendMessage($client->full_phone_number ?? $client->phone_number, $message);
+    }
+
+    public function defaultTemplates(): array
+    {
+        return [
+            'greeting' => __('messages.whatsapp_msg_greeting', ['name' => ':name']),
+            'send' => __('messages.whatsapp_msg_send', ['amount' => ':amount']),
+            'receive' => __('messages.whatsapp_msg_receive', ['amount' => ':amount']),
+            'product' => __('messages.whatsapp_msg_product', ['product' => ':product']),
+            'installment' => __('messages.whatsapp_msg_installment'),
+            'association' => __('messages.whatsapp_msg_association', ['association' => ':association']),
+            'association_payout' => __('messages.whatsapp_msg_association_payout', ['association' => ':association']),
+            'balance' => __('messages.whatsapp_msg_balance', ['balance' => ':balance']),
+        ];
+    }
+
+    public function templatesForUser(?User $user): array
+    {
+        $defaults = $this->defaultTemplates();
+
+        if (! $user) {
+            return $defaults;
+        }
+
+        if (! Schema::connection('central')->hasTable('user_whatsapp_message_templates')) {
+            return $defaults;
+        }
+
+        $templates = Cache::remember(
+            $this->templatesCacheKey($user->id),
+            now()->addDay(),
+            fn () => UserWhatsAppMessageTemplate::query()
+                ->where('user_id', $user->id)
+                ->pluck('template', 'key')
+                ->all()
+        );
+
+        return array_merge($defaults, array_filter($templates, fn ($value) => $value !== null && $value !== ''));
+    }
+
+    public function clearTemplatesCache(int $userId): void
+    {
+        Cache::forget($this->templatesCacheKey($userId));
+    }
+
+    private function templatesCacheKey(int $userId): string
+    {
+        return "user:{$userId}:whatsapp-message-templates";
+    }
+
+    private function renderTemplate(string $template, array $variables): string
+    {
+        $replace = [];
+
+        foreach ($variables as $key => $value) {
+            $replace[':'.$key] = (string) $value;
+        }
+
+        return strtr($template, $replace);
     }
 }

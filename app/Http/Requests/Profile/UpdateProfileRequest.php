@@ -21,6 +21,8 @@ class UpdateProfileRequest extends FormRequest
             'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'password' => 'nullable|min:8',
             'whatsapp_api_token' => 'nullable|string',
+            'whatsapp_templates' => 'nullable|array',
+            'whatsapp_templates.*' => 'nullable|string|max:2000',
         ];
     }
 }

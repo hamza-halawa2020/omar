@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\UserWhatsAppMessageTemplate;
 use Exception;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
@@ -36,7 +37,11 @@ class ProfileService
                 $validated['email'] = Str::lower($validated['email']);
             }
 
+            $whatsappTemplates = $validated['whatsapp_templates'] ?? [];
+            unset($validated['whatsapp_templates']);
+
             $user->update($validated);
+            $this->updateWhatsAppTemplates((int) $user->id, $whatsappTemplates);
 
             return [
                 'status' => true,
@@ -49,5 +54,25 @@ class ProfileService
                 'message' => __('messages.failed_to_update_profile') . ': ' . $e->getMessage(),
             ];
         }
+    }
+
+    private function updateWhatsAppTemplates(int $userId, array $templates): void
+    {
+        if ($templates === []) {
+            return;
+        }
+
+        foreach ($templates as $key => $template) {
+            if (! in_array($key, WhatsAppService::TEMPLATE_KEYS, true)) {
+                continue;
+            }
+
+            UserWhatsAppMessageTemplate::query()->updateOrCreate(
+                ['user_id' => $userId, 'key' => $key],
+                ['template' => trim((string) $template)]
+            );
+        }
+
+        app(WhatsAppService::class)->clearTemplatesCache($userId);
     }
 }
