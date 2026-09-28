@@ -117,7 +117,7 @@
 @push('scripts')
 <script>
     $(document).ready(function () {
-        const canViewPurchasePrices = @can('purchase_prices_view') true @elsefalse @endcan;
+        const canViewPurchasePrices = @can('purchase_prices_view') true @else false @endcan;
         let currentPage = 1;
         let perPage = 25;
         let currentSortBy = 'name';

@@ -74,7 +74,7 @@
 @push('scripts')
 <script>
     $(document).ready(function () {
-        const canViewPurchasePrices = @can('purchase_prices_view') true @elsefalse @endcan;
+        const canViewPurchasePrices = @can('purchase_prices_view') true @else false @endcan;
 
         loadIphones();
 
