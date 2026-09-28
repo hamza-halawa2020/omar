@@ -522,6 +522,7 @@ class TransactionService
             $balanceBeforeTransaction = $newPaymentWay->fresh()->balance;
             $transaction->update($resolvedData);
             $transaction->products()->delete();
+            $transaction->paymentSplits()->delete();
             $this->createProductLines($transaction, $newProductItems, $resolvedData['type']);
 
             $this->applyTransactionEffects(
@@ -542,6 +543,13 @@ class TransactionService
                 $transaction->balance_after_transaction = $balanceBeforeTransaction + $newTotal;
             }
             $transaction->save();
+
+            $transaction->paymentSplits()->create([
+                'payment_way_id' => $newPaymentWay->id,
+                'amount' => $newTotal,
+                'balance_before_transaction' => $transaction->balance_before_transaction,
+                'balance_after_transaction' => $transaction->balance_after_transaction,
+            ]);
 
             $transaction->logs()->create([
                 'created_by' => Auth::id(),

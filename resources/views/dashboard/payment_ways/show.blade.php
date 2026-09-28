@@ -1265,13 +1265,13 @@
                     contentType: false,
                     success: function (res) {
                         if (res.status) {
+                            let newPaymentWayId = $('#editPaymentWayId').val();
+                            let currentPaymentWayId = id; // Current page payment way ID
                             $('#editTransactionModal').modal('hide');
                             showToast('{{ __('messages.transaction_updated_successfully') }}', 'success');
                             $('#editTransactionForm')[0].reset();
                             
                             // Check if payment way changed
-                            let newPaymentWayId = $('#editPaymentWayId').val();
-                            let currentPaymentWayId = id; // Current page payment way ID
                             
                             if (newPaymentWayId && newPaymentWayId != currentPaymentWayId) {
                                 // Payment way changed, redirect to new payment way page
@@ -1760,7 +1760,7 @@
                                         data-client-id="${tx.client?.id || ''}"
                                         data-product-id="${tx.product?.id || ''}"
                                         data-quantity="${tx.quantity || ''}"
-                                        data-payment-way-id="${tx.payment_way?.id || ''}"
+                                        data-payment-way-id="${tx.paymentWay?.id || tx.payment_way_id || ''}"
                                         data-attachment="${tx.attachment || ''}"
                                         title="{{ __('messages.edit') }}">
                                     <i class="fas fa-edit"></i>
