@@ -782,4 +782,5 @@ return [
     'whatsapp_template_association' => 'سبب دفعة الجمعية',
     'whatsapp_template_association_payout' => 'سبب استلام الجمعية',
     'whatsapp_template_balance' => 'الرصيد الحالي',
+    'whatsapp_template_invalid_variables' => 'يوجد متغير غير صحيح: :variables. المتغيرات المسموحة هي: :allowed',
 ];

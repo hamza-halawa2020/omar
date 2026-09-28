@@ -782,4 +782,5 @@ return [
     'whatsapp_template_association' => 'Association payment reason',
     'whatsapp_template_association_payout' => 'Association payout reason',
     'whatsapp_template_balance' => 'Current balance',
+    'whatsapp_template_invalid_variables' => 'Invalid variable found: :variables. Allowed variables are: :allowed',
 ];
