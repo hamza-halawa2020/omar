@@ -208,16 +208,20 @@
                     const purchasePrice = product.purchase_price ?? $el.data('purchase-price') ?? 0;
                     const salePrice = product.sale_price ?? $el.data('sale-price') ?? 0;
                     const stock = product.stock ?? $el.data('stock') ?? 0;
+                    const description = product.description ?? $el.data('description') ?? '';
                     if (canViewPurchasePrices) {
                         metaParts.push(`{{ __('messages.purchase_price') }}: ${parseFloat(purchasePrice || 0).toFixed(2)}`);
                     }
                     metaParts.push(`{{ __('messages.sale_price') }}: ${parseFloat(salePrice || 0).toFixed(2)}`);
                     metaParts.push(`{{ __('messages.stock') }}: ${stock || 0}`);
+                    if (description) {
+                        metaParts.push(`{{ __('messages.description') }}: ${description}`);
+                    }
 
                     return $(
                         `<div class="transaction-product-option">
-                            <div class="transaction-product-option__name" style="font-weight:500">${product.text}</div>
-                            <small class="transaction-product-option__meta">${metaParts.join(' | ')}</small>
+                            <div class="transaction-product-option__name" style="font-weight:500">${escapeHtml(product.text)}</div>
+                            <small class="transaction-product-option__meta">${escapeHtml(metaParts.join(' | '))}</small>
                         </div>`
                     );
                 }
@@ -261,6 +265,7 @@
                                         purchase_price: product.purchase_price || 0,
                                         sale_price: product.sale_price || 0,
                                         stock: product.stock || 0,
+                                        description: product.description || '',
                                         purchase_batches: product.purchase_batches || []
                                     };
                                 })
@@ -318,12 +323,14 @@
             function buildProductRow(index, product) {
                 const purchasePriceData = canViewPurchasePrices ? ` data-purchase-price="${product.purchase_price || 0}"` : '';
                 const productText = escapeHtml(product.text || '');
+                const productDescription = escapeHtml(product.description || '');
                 return `
-                    <div class="transaction-product-row" data-product-row data-product-id="${product.id}"${purchasePriceData} data-sale-price="${product.sale_price || 0}" data-stock="${product.stock || 0}">
+                    <div class="transaction-product-row" data-product-row data-product-id="${product.id}"${purchasePriceData} data-sale-price="${product.sale_price || 0}" data-stock="${product.stock || 0}" data-description="${productDescription}">
                         <div class="transaction-product-select">
                             <label class="form-label small">{{ __('messages.product') }}</label>
                             <input type="hidden" name="products[${index}][product_id]" class="product-id" value="${product.id}">
                             <div class="form-control-plaintext fw-semibold">${productText}</div>
+                            ${productDescription ? `<small class="text-muted d-block">${productDescription}</small>` : ''}
                         </div>
                         <div class="transaction-product-details" data-product-details></div>
                         <div class="transaction-product-quantity">
