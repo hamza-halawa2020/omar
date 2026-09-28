@@ -13,7 +13,20 @@ class LoginService
 {
     public function showLoginForm()
     {
-        if (auth()->check()) {
+        if (Auth::guard('web')->check()) {
+            $user = Auth::guard('web')->user();
+            $tenant = Tenant::on('central')->find($user->tenant_id);
+
+            if (! $tenant || ! $user->is_active) {
+                Auth::guard('web')->logout();
+                session()->invalidate();
+                session()->regenerateToken();
+
+                return view('dashboard.auth.login');
+            }
+
+            session(['tenant_id' => $tenant->id]);
+
             return redirect()->route('dashboard.index');
         }
 
