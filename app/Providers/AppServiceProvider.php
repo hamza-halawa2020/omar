@@ -2,9 +2,12 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use App\Observers\ClientObserver;
+use App\Http\Middleware\SystemRateLimit;
 use App\Models\Client as ClientModel;
+use App\Observers\ClientObserver;
+use Illuminate\Routing\Router;
+use Illuminate\Support\ServiceProvider;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -18,8 +21,11 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
+    public function boot(Router $router): void
     {
         ClientModel::observe(ClientObserver::class);
+
+        $router->pushMiddlewareToGroup('web', SystemRateLimit::class);
+        $router->pushMiddlewareToGroup('api', SystemRateLimit::class);
     }
 }
