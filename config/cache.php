@@ -45,6 +45,13 @@ return [
             'lock_connection' => env('DB_CACHE_LOCK_CONNECTION', null),
         ],
 
+        'central_database' => [
+            'driver' => 'database',
+            'table' => env('DB_CACHE_TABLE', 'cache'),
+            'connection' => 'central',
+            'lock_connection' => 'central',
+        ],
+
         'file' => [
             'driver' => 'file',
             'path' => storage_path('framework/cache/data'),

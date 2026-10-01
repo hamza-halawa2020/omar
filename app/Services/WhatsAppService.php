@@ -206,7 +206,7 @@ class WhatsAppService
             return $defaults;
         }
 
-        $templates = Cache::remember(
+        $templates = Cache::store('central_database')->remember(
             $this->templatesCacheKey($user->id),
             now()->addDay(),
             fn () => UserWhatsAppMessageTemplate::query()
@@ -220,7 +220,7 @@ class WhatsAppService
 
     public function clearTemplatesCache(int $userId): void
     {
-        Cache::forget($this->templatesCacheKey($userId));
+        Cache::store('central_database')->forget($this->templatesCacheKey($userId));
     }
 
     private function templatesCacheKey(int $userId): string
