@@ -487,8 +487,8 @@
                         <div class="transaction-product-select">
                             <label class="form-label small">{{ __('messages.product') }}</label>
                             <input type="hidden" name="products[${index}][product_id]" class="product-id" value="${product.id}">
-                            <div class="form-control-plaintext fw-semibold">${productText}</div>
-                            ${productDescription ? `<small class="text-muted d-block">${productDescription}</small>` : ''}
+                            <div class="form-control fw-semibold">${productText}</div>
+                            ${productDescription ? `<small class="d-block">${productDescription}</small>` : ''}
                         </div>
                         <div class="transaction-product-details" data-product-details></div>
                         <div class="transaction-product-quantity">
