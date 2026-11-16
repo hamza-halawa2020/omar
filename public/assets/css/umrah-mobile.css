@@ -21,7 +21,7 @@ body.umrah-page .dashboard-main {
    2. Workspace container
    ---------------------------------------------------------- */
 .umrah-workspace {
-    max-width: 900px;
+    /* max-width: 900px; */
     margin: 0 auto;
     padding: 1rem 1rem 5rem; /* bottom clears mobile nav */
 }
