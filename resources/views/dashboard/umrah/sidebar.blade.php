@@ -1,5 +1,5 @@
 <aside class="sidebar">
-    <button type="button" class="sidebar-close-btn"><iconify-icon icon="mdi:close"></iconify-icon></button>
+    <button type="button" class="sidebar-close-btn" aria-label="{{ __('umrah.close_menu') }}"><iconify-icon icon="mdi:close"></iconify-icon></button>
     <a href="{{ route('umrah.index') }}" class="sidebar-logo"><img src="{{ asset('assets/images/app-logo.svg') }}"
             alt="{{ __('umrah.umrah_management') }}"></a>
     <div class="sidebar-menu-area">

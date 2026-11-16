@@ -1,5 +1,8 @@
 @extends('dashboard.umrah.layout')
+@section('umrah_title', $trip->name)
+@section('umrah_back', route('umrah.index'))
 @section('umrah')
+<div class="umrah-quick-actions">@can('umrah_bookings_manage')<a class="btn btn-primary" href="#umrah-trip-booking">{{ __('umrah.book_traveler') }}</a>@endcan<a class="btn btn-outline-primary" href="#umrah-trip-manifest">{{ __('umrah.manifest') }}</a></div>
     <div class="card">
         <div class="card-body">
             <div>{{ $trip->name }}</div>
@@ -74,9 +77,9 @@
         </div>
     @endcan
     @can('umrah_bookings_manage')
-        <div class="card">
+        <div class="card" id="umrah-trip-booking">
             <div class="card-body">
-                <div>{{ __('umrah.book_traveler') }}</div>
+                <div class="umrah-section-title">{{ __('umrah.book_traveler') }}</div>
                 <p>{{ __('umrah.booking_needs') }} <a
                         href="{{ route('umrah.travelers.index') }}">{{ __('umrah.register_traveler_action') }}</a>
                     {{ __('umrah.booking_prerequisites') }}
@@ -98,11 +101,11 @@
             </div>
         </div>
     @endcan
-    <div class="card">
+    <div class="card" id="umrah-trip-manifest">
         <div class="card-body">
-            <div>{{ __('umrah.manifest') }}</div><button class="btn btn-outline-secondary no-print mb-3"
+            <div class="umrah-section-title">{{ __('umrah.manifest') }}</div><button class="btn btn-outline-secondary no-print mb-3"
                 onclick="window.print()">{{ __('umrah.print_manifest') }}</button>
-            @include('dashboard.umrah.booking-table'){{ $bookings->links() }}
+            @include('dashboard.umrah.booking-table'){{ $bookings->links('dashboard.umrah.pagination') }}
         </div>
     </div>
 @endsection

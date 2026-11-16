@@ -2,9 +2,14 @@
 <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}" data-theme="light">
 
+@php($usesUmrahShell = request()->routeIs('umrah.*') || (tenant()?->isUmrah() && request()->routeIs('dashboard.profile.*')))
+@if($usesUmrahShell)
+    @push('styles')<link rel="stylesheet" href="{{ asset('assets/css/umrah-mobile.css') }}">@endpush
+@endif
+
 <x-head />
 
-<body>
+<body class="{{ $usesUmrahShell ? 'umrah-page' : '' }}">
 
     <div class="position-fixed bottom-0 top-0 p-3" style="z-index: 11">
         <div id="toastContainer"></div>
@@ -20,7 +25,7 @@
         </div>
     @endif
 
-    @if(request()->routeIs('umrah.*'))
+    @if($usesUmrahShell)
         @include('dashboard.umrah.sidebar')
     @else
         <x-sidebar />
@@ -33,6 +38,7 @@
         </div>
         <x-footer />
     </main>
+    @if($usesUmrahShell) @include('dashboard.umrah.mobile-nav') @endif
 
 
 
@@ -71,6 +77,7 @@
 
     <!-- Main Application JS -->
     <script src="{{ asset('assets/js/app.js') }}"></script>
+    @if($usesUmrahShell)<script src="{{ asset('assets/js/umrah-mobile.js') }}"></script>@endif
 
 
     <script>

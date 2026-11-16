@@ -1,6 +1,17 @@
 <?php
 
 return [
+    'close_menu' => 'Close menu',
+    'page_navigation' => 'Page navigation',
+    'previous_page' => 'Previous',
+    'next_page' => 'Next',
+    'page_position' => ':current of :last',
+    'mobile_navigation' => 'Umrah navigation',
+    'section_navigation' => 'Page sections',
+    'my_account' => 'My account',
+    'back' => 'Back',
+    'overview' => 'Overview',
+    'actions' => 'Actions',
     'agreed_amount' => 'Total price agreed with traveler (optional)',
     'agreed_amount_help' => 'Agree a lower or higher price than the program price, in the same currency. Leave blank to use the selected tier price. No payment is required to create a booking; record any number of actual payments afterwards.',
     'price_adjustment_reason' => 'Custom price note (optional)',

@@ -1,6 +1,15 @@
 @extends('dashboard.umrah.layout')
+@section('umrah_title', $booking->traveler->name)
+@section('umrah_back', route('umrah.trips.show', $booking->trip_id))
 @section('umrah')
-    <div class="card">
+<div class="umrah-quick-actions">
+@if(auth()->user()->hasPermissionTo('umrah_payments_collect') || auth()->user()->hasPermissionTo('umrah_refunds_approve'))<a class="btn btn-primary" href="#umrah-payment-form">{{ __('umrah.record_payment') }}</a>@endif
+<a class="btn btn-outline-primary" href="{{ route('umrah.travelers.show',$booking->traveler_id) }}">{{ __('umrah.traveler_file_link') }}</a>
+</div>
+<nav class="umrah-section-nav no-print" aria-label="{{ __('umrah.section_navigation') }}">
+<a href="#umrah-booking-summary">{{ __('umrah.overview') }}</a><a href="#umrah-booking-payments">{{ __('umrah.payments_statement') }}</a><a href="#umrah-booking-procedures">{{ __('umrah.travel_procedures') }}</a><a href="#umrah-booking-audit">{{ __('umrah.audit_log') }}</a>
+</nav>
+    <div class="card" id="umrah-booking-summary">
         <div class="card-body">
             <div>{{ __('umrah.booking_prefix') }} {{ $booking->traveler->name }}</div>
             <p><bdi>{{ $booking->reference }}</bdi> — {{ __('umrah.' . $booking->status) }}</p>
@@ -21,7 +30,7 @@
             @if(data_get($booking->agreement, 'price_adjustment_reason'))
                 <p>{{ __('umrah.price_adjustment_reason') }}: {{ data_get($booking->agreement, 'price_adjustment_reason') }}</p>
             @endif
-            <div class="row g-3">
+            <div class="row g-3 umrah-metrics">
                 @foreach([__('umrah.due') => $booking->total_amount, __('umrah.net_paid') => \App\Support\UmrahMoney::decimal($booking->paidCents()), __('umrah.balance') => \App\Support\UmrahMoney::decimal($booking->balanceCents()), __('umrah.overdue') => \App\Support\UmrahMoney::decimal($booking->overdueCents())] as $label => $value)
                     <div class="col-md-3">
                         <div class="border rounded p-3"><small>{{ $label }}</small>
@@ -32,36 +41,36 @@
             <p class="mt-3 mb-0">{{ __('umrah.balance_hint') }}</p>
         </div>
     </div>
-    <div class="card">
+    <div class="card" id="umrah-booking-payments">
         <div class="card-body">
-            <div>{{ __('umrah.payments_statement') }}</div><button class="btn btn-outline-secondary no-print mb-3"
+            <div class="umrah-section-title">{{ __('umrah.payments_statement') }}</div><button class="btn btn-outline-secondary no-print mb-3"
                 onclick="window.print()">{{ __('umrah.print_statement') }}</button>
             <p class="text-muted">{{ __('umrah.partial_payments_help') }}</p>
-            <div class="table-responsive">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>{{ __('umrah.date') }}</th>
-                            <th>{{ __('umrah.type') }}</th>
-                            <th>{{ __('umrah.amount') }}</th>
-                            <th>{{ __('umrah.method') }}</th>
-                            <th>{{ __('umrah.status') }}</th>
-                            <th>{{ __('umrah.receipt') }}</th>
-                            <th>{{ __('umrah.review') }}</th>
+            <div class="table-responsive umrah-records-wrapper">
+                <table class="table umrah-records" role="table">
+                    <thead role="rowgroup">
+                        <tr role="row">
+                            <th role="columnheader" scope="col">{{ __('umrah.date') }}</th>
+                            <th role="columnheader" scope="col">{{ __('umrah.type') }}</th>
+                            <th role="columnheader" scope="col">{{ __('umrah.amount') }}</th>
+                            <th role="columnheader" scope="col">{{ __('umrah.method') }}</th>
+                            <th role="columnheader" scope="col">{{ __('umrah.status') }}</th>
+                            <th role="columnheader" scope="col">{{ __('umrah.receipt') }}</th>
+                            <th role="columnheader" scope="col">{{ __('umrah.review') }}</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody role="rowgroup">
                         @forelse($booking->payments as $payment)
-                            <tr>
-                                <td>{{ $payment->paid_at->format('Y-m-d') }}</td>
-                                <td>{{ $payment->type === 'refund' ? __('umrah.refund') : __('umrah.collection') }}</td>
-                                <td>{{ $payment->amount }}</td>
-                                <td>{{ $payment->method }}</td>
-                                <td>{{ __('umrah.' . $payment->status) }}</td>
-                                <td><a
+                            <tr role="row">
+                                <td role="cell" data-label="{{ __('umrah.date') }}" data-field="date"><div class="umrah-cell-value">{{ $payment->paid_at->format('Y-m-d') }}</div></td>
+                                <td role="cell" data-label="{{ __('umrah.type') }}" data-field="type"><div class="umrah-cell-value">{{ $payment->type === 'refund' ? __('umrah.refund') : __('umrah.collection') }}</div></td>
+                                <td role="cell" data-label="{{ __('umrah.amount') }}" data-field="amount"><div class="umrah-cell-value">{{ $payment->amount }}</div></td>
+                                <td role="cell" data-label="{{ __('umrah.method') }}" data-field="method"><div class="umrah-cell-value">{{ $payment->method }}</div></td>
+                                <td role="cell" data-label="{{ __('umrah.status') }}" data-field="status"><div class="umrah-cell-value">{{ __('umrah.' . $payment->status) }}</div></td>
+                                <td role="cell" data-label="{{ __('umrah.receipt') }}" data-field="receipt"><div class="umrah-cell-value"><a
                                         href="{{ route('umrah.receipts.show', $payment->id) }}">{{ __('umrah.view_document') }}</a>
-                                </td>
-                                <td>
+                                </div></td>
+                                <td role="cell" data-label="{{ __('umrah.review') }}" data-field="review"><div class="umrah-cell-value">
                                     @can('umrah_payments_confirm')@if($payment->status === 'pending')
                                         <form method="POST"
                                             action="{{ route('umrah.payments.review', [$booking->id, $payment->id]) }}"
@@ -70,15 +79,15 @@
                                                 name="confirm" value="0"
                                                 class="btn btn-sm btn-outline-danger">{{ __('umrah.reject') }}</button></form>
                                     @endif@endcan
-                                </td>
-                        </tr>@empty<tr>
-                            <td colspan="7">{{ __('umrah.no_payments') }}</td>
+                                </div></td>
+                        </tr>@empty<tr role="row">
+                            <td role="cell" colspan="7">{{ __('umrah.no_payments') }}</td>
                         </tr>@endforelse
                     </tbody>
                 </table>
             </div>
             @if(auth()->user()->hasPermissionTo('umrah_payments_collect') || auth()->user()->hasPermissionTo('umrah_refunds_approve'))
-                <details @if($booking->status === 'confirmed' && $booking->balanceCents() > 0) open @endif>
+                <details id="umrah-payment-form" @if($booking->status === 'confirmed' && $booking->balanceCents() > 0) open @endif>
                     <summary>{{ __('umrah.record_payment') }}</summary>
                     <form method="POST" action="{{ route('umrah.payments.store', $booking->id) }}">@csrf<input type="hidden"
                             name="submission_token"
@@ -110,9 +119,9 @@
             @endif
         </div>
     </div>
-    <div class="card">
+    <div class="card" id="umrah-booking-schedule">
         <div class="card-body">
-            <div>{{ __('umrah.payment_schedule') }}</div>
+            <div class="umrah-section-title">{{ __('umrah.payment_schedule') }}</div>
             <ul>@forelse($booking->schedules->sortBy('due_date') as $schedule)
             <li>{{ $schedule->due_date->format('Y-m-d') }} — {{ $schedule->amount }} {{ $booking->currency }}</li>@empty
                 <li>{{ __('umrah.no_schedule') }}</li>@endforelse
@@ -124,9 +133,9 @@
             </form>@endif@endcan
         </div>
     </div>
-    <div class="card">
+    <div class="card" id="umrah-booking-procedures">
         <div class="card-body">
-            <div>{{ __('umrah.travel_procedures') }}</div>
+            <div class="umrah-section-title">{{ __('umrah.travel_procedures') }}</div>
             <p>{{ __('umrah.visa_status') }}: {{ __('umrah.' . $booking->visa_status) }} — {{ __('umrah.ticket_status') }}:
                 {{ __('umrah.' . $booking->ticket_status) }} — {{ __('umrah.travel_status') }}:
                 {{ __('umrah.' . $booking->travel_status) }}
@@ -171,9 +180,9 @@
             </div>
         </div>
     @endif@endcan
-    <div class="card">
+    <div class="card" id="umrah-booking-audit">
         <div class="card-body">
-            <div>{{ __('umrah.audit_log') }}</div>
+            <div class="umrah-section-title">{{ __('umrah.audit_log') }}</div>
             <ul>@foreach($booking->logs->sortByDesc('id') as $log)
                 <li class="mb-3">{{ $log->created_at->timezone('Africa/Cairo')->format('Y-m-d H:i') }} —
                     {{ __('umrah.' . $log->action) }} — {{ __('umrah.employee') }} #{{ $log->created_by }}

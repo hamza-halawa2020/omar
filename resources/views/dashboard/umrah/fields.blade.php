@@ -22,7 +22,7 @@
             @else
                 <input id="{{ $formKey ?? 'form' }}-{{ $name }}" name="{{ $name }}" type="{{ $type }}" value="{{ $value }}"
                     class="form-control" @required($required) @if($type === 'number') min="0"
-                    step="{{ in_array($name, ['amount', 'total_amount', 'agreed_amount']) ? '0.01' : '1' }}" @endif>
+                    step="{{ in_array($name, ['amount', 'total_amount', 'agreed_amount']) ? '0.01' : '1' }}" inputmode="{{ in_array($name, ['amount', 'total_amount', 'agreed_amount']) ? 'decimal' : 'numeric' }}" @endif>
             @endif
         </div>
     @endforeach
