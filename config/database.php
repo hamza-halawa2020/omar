@@ -56,6 +56,8 @@ return [
             'engine' => null,
             'dump' => [
                 'dump_binary_path' => env('DB_DUMP_BINARY_PATH', ''),
+                'skip_ssl' => env('DB_DUMP_SKIP_SSL', false),
+                'ssl_flag' => env('DB_DUMP_SSL_FLAG', 'skip-ssl'),
             ],
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
@@ -79,6 +81,8 @@ return [
             'engine' => null,
             'dump' => [
                 'dump_binary_path' => env('DB_DUMP_BINARY_PATH', ''),
+                'skip_ssl' => env('DB_DUMP_SKIP_SSL', false),
+                'ssl_flag' => env('DB_DUMP_SSL_FLAG', 'skip-ssl'),
             ],
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
@@ -102,6 +106,8 @@ return [
             'engine' => null,
             'dump' => [
                 'dump_binary_path' => env('DB_DUMP_BINARY_PATH', ''),
+                'skip_ssl' => env('DB_DUMP_SKIP_SSL', false),
+                'ssl_flag' => env('DB_DUMP_SSL_FLAG', 'skip-ssl'),
             ],
             'options' => extension_loaded('pdo_mysql') ? array_filter([
                 PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
