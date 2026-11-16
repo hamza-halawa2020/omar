@@ -78,7 +78,7 @@
                                                 class="btn btn-sm btn-success">{{ __('umrah.confirm') }}</button><button
                                                 name="confirm" value="0"
                                                 class="btn btn-sm btn-outline-danger">{{ __('umrah.reject') }}</button></form>
-                                    @endif@endcan
+                                    @endif @endcan
                                 </div></td>
                         </tr>@empty<tr role="row">
                             <td role="cell" colspan="7">{{ __('umrah.no_payments') }}</td>
@@ -130,7 +130,7 @@
                 <form method="POST" action="{{ route('umrah.schedules.store', $booking->id) }}">@csrf
                     @include('dashboard.umrah.fields', ['formKey' => 'schedule', 'fields' => [['amount', __('umrah.due_amount'), 'number', '', true], ['due_date', __('umrah.due_date'), 'date', '', true]]])<button
                         class="btn btn-primary">{{ __('umrah.add_schedule') }}</button>
-            </form>@endif@endcan
+            </form>@endif @endcan
         </div>
     </div>
     <div class="card" id="umrah-booking-procedures">
@@ -150,7 +150,7 @@
                             ['travel_status', __('umrah.travel_status'), 'select', $booking->travel_status, true, collect(config('umrah.travel_statuses'))->mapWithKeys(fn($s) => [$s => __('umrah.' . $s)])->all()],
                         ]
                     ])<button class="btn btn-primary">{{ __('umrah.save_procedures_notify') }}</button>
-            </form>@endif@endcan
+            </form>@endif @endcan
         </div>
     </div>
     @can('umrah_refunds_approve')@if($booking->status === 'confirmed')
@@ -179,7 +179,7 @@
                 </details>
             </div>
         </div>
-    @endif@endcan
+    @endif @endcan
     <div class="card" id="umrah-booking-audit">
         <div class="card-body">
             <div class="umrah-section-title">{{ __('umrah.audit_log') }}</div>
@@ -198,5 +198,5 @@
     @can('umrah_bookings_manage')@if($booking->status === 'confirmed' && $booking->travel_status === 'returned' && $booking->balanceCents() === 0)
         <form class="no-print" method="POST" action="{{ route('umrah.bookings.complete', $booking->id) }}">@csrf<button
                 class="btn btn-success">{{ __('umrah.close_booking') }}</button></form>
-    @endif@endcan
+    @endif @endcan
 @endsection

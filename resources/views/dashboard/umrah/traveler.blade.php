@@ -127,7 +127,7 @@
                                     @can('umrah_procedures_manage')@if(in_array($notification->status, ['failed', 'skipped']) && $traveler->whatsapp_enabled)
                                         <form method="POST" action="{{ route('umrah.notifications.retry', $notification->id) }}">
                                             @csrf<button class="btn btn-sm btn-outline-primary">{{ __('umrah.retry') }}</button>
-                                    </form>@endif@endcan
+                                    </form>@endif @endcan
                                 </div></td>
                         </tr>@empty<tr role="row">
                             <td role="cell" colspan="6">{{ __('umrah.no_messages') }}</td>
