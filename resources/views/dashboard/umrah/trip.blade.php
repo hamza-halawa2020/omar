@@ -105,7 +105,8 @@
         <div class="card-body">
             <div class="umrah-section-title">{{ __('umrah.manifest') }}</div><button class="btn btn-outline-secondary no-print mb-3"
                 onclick="window.print()">{{ __('umrah.print_manifest') }}</button>
-            @include('dashboard.umrah.booking-table'){{ $bookings->links('dashboard.umrah.pagination') }}
+            @include('dashboard.umrah.booking-table')
+            <x-table-pagination id="bookingsPagination" :paginator="$bookings" />
         </div>
     </div>
 @endsection

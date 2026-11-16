@@ -1,7 +1,9 @@
 /* ============================================================
    umrah-mobile.css — Umrah module UI styles
-   Covers: workspace layout, header, mobile nav, tables,
+   Covers: workspace layout, header, mobile nav,
    cards, metrics, quick actions, section nav, RTL support
+   NOTE: Tables use the system's bordered-table/responsive-records
+         classes (style.css + dashboard-responsive.css).
    ============================================================ */
 
 /* ----------------------------------------------------------
@@ -9,11 +11,9 @@
    ---------------------------------------------------------- */
 body.umrah-page .dashboard-main-body {
     padding: 0;
-    /* background: #f4f6f9; */
 }
 
 body.umrah-page .dashboard-main {
-    /* give room for the fixed bottom mobile nav on small screens */
     padding-bottom: 0;
 }
 
@@ -21,7 +21,6 @@ body.umrah-page .dashboard-main {
    2. Workspace container
    ---------------------------------------------------------- */
 .umrah-workspace {
-    /* max-width: 900px; */
     margin: 0 auto;
     padding: 1rem 1rem 5rem; /* bottom clears mobile nav */
 }
@@ -42,11 +41,10 @@ body.umrah-page .dashboard-main {
     gap: 1rem;
     padding: 0.75rem 1rem;
     background: #383838;
-    /* border-bottom: 1px solid #e5e7eb; */
     position: sticky;
     top: 0;
     z-index: 100;
-    margin: 0 -1rem 1rem; /* bleed to edges of workspace */
+    margin: 0 -1rem 1rem;
 }
 
 @media (min-width: 768px) {
@@ -70,7 +68,7 @@ body.umrah-page .dashboard-main {
 .umrah-heading > div > div:first-child {
     font-size: 1rem;
     font-weight: 600;
-    color: #111827;
+    color: #fff;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -79,14 +77,14 @@ body.umrah-page .dashboard-main {
 .umrah-heading > div > p {
     margin: 0;
     font-size: 0.75rem;
-    color: #6b7280;
+    color: #d1d5db;
 }
 
 .umrah-back {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: #6b7280;
+    color: #d1d5db;
     text-decoration: none;
     flex-shrink: 0;
     padding: 0.25rem;
@@ -95,8 +93,8 @@ body.umrah-page .dashboard-main {
 }
 
 .umrah-back:hover {
-    color: #111827;
-    /* background: #f3f4f6; */
+    color: #fff;
+    background: rgba(255,255,255,0.1);
 }
 
 /* RTL: flip back arrow */
@@ -134,7 +132,7 @@ body.umrah-page .dashboard-main {
     gap: 0.25rem 0.5rem;
     margin-bottom: 1rem;
     padding: 0.5rem 0.75rem;
-    /* background: #fff; */
+    background: #fff;
     border: 1px solid #e5e7eb;
     border-radius: 0.5rem;
     overflow-x: auto;
@@ -157,7 +155,7 @@ body.umrah-page .dashboard-main {
 }
 
 .umrah-section-nav a:hover {
-    /* background: #f3f4f6; */
+    background: #f3f4f6;
     color: #111827;
 }
 
@@ -180,7 +178,7 @@ body.umrah-page .dashboard-main {
    7. Metrics row
    ---------------------------------------------------------- */
 .umrah-metrics .border {
-    /* background: #fff; */
+    background: #fff;
     border-color: #e5e7eb !important;
 }
 
@@ -197,100 +195,7 @@ body.umrah-page .dashboard-main {
 }
 
 /* ----------------------------------------------------------
-   8. Responsive table — stacked cards on mobile
-   ---------------------------------------------------------- */
-.umrah-records-wrapper {
-    overflow-x: auto;
-}
-
-/* Desktop: normal table */
-@media (min-width: 640px) {
-    .umrah-records thead {
-        display: table-header-group;
-    }
-    .umrah-records tr {
-        display: table-row;
-    }
-    .umrah-records td {
-        display: table-cell;
-    }
-}
-
-/* Mobile: convert rows to stacked cards */
-@media (max-width: 639px) {
-    .umrah-records,
-    .umrah-records tbody,
-    .umrah-records tr {
-        display: block;
-        width: 100%;
-    }
-
-    .umrah-records thead {
-        display: none; /* hide column headers, use data-label instead */
-    }
-
-    .umrah-records tr {
-        /* background: #fff; */
-        border: 1px solid #e5e7eb;
-        border-radius: 0.5rem;
-        margin-bottom: 0.75rem;
-        padding: 0.5rem 0.75rem;
-        box-shadow: 0 1px 3px rgba(0,0,0,.04);
-    }
-
-    .umrah-records td {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 0.5rem;
-        padding: 0.375rem 0;
-        border: none;
-        border-bottom: 1px solid #f3f4f6;
-        font-size: 0.875rem;
-    }
-
-    .umrah-records td:last-child {
-        border-bottom: none;
-    }
-
-    /* hide empty cells on mobile */
-    .umrah-records td[data-empty] {
-        display: none;
-    }
-
-    /* "empty" colspan row */
-    .umrah-records td[colspan] {
-        display: block;
-        text-align: center;
-        color: #9ca3af;
-        padding: 1rem 0;
-        border: none;
-        font-size: 0.875rem;
-    }
-
-    /* label shown before value */
-    .umrah-records td::before {
-        content: attr(data-label);
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: #6b7280;
-        white-space: nowrap;
-        flex-shrink: 0;
-        min-width: 7rem;
-    }
-
-    .umrah-records td[colspan]::before {
-        display: none;
-    }
-}
-
-.umrah-cell-value {
-    /* allow wrapping long content */
-    word-break: break-word;
-}
-
-/* ----------------------------------------------------------
-   9. Create / edit panels (details > summary)
+   8. Create / edit panels (details > summary)
    ---------------------------------------------------------- */
 .umrah-create-panel > summary {
     cursor: pointer;
@@ -320,7 +225,7 @@ details > summary {
 }
 
 /* ----------------------------------------------------------
-   10. Search bar
+   9. Search bar
    ---------------------------------------------------------- */
 .umrah-search {
     max-width: 480px;
@@ -337,14 +242,7 @@ details > summary {
 }
 
 /* ----------------------------------------------------------
-   11. Pagination
-   ---------------------------------------------------------- */
-.umrah-pagination {
-    margin-top: 1rem;
-}
-
-/* ----------------------------------------------------------
-   12. Mobile bottom navigation bar
+   10. Mobile bottom navigation bar
    ---------------------------------------------------------- */
 .umrah-mobile-nav {
     display: none; /* hidden on desktop */
@@ -354,8 +252,8 @@ details > summary {
     right: 0;
     z-index: 200;
     background: #383838;
-    border-top: 1px solid #e5e7eb;
-    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+    border-top: 1px solid #555;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
     padding: 0 env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0) env(safe-area-inset-left, 0);
 }
 
@@ -373,7 +271,7 @@ details > summary {
     justify-content: center;
     gap: 0.25rem;
     padding: 0.5rem 0.25rem;
-    color: #6b7280;
+    color: #9ca3af;
     text-decoration: none;
     font-size: 0.6875rem;
     line-height: 1.2;
@@ -384,7 +282,7 @@ details > summary {
 
 .umrah-mobile-nav a:hover,
 .umrah-mobile-nav a[aria-current] {
-    color: #2563eb;
+    color: #fff;
 }
 
 .umrah-mobile-nav a[aria-current] {
@@ -403,14 +301,14 @@ details > summary {
 }
 
 /* ----------------------------------------------------------
-   13. Hide mobile nav when keyboard is open (editing state)
+   11. Hide mobile nav when keyboard is open (editing state)
    ---------------------------------------------------------- */
 body.umrah-editing .umrah-mobile-nav {
     display: none;
 }
 
 /* ----------------------------------------------------------
-   14. Print — hide nav chrome, show full table
+   12. Print — hide nav chrome
    ---------------------------------------------------------- */
 @media print {
     .no-print,
@@ -428,21 +326,14 @@ body.umrah-editing .umrah-mobile-nav {
 
     .umrah-header {
         position: static;
+        background: #fff;
+        color: #000;
         border-bottom: 1px solid #000;
         margin-bottom: 1rem;
     }
 
-    /* restore normal table for print */
-    .umrah-records,
-    .umrah-records thead,
-    .umrah-records tbody,
-    .umrah-records tr,
-    .umrah-records td,
-    .umrah-records th {
-        display: revert !important;
-    }
-
-    .umrah-records td::before {
-        display: none;
+    .umrah-heading > div > div:first-child,
+    .umrah-heading > div > p {
+        color: #000;
     }
 }
