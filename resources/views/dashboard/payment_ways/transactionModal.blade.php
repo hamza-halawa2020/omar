@@ -314,7 +314,7 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="small text-muted mt-2">
+                        <div class="small  mt-2">
                             {{ __('messages.payment_splits_total') }}:
                             <span data-payment-splits-total>0.00</span>
                         </div>

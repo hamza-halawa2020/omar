@@ -7,7 +7,7 @@
                 href="{{ $paginator->previousPageUrl() }}">{{ __('umrah.previous_page') }}</a>
         @endif
         <span
-            class="text-muted">{{ __('umrah.page_position', ['current' => $paginator->currentPage(), 'last' => $paginator->lastPage()]) }}</span>
+            class="">{{ __('umrah.page_position', ['current' => $paginator->currentPage(), 'last' => $paginator->lastPage()]) }}</span>
         @if($paginator->hasMorePages())
             <a class="btn btn-outline-primary" rel="next" href="{{ $paginator->nextPageUrl() }}">{{ __('umrah.next_page') }}</a>
         @else

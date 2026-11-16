@@ -1445,7 +1445,7 @@
                                             <span class="badge bg-${badgeClass}">${actionLabels[log.action] || log.action}</span>
                                             <span class="badge bg-light text-dark border">{{ __('messages.log_id') }} #${log.id}</span>
                                         </div>
-                                        <small class="text-muted">${logDate}</small>
+                                        <small class="">${logDate}</small>
                                     </div>
                                     <div class="small mt-2">{{ __('messages.by') }}: <span class="fw-semibold">${actorName}</span></div>
                                 </div>

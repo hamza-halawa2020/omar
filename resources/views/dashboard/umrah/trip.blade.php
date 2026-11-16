@@ -86,7 +86,7 @@
                 </p>
                 <form method="POST" action="{{ route('umrah.bookings.store') }}">@csrf<input type="hidden" name="trip_id"
                         value="{{ $trip->id }}">
-                    <p class="text-muted">{{ __('umrah.agreed_amount_help') }}</p>
+                    <p class="">{{ __('umrah.agreed_amount_help') }}</p>
                     @include('dashboard.umrah.fields', [
                         'formKey' => 'booking',
                         'fields' => [

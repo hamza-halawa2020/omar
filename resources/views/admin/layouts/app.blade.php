@@ -182,7 +182,7 @@
                     <a href="{{ route('admin.tenants.create') }}" class="btn btn-primary btn-sm">
                         {{ __('messages.admin.new_tenant') }}
                     </a>
-                    <span class="text-muted small d-none d-md-inline">{{ Auth::guard('admin')->user()->name }}</span>
+                    <span class=" small d-none d-md-inline">{{ Auth::guard('admin')->user()->name }}</span>
                     <form action="{{ route('admin.logout') }}" method="POST">
                         @csrf
                         <button class="btn btn-outline-danger btn-sm">

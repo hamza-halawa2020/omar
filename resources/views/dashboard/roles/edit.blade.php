@@ -6,7 +6,7 @@
         <div class="d-flex justify-content-between align-items-center gap-2 mb-3 mobile-stack-header">
             <div>
                 <h5 class="mb-1">{{ __('messages.edit_role') }}</h5>
-                <div class="text-muted small">{{ $role->name }}</div>
+                <div class=" small">{{ $role->name }}</div>
             </div>
             <a href="{{ route('roles.index') }}" class="btn btn-outline-secondary btn-sm radius-8">
                 {{ __('messages.back') }}

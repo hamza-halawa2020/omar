@@ -39,7 +39,7 @@
                         <td>{{ $loop->iteration }}</td>
                         <td>
                             <div class="fw-bold">{{ $user->name }}</div>
-                            <small class="text-muted">ID: {{ $user->id }}</small>
+                            <small class="">ID: {{ $user->id }}</small>
                         </td>
                         <td>{{ $user->email }}</td>
                         <td>
@@ -80,7 +80,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="text-center text-muted py-5">{{ __('messages.admin.no_users_for_tenant') }}</td>
+                        <td colspan="6" class="text-center  py-5">{{ __('messages.admin.no_users_for_tenant') }}</td>
                     </tr>
                 @endforelse
             </tbody>

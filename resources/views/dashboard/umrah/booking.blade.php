@@ -45,44 +45,45 @@
         <div class="card-body">
             <div class="umrah-section-title">{{ __('umrah.payments_statement') }}</div><button class="btn btn-outline-secondary no-print mb-3"
                 onclick="window.print()">{{ __('umrah.print_statement') }}</button>
-            <p class="text-muted">{{ __('umrah.partial_payments_help') }}</p>
-            <div class="table-responsive umrah-records-wrapper">
-                <table class="table umrah-records" role="table">
-                    <thead role="rowgroup">
-                        <tr role="row">
-                            <th role="columnheader" scope="col">{{ __('umrah.date') }}</th>
-                            <th role="columnheader" scope="col">{{ __('umrah.type') }}</th>
-                            <th role="columnheader" scope="col">{{ __('umrah.amount') }}</th>
-                            <th role="columnheader" scope="col">{{ __('umrah.method') }}</th>
-                            <th role="columnheader" scope="col">{{ __('umrah.status') }}</th>
-                            <th role="columnheader" scope="col">{{ __('umrah.receipt') }}</th>
-                            <th role="columnheader" scope="col">{{ __('umrah.review') }}</th>
+            <p class="">{{ __('umrah.partial_payments_help') }}</p>
+            <div class="table-responsive responsive-records-wrapper">
+                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records">
+                    <thead>
+                        <tr>
+                            <th class="text-center">{{ __('umrah.date') }}</th>
+                            <th class="text-center">{{ __('umrah.type') }}</th>
+                            <th class="text-center">{{ __('umrah.amount') }}</th>
+                            <th class="text-center">{{ __('umrah.method') }}</th>
+                            <th class="text-center">{{ __('umrah.status') }}</th>
+                            <th class="text-center">{{ __('umrah.receipt') }}</th>
+                            <th class="text-center">{{ __('umrah.review') }}</th>
                         </tr>
                     </thead>
-                    <tbody role="rowgroup">
+                    <tbody>
                         @forelse($booking->payments as $payment)
-                            <tr role="row">
-                                <td role="cell" data-label="{{ __('umrah.date') }}" data-field="date"><div class="umrah-cell-value">{{ $payment->paid_at->format('Y-m-d') }}</div></td>
-                                <td role="cell" data-label="{{ __('umrah.type') }}" data-field="type"><div class="umrah-cell-value">{{ $payment->type === 'refund' ? __('umrah.refund') : __('umrah.collection') }}</div></td>
-                                <td role="cell" data-label="{{ __('umrah.amount') }}" data-field="amount"><div class="umrah-cell-value">{{ $payment->amount }}</div></td>
-                                <td role="cell" data-label="{{ __('umrah.method') }}" data-field="method"><div class="umrah-cell-value">{{ $payment->method }}</div></td>
-                                <td role="cell" data-label="{{ __('umrah.status') }}" data-field="status"><div class="umrah-cell-value">{{ __('umrah.' . $payment->status) }}</div></td>
-                                <td role="cell" data-label="{{ __('umrah.receipt') }}" data-field="receipt"><div class="umrah-cell-value"><a
-                                        href="{{ route('umrah.receipts.show', $payment->id) }}">{{ __('umrah.view_document') }}</a>
-                                </div></td>
-                                <td role="cell" data-label="{{ __('umrah.review') }}" data-field="review"><div class="umrah-cell-value">
-                                    @can('umrah_payments_confirm')@if($payment->status === 'pending')
+                            <tr>
+                                <td class="mobile-primary" data-label="{{ __('umrah.date') }}">{{ $payment->paid_at->format('Y-m-d') }}</td>
+                                <td data-label="{{ __('umrah.type') }}">{{ $payment->type === 'refund' ? __('umrah.refund') : __('umrah.collection') }}</td>
+                                <td data-label="{{ __('umrah.amount') }}">{{ $payment->amount }}</td>
+                                <td data-label="{{ __('umrah.method') }}">{{ $payment->method }}</td>
+                                <td data-label="{{ __('umrah.status') }}">{{ __('umrah.' . $payment->status) }}</td>
+                                <td data-label="{{ __('umrah.receipt') }}"><a href="{{ route('umrah.receipts.show', $payment->id) }}">{{ __('umrah.view_document') }}</a></td>
+                                <td class="mobile-actions" data-label="{{ __('umrah.review') }}">
+                                    @can('umrah_payments_confirm') @if($payment->status === 'pending')
                                         <form method="POST"
                                             action="{{ route('umrah.payments.review', [$booking->id, $payment->id]) }}"
-                                            class="d-flex gap-2">@csrf<button name="confirm" value="1"
-                                                class="btn btn-sm btn-success">{{ __('umrah.confirm') }}</button><button
-                                                name="confirm" value="0"
-                                                class="btn btn-sm btn-outline-danger">{{ __('umrah.reject') }}</button></form>
+                                            class="d-flex gap-2">@csrf
+                                            <button name="confirm" value="1" class="btn btn-sm btn-success">{{ __('umrah.confirm') }}</button>
+                                            <button name="confirm" value="0" class="btn btn-sm btn-outline-danger">{{ __('umrah.reject') }}</button>
+                                        </form>
                                     @endif @endcan
-                                </div></td>
-                        </tr>@empty<tr role="row">
-                            <td role="cell" colspan="7">{{ __('umrah.no_payments') }}</td>
-                        </tr>@endforelse
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="text-center">{{ __('umrah.no_payments') }}</td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>

@@ -28,7 +28,7 @@
             value="{{ old('phone_number', $phoneParts['phone_number']) }}"
             class="form-control @error('phone_number') is-invalid @enderror" dir="ltr" inputmode="tel"
             autocomplete="tel-national" maxlength="40" required>
-        <small class="text-muted">{{ __('umrah.national_phone_help') }}</small>
+        <small class="">{{ __('umrah.national_phone_help') }}</small>
         @error('phone_number')
         <div class="invalid-feedback">{{ $message }}</div>@enderror
     </div>

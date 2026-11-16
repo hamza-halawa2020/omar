@@ -25,7 +25,7 @@
         <div class="metric-card h-100">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
-                    <p class="text-muted small mb-1">{{ __('messages.admin.tenants') }}</p>
+                    <p class=" small mb-1">{{ __('messages.admin.tenants') }}</p>
                     <div class="fw-bold mb-0">{{ $tenants->count() }}</div>
                 </div>
                 <span class="metric-icon">
@@ -38,7 +38,7 @@
         <div class="metric-card h-100">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
-                    <p class="text-muted small mb-1">{{ __('messages.admin.active') }}</p>
+                    <p class=" small mb-1">{{ __('messages.admin.active') }}</p>
                     <div class="fw-bold mb-0">{{ $activeUsers }}</div>
                 </div>
                 <span class="metric-icon" style="background: var(--admin-success-soft); color: #16803d;">
@@ -51,7 +51,7 @@
         <div class="metric-card h-100">
             <div class="d-flex align-items-center justify-content-between">
                 <div>
-                    <p class="text-muted small mb-1">{{ __('messages.admin.inactive') }}</p>
+                    <p class=" small mb-1">{{ __('messages.admin.inactive') }}</p>
                     <div class="fw-bold mb-0">{{ $inactiveUsers }}</div>
                 </div>
                 <span class="metric-icon" style="background: var(--admin-warning-soft); color: #b7791f;">
@@ -66,7 +66,7 @@
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 p-3 border-bottom">
         <div>
             <div class="fw-bold mb-1">{{ __('messages.admin.tenants_list') }}</div>
-            <small class="text-muted">{{ __('messages.admin.tenants_list_subtitle') }}</small>
+            <small class="">{{ __('messages.admin.tenants_list_subtitle') }}</small>
         </div>
     </div>
 
@@ -89,7 +89,7 @@
                         <td>{{ $loop->iteration }}</td>
                         <td>
                             <div class="fw-bold">{{ $tenant->name }}</div>
-                            <small class="text-muted">{{ $tenant->database()->getName() }}</small>
+                            <small class="">{{ $tenant->database()->getName() }}</small>
                         </td>
                         <td><span class="badge bg-light text-dark border">{{ $tenant->domain }}</span></td>
                         <td>{{ $tenant->users_count }}</td>
@@ -122,7 +122,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="text-center text-muted py-5">{{ __('messages.admin.no_tenants') }}</td>
+                        <td colspan="7" class="text-center  py-5">{{ __('messages.admin.no_tenants') }}</td>
                     </tr>
                 @endforelse
             </tbody>

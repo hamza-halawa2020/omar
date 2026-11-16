@@ -5,7 +5,7 @@
 @section('content')
 <div class="d-flex justify-content-between align-items-center mb-3">
     <div>
-        <a href="{{ route('admin.dashboard') }}" class="text-muted text-decoration-none small">
+        <a href="{{ route('admin.dashboard') }}" class=" text-decoration-none small">
             <iconify-icon icon="solar:arrow-right-outline"></iconify-icon> {{ __('messages.admin.home') }}
         </a>
         <div class="fw-bold mb-0 mt-1">{{ __('messages.admin.tenant_roles_title', ['company' => $tenant->name]) }}</div>

@@ -359,7 +359,7 @@
             <div class="col-12 col-sm-6 col-xl-3">
                 <div class="card h-100">
                     <div class="card-body">
-                        <div class="text-muted mb-1">{{ __('messages.total_products_sales') }}</div>
+                        <div class=" mb-1">{{ __('messages.total_products_sales') }}</div>
                         <div class="h4 mb-0 summary-value">{{ $formatMoney($totals['sales_amount']) }}</div>
                     </div>
                 </div>
@@ -367,7 +367,7 @@
             <div class="col-12 col-sm-6 col-xl-3">
                 <div class="card h-100">
                     <div class="card-body">
-                        <div class="text-muted mb-1">{{ __('messages.total_sales_costs') }}</div>
+                        <div class=" mb-1">{{ __('messages.total_sales_costs') }}</div>
                         <div class="h4 mb-0 summary-value">{{ $formatMoney($totals['sales_cost']) }}</div>
                     </div>
                 </div>
@@ -375,7 +375,7 @@
             <div class="col-12 col-sm-6 col-xl-3">
                 <div class="card h-100">
                     <div class="card-body">
-                        <div class="text-muted mb-1">{{ __('messages.net_profit_loss') }}</div>
+                        <div class=" mb-1">{{ __('messages.net_profit_loss') }}</div>
                         <div class="h4 mb-0 summary-value {{ $totals['net_profit'] >= 0 ? 'text-success' : 'text-danger' }}">
                             {{ $formatMoney($totals['net_profit']) }}
                         </div>
@@ -385,7 +385,7 @@
             <div class="col-12 col-sm-6 col-xl-3">
                 <div class="card h-100">
                     <div class="card-body">
-                        <div class="text-muted mb-1">{{ __('messages.profit_margin') }}</div>
+                        <div class=" mb-1">{{ __('messages.profit_margin') }}</div>
                         <div class="h4 mb-0 summary-value">{{ number_format($totals['profit_margin'], 2) }}%</div>
                     </div>
                 </div>

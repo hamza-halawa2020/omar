@@ -51,7 +51,7 @@
                                     <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
                                         <div>
                                             <div class="fw-bold">{{ __('messages.whatsapp_message_templates') }}</div>
-                                            <small class="text-muted">{{ __('messages.whatsapp_message_templates_hint') }}</small>
+                                            <small class="">{{ __('messages.whatsapp_message_templates_hint') }}</small>
                                         </div>
                                     </div>
                                     <div class="alert alert-light border small">

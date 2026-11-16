@@ -20,7 +20,7 @@
             <p>{{ __('umrah.recorded_by') }}: #{{ $payment->created_by }} — {{ __('umrah.confirmed_by') }}:
                 {{ $payment->confirmed_by ? '#' . $payment->confirmed_by : __('umrah.not_confirmed') }}
             </p>
-            <p class="text-muted">{{ __('umrah.receipt_help') }}</p>
+            <p class="">{{ __('umrah.receipt_help') }}</p>
             <button class="btn btn-primary no-print" onclick="window.print()">{{ __('umrah.print') }}</button>
         </div>
     </div>

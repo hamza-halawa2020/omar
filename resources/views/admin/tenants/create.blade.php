@@ -27,7 +27,7 @@
                         <option value="general" @selected(old('company_type') === 'general')>{{ __('umrah.company_general_option') }}</option>
                         <option value="umrah" @selected(old('company_type') === 'umrah')>{{ __('umrah.company_umrah_option') }}</option>
                     </select>
-                    <small class="text-muted">{{ __('umrah.company_type_help') }}</small>
+                    <small class="">{{ __('umrah.company_type_help') }}</small>
                     @error('company_type')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
 
@@ -66,17 +66,17 @@
                 <iconify-icon icon="solar:database-outline"></iconify-icon>
             </div>
             <div class="fw-bold">{{ __('messages.admin.after_create_tenant_title') }}</div>
-            <p class="text-muted mb-3">{{ __('messages.admin.after_create_tenant_text') }}</p>
+            <p class=" mb-3">{{ __('messages.admin.after_create_tenant_text') }}</p>
             <div class="d-grid gap-2">
-                <div class="d-flex align-items-center gap-2 text-muted">
+                <div class="d-flex align-items-center gap-2 ">
                     <iconify-icon icon="solar:check-circle-outline" class="text-success"></iconify-icon>
                     {{ __('messages.admin.tenant_database_note') }}
                 </div>
-                <div class="d-flex align-items-center gap-2 text-muted">
+                <div class="d-flex align-items-center gap-2 ">
                     <iconify-icon icon="solar:check-circle-outline" class="text-success"></iconify-icon>
                     {{ __('messages.admin.tenant_roles_note') }}
                 </div>
-                <div class="d-flex align-items-center gap-2 text-muted">
+                <div class="d-flex align-items-center gap-2 ">
                     <iconify-icon icon="solar:check-circle-outline" class="text-success"></iconify-icon>
                     {{ __('messages.admin.central_users_note') }}
                 </div>

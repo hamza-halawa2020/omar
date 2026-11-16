@@ -39,28 +39,31 @@
         <div class="card" id="umrah-traveler-passport">
             <div class="card-body">
                 <div class="umrah-section-title">{{ __('umrah.passport_movements') }}</div>
-                <div class="table-responsive umrah-records-wrapper">
-                    <table class="table umrah-records" role="table">
-                        <thead role="rowgroup">
-                            <tr role="row">
-                                <th role="columnheader" scope="col">{{ __('umrah.date') }}</th>
-                                <th role="columnheader" scope="col">{{ __('umrah.passport_location') }}</th>
-                                <th role="columnheader" scope="col">{{ __('umrah.recipient') }}</th>
-                                <th role="columnheader" scope="col">{{ __('umrah.employee') }}</th>
-                                <th role="columnheader" scope="col">{{ __('umrah.notes') }}</th>
+                <div class="table-responsive responsive-records-wrapper">
+                    <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records">
+                        <thead>
+                            <tr>
+                                <th class="text-center">{{ __('umrah.date') }}</th>
+                                <th class="text-center">{{ __('umrah.passport_location') }}</th>
+                                <th class="text-center">{{ __('umrah.recipient') }}</th>
+                                <th class="text-center">{{ __('umrah.employee') }}</th>
+                                <th class="text-center">{{ __('umrah.notes') }}</th>
                             </tr>
                         </thead>
-                        <tbody role="rowgroup">
+                        <tbody>
                             @forelse($traveler->movements->sortByDesc('id') as $movement)
-                                <tr role="row">
-                                    <td role="cell" data-label="{{ __('umrah.date') }}" data-field="date"><div class="umrah-cell-value">{{ $movement->created_at->timezone('Africa/Cairo')->format('Y-m-d H:i') }}</div></td>
-                                    <td role="cell" data-label="{{ __('umrah.passport_location') }}" data-field="passport_location"><div class="umrah-cell-value">{{ $movement->location }}</div></td>
-                                    <td role="cell" data-label="{{ __('umrah.recipient') }}" data-field="recipient"><div class="umrah-cell-value">{{ $movement->recipient }}</div></td>
-                                    <td role="cell" data-label="{{ __('umrah.employee') }}" data-field="employee"><div class="umrah-cell-value">#{{ $movement->created_by }}</div></td>
-                                    <td role="cell" data-label="{{ __('umrah.notes') }}" data-field="notes"><div class="umrah-cell-value">{{ $movement->notes }}</div></td>
-                            </tr>@empty<tr role="row">
-                                <td role="cell" colspan="5">{{ __('umrah.no_movements') }}</td>
-                            </tr>@endforelse
+                                <tr>
+                                    <td class="mobile-primary" data-label="{{ __('umrah.date') }}">{{ $movement->created_at->timezone('Africa/Cairo')->format('Y-m-d H:i') }}</td>
+                                    <td data-label="{{ __('umrah.passport_location') }}">{{ $movement->location }}</td>
+                                    <td data-label="{{ __('umrah.recipient') }}">{{ $movement->recipient }}</td>
+                                    <td class="mobile-muted" data-label="{{ __('umrah.employee') }}">#{{ $movement->created_by }}</td>
+                                    <td class="mobile-muted" data-label="{{ __('umrah.notes') }}">{{ $movement->notes }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="text-center">{{ __('umrah.no_movements') }}</td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div><button class="btn btn-outline-secondary no-print"
@@ -97,44 +100,49 @@
     <div class="card" id="umrah-traveler-messages">
         <div class="card-body">
             <div class="umrah-section-title">{{ __('umrah.whatsapp_log') }}</div>
-            <p class="text-muted">{{ __('umrah.whatsapp_delivery_help') }}</p>
-            <div class="table-responsive umrah-records-wrapper">
-                <table class="table umrah-records" role="table">
-                    <thead role="rowgroup">
-                        <tr role="row">
-                            <th role="columnheader" scope="col">{{ __('umrah.date') }}</th>
-                            <th role="columnheader" scope="col">{{ __('umrah.event_message') }}</th>
-                            <th role="columnheader" scope="col">{{ __('umrah.status') }}</th>
-                            <th role="columnheader" scope="col">{{ __('umrah.attempts') }}</th>
-                            <th role="columnheader" scope="col">{{ __('umrah.result') }}</th>
-                            <th role="columnheader" scope="col"></th>
+            <p class="">{{ __('umrah.whatsapp_delivery_help') }}</p>
+            <div class="table-responsive responsive-records-wrapper">
+                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records">
+                    <thead>
+                        <tr>
+                            <th class="text-center">{{ __('umrah.date') }}</th>
+                            <th class="text-center">{{ __('umrah.event_message') }}</th>
+                            <th class="text-center">{{ __('umrah.status') }}</th>
+                            <th class="text-center">{{ __('umrah.attempts') }}</th>
+                            <th class="text-center">{{ __('umrah.result') }}</th>
+                            <th class="text-center"></th>
                         </tr>
                     </thead>
-                    <tbody role="rowgroup">
+                    <tbody>
                         @forelse($notifications as $notification)
-                            <tr role="row">
-                                <td role="cell" data-label="{{ __('umrah.date') }}" data-field="date"><div class="umrah-cell-value">{{ $notification->created_at->timezone('Africa/Cairo')->format('Y-m-d H:i') }}</div></td>
-                                <td role="cell" data-label="{{ __('umrah.event_message') }}" data-field="event_message"><div class="umrah-cell-value">
+                            <tr>
+                                <td class="mobile-primary" data-label="{{ __('umrah.date') }}">{{ $notification->created_at->timezone('Africa/Cairo')->format('Y-m-d H:i') }}</td>
+                                <td data-label="{{ __('umrah.event_message') }}">
                                     <details>
                                         <summary>{{ __('umrah.' . $notification->event) }}</summary>
                                         <div style="white-space:pre-wrap;max-width:440px">{{ $notification->message }}</div>
                                     </details>
-                                </div></td>
-                                <td role="cell" data-label="{{ __('umrah.status') }}" data-field="status"><div class="umrah-cell-value">{{ __('umrah.notification_' . $notification->status) }}</div></td>
-                                <td role="cell" data-label="{{ __('umrah.attempts') }}" data-field="attempts"><div class="umrah-cell-value">{{ $notification->attempts }}</div></td>
-                                <td role="cell" data-label="{{ __('umrah.result') }}" data-field="result"><div class="umrah-cell-value">{{ $notification->result_code }}</div></td>
-                                <td role="cell" data-label="{{ __('umrah.actions') }}" data-field="actions"><div class="umrah-cell-value">
-                                    @can('umrah_procedures_manage')@if(in_array($notification->status, ['failed', 'skipped']) && $traveler->whatsapp_enabled)
+                                </td>
+                                <td data-label="{{ __('umrah.status') }}">{{ __('umrah.notification_' . $notification->status) }}</td>
+                                <td class="mobile-muted" data-label="{{ __('umrah.attempts') }}">{{ $notification->attempts }}</td>
+                                <td class="mobile-muted" data-label="{{ __('umrah.result') }}">{{ $notification->result_code }}</td>
+                                <td class="mobile-actions" data-label="{{ __('umrah.actions') }}">
+                                    @can('umrah_procedures_manage') @if(in_array($notification->status, ['failed', 'skipped']) && $traveler->whatsapp_enabled)
                                         <form method="POST" action="{{ route('umrah.notifications.retry', $notification->id) }}">
                                             @csrf<button class="btn btn-sm btn-outline-primary">{{ __('umrah.retry') }}</button>
-                                    </form>@endif @endcan
-                                </div></td>
-                        </tr>@empty<tr role="row">
-                            <td role="cell" colspan="6">{{ __('umrah.no_messages') }}</td>
-                        </tr>@endforelse
+                                        </form>
+                                    @endif @endcan
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center">{{ __('umrah.no_messages') }}</td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
-            </div>{{ $notifications->links('dashboard.umrah.pagination') }}
+            </div>
+            <x-table-pagination id="notificationsPagination" :paginator="$notifications" />
         </div>
     </div>
 @endsection

@@ -11,43 +11,41 @@
                     value="{{ $search }}" placeholder="{{ __('umrah.search_hint') }}"
                     aria-label="{{ __('umrah.search_hint') }}"><button
                     class="btn btn-outline-primary">{{ __('umrah.search') }}</button></form>
-            <div class="table-responsive umrah-records-wrapper">
-                <table class="table umrah-records" role="table">
-                    <thead role="rowgroup">
-                        <tr role="row">
-                            <th role="columnheader" scope="col">{{ __('umrah.name') }}</th>
-                            <th role="columnheader" scope="col">{{ __('umrah.phone') }}</th>
-                            <th role="columnheader" scope="col">{{ __('umrah.whatsapp') }}</th>@can('umrah_passports_view')
-                            <th role="columnheader" scope="col">{{ __('umrah.passport_location') }}</th>@endcan
+            <div class="table-responsive responsive-records-wrapper">
+                <table class="text-center table table-bordered table-sm table bordered-table sm-table mb-0 responsive-records">
+                    <thead>
+                        <tr>
+                            <th class="text-center">{{ __('umrah.name') }}</th>
+                            <th class="text-center">{{ __('umrah.phone') }}</th>
+                            <th class="text-center">{{ __('umrah.whatsapp') }}</th>
+                            @can('umrah_passports_view')
+                                <th class="text-center">{{ __('umrah.passport_location') }}</th>
+                            @endcan
                         </tr>
                     </thead>
-                    <tbody role="rowgroup">
+                    <tbody>
                         @forelse($travelers as $traveler)
-                            <tr role="row">
-                                <td role="cell" data-label="{{ __('umrah.name') }}" data-field="name">
-                                    <div class="umrah-cell-value"><a
-                                            href="{{ route('umrah.travelers.show', $traveler->id) }}">{{ $traveler->name }}</a>
-                                    </div>
+                            <tr>
+                                <td class="mobile-primary" data-label="{{ __('umrah.name') }}">
+                                    <a href="{{ route('umrah.travelers.show', $traveler->id) }}">{{ $traveler->name }}</a>
                                 </td>
-                                <td role="cell" data-label="{{ __('umrah.phone') }}" data-field="phone">
-                                    <div class="umrah-cell-value" dir="ltr">{{ $traveler->phone }}</div>
+                                <td data-label="{{ __('umrah.phone') }}" dir="ltr">{{ $traveler->phone }}</td>
+                                <td data-label="{{ __('umrah.whatsapp') }}">
+                                    {{ $traveler->whatsapp_enabled ? __('umrah.notifications_enabled') : __('umrah.notifications_disabled') }}
                                 </td>
-                                <td role="cell" data-label="{{ __('umrah.whatsapp') }}" data-field="whatsapp">
-                                    <div class="umrah-cell-value">
-                                        {{ $traveler->whatsapp_enabled ? __('umrah.notifications_enabled') : __('umrah.notifications_disabled') }}
-                                    </div>
-                                </td>@can('umrah_passports_view')
-                                    <td role="cell" data-label="{{ __('umrah.passport_location') }}" data-field="passport_location">
-                                        <div class="umrah-cell-value">{{ $traveler->passport_location ?? __('umrah.not_recorded') }}
-                                        </div>
-                                </td>@endcan
+                                @can('umrah_passports_view')
+                                    <td data-label="{{ __('umrah.passport_location') }}">{{ $traveler->passport_location ?? __('umrah.not_recorded') }}</td>
+                                @endcan
                             </tr>
-                        @empty<tr role="row">
-                            <td role="cell" colspan="4">{{ __('umrah.no_travelers') }}</td>
-                        </tr>@endforelse
+                        @empty
+                            <tr>
+                                <td colspan="4" class="text-center">{{ __('umrah.no_travelers') }}</td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
-            </div>{{ $travelers->links('dashboard.umrah.pagination') }}
+            </div>
+            <x-table-pagination id="travelersPagination" :paginator="$travelers" />
         </div>
     </div>
     @can('umrah_bookings_manage')

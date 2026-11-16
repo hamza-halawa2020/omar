@@ -17,7 +17,7 @@
             <div class="col-12 col-md-6 col-xl-3">
                 <div class="card h-100">
                     <div class="card-body">
-                        <div class="text-muted mb-1">{{ __('messages.stock') }}</div>
+                        <div class=" mb-1">{{ __('messages.stock') }}</div>
                         <div class="h4 mb-0">{{ $number($product->stock) }}</div>
                     </div>
                 </div>
@@ -26,7 +26,7 @@
                 <div class="col-12 col-md-6 col-xl-3">
                     <div class="card h-100">
                         <div class="card-body">
-                            <div class="text-muted mb-1">{{ __('messages.total_amount_cost') }}</div>
+                            <div class=" mb-1">{{ __('messages.total_amount_cost') }}</div>
                             <div class="h4 mb-0">{{ $money($totalCost) }}</div>
                         </div>
                     </div>
@@ -35,7 +35,7 @@
             <div class="col-12 col-md-6 col-xl-3">
                 <div class="card h-100">
                     <div class="card-body">
-                        <div class="text-muted mb-1">{{ __('messages.sold_quantity') }}</div>
+                        <div class=" mb-1">{{ __('messages.sold_quantity') }}</div>
                         <div class="h4 mb-0">{{ $number($summary['sold_quantity']) }}</div>
                     </div>
                 </div>
@@ -44,7 +44,7 @@
                 <div class="col-12 col-md-6 col-xl-3">
                     <div class="card h-100">
                         <div class="card-body">
-                            <div class="text-muted mb-1">{{ __('messages.net_profit_loss') }}</div>
+                            <div class=" mb-1">{{ __('messages.net_profit_loss') }}</div>
                             <div class="h4 mb-0 {{ $summary['sales_profit'] >= 0 ? 'text-success' : 'text-danger' }}">
                                 {{ $money($summary['sales_profit']) }}
                             </div>
@@ -59,25 +59,25 @@
                 <div class="fw-bold mb-3">{{ __('messages.basic_information') }}</div>
                 <div class="row g-3">
                     <div class="col-12 col-md-6 col-xl-3">
-                        <span class="text-muted">{{ __('messages.name') }}</span>
+                        <span class="">{{ __('messages.name') }}</span>
                         <div class="fw-semibold">{{ $product->name }}</div>
                     </div>
                     <div class="col-12 col-md-6 col-xl-3">
-                        <span class="text-muted">{{ __('messages.code') }}</span>
+                        <span class="">{{ __('messages.code') }}</span>
                         <div class="fw-semibold">{{ $product->code ?? '-' }}</div>
                     </div>
                     @if ($canViewPurchasePrices)
                         <div class="col-12 col-md-6 col-xl-3">
-                            <span class="text-muted">{{ __('messages.purchase_price') }}</span>
+                            <span class="">{{ __('messages.purchase_price') }}</span>
                             <div class="fw-semibold">{{ $money($product->purchase_price) }}</div>
                         </div>
                     @endif
                     <div class="col-12 col-md-6 col-xl-3">
-                        <span class="text-muted">{{ __('messages.sale_price') }}</span>
+                        <span class="">{{ __('messages.sale_price') }}</span>
                         <div class="fw-semibold">{{ $money($product->sale_price) }}</div>
                     </div>
                     <div class="col-12">
-                        <span class="text-muted">{{ __('messages.description') }}</span>
+                        <span class="">{{ __('messages.description') }}</span>
                         <div>{{ $product->description ?: '-' }}</div>
                     </div>
                 </div>
