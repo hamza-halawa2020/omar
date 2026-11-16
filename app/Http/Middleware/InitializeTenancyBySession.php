@@ -33,6 +33,9 @@ class InitializeTenancyBySession
             return redirect()->route('login');
         }
 
+        // Never trust a session tenant belonging to a different authenticated user.
+        abort_unless((string) Auth::guard('web')->user()?->tenant_id === (string) $tenantId, 403);
+
         $tenant = Tenant::on('central')->find($tenantId);
 
         if (! $tenant) {

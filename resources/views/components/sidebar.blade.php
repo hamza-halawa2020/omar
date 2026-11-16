@@ -17,6 +17,10 @@
     <div class="sidebar-menu-area">
         <ul class="sidebar-menu" id="sidebar-menu">
 
+            @if(tenant()?->isUmrah())
+                <li><a href="{{ route('umrah.index') }}"><iconify-icon icon="mdi:airplane" class="menu-icon"></iconify-icon><span>{{ __('umrah.umrah_management') }}</span></a></li>
+            @endif
+
             
             @can('transactions_index')
                 <li>

@@ -4,8 +4,10 @@ namespace App\Services;
 
 use App\Models\Tenant;
 use App\Models\User;
+use App\Support\UmrahTenantContext;
 use Database\Seeders\PermissionSeeder;
 use Database\Seeders\RolesSeeder;
+use Database\Seeders\UmrahPermissionSeeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -16,25 +18,33 @@ class AdminTenantService
      * Create a new tenant and run migrations on its database.
      * Requirements: 3.1, 3.2
      */
-    public function createTenant(string $name, string $domain): Tenant
+    public function createTenant(string $name, string $domain, string $companyType = 'general'): Tenant
     {
+        if (! in_array($companyType, ['general', 'umrah'], true)) {
+            throw new \InvalidArgumentException('Invalid company type.');
+        }
         $id = str_replace('-', '', Str::uuid()->toString());
 
         try {
             $tenant = Tenant::create([
-                'id'     => $id,
-                'name'   => $name,
+                'id' => $id,
+                'name' => $name,
                 'domain' => $domain,
+                'company_type' => $companyType,
             ]);
 
-            $tenant->run(function () {
-                app(PermissionSeeder::class)->run();
-                app(RolesSeeder::class)->run();
+            UmrahTenantContext::run($tenant, function () use ($tenant) {
+                if ($tenant->isUmrah()) {
+                    app(UmrahPermissionSeeder::class)->run();
+                } else {
+                    app(PermissionSeeder::class)->run();
+                    app(RolesSeeder::class)->run();
+                }
             });
 
             return $tenant;
         } catch (\Throwable $e) {
-            Log::error('Tenant provisioning failed for tenant ' . $id . ': ' . $e->getMessage());
+            Log::error('Tenant provisioning failed for tenant '.$id.': '.$e->getMessage());
 
             $tenant = Tenant::find($id);
             if ($tenant) {

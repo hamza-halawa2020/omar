@@ -1,9 +1,10 @@
 <?php
 
-use App\Http\Controllers\Admin\AdminLoginController;
 use App\Http\Controllers\Admin\AdminDashboardController;
-use App\Http\Controllers\Admin\AdminTenantController;
+use App\Http\Controllers\Admin\AdminLoginController;
 use App\Http\Controllers\Admin\AdminRoleController;
+use App\Http\Controllers\Admin\AdminTenantController;
+use App\Http\Controllers\Admin\AdminUmrahController;
 use App\Http\Controllers\Admin\AdminUserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -30,6 +31,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/logout', [AdminLoginController::class, 'logout'])->name('logout');
 
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+        Route::get('/tenants/{tenant}/umrah', [AdminUmrahController::class, 'edit'])->name('tenants.umrah.edit');
+        Route::put('/tenants/{tenant}/umrah/users/{user}', [AdminUmrahController::class, 'user'])->name('tenants.umrah.user');
 
         // Tenant management
         Route::get('/tenants/create', [AdminTenantController::class, 'create'])->name('tenants.create');

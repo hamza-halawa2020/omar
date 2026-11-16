@@ -56,6 +56,14 @@
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
+                            <label class="form-label" for="company-type">{{ __('umrah.company_type') }}</label>
+                            <select id="company-type" name="company_type" class="form-select" required>
+                                <option value="">{{ __('umrah.choose_company_type') }}</option>
+                                <option value="general">{{ __('umrah.company_general_option') }}</option>
+                                <option value="umrah">{{ __('umrah.company_umrah_option_all') }}</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
                             <label class="form-label">Name</label>
                             <input type="text" name="name" class="form-control" required>
                         </div>

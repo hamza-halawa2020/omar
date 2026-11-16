@@ -21,6 +21,17 @@
                 @csrf
 
                 <div class="mb-3">
+                    <label class="form-label fw-semibold" for="company-type">{{ __('umrah.company_type') }}</label>
+                    <select id="company-type" name="company_type" class="form-select @error('company_type') is-invalid @enderror" required>
+                        <option value="" disabled @selected(!old('company_type'))>{{ __('umrah.choose_company_type') }}</option>
+                        <option value="general" @selected(old('company_type') === 'general')>{{ __('umrah.company_general_option') }}</option>
+                        <option value="umrah" @selected(old('company_type') === 'umrah')>{{ __('umrah.company_umrah_option') }}</option>
+                    </select>
+                    <small class="text-muted">{{ __('umrah.company_type_help') }}</small>
+                    @error('company_type')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
+
+                <div class="mb-3">
                     <label class="form-label fw-semibold">{{ __('messages.admin.company_name') }}</label>
                     <input type="text" name="name" class="form-control @error('name') is-invalid @enderror"
                            value="{{ old('name') }}" required>

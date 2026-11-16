@@ -27,7 +27,7 @@ Route::prefix('dashboard/tenants')->middleware(['auth.admin'])->group(function (
     Route::delete('/{id}', [TenantController::class, 'destroy'])->name('tenants.destroy');
 });
 
-Route::prefix('dashboard')->middleware(['auth.or_impersonate', 'tenancy'])->group(function () {
+Route::prefix('dashboard')->middleware(['auth.or_impersonate', 'tenancy', 'company.module'])->group(function () {
 
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
@@ -120,3 +120,5 @@ Route::prefix('dashboard')->middleware(['auth.or_impersonate', 'tenancy'])->grou
     Route::post('associations/{id}/pay-member', [AssociationController::class, 'payMember'])->name('associations.payMember');
 
 });
+
+require __DIR__.'/umrah.php';

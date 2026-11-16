@@ -26,8 +26,9 @@ class LoginService
             }
 
             session(['tenant_id' => $tenant->id]);
+            tenancy()->initialize($tenant);
 
-            return redirect()->route('dashboard.index');
+            return redirect()->route($user->umrahHomeRoute());
         }
 
         return view('dashboard.auth.login');
@@ -43,6 +44,7 @@ class LoginService
             if ($request->wantsJson()) {
                 return response()->json(['status' => false, 'message' => __('messages.invalid_credentials')], 401);
             }
+
             return back()->withErrors(['login' => __('messages.invalid_credentials')])->withInput();
         }
 
@@ -85,7 +87,9 @@ class LoginService
 
         // CreateBackup::dispatchAfterResponse();
 
-        return redirect()->intended('/dashboard');
+        $request->session()->forget('url.intended');
+
+        return redirect()->route($user->umrahHomeRoute());
     }
 
     public function logout(Request $request)

@@ -24,6 +24,11 @@ class PermissionSeeder extends Seeder
 
     private function seedTenantPermissions(): void
     {
+        if (tenant()?->isUmrah()) {
+            $this->call(UmrahPermissionSeeder::class);
+
+            return;
+        }
         $permissions = [
             'dashboard_index',
             'dashboard_analytics',
@@ -93,7 +98,7 @@ class PermissionSeeder extends Seeder
             'associations_destroy',
             'associations_details',
 
-            'clients_merchants'
+            'clients_merchants',
 
         ];
 
@@ -106,6 +111,6 @@ class PermissionSeeder extends Seeder
         }
 
         $superAdminRole = Role::firstOrCreate(['name' => 'Super admin', 'guard_name' => 'web']);
-        $superAdminRole->syncPermissions(Permission::all());
+        $superAdminRole->syncPermissions(Permission::all()->filter(fn ($permission) => ! str_starts_with($permission->name, 'umrah_')));
     }
 }

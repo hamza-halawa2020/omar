@@ -17,8 +17,8 @@ class AdminRoleController extends Controller
     {
         try {
             tenancy()->initialize($tenant);
-            $roles       = Role::with('permissions')->get();
-            $permissions = Permission::all();
+            $roles = Role::with('permissions')->get();
+            $permissions = Permission::all()->filter(fn ($permission) => $tenant->allowsPermission($permission->name));
         } finally {
             tenancy()->end();
         }
@@ -44,7 +44,7 @@ class AdminRoleController extends Controller
 
         return redirect()
             ->route('admin.tenants.roles.index', $tenant)
-            ->with('success', 'تم إنشاء الدور بنجاح.');
+            ->with('success', __('umrah.admin_role_created'));
     }
 
     /**
@@ -63,7 +63,7 @@ class AdminRoleController extends Controller
 
         return redirect()
             ->route('admin.tenants.roles.index', $tenant)
-            ->with('success', 'تم حذف الدور بنجاح.');
+            ->with('success', __('umrah.admin_role_deleted'));
     }
 
     /**
@@ -72,13 +72,14 @@ class AdminRoleController extends Controller
     public function syncPermissions(Request $request, Tenant $tenant, int $roleId)
     {
         $request->validate([
-            'permissions'   => ['nullable', 'array'],
+            'permissions' => ['nullable', 'array'],
             'permissions.*' => ['string'],
         ]);
 
         try {
             tenancy()->initialize($tenant);
             $role = Role::findById($roleId);
+            abort_unless(collect($request->input('permissions', []))->every(fn ($name) => $tenant->allowsPermission($name)), 422, __('umrah.error_company_permissions'));
             $role->syncPermissions($request->input('permissions', []));
         } finally {
             tenancy()->end();
@@ -86,6 +87,6 @@ class AdminRoleController extends Controller
 
         return redirect()
             ->route('admin.tenants.roles.index', $tenant)
-            ->with('success', 'تم تحديث الصلاحيات بنجاح.');
+            ->with('success', __('umrah.admin_permissions_saved'));
     }
 }

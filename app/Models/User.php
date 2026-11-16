@@ -184,12 +184,18 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_active' => 'boolean',
+            'umrah_only' => 'boolean',
         ];
     }
 
     public function tenant()
     {
         return $this->belongsTo(Tenant::class);
+    }
+
+    public function umrahHomeRoute(): string
+    {
+        return tenant()?->isUmrah() ? 'umrah.index' : 'dashboard.index';
     }
 
     public function products()

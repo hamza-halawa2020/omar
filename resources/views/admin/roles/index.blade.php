@@ -21,7 +21,7 @@
         <div class="col-md-6 col-lg-4">
             <div class="admin-panel h-100 p-3">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <span class="fw-semibold">{{ $role->name }}</span>
+                    <span class="fw-semibold">{{ \Illuminate\Support\Facades\Lang::has('umrah.role_'.$role->name) ? __('umrah.role_'.$role->name) : $role->name }}</span>
                     <form action="{{ route('admin.tenants.roles.destroy', [$tenant, $role->id]) }}" method="POST"
                           class="js-confirm-form"
                           data-confirm-message="{{ __('messages.admin.confirm_delete_role') }}">

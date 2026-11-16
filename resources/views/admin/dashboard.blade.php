@@ -99,6 +99,7 @@
                         <td>{{ $tenant->created_at->format('Y-m-d') }}</td>
                         <td>
                             <div class="d-flex gap-2 justify-content-center">
+                                @if($tenant->isUmrah())<a href="{{ route('admin.tenants.umrah.edit', $tenant) }}" class="btn btn-outline-success btn-sm" title="{{ __('umrah.umrah_staff_title') }}">{{ __('umrah.company_umrah') }}</a>@else<span class="badge bg-secondary">{{ __('umrah.company_general') }}</span>@endif
                                 <a href="{{ route('admin.tenants.roles.index', $tenant) }}"
                                    class="btn btn-outline-primary btn-sm admin-icon-btn" title="{{ __('messages.admin.roles') }}">
                                     <iconify-icon icon="solar:shield-keyhole-outline"></iconify-icon>

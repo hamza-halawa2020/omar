@@ -13,14 +13,16 @@ class TenantController extends Controller
     public function index()
     {
         $tenants = $this->tenantService->list();
+
         return view('dashboard.tenants.index', compact('tenants'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name'   => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'domain' => 'required|string|unique:tenants,domain',
+            'company_type' => 'required|in:general,umrah',
         ]);
 
         $this->tenantService->create($validated);

@@ -1,6 +1,15 @@
 <?php
 
 return [
+    'umrah_access' => 'Access Umrah',
+    'umrah_trips_manage' => 'Manage Umrah trips, programs and prices',
+    'umrah_bookings_manage' => 'Manage Umrah travelers and bookings',
+    'umrah_payments_collect' => 'Collect Umrah payments',
+    'umrah_payments_confirm' => 'Review Umrah payments',
+    'umrah_refunds_approve' => 'Approve Umrah settlements, refunds and program changes',
+    'umrah_passports_view' => 'View Umrah passports and documents',
+    'umrah_procedures_manage' => 'Manage Umrah procedures and notifications',
+    'umrah_reports_view' => 'View Umrah reports',
     'create_category' => 'Create Category',
     'name' => 'Name',
     'parent' => 'Parent Category',

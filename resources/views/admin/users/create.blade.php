@@ -49,7 +49,7 @@
                     <option value="">{{ __('messages.admin.no_role') }}</option>
                     @foreach ($roles as $role)
                         <option value="{{ $role->name }}" {{ old('role') == $role->name ? 'selected' : '' }}>
-                            {{ $role->name }}
+                            {{ \Illuminate\Support\Facades\Lang::has('umrah.role_'.$role->name) ? __('umrah.role_'.$role->name) : $role->name }}
                         </option>
                     @endforeach
                 </select>

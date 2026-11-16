@@ -1,6 +1,6 @@
 <!-- meta tags and other links -->
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" data-theme="light">
+<html lang="{{ app()->getLocale() }}" dir="{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}" data-theme="light">
 
 <x-head />
 
@@ -20,7 +20,11 @@
         </div>
     @endif
 
-    <x-sidebar />
+    @if(request()->routeIs('umrah.*'))
+        @include('dashboard.umrah.sidebar')
+    @else
+        <x-sidebar />
+    @endif
 
     <main class="dashboard-main">
         <x-navbar />

@@ -5,10 +5,14 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant;
 use App\Models\User;
+use App\Support\UmrahTenantContext;
+use Database\Seeders\UmrahPermissionSeeder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
+use Spatie\Permission\Models\Role;
 
 class AdminUserController extends Controller
 {
@@ -42,6 +46,8 @@ class AdminUserController extends Controller
             'role' => ['nullable', 'string'],
             'is_active' => ['nullable', 'boolean'],
         ]);
+
+        $this->validateCompanyRole($tenant, $request->input('role'));
 
         $user = User::on('central')->create([
             'name' => $request->name,
@@ -91,6 +97,8 @@ class AdminUserController extends Controller
             'role' => ['nullable', 'string'],
             'is_active' => ['nullable', 'boolean'],
         ]);
+
+        $this->validateCompanyRole($tenant, $request->input('role'));
 
         $user->forceFill([
             'name' => $validated['name'],
@@ -169,11 +177,16 @@ class AdminUserController extends Controller
             return collect();
         }
 
-        return DB::connection('tenant')
-            ->table(config('permission.table_names.roles'))
-            ->select(['id', 'name'])
-            ->orderBy('name')
-            ->get();
+        return Role::with('permissions')->where('guard_name', 'web')->orderBy('name')->get()
+            ->filter(fn ($role) => (tenant()->isUmrah() || ! in_array($role->name, UmrahPermissionSeeder::ROLE_NAMES, true))
+                && $role->permissions->every(fn ($permission) => tenant()->allowsPermission($permission->name)));
+    }
+
+    private function validateCompanyRole(Tenant $tenant, ?string $role): void
+    {
+        if ($role && ! UmrahTenantContext::run($tenant, fn () => $this->tenantRoles()->contains('name', $role))) {
+            throw ValidationException::withMessages(['role' => __('umrah.error_company_role')]);
+        }
     }
 
     private function currentTenantRoleName(User $user): ?string

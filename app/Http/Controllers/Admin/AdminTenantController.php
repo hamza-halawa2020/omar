@@ -17,6 +17,7 @@ class AdminTenantController extends Controller
     public function index()
     {
         $tenants = Tenant::latest()->get();
+
         return view('admin.tenants.index', compact('tenants'));
     }
 
@@ -34,18 +35,20 @@ class AdminTenantController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'   => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
             'domain' => ['required', 'string', 'max:255', 'unique:central.tenants,domain'],
+            'company_type' => ['required', 'in:general,umrah'],
         ]);
 
         try {
-            $this->service->createTenant($request->name, $request->domain);
+            $this->service->createTenant($request->name, $request->domain, $request->company_type);
+
             return redirect()->route('admin.dashboard')
-                ->with('success', 'تم إنشاء الـ tenant بنجاح.');
+                ->with('success', __('umrah.admin_company_created'));
         } catch (\Throwable $e) {
             return back()
                 ->withInput()
-                ->with('error', 'فشل إنشاء الـ tenant: ' . $e->getMessage());
+                ->with('error', __('umrah.admin_company_create_failed').$e->getMessage());
         }
     }
 
@@ -56,10 +59,11 @@ class AdminTenantController extends Controller
     {
         try {
             $this->service->deleteTenant($tenant);
+
             return redirect()->route('admin.dashboard')
-                ->with('success', 'تم حذف الـ tenant بنجاح.');
+                ->with('success', __('umrah.admin_company_deleted'));
         } catch (\Throwable $e) {
-            return back()->with('error', 'فشل حذف الـ tenant: ' . $e->getMessage());
+            return back()->with('error', __('umrah.admin_company_delete_failed').$e->getMessage());
         }
     }
 }

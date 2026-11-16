@@ -6,9 +6,9 @@ use App\Http\Requests\Client\StoreClientRequest;
 use App\Http\Requests\Client\UpdateClientRequest;
 use App\Http\Resources\ClientResource;
 use App\Services\ClientService;
+use App\Services\PhoneNumberService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
-use libphonenumber\PhoneNumberUtil;
 
 class ClientController extends BaseController
 {
@@ -183,26 +183,6 @@ class ClientController extends BaseController
 
     private function countryCodeOptions(): array
     {
-        $phoneUtil = PhoneNumberUtil::getInstance();
-        $options = [];
-
-        $hiddenRegions = ['IL'];
-
-        foreach ($phoneUtil->getSupportedRegions() as $region) {
-            if (in_array($region, $hiddenRegions, true)) {
-                continue;
-            }
-
-            $code = '+'.$phoneUtil->getCountryCodeForRegion($region);
-            $options[] = [
-                'region' => $region,
-                'code' => $code,
-                'label' => "{$code} ({$region})",
-            ];
-        }
-
-        usort($options, fn (array $a, array $b) => [$a['code'], $a['region']] <=> [$b['code'], $b['region']]);
-
-        return $options;
+        return app(PhoneNumberService::class)->countryCodeOptions();
     }
 }
