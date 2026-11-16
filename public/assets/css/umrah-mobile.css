@@ -308,6 +308,16 @@ body.umrah-editing .umrah-mobile-nav {
 }
 
 /* ----------------------------------------------------------
+   11b. Hide the dashboard footer on umrah pages (mobile nav
+        replaces it; on desktop the footer stays visible)
+   ---------------------------------------------------------- */
+@media (max-width: 767px) {
+    body.umrah-page .d-footer {
+        display: none !important;
+    }
+}
+
+/* ----------------------------------------------------------
    12. Print — hide nav chrome
    ---------------------------------------------------------- */
 @media print {
