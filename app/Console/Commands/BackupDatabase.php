@@ -11,7 +11,6 @@ class BackupDatabase extends Command
 
     public function handle()
     {
-        $this->call('backup:run', ['--only-db' => true]);
-        return 0;
+        return $this->call('backup:run', ['--only-db' => true]);
     }
 }
